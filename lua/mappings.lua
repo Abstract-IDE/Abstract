@@ -81,6 +81,9 @@ keymap('v', '>',   '>gv', { noremap=true, silent=true })
             -- you will need this if you use floaterm to escape terminal
 cmd([[ tmap <Esc> <c-\><c-n> ]])
 
+-- move selected line(s) up or down
+keymap('v', 'J', ":m '>+1<CR>gv=gv", {noremap=true, silent=true})
+keymap('v', 'K', ":m '<-2<CR>gv=gv", {noremap=true, silent=true})
 
 
 --━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━--
