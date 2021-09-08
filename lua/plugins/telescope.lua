@@ -80,12 +80,14 @@ require('telescope').load_extension('fzf')
 --  for example, nvim ~/downloads  opens directory in Telescope
 --  taken from https://github.com/nvim-telescope/telescope.nvim/issues/892#issuecomment-855348423
 vim.api.nvim_command[[
-augroup ReplaceNetrw
-    autocmd VimEnter * silent! autocmd! FileExplorer
-    autocmd StdinReadPre * let s:std_in=1
-    autocmd VimEnter * if argc() == 1 && isdirectory(argv()[0]) && !exists("s:std_in") | call luaeval("require('telescope.builtin').file_browser({cwd = _A})", argv()[0]) | endif
-augroup END
+  augroup ReplaceNetrw
+      autocmd VimEnter * silent! autocmd! FileExplorer
+      autocmd StdinReadPre * let s:std_in=1
+      autocmd VimEnter * if argc() == 1 && isdirectory(argv()[0]) && !exists("s:std_in") | call luaeval("require('telescope.builtin').file_browser({cwd = _A})", argv()[0]) | endif
+  augroup END
 ]]
+
+vim.api.nvim_command("autocmd FileType clap_input call compe#setup({ 'enabled': v:false }, 0)")
 
 --━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━--
 --━━━━━━━━━━━━━━━━━❰ end configs ❱━━━━━━━━━━━━━━━━━--
