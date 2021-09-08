@@ -133,7 +133,9 @@ local function setup_servers(servers)
   for _, server in pairs(servers) do
     require'lspconfig'[server].setup{
       on_attach = on_attach,
-      flags = { debounce_text_changes = 150, }
+      flags = {
+        debounce_text_changes = 150,
+      }
     }
   end
 end
