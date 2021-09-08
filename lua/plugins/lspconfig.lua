@@ -139,10 +139,13 @@ local function setup_servers(servers)
 end
 
 local servers = {
-  "cpp",        -- for C/C++
-  "python",     -- for Python
-  "rust",       -- for Rust
-  "json",       -- for Json
+  "cpp",            -- for C/C++
+  "python",         -- for Python
+  "rust",           -- for Rust
+  "json",           -- for Json
+  "html",           -- for html
+  "diagnosticls",   -- for diagnosticls
+
 }
 
 require'lspinstall'.setup()
