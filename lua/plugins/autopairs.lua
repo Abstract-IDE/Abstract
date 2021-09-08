@@ -21,24 +21,55 @@ require('nvim-autopairs').setup({
 
 })
 
--- nvim-compe, because i'm using nvim-compe plugin for auto complete
-require("nvim-autopairs.completion.compe").setup({
-  map_cr = true,        --  map <CR> on insert mode
-  map_complete = true   -- it will auto insert `(` after select function or method item
+-- nvim-cmp, because i'm using nvim-cmp plugin for auto complete
+-- you need setup cmp first put this after cmp.setup()
+require("nvim-autopairs.completion.cmp").setup({
+  map_cr = true, --  map <CR> on insert mode
+  map_complete = true, -- it will auto insert `(` after select function or method item
+  auto_select = true -- automatically select the first item
 })
 
---          -->RULES
+
 local Rule = require('nvim-autopairs.rule')
 local npairs = require('nvim-autopairs')
 
+npairs.add_rules {
+
 -- before   insert  after
 --  (|)     ( |)	( | )
-npairs.add_rules({
-Rule(' ', ' '):with_pair(function (opts)
-  local pair = opts.line:sub(opts.col, opts.col+1)
-  return vim.tbl_contains({'()', '[]', '{}'}, pair)
-end)
-})
+  Rule(' ', ' ')
+    :with_pair(function (opts)
+      local pair = opts.line:sub(opts.col - 1, opts.col)
+      return vim.tbl_contains({ '()', '[]', '{}' }, pair)
+    end),
+  Rule('( ', ' )')
+      :with_pair(function() return false end)
+      :with_move(function(opts)
+          return opts.prev_char:match('.%)') ~= nil
+      end)
+      :use_key(')'),
+  Rule('{ ', ' }')
+      :with_pair(function() return false end)
+      :with_move(function(opts)
+          return opts.prev_char:match('.%}') ~= nil
+      end)
+      :use_key('}'),
+  Rule('[ ', ' ]')
+      :with_pair(function() return false end)
+      :with_move(function(opts)
+          return opts.prev_char:match('.%]') ~= nil
+      end)
+      :use_key(']'),
+  --[===[
+  arrow key on javascript
+      Before 	Insert    After
+      (item)= 	> 	    (item)=> { }
+  --]===]
+  Rule('%(.*%)%s*%=>$', ' {  }', { 'typescript', 'typescriptreact', 'javascript' })
+    :use_regex(true)
+    :set_end_pair_length(2),
+
+}
 
 --━━━━━━━━━━━━━━━━━❰ end Configs ❱━━━━━━━━━━━━━━━━━--
 --━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━--
