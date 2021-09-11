@@ -90,8 +90,6 @@ return require('packer').startup(function()
         config = [[ require('plugins/lspstatus') ]]
   }
 
-
-
   use {
         'kabouzeid/nvim-lspinstall',
         config = [[ require('plugins/lspinstall') ]]
@@ -209,6 +207,15 @@ return require('packer').startup(function()
         config = [[ require('plugins/tree_nvim') ]]
   }
 
+  use { -- A minimal, stylish and customizable statusline for Neovim written in Lua
+        'Famiu/feline.nvim',
+        config = [[ require('plugins/feline_nvim') ]]
+  }
+
+  use { -- No-nonsense floating terminal plugin for neovim
+        "numtostr/FTerm.nvim",
+        config = [[ require('plugins/fterm_nvim') ]]
+  }
 
 
 --━━━━━━━━━━━━━❰ end currently Using ❱━━━━━━━━━━━━━━━--

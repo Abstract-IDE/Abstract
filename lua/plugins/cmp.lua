@@ -44,15 +44,14 @@ cmp.setup({
 
 ----------------------------
 -- Require function for tab to work with LUA-SNIP
-local check_back_space = function()
-  local col = vim.fn.col '.' - 1
-  return col == 0 or vim.fn.getline('.'):sub(col, col):match '%s' ~= nil
+local has_words_before = function()
+  local line, col = unpack(vim.api.nvim_win_get_cursor(0))
+  return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match('%s') == nil
 end
-local luasnip = require("luasnip")
-
 local t = function(str)
     return vim.api.nvim_replace_termcodes(str, true, true, true)
 end
+local luasnip = require('luasnip')
 ----------------------------
 
 
@@ -66,19 +65,19 @@ cmp.setup({
               behavior = cmp.ConfirmBehavior.Replace,
               select  = true,
     }),
-    ["<Tab>"] = cmp.mapping(function(fallback)
+
+    ['<Tab>'] = cmp.mapping(function(fallback)
               if vim.fn.pumvisible() == 1 then
-                vim.fn.feedkeys(t("<C-n>"), "n")
-              elseif luasnip.expand_or_jumpable() then
-                vim.fn.feedkeys(t("<Plug>luasnip-expand-or-jump"), "")
-              elseif check_back_space() then
-                vim.fn.feedkeys(t("<Tab>"), "n")
+                vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<C-n>', true, true, true), 'n', true)
+              elseif has_words_before() and luasnip.expand_or_jumpable() then
+                vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<Plug>luasnip-expand-or-jump', true, true, true), '', true)
               else
-                fallback()
+                fallback() -- The fallback function sends a already mapped key. In this case, it's probably `<Tab>`.
               end
             end,
-            { "i", "s", }
+            { 'i', 's' }
     ),
+
     ["<S-Tab>"] = cmp.mapping(function(fallback)
               if vim.fn.pumvisible() == 1 then
                 vim.fn.feedkeys(t("<C-p>"), "n")

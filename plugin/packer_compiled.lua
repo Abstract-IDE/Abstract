@@ -69,6 +69,11 @@ end
 time([[try_loadstring definition]], false)
 time([[Defining packer_plugins]], true)
 _G.packer_plugins = {
+  ["FTerm.nvim"] = {
+    config = { " require('plugins/fterm_nvim') " },
+    loaded = true,
+    path = "/home/lazy/.local/share/nvim/site/pack/packer/start/FTerm.nvim"
+  },
   LuaSnip = {
     config = { " require('plugins/luasnip') " },
     loaded = true,
@@ -98,6 +103,11 @@ _G.packer_plugins = {
     config = { " require('plugins/dart_vim_plugin') " },
     loaded = true,
     path = "/home/lazy/.local/share/nvim/site/pack/packer/start/dart-vim-plugin"
+  },
+  ["feline.nvim"] = {
+    config = { " require('plugins/feline_nvim') " },
+    loaded = true,
+    path = "/home/lazy/.local/share/nvim/site/pack/packer/start/feline.nvim"
   },
   ["flutter-tools.nvim"] = {
     config = { " require('plugins/fluttertools') " },
@@ -230,10 +240,10 @@ time([[Config for surround.nvim]], false)
 time([[Config for nvim-lspconfig]], true)
  require('plugins/lspconfig') 
 time([[Config for nvim-lspconfig]], false)
--- Config for: nvim-cmp
-time([[Config for nvim-cmp]], true)
- require('plugins/cmp') 
-time([[Config for nvim-cmp]], false)
+-- Config for: vim-floaterm
+time([[Config for vim-floaterm]], true)
+ require('plugins/floaterm') 
+time([[Config for vim-floaterm]], false)
 -- Config for: indentLine
 time([[Config for indentLine]], true)
  require('plugins/indentLine') 
@@ -270,14 +280,22 @@ time([[Config for telescope.nvim]], false)
 time([[Config for vim-maximizer]], true)
  require('plugins/maximizer') 
 time([[Config for vim-maximizer]], false)
--- Config for: nvim-colorizer.lua
-time([[Config for nvim-colorizer.lua]], true)
- require('plugins/colorizer') 
-time([[Config for nvim-colorizer.lua]], false)
+-- Config for: nvim-web-devicons
+time([[Config for nvim-web-devicons]], true)
+ require('plugins/webdevicons_nvim') 
+time([[Config for nvim-web-devicons]], false)
+-- Config for: nvim-cmp
+time([[Config for nvim-cmp]], true)
+ require('plugins/cmp') 
+time([[Config for nvim-cmp]], false)
 -- Config for: lsp-status.nvim
 time([[Config for lsp-status.nvim]], true)
  require('plugins/lspstatus') 
 time([[Config for lsp-status.nvim]], false)
+-- Config for: nvim-colorizer.lua
+time([[Config for nvim-colorizer.lua]], true)
+ require('plugins/colorizer') 
+time([[Config for nvim-colorizer.lua]], false)
 -- Config for: lspkind-nvim
 time([[Config for lspkind-nvim]], true)
  require('plugins/lspkind') 
@@ -290,22 +308,22 @@ time([[Config for rooter.nvim]], false)
 time([[Config for gitsigns.nvim]], true)
  require('plugins/gitsigns_nvim') 
 time([[Config for gitsigns.nvim]], false)
--- Config for: nvim-tree.lua
-time([[Config for nvim-tree.lua]], true)
- require('plugins/tree_nvim') 
-time([[Config for nvim-tree.lua]], false)
--- Config for: nvim-web-devicons
-time([[Config for nvim-web-devicons]], true)
- require('plugins/webdevicons_nvim') 
-time([[Config for nvim-web-devicons]], false)
--- Config for: vim-floaterm
-time([[Config for vim-floaterm]], true)
- require('plugins/floaterm') 
-time([[Config for vim-floaterm]], false)
 -- Config for: LuaSnip
 time([[Config for LuaSnip]], true)
  require('plugins/luasnip') 
 time([[Config for LuaSnip]], false)
+-- Config for: nvim-tree.lua
+time([[Config for nvim-tree.lua]], true)
+ require('plugins/tree_nvim') 
+time([[Config for nvim-tree.lua]], false)
+-- Config for: feline.nvim
+time([[Config for feline.nvim]], true)
+ require('plugins/feline_nvim') 
+time([[Config for feline.nvim]], false)
+-- Config for: FTerm.nvim
+time([[Config for FTerm.nvim]], true)
+ require('plugins/fterm_nvim') 
+time([[Config for FTerm.nvim]], false)
 -- Config for: nvim-lspinstall
 time([[Config for nvim-lspinstall]], true)
  require('plugins/lspinstall') 

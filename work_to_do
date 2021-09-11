@@ -1,3 +1,1 @@
 custom snips setup using luasnip
-fix background color of directory in nvim-tree.lua
-fix tab to work in telescope

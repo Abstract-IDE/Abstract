@@ -303,10 +303,22 @@ call s:h("TabLineSel",    s:fg,       "",   "")
 " FILE NAVIGATION / SEARCHING
 " ― ― ― ― ― ― ― ― ―
 " {
-call s:h("Directory",   s:bg,   s:blue,     "")
+"call s:h("Directory",   s:bg,   s:blue,     "")
 call s:h("IncSearch",   s:bg,   s:orange,   "")
 call s:h("Search",      s:bg,   s:orange,   "")
 " }
+
+
+" ― ― ― ― ― ― ― ― ―
+" nvim-tree
+" ― ― ― ― ― ― ― ― ―
+" {
+"autocmd ColorScheme * highlight NvimTreeBg guibg=#2B4252
+"autocmd FileType NvimTree setlocal winhighlight=Normal:NvimTreeBg
+" background color
+autocmd Colorscheme * highlight NvimTreeNormal guibg=#21252B
+" }
+
 
 
 " ― ― ― ― ― ― ― ― ―

@@ -146,7 +146,12 @@ local servers = {
   "rust",           -- for Rust
   "json",           -- for Json
   "html",           -- for html
+  "css",            -- for css
+  "bash",           -- for bash
+  --"typescript",     -- for typescript / javascript
+  "deno",           -- for Deno, TypeScript/JavaScript
   "diagnosticls",   -- for diagnosticls
+  "cmake",          -- for cmake
 
 }
 
