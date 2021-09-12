@@ -119,9 +119,9 @@ keymap('n', "<C-b>", "<cmd>lua require('telescope.builtin').buffers() <CR>", {si
 -- to change settings related to working directory, refer to rooter_nvim.lua config file
 
 -- Find files from current file's project
-keymap('n', "<C-f>", ":Telescope find_files <cr>", {silent=true, noremap=true})
+keymap('n', "<C-p>", ":Telescope find_files <cr>", {silent=true, noremap=true})
 -- show all files from current working directory
-keymap('n', "<C-p>", "<cmd>lua require('telescope.builtin').find_files( { cwd = vim.fn.expand('%:p:h') }) <CR>", {silent=true, noremap=true})
+keymap('n', "<C-f>", "<cmd>lua require('telescope.builtin').find_files( { cwd = vim.fn.expand('%:p:h') }) <CR>", {silent=true, noremap=true})
 
 
 

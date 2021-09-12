@@ -84,7 +84,7 @@ function diagnostics_m()
 end
 
  -- Lsp server name .
-function lspservername()
+local function lspservername()
     local msg = ''
     local buf_ft = vim.api.nvim_buf_get_option(0, 'filetype')
     local clients = vim.lsp.get_active_clients()
