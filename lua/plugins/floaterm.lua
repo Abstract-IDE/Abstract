@@ -73,9 +73,12 @@ keymap('n', 'tq',':FloatermKill<CR>',   { noremap=true, silent=true })
 -- compile, run or compile and run program.
 -- it depends on python script, https://github.com/shaeinst/lazy-builder. visit to know more.
 
-local run      = ":w <CR> :FloatermNew python ~/.config/nvim/extra/tools/lazy-builder/build.py -o ~/.cache/build_files/ -r 1 % <CR>"
-local build    = ":w <CR> :FloatermNew time python ~/.config/nvim/extra/tools/lazy-builder/build.py -o ~/.cache/build_files/ -b 1 % <CR>"
-local buildrun = ":w <CR> :FloatermNew time python ~/.config/nvim/extra/tools/lazy-builder/build.py -o ~/.cache/build_files/ -br 1 % <CR>"
+local lazy_builder_py = "~/.local/share/nvim/custom_tools/lazy-builder/build.py"
+local build_path = "~/.cache/build_files"
+
+local run       = ":w <CR> :FloatermNew python "..lazy_builder_py.." -o "..build_path.." -r 1 % <CR>"
+local build     = ":w <CR> :FloatermNew time python "..lazy_builder_py.." -o "..build_path.." -b 1 % <CR>"
+local buildrun  = ":w <CR> :FloatermNew time python "..lazy_builder_py.." -o "..build_path.." -br 1 % <CR>"
 keymap('n', '<Leader>r', run,       { noremap=true, silent=true }) -- Run
 keymap('n', '<Leader>o', build,     { noremap=true, silent=true }) -- build
 keymap('n', '<Leader>O', buildrun,  { noremap=true, silent=true }) -- build and run
