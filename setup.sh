@@ -1,10 +1,13 @@
 #! /usr/bin/sh
 
 cache="$HOME/.cache"
+config="$HOME/.config"
 cache_build_path="$cache/build_files"
 nvim_plug_path="$HOME/.local/share/nvim"
 nvim_conf_path="$HOME/.config/nvim"
 
+today_date=`date "+%Y-%m-%d"`
+current_dir="$PWD"
 
 
 # create some directories
@@ -49,3 +52,15 @@ if [ ! -d "$nvim_plug_path/custom_tools/lazy-builder" ]; then
 fi
 
 
+# backup neovim config before installing
+if [ -d "$nvim_conf_path" ]; then
+  cd "$config" && mv nvim "nvim_$today_date"
+  cd $current_dir
+fi
+
+# copy the roshnivim to ~/.config/ as nvim
+if [ "$current_dir" != "$nvim_conf_path" ]; then
+  if [ ! -d "$nvim_conf_path" ]; then
+	cp ../roshnivim "$nvim_conf_path" -r
+  fi
+fi
