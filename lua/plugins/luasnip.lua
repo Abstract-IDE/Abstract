@@ -1,3 +1,20 @@
+--━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━--
+--─────────────────────────────────────────────────--
+--   Plugin:    LuaSnip
+--   Github:    github.com/L3MON4D3/LuaSnip
+--─────────────────────────────────────────────────--
+--━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━--
+
+
+
+
+
+--━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━--
+--━━━━━━━━━━━━━━━━━━━❰ configs ❱━━━━━━━━━━━━━━━━━━━--
+--━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━--
+
+
+
 local ls = require("luasnip")
 -- some shorthands...
 local s = ls.snippet
@@ -37,4 +54,10 @@ ls.snippets = {
 --require("luasnip/loaders/from_vscode").load({ paths = { "~/.config/nvim/extra/snippets" } }) -- Load snippets from my-snippets folder
 
 -- You can also use lazy loading so you only get in memory snippets of languages you use
-require("luasnip/loaders/from_vscode").lazy_load( {path="~/.config/nvim/extra/snippets"} ) -- You can pass { path = "./my-snippets/"} as well
+require'luasnip/loaders/from_vscode'.lazy_load({ paths = {"~/.config/nvim/extra/snippets"} })
+
+
+
+--━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━--
+--━━━━━━━━━━━━━━━━━❰ end configs ❱━━━━━━━━━━━━━━━━━--
+--━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━--
