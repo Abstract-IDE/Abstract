@@ -141,6 +141,7 @@ local function setup_servers(servers)
 end
 
 local servers = {
+  "lua",            -- for lua
   "cpp",            -- for C/C++
   "python",         -- for Python
   "rust",           -- for Rust
@@ -148,9 +149,9 @@ local servers = {
   "html",           -- for html
   "css",            -- for css
   "bash",           -- for bash
-  --"typescript",     -- for typescript / javascript
-  "deno",           -- for Deno, TypeScript/JavaScript
-  "diagnosticls",   -- for diagnosticls
+  "typescript",     -- for typescript / javascript
+  --"deno",           -- for Deno, TypeScript/JavaScript
+  --"diagnosticls",   -- for diagnosticls
   "cmake",          -- for cmake
 
 }
