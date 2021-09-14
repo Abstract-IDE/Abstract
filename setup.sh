@@ -11,7 +11,8 @@ current_dir="$PWD"
 
 
 # create some directories
-echo "Creating some directories.."
+echo "setting..."
+echo "Creating required directories.."
 if [ ! -d "$cache/nvim"  ]; then
   mkdir -p "$cache/nvim" && echo "$cache/nvim"
 fi
@@ -61,6 +62,7 @@ fi
 # copy the roshnivim to ~/.config/ as nvim
 if [ "$current_dir" != "$nvim_conf_path" ]; then
   if [ ! -d "$nvim_conf_path" ]; then
-	cp ../roshnivim "$nvim_conf_path" -r
+	cp ../roshnivim "$nvim_conf_path" -r && nvim +PackerSync
+	echo "setup finished"
   fi
 fi
