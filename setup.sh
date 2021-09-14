@@ -48,7 +48,6 @@ fi
 if [ ! -d "$nvim_plug_path/custom_tools/lazy-builder" ]; then
   echo ""
   cd $nvim_plug_path/custom_tools && git clone https://github.com/shaeinst/lazy-builder
-  cd $nvim_conf_path
   echo ""
 fi
 
@@ -62,6 +61,7 @@ fi
 # copy the roshnivim to ~/.config/ as nvim
 if [ "$current_dir" != "$nvim_conf_path" ]; then
   if [ ! -d "$nvim_conf_path" ]; then
+	cd $current_dir
 	cp ../roshnivim "$nvim_conf_path" -r && nvim +PackerSync
 	echo "setup finished"
   fi
