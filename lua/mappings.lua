@@ -30,7 +30,9 @@ local cmd = vim.cmd
 
 
 -- to quit vim
-keymap('n', '<Leader>q',':q <CR>',      { noremap=true, silent=true })
+cmd([[ autocmd BufEnter * nmap silent <buffer> <Leader>q :bd<CR> ]])
+
+--keymap('n', '<Leader>q',':q <CR>',      { noremap=true, silent=true })
 -- to save file
 keymap('i', '<C-s>',    '<ESC>:w <CR>', { noremap=true, silent=true })
 keymap('n', '<C-s>',    '<ESC>:w <CR>', { noremap=true, silent=true })

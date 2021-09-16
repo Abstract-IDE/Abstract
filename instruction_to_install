@@ -1,2 +1,0 @@
-run install.sh
-install lsp using LspInstall lsp_name. Example: LspInstall python

@@ -118,6 +118,10 @@ _G.packer_plugins = {
     loaded = true,
     path = "/home/lazy/.local/share/nvim/site/pack/packer/start/friendly-snippets"
   },
+  ["github-nvim-theme"] = {
+    loaded = true,
+    path = "/home/lazy/.local/share/nvim/site/pack/packer/start/github-nvim-theme"
+  },
   ["gitsigns.nvim"] = {
     config = { " require('plugins/gitsigns_nvim') " },
     loaded = true,
@@ -284,18 +288,18 @@ time([[Config for vim-maximizer]], false)
 time([[Config for nvim-web-devicons]], true)
  require('plugins/webdevicons_nvim') 
 time([[Config for nvim-web-devicons]], false)
--- Config for: nvim-cmp
-time([[Config for nvim-cmp]], true)
- require('plugins/cmp') 
-time([[Config for nvim-cmp]], false)
+-- Config for: LuaSnip
+time([[Config for LuaSnip]], true)
+ require('plugins/luasnip') 
+time([[Config for LuaSnip]], false)
 -- Config for: lsp-status.nvim
 time([[Config for lsp-status.nvim]], true)
  require('plugins/lspstatus') 
 time([[Config for lsp-status.nvim]], false)
--- Config for: nvim-colorizer.lua
-time([[Config for nvim-colorizer.lua]], true)
- require('plugins/colorizer') 
-time([[Config for nvim-colorizer.lua]], false)
+-- Config for: nvim-cmp
+time([[Config for nvim-cmp]], true)
+ require('plugins/cmp') 
+time([[Config for nvim-cmp]], false)
 -- Config for: lspkind-nvim
 time([[Config for lspkind-nvim]], true)
  require('plugins/lspkind') 
@@ -308,10 +312,10 @@ time([[Config for rooter.nvim]], false)
 time([[Config for gitsigns.nvim]], true)
  require('plugins/gitsigns_nvim') 
 time([[Config for gitsigns.nvim]], false)
--- Config for: LuaSnip
-time([[Config for LuaSnip]], true)
- require('plugins/luasnip') 
-time([[Config for LuaSnip]], false)
+-- Config for: nvim-colorizer.lua
+time([[Config for nvim-colorizer.lua]], true)
+ require('plugins/colorizer') 
+time([[Config for nvim-colorizer.lua]], false)
 -- Config for: nvim-tree.lua
 time([[Config for nvim-tree.lua]], true)
  require('plugins/tree_nvim') 
