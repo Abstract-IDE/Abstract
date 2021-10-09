@@ -40,8 +40,9 @@ hi Visual cterm=bold guifg=none guibg=#00004d gui=none
 
 "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 "━━━━━━━━━━━━━━━━━━━━━❰ Define Colors ❱━━━━━━━━━━━━━━━━━━━━━━━
-
+let s:pure_black      = { "gui": "#000000", "cterm": "0" }
 let s:black           = { "gui": "#21252D", "cterm": "234" }
+let s:black2          = { "gui": "#111111", "cterm": "234" }
 let s:blue            = { "gui": "#1D918B", "cterm": "30"  }
 let s:blue2           = { "gui": "#47A8A1", "cterm": "30"  }
 let s:cyan            = { "gui": "#00BFA4", "cterm": "43"  }
@@ -270,11 +271,20 @@ call s:h("ErrorMsg",      s:black,        s:red2,       "")
 call s:h("WarningMsg",    s:black,        s:orange2,    "")
 call s:h("Question",      s:black,        s:purple2,    "")
 
-call s:h("Pmenu",         s:white2,       s:black,      "")
-call s:h("PmenuSel",      s:hl_orange,    s:hl_bg,      "")
-call s:h("PmenuSbar",     s:white2,       s:black,      "")
-call s:h("PmenuThumb",    s:white,        s:black,      "")
+" for popup window
+call s:h("Pmenu",         s:white,          s:black,   "")
+call s:h("PmenuSel",      s:pure_black,     s:blue,     "")
+call s:h("PmenuSbar",     "",               s:black,    "")
+call s:h("PmenuThumb",    "",               s:blue,     "")
+" popupcolors with nvim-cmp
+call s:h("CmpItemAbbr",         s:white2,   "",     "")
+call s:h("CmpItemKind",         s:red2,         "",     "")
+call s:h("CmpItemMenu",         s:green2,       "",     "")
+call s:h("CmpItemAbbrMatch",    s:orange,       "",     "")
 " }
+
+
+
 
 
 " ― ― ― ― ― ― ― ― ―
@@ -648,6 +658,12 @@ exec "hi FloatermBorder guibg=none guifg=grey"
 " -- Set floaterm window's background
 " call s:h("IndentGuidesOdd", "", "", "")
 exec "hi Floaterm guibg=none guifg=none"
+
+
+
+
+
+
 
 
 
