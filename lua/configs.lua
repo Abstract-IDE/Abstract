@@ -14,7 +14,8 @@
 		NOTE: every configs in this file are independent of any plugin
 		configs for plugins are in "lua/plugins" directory and each plugin has
 		it's own config file. some settings are already default in neovim so you
-		don't need to define explicitly but it won't make any difference :end of NOTE
+		don't need to define explicitly but it won't make any difference
+    :end of NOTE
 --]]
 
 
@@ -31,7 +32,7 @@ cmd('autocmd ColorScheme * highlight ExtraWhitespace ctermbg=red guibg=grey') --
 cmd('colorscheme lighthausM')
 set.guifont		      = 'DroidSansMono Nerd Font 11'
 set.termguicolors   = true      -- Enable GUI colors for the terminal to get truecolor
-set.list            = true      -- show whitespace
+set.list            = false      -- show whitespace
 set.listchars = {
          nbsp       = '⦸',      -- CIRCLED REVERSE SOLIDUS (U+29B8, UTF-8: E2 A6 B8)
          extends    = '»',      -- RIGHT-POINTING DOUBLE ANGLE QUOTATION MARK (U+00BB, UTF-8: C2 BB)
