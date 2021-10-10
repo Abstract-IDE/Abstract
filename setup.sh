@@ -7,7 +7,7 @@ nvim_plug_path="$HOME/.local/share/nvim"
 nvim_conf_path="$HOME/.config/nvim"
 nvim_custom_plugin_conf_path="$nvim_conf_path/lua/plugins"
 
-today_date=`date "+%Y-%m-%d<%T>"`
+today_date=`date "+%Y-%m-%d_%T"`
 current_dir="$PWD"
 
 
