@@ -19,6 +19,7 @@
    file or if you prefer anyway, commentout dupilcate codes
    for lspconfig.lua file]]--
 
+require'lspinstall'.setup()
 --[[
 require'lspinstall'.setup() -- important
 
