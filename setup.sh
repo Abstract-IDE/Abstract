@@ -66,7 +66,7 @@ if [ "$current_dir" != "$nvim_conf_path" ]; then
 	cp ../roshnivim "$nvim_conf_path" -r
 	echo -e "\n\nwow! roshnivim is installed"
 	echo -e "\ninstalling plugins"
+	echo -e "\nwhen you see 'packer.compile: Complete', press CTRL+C\n"
 	nvim  --headless -c 'PackerSync'
-	echo -e "\n\nGreat, roshnivim is fully installed"
   fi
 fi
