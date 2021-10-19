@@ -91,8 +91,8 @@ return require('packer').startup(function()
   }
 
   use {
-        'kabouzeid/nvim-lspinstall',
-        config = [[ require('plugins/lspinstall') ]]
+        'williamboman/nvim-lsp-installer',
+        config = [[ require('plugins/lsp_installer_nvim') ]]
   }
 
   use { -- A completion plugin for neovim coded in Lua.
@@ -158,9 +158,9 @@ return require('packer').startup(function()
         config = [[ require('plugins/maximizer') ]]
   }
 
-  use { -- Neovim commenting plugin, written in lua.
-        'b3nj5m1n/kommentary',
-        config = [[ require('plugins/kommentary') ]]
+  use { -- Smart and powerful comment plugin for neovim. Supports commentstring, dot repeat, left-right/up-down motions, hooks, and more
+        'numToStr/Comment.nvim',
+        config = [[ require('plugins/comment_nvim') ]]
   }
 
   use {  -- A surround text object plugin for neovim written in lua.
@@ -275,6 +275,17 @@ return require('packer').startup(function()
         },
         config = [[ require('plugins/compe') ]],
   }
+
+  use { -- Neovim commenting plugin, written in lua.
+        'b3nj5m1n/kommentary',
+        config = [[ require('plugins/kommentary') ]]
+  }
+
+  use {
+        'kabouzeid/nvim-lspinstall',
+        config = [[ require('plugins/lspinstall') ]]
+  }
+
 --]=======]
 
 --━━━━━━━━━━━━━━━━❰ end Not Using ❱━━━━━━━━━━━━━━━━━━--
