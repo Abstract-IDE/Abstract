@@ -62,9 +62,6 @@ end
 
 
 
-
-
-
 --━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━--
 --━━━━━━━━━━━━━━━━━━━❰ configs ❱━━━━━━━━━━━━━━━━━━━--
 --━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━--
@@ -112,79 +109,12 @@ vim.api.nvim_command [[ sign define LspDiagnosticsSignHint          text= tex
 
 
 
+
 --━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━--
 --━━━━━━━━━━━━━❰ LSP engines options ❱━━━━━━━━━━━━━--
 
--- Use a loop to conveniently call 'setup' on multiple servers and
--- map buffer local keybindings when the language server attaches
---─────────────────────────────────────────────────--
---[[ NOTE: you can use
-          local servers = require'lspinstall'.installed_servers()
-        to get all installed servers but this required an extra
-        plugin called "kabouzeid/nvim-lspinstall". though i'm using
-        this plugin to install LSPs, i'm not going to use require'lspinstall'.installed_servers()
-        because i will manually pass LSP name because there could be more than one LSP for one
-        language.
-
-]]--
-
-
-local function setup_servers(servers)
-  for _, server in pairs(servers) do
-    require'lspconfig'[server].setup{
-      on_attach = on_attach,
-      flags = {
-        debounce_text_changes = 150,
-      }
-    }
-  end
-end
-
-local servers = {
-  "lua",            -- for lua
-  "cpp",            -- for C/C++
-  "python",         -- for Python
-  "rust",           -- for Rust
-  "json",           -- for Json
-  "html",           -- for html
-  "css",            -- for css
-  "bash",           -- for bash
-  "typescript",     -- for typescript / javascript
-  --"deno",           -- for Deno, TypeScript/JavaScript
-  --"diagnosticls",   -- for diagnosticls
-  "cmake",          -- for cmake
-
-}
-
-require'lspinstall'.setup()
-setup_servers(servers)
-
-require'lspconfig'.lua.setup{ -- for Lua
-  on_attach = on_attach,
-  settings = {
-    Lua = {
-      diagnostics = {
-        -- Get the language server to recognize the 'vim', 'use' global
-        globals = {'vim', 'use'},
-      },
-      workspace = {
-        -- Make the server aware of Neovim runtime files
-        library = vim.api.nvim_get_runtime_file("", true),
-      },
-      -- Do not send telemetry data containing a randomized but unique identifier
-      telemetry = {
-        enable = false,
-      },
-    },
-  }
-}
-
-
 --━━━━━━━━━━━━━━━━❰ end LSP options ❱━━━━━━━━━━━━━━--
 --═══════════════════════════════════════════════════
-
-
-
 
 
 
