@@ -65,48 +65,17 @@ if [ "$current_dir" != "$nvim_conf_path" ]; then
 	cd $current_dir
 	cp ../roshnivim "$nvim_conf_path" -r
 
-	# lspconfig throwing error. so it's better to disible/unload it and only enable after
-	# job is done
-	cd $nvim_conf_path
-	rm -r plugin
-	lspconfig_line_number=`grep -nr "config = \[\[ require('plugins/lspconfig') \]\]" init.lua | awk -F: '{print $1}'`
-	# this will comment the lspconfig loading
-	sed -i "$lspconfig_line_number s/^/--/" init.lua
-
-	echo ""
-	echo "installing PLUGINS, wait..."
-	nvim  --headless \
-		-c 'autocmd User PackerComplete quitall' \
-		-c 'PackerSync'
-	echo "plugins installed"
-	#running neovim commands
-	echo ""
-	# this will uncomment the lspconfig loading
-	sed -i "$lspconfig_line_number s/^--*//" init.lua
-	# recompile configs
-	echo ""
-	echo ""
+	echo -e "\n\n"
 	echo "wow! roshnivim is installed"
-	echo ""
-	echo ""
+	echo -e "\n\n"
 	echo "now installing LSPs"
 	echo "this would take some time depending on you internet speed"
 	echo ""
 	echo "when you see \"Press ENTER or type command to continue\""
 	echo "press \"CTRL-C to exit\" and you will be done..."
-	echo ""
-	echo ""
+	echo -e "\n\n"
 	nvim  --headless \
-		-c 'LspInstall lua' \
-		-c 'LspInstall cpp' \
-		-c 'LspInstall python' \
-		-c 'LspInstall rust' \
-		-c 'LspInstall json' \
-		-c 'LspInstall html' \
-		-c 'LspInstall css' \
-		-c 'LspInstall bash' \
-		-c 'LspInstall typescript' \
-		-c 'LspInstall cmake'
+		-c 'LspInstall sumneko_lua pyright bashls clangd'
 	echo "------------"
   fi
 fi
