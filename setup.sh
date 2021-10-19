@@ -64,18 +64,9 @@ if [ "$current_dir" != "$nvim_conf_path" ]; then
   if [ ! -d "$nvim_conf_path" ]; then
 	cd $current_dir
 	cp ../roshnivim "$nvim_conf_path" -r
-
-	echo -e "\n\n"
-	echo "wow! roshnivim is installed"
-	echo -e "\n\n"
-	echo "now installing LSPs"
-	echo "this would take some time depending on you internet speed"
-	echo ""
-	echo "when you see \"Press ENTER or type command to continue\""
-	echo "press \"CTRL-C to exit\" and you will be done..."
-	echo -e "\n\n"
-	nvim  --headless \
-		-c 'LspInstall sumneko_lua pyright bashls clangd'
-	echo "------------"
+	echo -e "\n\nwow! roshnivim is installed"
+	echo -e "\ninstalling plugins"
+	nvim  --headless -c 'PackerSync'
+	echo -e "\n\nGreat, roshnivim is fully installed"
   fi
 fi
