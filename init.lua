@@ -16,9 +16,6 @@ vim.g.maplocalleader = '|'
 --━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━--
 
 
-
-
-
 --━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━--
 --━━━━━━━━━━━━━❰ Load/Source Configs ❱━━━━━━━━━━━━━--
 
@@ -26,23 +23,9 @@ require('configs')
 require('mappings')
 
 
-
+require('customs/roshniline')
 --━━━━━━━━━━━━━━━━━❰ end of Load ❱━━━━━━━━━━━━━━━━━--
 --━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━--
-
-
-
-
-
-
---━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━--
---━━━━━━━━━━━━━━━━━━❰ Sourcing ❱━━━━━━━━━━━━━━━━━━━━━--
-require('customs/roshniline')
-
-
---━━━━━━━━━━━━━━━━❰ end Sourcing ❱━━━━━━━━━━━━━━━━━━━--
---━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━--
-
 
 
 
@@ -69,8 +52,6 @@ return require('packer').startup(function()
 
   -- Packer can manage itself
   use 'wbthomason/packer.nvim'
-
-
 
 
 --━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━--
@@ -220,11 +201,6 @@ return require('packer').startup(function()
         config = [[ require('plugins/fterm_nvim') ]]
   }
 
-  use { --  Github theme for Neovim, kitty, iTerm, Konsole, and Alacritty written in Lua
-        "projekt0n/github-nvim-theme",
-        --config = [[ require('plugins/github-nvim-theme') ]]
-  }
-
 --━━━━━━━━━━━━━❰ end currently Using ❱━━━━━━━━━━━━━━━--
 --━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━--
 
@@ -286,6 +262,11 @@ return require('packer').startup(function()
         config = [[ require('plugins/lspinstall') ]]
   }
 
+  use { --  Github theme for Neovim, kitty, iTerm, Konsole, and Alacritty written in Lua
+        "projekt0n/github-nvim-theme",
+        config = [[ require('plugins/github-nvim-theme') ]]
+  }
+
 --]=======]
 
 --━━━━━━━━━━━━━━━━❰ end Not Using ❱━━━━━━━━━━━━━━━━━━--
@@ -296,9 +277,4 @@ end)
 --━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━--
 --━━━━━━━━━━━━━━━━❰ end of Plugin Manager ❱━━━━━━━━━━━━━━━--
 --━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━--
-
-
-
-
-
 
