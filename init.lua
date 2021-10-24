@@ -22,8 +22,10 @@ vim.g.maplocalleader = '|'
 require('configs')
 require('mappings')
 
-
 require('customs/roshniline')
+
+-- always put this config(override_defalut) at last because it's use to overide the any already defined config
+require('customs/override_defalut')
 --━━━━━━━━━━━━━━━━━❰ end of Load ❱━━━━━━━━━━━━━━━━━--
 --━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━--
 
@@ -61,6 +63,11 @@ return require('packer').startup(function()
         config = [[ require('plugins/lspconfig') ]]
   }
 
+  use {
+        'williamboman/nvim-lsp-installer',
+        config = [[ require('plugins/lsp_installer_nvim') ]]
+  }
+
   use { -- vscode-like pictograms for neovim lsp completion items Topics
         'onsails/lspkind-nvim',
         config = [[ require('plugins/lspkind') ]]
@@ -69,11 +76,6 @@ return require('packer').startup(function()
   use { -- Utility functions for getting diagnostic status and progress messages from LSP servers, for use in the Neovim statusline
         'nvim-lua/lsp-status.nvim',
         config = [[ require('plugins/lspstatus') ]]
-  }
-
-  use {
-        'williamboman/nvim-lsp-installer',
-        config = [[ require('plugins/lsp_installer_nvim') ]]
   }
 
   use { -- A completion plugin for neovim coded in Lua.
