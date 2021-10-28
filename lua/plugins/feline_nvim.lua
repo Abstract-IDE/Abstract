@@ -47,13 +47,13 @@ components.active[1] = {
     {
         provider = 'file_info',
         hl = {
-            fg = 'white',
-            bg = 'oceanblue',
+            fg = 'black',
+            bg = 'fg',
             style = 'bold'
         },
         left_sep = {
             ' ', 'slant_left_2',
-            {str = ' ', hl = {bg = 'oceanblue', fg = 'NONE'}}
+            {str = ' ', hl = {bg = 'fg', fg = 'NONE'}}
         },
         right_sep = {'slant_right_2', ' '}
     },
@@ -87,11 +87,11 @@ components.active[1] = {
         provider = 'git_branch',
         hl = {
             fg = 'white',
-            bg = 'black',
+            bg = 'black1',
             style = 'bold'
         },
         right_sep = function()
-            local val = {hl = {fg = 'NONE', bg = 'black'}}
+            local val = {hl = {fg = 'NONE', bg = 'black1'}}
             if b.gitsigns_status_dict then val.str = ' ' else val.str = '' end
             return val
         end
@@ -138,7 +138,7 @@ components.active[1] = {
           style = 'bold',
         },
         right_sep = function()
-            local val = {hl = {fg = 'NONE', bg = 'black'}}
+            local val = {hl = {fg = 'NONE', bg = 'black1'}}
             if b.gitsigns_status_dict then val.str = ' ' else val.str = '' end
             return val
         end
@@ -206,16 +206,16 @@ components.active[3] = {
         provider = '  %l:%-2c- %L ',
         left_sep = ' ',
         hl = {
-            fg = 'white',
-            bg = 'oceanblue',
+            fg = 'black',
+            bg = 'fg',
             style = 'bold'
         },
     },
     {
         provider = 'scroll_bar',
         hl = {
-            fg = 'skyblue',
-            bg = 'oceanblue',
+            fg = 'black',
+            bg = 'fg',
             style = 'bold',
             left_sep = ' ',
             right_sep = ' '
@@ -225,37 +225,38 @@ components.active[3] = {
 
 components.inactive[1] = {
     {
-        provider = 'file_type',
+        provider = 'file_info',
         hl = {
-            fg = 'white',
-            bg = 'oceanblue',
+            fg = 'black',
+            bg = 'white1',
             style = 'bold'
         },
-        left_sep = {
-            str = ' ',
-            hl = {
-                fg = 'NONE',
-                bg = 'oceanblue'
-            }
-        },
+        -- left_sep = {
+        --     str = ' ',
+        --     hl = {
+        --         fg = 'black',
+        --         bg = 'white',
+        --     }
+        -- },
         right_sep = {
             {
                 str = ' ',
                 hl = {
-                    fg = 'NONE',
-                    bg = 'oceanblue'
+                  fg = 'black',
+                  bg = 'bg',
                 }
             },
-            'slant_right'
+            -- 'slant_right'
         }
     }
 }
 
 -- This table is equal to the default colors table
 local colors = {
-    fg          = '#D0D0D0',
+    fg          = '#C8C8C8',
     bg          = '#1F1F23',
-    black       = '#1B1B1B',
+    black       = "#000000",
+    black1      = '#1B1B1B',
     skyblue     = '#50B0F0',
     cyan        = '#009090',
     green       = '#60A040',
@@ -265,6 +266,7 @@ local colors = {
     red         = '#D10000',
     violet      = '#9E93E8',
     white       = '#FFFFFF',
+    white1      = '#808080',
     yellow      = '#E1E120'
 }
 

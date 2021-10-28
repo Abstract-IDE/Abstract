@@ -40,9 +40,8 @@ hi Visual cterm=bold guifg=none guibg=#00004d gui=none
 
 "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 "━━━━━━━━━━━━━━━━━━━━━❰ Define Colors ❱━━━━━━━━━━━━━━━━━━━━━━━
-let s:pure_black      = { "gui": "#000000", "cterm": "0" }
-let s:black           = { "gui": "#21252D", "cterm": "234" }
-let s:black2          = { "gui": "#111111", "cterm": "234" }
+let s:black           = { "gui": "#000000", "cterm": "0" }
+let s:black1          = { "gui": "#21252D", "cterm": "234" }
 let s:blue            = { "gui": "#1D918B", "cterm": "30"  }
 let s:blue2           = { "gui": "#47A8A1", "cterm": "30"  }
 let s:cyan            = { "gui": "#00BFA4", "cterm": "43"  }
@@ -112,10 +111,10 @@ let s:non_text        = { "gui": "#373C45", "cterm": "239" }
 
 
 let s:selection_bg    = { "gui": "#c6c6c6", "cterm": "251" }
-let s:selection_fg    = s:black
+let s:selection_fg    = s:black1
 
 let s:vsplit_fg       = s:white2
-let s:vsplit_bg       = s:black
+let s:vsplit_bg       = s:black1
 
 " current line number
 let s:cl_fg           = { "gui": "#000000", "cterm": "251" }
@@ -267,14 +266,14 @@ call s:h("DiffLine",      s:blue,         "",           "")
 call s:h("DiffFile",      s:purple,       "",           "")
 call s:h("DiffNewFile",   s:hl_yellow,    "",           "")
 
-call s:h("ErrorMsg",      s:black,        s:red2,       "")
-call s:h("WarningMsg",    s:black,        s:orange2,    "")
-call s:h("Question",      s:black,        s:purple2,    "")
+call s:h("ErrorMsg",      s:black1,        s:red2,       "")
+call s:h("WarningMsg",    s:black1,        s:orange2,    "")
+call s:h("Question",      s:black1,        s:purple2,    "")
 
 " for popup window
-call s:h("Pmenu",         s:white,          s:black,   "")
-call s:h("PmenuSel",      s:pure_black,     s:blue,     "")
-call s:h("PmenuSbar",     "",               s:black,    "")
+call s:h("Pmenu",         s:white,          s:black1,   "")
+call s:h("PmenuSel",      s:black,     s:blue,     "")
+call s:h("PmenuSbar",     "",               s:black1,    "")
 call s:h("PmenuThumb",    "",               s:blue,     "")
 " popupcolors with nvim-cmp
 call s:h("CmpItemAbbr",         s:white2,   "",     "")
@@ -338,10 +337,10 @@ autocmd Colorscheme * highlight NvimTreeNormal guibg=#21252B
 call s:h("Title",               s:white2,   "",         "")
 call s:h("WildMenu",            s:fg,       "",         "")
 
-call s:h("StatusLine",          s:blue2,    s:black,    "")
-call s:h("StatusLineTerm",      s:blue2,    s:black,    "")
-call s:h("StatusLineNC",        s:white2,   s:black,    "")
-call s:h("StatusLineTermNC",    s:white2,   s:black,    "")
+call s:h("StatusLine",          s:blue2,    s:black1,    "")
+call s:h("StatusLineTerm",      s:blue2,    s:black1,    "")
+call s:h("StatusLineNC",        s:white2,   s:black1,    "")
+call s:h("StatusLineTermNC",    s:white2,   s:black1,    "")
 " }
 
 
@@ -359,10 +358,10 @@ call s:h("VisualNOS",   s:selection_fg,   s:selection_bg,   "")
 " SPELL CHECK
 " ― ― ― ― ― ― ― ― ―
 " {
-call s:h("SpellBad",    s:red,      s:black,   s:U)
-call s:h("SpellCap",    s:orange,   s:black,   "")
-call s:h("SpellLocal",  s:orange,   s:black,   "")
-call s:h("SpellRare",   s:orange,   s:black,   "")
+call s:h("SpellBad",    s:red,      s:black1,   s:U)
+call s:h("SpellCap",    s:orange,   s:black1,   "")
+call s:h("SpellLocal",  s:orange,   s:black1,   "")
+call s:h("SpellRare",   s:orange,   s:black1,   "")
 " }
 
 
@@ -672,7 +671,7 @@ exec "hi Floaterm guibg=none guifg=none"
 " ― ― ― ― ― ― ― ― ―
 " {
   if has('nvim')
-    let g:terminal_color_0            = s:black.gui
+    let g:terminal_color_0            = s:black1.gui
     let g:terminal_color_1            = s:red.gui
     let g:terminal_color_2            = s:green.gui
     let g:terminal_color_3            = s:hl_yellow.gui
@@ -680,7 +679,7 @@ exec "hi Floaterm guibg=none guifg=none"
     let g:terminal_color_5            = s:purple.gui
     let g:terminal_color_6            = s:cyan.gui
     let g:terminal_color_7            = s:white.gui
-    let g:terminal_color_8            = s:black.gui
+    let g:terminal_color_8            = s:black1.gui
     let g:terminal_color_9            = s:red.gui
     let g:terminal_color_10           = s:green.gui
     let g:terminal_color_11           = s:hl_yellow.gui
