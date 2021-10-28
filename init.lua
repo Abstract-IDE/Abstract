@@ -58,6 +58,11 @@ return require('packer').startup(function()
 
 --━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━--
 --━━━━━━━━━━━━━━━❰ currently Using ❱━━━━━━━━━━━━━━━━━--
+
+  use { --  colorscheme for (neo)vim written in lua specially made for roshnivim
+       'shaeinst/roshnivim-cs',
+  }
+
   use { -- A collection of common configurations for Neovim's built-in language server client
         'neovim/nvim-lspconfig',
         config = [[ require('plugins/lspconfig') ]]

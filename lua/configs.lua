@@ -29,7 +29,7 @@ local cmd   = vim.cmd           -- execute Vim commands
 
 
 cmd('autocmd ColorScheme * highlight ExtraWhitespace ctermbg=red guibg=grey') --to Show whitespace, MUST be inserted BEFORE the colorscheme command
-cmd('colorscheme lighthausM')
+cmd('colorscheme rvcs')
 set.guifont		      = 'DroidSansMono Nerd Font 11'
 set.termguicolors   = true      -- Enable GUI colors for the terminal to get truecolor
 set.list            = false      -- show whitespace

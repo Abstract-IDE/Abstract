@@ -43,7 +43,7 @@ vim.api.nvim_command [[ sign define LspDiagnosticsSignHint          text= tex
 --vim.api.nvim_command[[autocmd BufWritePre <buffer> lua vim.lsp.buf.formatting_sync(nil, 1000)]]
 
 --[[
-   " to change colors better ot define in color scheme
+   " to change colors, it's better to define in color scheme
    " highlight LspDiagnosticsUnderlineError         guifg=#EB4917 gui=undercurl
    " highlight LspDiagnosticsUnderlineWarning       guifg=#EBA217 gui=undercurl
    " highlight LspDiagnosticsUnderlineInformation   guifg=#17D6EB gui=undercurl
