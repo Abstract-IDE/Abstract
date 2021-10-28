@@ -17,21 +17,19 @@
 require('nvim-autopairs').setup({
     enable_check_bracket_line = true,                   -- Don't add pairs if it already have a close pairs in same line
     disable_filetype = { "TelescopePrompt" , "vim" },   --
-    enable_afterquote = false                           -- add bracket pairs after quote
+    enable_afterquote = false,                           -- add bracket pairs after quote
+    enable_moveright = true
 
 })
 
--- nvim-cmp, because i'm using nvim-cmp plugin for auto complete
--- you need setup cmp first put this after cmp.setup()
-require("nvim-autopairs.completion.cmp").setup({
-  map_cr = true, --  map <CR> on insert mode
-  map_complete = true, -- it will auto insert `(` after select function or method item
-  auto_select = true -- automatically select the first item
-})
 
-
+-- If you want insert `(` after select function or method item
+local cmp_autopairs = require('nvim-autopairs.completion.cmp')
+local cmp = require('cmp')
+cmp.event:on( 'confirm_done', cmp_autopairs.on_confirm_done())
 local Rule = require('nvim-autopairs.rule')
 local npairs = require('nvim-autopairs')
+
 
 npairs.add_rules {
 
