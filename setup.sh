@@ -49,6 +49,7 @@ fi
 if [ ! -d "$nvim_plug_path/custom_tools/lazy-builder" ]; then
   echo ""
   cd $nvim_plug_path/custom_tools && git clone https://github.com/shaeinst/lazy-builder
+  cd $current_dir
   echo ""
 fi
 
@@ -64,8 +65,25 @@ if [ "$current_dir" != "$nvim_conf_path" ]; then
   if [ ! -d "$nvim_conf_path" ]; then
 	cd $current_dir
 	cp ../roshnivim "$nvim_conf_path" -r
+
+    # first install plugins theen only set-up colorscheme because it will throw error if no colorscheme if found
+	# and color scheme used in roshnivim is install using packer. this help to avoid error
+    cd $nvim_conf_path
+	if [ -d "plugin" ]; then
+            rm -r plugin
+	fi
+	lspconfig_line_number=`grep -nr "cmd('colorscheme rvcs'" $nvim_conf_path/lua/configs.lua | awk -F: '{print $1}'`
+	# this will comment the option for colorscheme in configs.lua file
+	sed -i "$lspconfig_line_number s/^/--/" $nvim_conf_path/lua/configs.lua
+	echo -e "\ninstalling PLUGINS, wait..."
+	nvim  --headless \
+			-c 'autocmd User PackerComplete quitall' \
+			-c 'PackerSync'
+	echo -e "plugins installed\n"
+	# this will uncomment the option for colorscheme in configs.lua file
+	sed -i "$lspconfig_line_number s/^--*//" $nvim_conf_path/lua/configs.lua
+	# recompile configs
 	echo -e "\n\nwow! roshnivim is installed"
-	echo -e "\ninstalling plugins"
 	echo -e "\nwhen you see 'packer.compile: Complete', press CTRL+C\n"
 	nvim  --headless -c 'PackerSync'
   fi
