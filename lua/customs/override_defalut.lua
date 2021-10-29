@@ -2,7 +2,7 @@
 --─────────────────────────────────────────────────--
 --          Override configs
 -- this config file is used to override the already defined
--- config/mappings. This prevent config more readable and less complicated.
+-- config/mappings. This make config more readable and less complicated.
 
 --─────────────────────────────────────────────────--
 --━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━--

@@ -1,0 +1,2 @@
+-- infinite statusline on the earth and they all sucks.
+-- will write my own statusline which will called roshniline
