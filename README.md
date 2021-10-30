@@ -1,7 +1,7 @@
 <br/>
 <p align="center">
   <a href="https://github.com/shaeinst/roshnivim">
-    <img src="https://raw.githubusercontent.com/shaeinst/media/main/images/github-repositories/roshnivim/roshnivim_logo.png" alt="Logo" width="500" height="320">
+    <img src="https://raw.githubusercontent.com/shaeinst/media/main/images/github-repositories/roshnivim/roshnivim_logo_transparent.png" alt="Logo" width="500" height="320">
   </a>
 </p>
 
