@@ -15,8 +15,12 @@
 
 require'nvim-treesitter.configs'.setup {
 
+  -- ensure_installed  = "maintained", -- one of "all", "maintained" (parsers with maintainers), or a list of languages
+  -- ignore_install    = { "javascript" }, -- List of parsers to ignore installing
+
   highlight = {
-    enable = {"c", "cpp", "dart", "python"},
+    enable  = {"c", "cpp", "dart", "python", "javascript"}, -- enable = true (false will disable the whole extension)
+    -- disable = { "c", "rust" },  -- list of language that will be disabled
     custom_captures = {
       -- Highlight the @foo.bar capture group with the "Identifier" highlight group.
       ["foo.bar"] = "Identifier",
@@ -27,6 +31,7 @@ require'nvim-treesitter.configs'.setup {
     -- Instead of true it can also be a list of languages
     additional_vim_regex_highlighting = false,
   },
+
 }
 
 

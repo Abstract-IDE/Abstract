@@ -83,6 +83,12 @@ return require('packer').startup(function()
         config = [[ require('plugins/lspstatus') ]]
   }
 
+  use { -- Nvim Treesitter configurations and abstraction layer
+        'nvim-treesitter/nvim-treesitter',
+        run = ':TSUpdate',
+        config = [[ require('plugins/treesitter') ]]
+  }
+
   use { -- A completion plugin for neovim coded in Lua.
         'hrsh7th/nvim-cmp',
         requires = {
@@ -221,17 +227,10 @@ return require('packer').startup(function()
 
 --[=======[
 
-  use { -- Nvim Treesitter configurations and abstraction layer
-        'nvim-treesitter/nvim-treesitter',
-        run = ':TSUpdate',
-        config = [[ require('plugins/treesitter') ]]
-  }
-
   use { -- A light-weight lsp plugin based on neovim built-in lsp with highly a performant UI.
         'glepnir/lspsaga.nvim',
         config = [[ require('plugins/lspsaga') ]]
   }
-
 
   use { -- A neovim tabline plugin.
       'romgrk/barbar.nvim',
