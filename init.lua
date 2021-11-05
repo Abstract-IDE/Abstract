@@ -234,6 +234,14 @@ return require('packer').startup{function()
         config = [[ require('plugins/fluttertools') ]],
   }
 
+  --            for Web-Development
+  use { --  Use treesitter to auto close and auto rename html tag, work with html,tsx,vue,svelte,php.
+        "windwp/nvim-ts-autotag",
+        requires = {
+              {'nvim-treesitter/nvim-treesitter'},
+        },
+        config = [[ require('plugins/ts-autotag_nvim') ]],
+  }
 
 --━━━━━━━━━━━━━━━━━❰ end of DEVELOPMENT ❱━━━━━━━━━━━━━━━━━--
 
