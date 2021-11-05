@@ -19,7 +19,10 @@ vim.g.maplocalleader = '|'
 --━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━--
 --━━━━━━━━━━━━━❰ Load/Source Configs ❱━━━━━━━━━━━━━--
 
+-- plugin config to improve start-up time.
+-- it should be always on top on init.lua file
 require('plugins/impatient_nvim') -- impatient needs to be setup before any other lua plugin is loaded so it is recommended you add the following near the start of your
+require('plugins/filetype_nvim')  -- Easily speed up your neovim startup time!
 
 require('configs')
 require('mappings')
@@ -61,9 +64,15 @@ return require('packer').startup{function()
 --━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━--
 --━━━━━━━━━━━━━━━❰ currently Using ❱━━━━━━━━━━━━━━━━━--
 
+  --            Improve Start-UP time
   use { -- Speed up loading Lua modules in Neovim to improve startup time.
         'lewis6991/impatient.nvim',
   }
+
+  use { --  Easily speed up your neovim startup time!. A faster version of filetype.vim
+        'nathom/filetype.nvim',
+  }
+
 
   use { --  colorscheme for (neo)vim written in lua specially made for roshnivim
        'shaeinst/roshnivim-cs',
@@ -296,6 +305,7 @@ return require('packer').startup{function()
 end, config = {
   -- Move to lua dir so impatient.nvim can cache it
   compile_path = vim.fn.stdpath('config')..'/plugin/packer_compiled.lua'
+
   }
 }
 
