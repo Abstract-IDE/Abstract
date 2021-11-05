@@ -38,10 +38,15 @@ ls.snippets = {
 	all = {
   },
 
-  snippets = {
-  },
+  html = {}
 
 }
+
+-- enable html snippets in javascript/javascript(REACT)
+ls.snippets.javascript = ls.snippets.html
+ls.snippets.javascriptreact = ls.snippets.html
+ls.snippets.typescriptreact = ls.snippets.html
+require("luasnip/loaders/from_vscode").load({include = {"html"}})
 
 --[[
 -- Beside defining your own snippets you can also load snippets from "vscode-like" packages
