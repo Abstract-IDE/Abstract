@@ -115,20 +115,6 @@ return require('packer').startup(function()
         config = [[ require('plugins/autopairs') ]]
   }
 
-  ----           for flutter/dart
-  use { -- Tools to help create flutter apps in neovim using the native lsp
-        'akinsho/flutter-tools.nvim',
-        requires = {
-              {'nvim-lua/plenary.nvim'},
-              {'Neevash/awesome-flutter-snippets'}, -- collection snippets and shortcuts for commonly used Flutter functions and classes
-              {
-                  'dart-lang/dart-vim-plugin',  -- Syntax highlighting for Dart in Vim
-                  config = [[ require('plugins/dart_vim_plugin') ]]
-              }
-        },
-        config = [[ require('plugins/fluttertools') ]],
-  }
-
   use { -- Find, Filter, Preview, Pick. All lua, all the time.
         'nvim-telescope/telescope.nvim',
         requires = {
@@ -215,6 +201,27 @@ return require('packer').startup(function()
         "numtostr/FTerm.nvim",
         config = [[ require('plugins/fterm_nvim') ]]
   }
+
+
+--━━━━━━━━━━━━━━━━━❰ DEVELOPMENT ❱━━━━━━━━━━━━━━━━━--
+
+  ----           for flutter/dart
+  use { -- Tools to help create flutter apps in neovim using the native lsp
+        'akinsho/flutter-tools.nvim',
+        requires = {
+              {'nvim-lua/plenary.nvim'},
+              {'Neevash/awesome-flutter-snippets'}, -- collection snippets and shortcuts for commonly used Flutter functions and classes
+              {
+                  'dart-lang/dart-vim-plugin',  -- Syntax highlighting for Dart in Vim
+                  config = [[ require('plugins/dart_vim_plugin') ]]
+              }
+        },
+        config = [[ require('plugins/fluttertools') ]],
+  }
+
+
+--━━━━━━━━━━━━━━━━━❰ end of DEVELOPMENT ❱━━━━━━━━━━━━━━━━━--
+
 
 --━━━━━━━━━━━━━❰ end currently Using ❱━━━━━━━━━━━━━━━--
 --━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━--
