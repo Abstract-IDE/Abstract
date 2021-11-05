@@ -19,6 +19,8 @@ vim.g.maplocalleader = '|'
 --━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━--
 --━━━━━━━━━━━━━❰ Load/Source Configs ❱━━━━━━━━━━━━━--
 
+require('plugins/impatient_nvim') -- impatient needs to be setup before any other lua plugin is loaded so it is recommended you add the following near the start of your
+
 require('configs')
 require('mappings')
 
@@ -50,7 +52,7 @@ if fn.empty(fn.glob(install_path)) > 0 then
 end
 
 
-return require('packer').startup(function()
+return require('packer').startup{function()
 
   -- Packer can manage itself
   use 'wbthomason/packer.nvim'
@@ -58,6 +60,10 @@ return require('packer').startup(function()
 
 --━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━--
 --━━━━━━━━━━━━━━━❰ currently Using ❱━━━━━━━━━━━━━━━━━--
+
+  use { -- Speed up loading Lua modules in Neovim to improve startup time.
+        'lewis6991/impatient.nvim',
+  }
 
   use { --  colorscheme for (neo)vim written in lua specially made for roshnivim
        'shaeinst/roshnivim-cs',
@@ -287,7 +293,11 @@ return require('packer').startup(function()
 --━━━━━━━━━━━━━━━━❰ end Not Using ❱━━━━━━━━━━━━━━━━━━--
 --━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━--
 
-end)
+end, config = {
+  -- Move to lua dir so impatient.nvim can cache it
+  compile_path = vim.fn.stdpath('config')..'/plugin/packer_compiled.lua'
+  }
+}
 
 --━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━--
 --━━━━━━━━━━━━━━━━❰ end of Plugin Manager ❱━━━━━━━━━━━━━━━--
