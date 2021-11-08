@@ -57,7 +57,7 @@ cd roshnivim
 chmod +x setup.sh
 ./setup.sh
 ```
-
+[re-run the setup.sh script if you get any error] <br>
 NOTE1:<br>
       it could take some time depending on you connection (it's going to install plugins and some LSs).<br>
       So, be patient and follow the output throw by setup.sh script<br><br>

@@ -73,15 +73,24 @@ if [ "$current_dir" != "$nvim_conf_path" ]; then
             rm -r plugin
 	fi
 	lspconfig_line_number=`grep -nr "cmd('colorscheme rvcs'" $nvim_conf_path/lua/configs.lua | awk -F: '{print $1}'`
-	# this will comment the option for colorscheme in configs.lua file
+	impatient_nvim=`grep -nr "require('plugins/impatient_nvim')" $nvim_conf_path/init.lua | awk -F: '{print $1}'`
+	filetype_nvim=`grep -nr "require('plugins/filetype_nvim')" $nvim_conf_path/init.lua | awk -F: '{print $1}'`
+	# going to comment some line of code to prevent getting any error.
 	sed -i "$lspconfig_line_number s/^/--/" $nvim_conf_path/lua/configs.lua
+	sed -i "$impatient_nvim s/^/--/" $nvim_conf_path/init.lua
+	sed -i "$filetype_nvim s/^/--/" $nvim_conf_path/init.lua
+
 	echo -e "\ninstalling PLUGINS, wait..."
 	nvim  --headless \
 			-c 'autocmd User PackerComplete quitall' \
 			-c 'PackerSync'
 	echo -e "plugins installed\n"
-	# this will uncomment the option for colorscheme in configs.lua file
+
+	# going to uncomment the line of code we commented before installing the plugin
 	sed -i "$lspconfig_line_number s/^--*//" $nvim_conf_path/lua/configs.lua
+	sed -i "$impatient_nvim s/^--*//" $nvim_conf_path/init.lua
+	sed -i "$filetype_nvim s/^--*//" $nvim_conf_path/init.lua
+
 	# recompile configs
 	echo -e "\n\nwow! roshnivim is installed"
 	echo -e "\nwhen you see 'packer.compile: Complete', press CTRL+C\n"
