@@ -101,7 +101,7 @@ so in case you don't like to use mapping or configs by roshnivim, you can change
 ```
 ### Mappings
 ``` ; M ``` to show mappings (it will show mapping in telescope) <br>
-```;``` is a ```leader key```.   you can change it in [init.lua](https://github.com/shaeinst/roshnivim/blob/main/init.lua) file
+```;```     is a ```leader key```.   you can change it in [init.lua](https://github.com/shaeinst/roshnivim/blob/main/init.lua) file
 <br>
 
 ## License
