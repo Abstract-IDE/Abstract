@@ -1,9 +1,11 @@
---[[
-╔═══════════════════════════════════════════════╗
-        Author:     Ali Shahid
-        Github:     github.com/shaeinst
-╚═══════════════════════════════════════════════╝
---]]
+--  .______       ______        _______. __    __  .__   __.  __  ____    ____  __  .___  ___.
+--  |   _  \     /  __  \      /       ||  |  |  | |  \ |  | |  | \   \  /   / |  | |   \/   |
+--  |  |_)  |   |  |  |  |    |   (----`|  |__|  | |   \|  | |  |  \   \/   /  |  | |  \  /  |
+--  |      /    |  |  |  |     \   \    |   __   | |  . `  | |  |   \      /   |  | |  |\/|  |
+--  |  |\  \----|  `--'  | .----)   |   |  |  |  | |  |\   | |  |    \    /    |  | |  |  |  |
+--  | _| `._____|\______/  |_______/    |__|  |__| |__| \__| |__|     \__/     |__| |__|  |__|
+--                          Author:     Ali Shahid
+--                          Github:     github.com/shaeinst
 
 
 
@@ -18,7 +20,6 @@ vim.g.maplocalleader = '|'
 
 --━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━--
 --━━━━━━━━━━━━━❰ Load/Source Configs ❱━━━━━━━━━━━━━--
-
 -- plugin config to improve start-up time.
 -- it should be always on top on init.lua file
 require('plugins/impatient_nvim') -- impatient needs to be setup before any other lua plugin is loaded so it is recommended you add the following near the start of your
@@ -37,15 +38,12 @@ require('customs/override_defalut')
 
 
 
-
-
 --━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━--
 --━━━━━━━━━━━━━━━━❰ Plugin Manager ❱━━━━━━━━━━━━━━━--
 --━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━--
 --              NOTE:1
 --If you want to automatically ensure that packer.nvim is installed on any machine you clone your configuration to,
 --add the following snippet (which is due to @Iron-E) somewhere in your config before your first usage of packer:
-
 local execute = vim.api.nvim_command
 local fn = vim.fn
 local install_path = fn.stdpath('data')..'/site/pack/packer/start/packer.nvim'
@@ -56,10 +54,8 @@ end
 
 
 return require('packer').startup{function()
-
   -- Packer can manage itself
   use 'wbthomason/packer.nvim'
-
 
 --━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━--
 --━━━━━━━━━━━━━━━❰ currently Using ❱━━━━━━━━━━━━━━━━━--
@@ -278,26 +274,9 @@ return require('packer').startup{function()
         config = [[ require('plugins/galaxyline_nvim') ]]
   }
 
-  use { -- Auto completion plugin for nvim.
-        'hrsh7th/nvim-compe',
-        requires = {
-              {
-                  'hrsh7th/vim-vsnip', -- VSCode(LSP)'s snippet feature in vim.
-                  requires = 'hrsh7th/vim-vsnip-integ',
-                  config = [[ require('plugins/vsnip') ]]
-              },
-        },
-        config = [[ require('plugins/compe') ]],
-  }
-
   use { -- Neovim commenting plugin, written in lua.
         'b3nj5m1n/kommentary',
         config = [[ require('plugins/kommentary') ]]
-  }
-
-  use {
-        'kabouzeid/nvim-lspinstall',
-        config = [[ require('plugins/lspinstall') ]]
   }
 
   use { --  Github theme for Neovim, kitty, iTerm, Konsole, and Alacritty written in Lua

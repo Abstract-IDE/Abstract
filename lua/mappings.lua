@@ -1,12 +1,11 @@
---[[
-╔═══════════════════════════════════════════════╗
-        Author: Ali Shahid
-        Github: github.com/shaeinst
-╚═══════════════════════════════════════════════╝
---]]
-
-
-
+--  .______       ______        _______. __    __  .__   __.  __  ____    ____  __  .___  ___.
+--  |   _  \     /  __  \      /       ||  |  |  | |  \ |  | |  | \   \  /   / |  | |   \/   |
+--  |  |_)  |   |  |  |  |    |   (----`|  |__|  | |   \|  | |  |  \   \/   /  |  | |  \  /  |
+--  |      /    |  |  |  |     \   \    |   __   | |  . `  | |  |   \      /   |  | |  |\/|  |
+--  |  |\  \----|  `--'  | .----)   |   |  |  |  | |  |\   | |  |    \    /    |  | |  |  |  |
+--  | _| `._____|\______/  |_______/    |__|  |__| |__| \__| |__|     \__/     |__| |__|  |__|
+--                          Author:     Ali Shahid
+--                          Github:     github.com/shaeinst
 
 
 --━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━--
@@ -27,8 +26,6 @@ local keymap = vim.api.nvim_set_keymap
 local cmd = vim.cmd
 
 
-
-
 -- to quit vim
 cmd([[ autocmd BufEnter * nmap silent <buffer> <Leader>q :bd<CR> ]])
 
@@ -37,12 +34,9 @@ cmd([[ autocmd BufEnter * nmap silent <buffer> <Leader>q :bd<CR> ]])
 keymap('i', '<C-s>',    '<ESC>:w <CR>', { noremap=true, silent=true })
 keymap('n', '<C-s>',    '<ESC>:w <CR>', { noremap=true, silent=true })
 
-
 -- scroll window up/down
 keymap('i', '<C-e>', '<ESC><C-e>', { silent=true })
 keymap('i', '<C-y>', '<ESC><C-y>', { silent=true })
-
-
 
 -- number line enable
 keymap('n', '<leader>n', ':set rnu! <CR>', { silent=true })
