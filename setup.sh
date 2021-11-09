@@ -14,35 +14,21 @@ current_dir="$PWD"
 # create some directories
 echo "setting up, wait..."
 echo "Creating required directories.."
-if [ ! -d "$cache/nvim"  ]; then
-  mkdir -p "$cache/nvim" && echo "$cache/nvim"
-fi
+require_dir=(
+  "$cache/nvim"
+  "$cache/nvim/swap"
+  "$cache/nvim/shada"
+  "$cache/nvim/backedUP"
+  "$cache/nvim/undos"
+  "$cache_build_path"
+  "$nvim_plug_path/custom_tools"	# create directy for custom tools
+)
 
-if [ ! -d "$cache/nvim/swap" ]; then
-  mkdir -p "$cache/nvim/swap" && echo "$cache/nvim/swap"
-fi
-
-if [ ! -d "$cache/nvim/shada" ]; then
-  mkdir -p "$cache/nvim/shada" && echo "$cache/nvim/shada"
-fi
-
-if [ ! -d "$cache/nvim/backedUP" ]; then
-  mkdir -p "$cache/nvim/backedUP" && echo "$cache/nvim/backedUP"
-fi
-
-if [ ! -d "$cache/nvim/undos" ]; then
-  mkdir -p "$cache/nvim/undos" && echo "$cache/nvim/undos"
-fi
-
-if [ ! -d "$cache_build_path" ]; then
-  mkdir -p $cache_build_path && echo "$cache_build_path"
-fi
-
-# create directy for custom tools
-if [ ! -d "$nvim_plug_path/custom_tools" ]; then
-  mkdir -p "$nvim_plug_path/custom_tools" && echo "$nvim_plug_path/custom_tools"
-fi
-
+for dir in "${require_dir[@]}"; do
+  if [ ! -d "$dir" ]; then
+    mkdir -p "$dir" && echo "$dir"
+  fi
+done
 
 
 # cloning lazy-builder tool (https://github.com/shaeinst/lazy-builder)
