@@ -180,6 +180,9 @@ components.active[2] = {
             end
             return msg
       end,
+      hl = {
+          style = 'italic'
+      },
       left_sep = {
             ' ',
             {

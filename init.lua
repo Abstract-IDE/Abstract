@@ -213,6 +213,10 @@ return require('packer').startup{function()
         config = [[ require('plugins/fterm_nvim') ]]
   }
 
+  use { -- No-nonsense floating terminal plugin for neovim
+        "mhartington/formatter.nvim",
+        config = [[ require('plugins/formatter') ]]
+  }
 
 --━━━━━━━━━━━━━━━━━❰ DEVELOPMENT ❱━━━━━━━━━━━━━━━━━--
 

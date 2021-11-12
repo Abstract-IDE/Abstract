@@ -59,7 +59,7 @@ filetype = {
 vim.api.nvim_exec([[
 augroup FormatAutogroup
   autocmd!
-  autocmd BufWritePost *.extension_example,*.extension_example FormatWrite
+  autocmd BufWritePost *.py,*.c,*.cpp FormatWrite
 augroup END
 ]], true)
 
