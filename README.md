@@ -69,7 +69,7 @@ NOTE2:<br>
 
 
 ## Usage
-every one has their's own favourite config and keybinding. roshnivim try its best to provide likable configs and mapping.
+every one has their own favourite config and keybinding. roshnivim try its best to provide likable configs and mapping.
 <br>
 so in case you don't like to use mapping or configs by roshnivim, you can change it in [override_defalut.lua](https://github.com/shaeinst/roshnivim/blob/main/lua/customs/override_defalut.lua) file. <br>
 
@@ -82,7 +82,7 @@ so in case you don't like to use mapping or configs by roshnivim, you can change
 │       ├── lua.json
 │       ├── package.json
 │       └── vim.json
-├── init.lua                       / use install plugins, load configs and leader key is defined here
+├── init.lua                       / use to install plugins, load configs and leader key is defined here
 ├── LICENSE
 ├── lua
 │   ├── configs.lua                / configs that's don't depends on plugins
