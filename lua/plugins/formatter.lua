@@ -56,15 +56,28 @@ filetype = {
 -- Format on save
 --      To enable format on save, you can create a autocmd to trigger the formater using FormatWrite,
 --              which will format and write to the current saved file.
-vim.api.nvim_exec([[
-augroup FormatAutogroup
-  autocmd!
-  autocmd BufWritePost *.py,*.c,*.cpp FormatWrite
-augroup END
-]], true)
+-- vim.api.nvim_exec([[
+-- augroup FormatAutogroup
+--   autocmd!
+--   autocmd BufWritePost *.py,*.c,*.cpp,*.js FormatWrite
+-- augroup END
+-- ]], true)
 
 
 --━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━--
 --━━━━━━━━━━━━━━━━━❰ end configs ❱━━━━━━━━━━━━━━━━━--
 --━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━--
 
+
+
+
+--━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━--
+--━━━━━━━━━━━━━━━━━━━❰ Mappings ❱━━━━━━━━━━━━━━━━━━--
+--━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━--
+
+local keymap = vim.api.nvim_set_keymap
+keymap('n', '<Space>fm',    '<ESC>:Format<CR>', { noremap=true, silent=true })
+
+--━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━--
+--━━━━━━━━━━━━━━━━━❰ end Mappings ❱━━━━━━━━━━━━━━━━--
+--━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━--
