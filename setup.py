@@ -73,7 +73,7 @@ def clone_repro(path, repository):
 def backup_nvim():
     current_date = datetime.today().strftime("%Y-%m-%d_%T")
     if Path(NVIM_CONF_PATH).exists():
-        subprocess.run(['mv', 'nvim', f'nvim_{current_date}'], cwd=CONFIG)
+        subprocess.run(['mv', 'nvim', f'nvim-old_{current_date}'], cwd=CONFIG)
         print(f"your old config: {NVIM_CONF_PATH}_{current_date}")
 
 
