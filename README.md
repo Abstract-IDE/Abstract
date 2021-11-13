@@ -51,13 +51,23 @@ roshnivim can be installed by just runing a script.
 
 #### Installation
 
-```sh
+single command to install roshnivim
+```bash
+python <(curl -s https://raw.githubusercontent.com/shaeinst/roshnivim/main/setup.py)
+```
+or if you want to install it by cloning
+```bash
 git clone https://github.com/shaeinst/roshnivim
 cd roshnivim
-chmod +x setup.sh
-./setup.sh
+python setup.py
 ```
-[re-run the setup.sh script if you get any error] <br>
+pass ```--delete 1``` as an argument if you don't want to keep ```.git```, ```README.md```, ```LICENSE``` and ```setup.py``` file.
+Example:
+```bash
+python <(curl -s https://raw.githubusercontent.com/shaeinst/roshnivim/main/setup.py) --delete 1
+```
+
+<br>
 NOTE1:<br>
       it could take some time depending on you connection (it's going to install plugins and some LSs).<br>
       So, be patient and follow the output throw by setup.sh script<br><br>
