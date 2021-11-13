@@ -33,7 +33,6 @@ NVIM_CONF_PATH = f"{CONFIG}/nvim"
 NVIM_PLUG_PATH = f"{HOME}/.local/share/nvim"
 CUSTOM_TOOLS_DIR = f"{NVIM_PLUG_PATH}/custom_tools"
 
-roshnivim_link = "https://github.com/shaeinst/roshnivim"
 #-------------------------------
 
 # directories we must have
@@ -219,7 +218,8 @@ def main():
     else:
         backup_nvim()
         if need_to_clone_roshnivim():
-            subprocess.run(["git", "clone", roshnivim_link], cwd=CONFIG)
+            roshnivim_link = "https://github.com/shaeinst/roshnivim"
+            subprocess.run(["git", "clone", roshnivim_link, "nvim"], cwd=CONFIG)
         else:
             print("copying config...")
             subprocess.run(["cp", "-r", "../roshnivim", f"{CONFIG}/nvim"])
