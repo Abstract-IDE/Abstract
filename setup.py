@@ -179,9 +179,9 @@ def install_roshnivim():
     # going to uncomment the line of code we commented before installing the plugin
     replace_text(f"{NVIM_CONF_PATH}/lua/configs.lua", f"--{text_colorscheme}",
                  text_colorscheme)
-    replace_text(f"{NVIM_CONF_PATH}/lua/configs.lua", f"--{text_impatient}",
+    replace_text(f"{NVIM_CONF_PATH}/init.lua", f"--{text_impatient}",
                  text_impatient)
-    replace_text(f"{NVIM_CONF_PATH}/lua/configs.lua", f"--{text_filetype}",
+    replace_text(f"{NVIM_CONF_PATH}/init.lua", f"--{text_filetype}",
                  text_filetype)
 
     # recompile configs
