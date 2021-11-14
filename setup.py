@@ -109,9 +109,9 @@ def need_to_clone_roshnivim():
     """check if we need to clone the roshnivim repro,
     if setup.py run without cloning roshnivim
     """
-    script_abs_path = Path().absolute()
-    if Path(f"{script_abs_path}/setup.py").is_file() and \
-       Path(f"{script_abs_path}/.__roshnivim__").is_file():
+    script_path = Path(__file__).parent.absolute()
+    if Path(f"{script_path}/setup.py").is_file() and \
+       Path(f"{script_path}/.__roshnivim__").is_file():
         return False
     return True
 
