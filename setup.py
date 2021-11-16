@@ -18,9 +18,18 @@ parser.add_argument(
     help=
     "0 or 1, 0 means don't delete(Default) and 1 means delete the no required file/directory (.git, LICENSE, README.md)",
 )
+parser.add_argument(
+    "--backup",
+    "-b",
+    type=int,
+    default=1,
+    help=
+    "0 or 1, 0 means don't backup and 1 means backup(Default) the the config before any configuration",
+)
 
 args = parser.parse_args()
 delete = args.delete
+backup = args.backup
 #-------------------------------
 
 # directory locations
@@ -216,7 +225,8 @@ def main():
             print("\n")
 
     else:
-        backup_nvim()
+        if backup == 1:
+            backup_nvim()
         if need_to_clone_roshnivim():
             roshnivim_link = "https://github.com/shaeinst/roshnivim"
             subprocess.run(["git", "clone", roshnivim_link, "nvim"], cwd=CONFIG)
