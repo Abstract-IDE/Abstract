@@ -295,7 +295,7 @@ return require('packer').startup{function()
 
 end, config = {
   -- Move to lua dir so impatient.nvim can cache it
-  compile_path = vim.fn.stdpath('config')..'/plugin/packer_compiled.lua'
+  compile_path = vim.fn.stdpath('data')..'/plugin/packer_compiled.lua'
 
   }
 }

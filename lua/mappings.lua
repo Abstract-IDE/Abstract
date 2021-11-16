@@ -37,6 +37,10 @@ keymap('n', '<C-s>',    '<ESC>:w <CR>', { noremap=true, silent=true })
 -- scroll window up/down
 keymap('i', '<C-e>', '<ESC><C-e>', { silent=true })
 keymap('i', '<C-y>', '<ESC><C-y>', { silent=true })
+-- scroll window horizontally (scroll-horizontal)
+-- < reference: https://unix.stackexchange.com/questions/110251/how-to-put-current-line-at-top-center-bottom-of-screen-in-vim
+keymap('n', '<C-h>', 'zh', { silent=true })     -- left
+keymap('n', '<C-l>', 'zl', { silent=true })     -- right
 
 -- number line enable
 keymap('n', '<leader>n', ':set rnu! <CR>', { silent=true })
