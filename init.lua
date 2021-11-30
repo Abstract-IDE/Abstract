@@ -288,6 +288,10 @@ return require('packer').startup{function()
         config = [[ require('plugins/github-nvim-theme') ]]
   }
 
+  use {
+        'lukas-reineke/indent-blankline.nvim',
+        config = [[ require('plugins/indent_blankline') ]]
+  }
 --]=======]
 
 --━━━━━━━━━━━━━━━━❰ end Not Using ❱━━━━━━━━━━━━━━━━━━--
