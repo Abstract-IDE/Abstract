@@ -24,13 +24,22 @@ parser.add_argument(
     "-b",
     type=int,
     default=1,
-    help="0 or 1, 0 means don't backup and 1 means backup(Default) the the \
+    help="0 or 1, 0 means don't backup and 1 means backup(Default) the \
             config before any configuration",
+)
+parser.add_argument(
+    "--update",
+    "-u",
+    type=int,
+    default=0,
+    help="0 or 1, 1 means update and 0 means don't update(Default) the \
+            Roshnivim",
 )
 
 args = parser.parse_args()
 delete = args.delete
 backup = args.backup
+update = args.update
 # -------------------------------
 
 # directory locations
@@ -202,11 +211,13 @@ def install_roshnivim():
 # -------------------------------
 def main():
 
-    print("creating required directories...")
-    create_require_dir(require_dir)
+    if update == 0:
+        print("creating required directories...")
+        create_require_dir(require_dir)
 
-    if roshnivim_exist() and roshnivim_git():
-        print("Roshnivim exist, updating...")
+    if update == 1 or roshnivim_exist() and roshnivim_git():
+        if update == 0:
+            print("Roshnivim exist, updating...")
         subprocess.run(["git", "pull"], cwd=NVIM_CONF_PATH)
         try:
             print(
