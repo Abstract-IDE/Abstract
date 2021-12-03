@@ -33,8 +33,8 @@
 
 ## About
 <div align="center"
-roshnivim ->  roshni + vim -> light + vim (roshni means light in hindi/urdu) <br>
-logo-style -> rosh(n)i(vim)  <br>
+  roshnivim ->  roshni + vim -> light + vim (roshni means light in hindi/urdu) <br>
+  logo-style -> rosh(n)i(vim)  <br>
 </div>
 <br>
 
@@ -69,13 +69,13 @@ python <(curl -s https://raw.githubusercontent.com/shaeinst/roshnivim/main/setup
 
 <br>
 NOTE1:<br>
-      it could take some time depending on you connection (it's going to install plugins and some LSs).<br>
-      So, be patient and follow the output throw by setup.sh script<br><br>
+it could take some time depending on you connection (it's going to install plugins and some LSs).<br>
+So, be patient and follow the output throw by setup.sh script<br><br>
 NOTE2:<br>
-      only some LSs are going to be installed. for more, install with [LspInstall](https://github.com/williamboman/nvim-lsp-installer). <br>
-      for example: to install C/C++'s LS, ``` :LspInstall clangd ```
+only some LSs are going to be installed. for more, install with [LspInstall](https://github.com/williamboman/nvim-lsp-installer)
+<br>
+for example: to install C/C++'s LS ```:LspInstall clangd```
 <br><br>
-
 
 
 ## Usage
@@ -83,31 +83,20 @@ every one has their own favourite config and keybinding. roshnivim try its best 
 <br>
 so in case you don't like to use mapping or configs by roshnivim, you can change it in [override_defalut.lua](https://github.com/shaeinst/roshnivim/blob/main/lua/customs/override_defalut.lua) file. <br>
 
-### stracture of roshnivim
+### Project Stracture
 ```
-├── extra
-│   └── snippets                   / custom defined snippets
-│       ├── c.json
-│       ├── cpp.json
-│       ├── lua.json
-│       ├── package.json
-│       └── vim.json
+├── extra/
+│   └── snippets/                  / custom defined snippets
 ├── init.lua                       / use to install plugins, load configs and leader key is defined here
-├── LICENSE
-├── lua
+├── lua/
 │   ├── configs.lua                / configs that's don't depends on plugins
 │   ├── mappings.lua               / mappings that don't depends on plugins
-│   ├── customs
+│   ├── customs/
 │   │   ├── override_defalut.lua   / configs to override defined config
 │   │   └── roshniline.lua         / i am working on it. btw it's a status line
-│   ├── lib
-│   │   └── scheme.lua
-│   └── plugins                    / dir containing configs for plugins. each plugin has it's own config and can be locaed through init.lua file
-|
-├── plugin
-│   ├── empty_file
-│   └── packer_compiled.lua
-└── setup.sh
+│   └── plugins/                   / dir containing configs for plugins. each plugin has it's own config and can be locaed through init.lua file
+├── plugin/                        / auto-created by plugin manager
+└── setup.py                       / python-script to install/update roshnivim
 ```
 ### Mappings
 ``` ; M ``` to show mappings (it will show mapping in telescope) <br>
@@ -119,24 +108,19 @@ Distributed under the MIT License.
 <br><br>
 
 ## Screenshots
-<p>
-  <a href="https://github.com/shaeinst/roshnivim">
-    <img src="https://raw.githubusercontent.com/shaeinst/media/main/images/github-repositories/roshnivim/init.lua.png" alt="init.lua" width="400" height="250">
-  </a>
-    <a href="https://github.com/shaeinst/roshnivim">
-    <img src="https://raw.githubusercontent.com/shaeinst/media/main/images/github-repositories/roshnivim/running_c.png" alt="running_c" width="400" height="250">
-  </a>
-    <a href="https://github.com/shaeinst/roshnivim">
-    <img src="https://raw.githubusercontent.com/shaeinst/media/main/images/github-repositories/roshnivim/telescope_as_fuzzy_finder.png" alt="telescope_as_fuzzy_finder" width="400" height="250">
-  </a>
-    <a href="https://github.com/shaeinst/roshnivim">
-    <img src="https://raw.githubusercontent.com/shaeinst/media/main/images/github-repositories/roshnivim/codeaction_in_flutter_app.png" alt="codeaction_in_flutter_app" width="400" height="250">
-  </a>
-    <a href="https://github.com/shaeinst/roshnivim">
-    <img src="https://raw.githubusercontent.com/shaeinst/media/main/images/github-repositories/roshnivim/python_lsp.png" alt="python_lsp" width="400" height="250">
-  </a>
-</p>
 
+<details close><summary>expand</summary>
+  
+   ![screenshot_lua](https://raw.githubusercontent.com/shaeinst/media/main/images/github-repositories/roshnivim/init.lua.png)
+   ![screenshot_running_c](https://raw.githubusercontent.com/shaeinst/media/main/images/github-repositories/roshnivim/running_c.png)
+   ![screenshot_telescode](https://raw.githubusercontent.com/shaeinst/media/main/images/github-repositories/roshnivim/telescope_as_fuzzy_finder.png) 
+   ![screenshot_codeaction](https://raw.githubusercontent.com/shaeinst/media/main/images/github-repositories/roshnivim/codeaction_in_flutter_app.png) 
+   ![screenshot_pythonlsp](https://raw.githubusercontent.com/shaeinst/media/main/images/github-repositories/roshnivim/python_lsp.png)
+
+</details>
+      
+  
+  
 <br>
 
 ## To-Do
