@@ -172,12 +172,12 @@
   },
   "main": {
     "prefix": "main",
-    "body": ["int main(int argc, const char** argv) {", "\t$1", "", "    return 0;", "}"],
+    "body": ["int main(int argc, const char** argv)", "{", "\t$1", "", "\treturn 0;", "}"],
     "description": "Code snippet for 'for' loop"
   },
   "#include main" : {
     "prefix": "#include main",
-    "body": ["#include <iostream>", "#include <stdlib.h>", "\n", "int main(int argc, const char** argv) {", "\t$0", "", "\treturn 0;", "}"],
+    "body": ["#include <iostream>", "#include <stdlib.h>", "\n", "int main(int argc, const char** argv)", "{", "\t$0", "", "\treturn 0;", "}"],
     "description": "basic C++ MainFunction stracture"
   }
 }

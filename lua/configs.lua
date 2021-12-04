@@ -189,7 +189,7 @@ cmd([[ autocmd FileType go setlocal shiftwidth=8 tabstop=8 ]])
 -- python
 cmd([[ au BufEnter *.py set ai sw=4 ts=4 sta et fo=croql ]])
 -- C/C++
-cmd([[ au BufEnter *.c,*.cpp,*cxx,*C,*CPP set ai sw=4 ts=4 sta fo=croql ]])
+cmd([[ au BufEnter *.c,*.cpp,*cxx,*C,*CPP set ai sw=8 ts=8 sta fo=croql ]])
 -- lua
 cmd([[ au BufEnter *.lua set ai expandtab shiftwidth=2 tabstop=2 sta fo=croql ]])
 -- vim
