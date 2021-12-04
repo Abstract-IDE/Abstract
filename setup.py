@@ -151,7 +151,7 @@ def compile_nvim():
 
 # -------------------------------
 def remove_no_require():
-    subprocess.run(["rm", "-rf", ".git", "LICENSE", "README.md", "setup.py"],
+    subprocess.run(["rm", "-rf", ".git*", "LICENSE", "README.md", "setup.py"],
                    cwd=NVIM_CONF_PATH)
     print("Removed: .git")
     print("Removed: LICENSE")
