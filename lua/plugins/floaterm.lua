@@ -76,9 +76,9 @@ keymap('n', 'tq',':FloatermKill<CR>',   { noremap=true, silent=true })
 local lazy_builder_py = "~/.local/share/nvim/custom_tools/lazy-builder/build.py"
 local build_path = "~/.cache/build_files"
 
-local run       = ":w <CR> :FloatermNew python "..lazy_builder_py.." -o "..build_path.." -r 1 % <CR>"
-local build     = ":w <CR> :FloatermNew time python "..lazy_builder_py.." -o "..build_path.." -b 1 % <CR>"
-local buildrun  = ":w <CR> :FloatermNew time python "..lazy_builder_py.." -o "..build_path.." -br 1 % <CR>"
+local run       = ":w | :FloatermNew python "..lazy_builder_py.." -o "..build_path.." -r 1 % <CR>"
+local build     = ":w | :FloatermNew time python "..lazy_builder_py.." -o "..build_path.." -b 1 % <CR>"
+local buildrun  = ":w | :FloatermNew time python "..lazy_builder_py.." -o "..build_path.." -br 1 % <CR>"
 keymap('n', '<Leader>r', run,       { noremap=true, silent=true }) -- Run
 keymap('n', '<Leader>o', build,     { noremap=true, silent=true }) -- build
 keymap('n', '<Leader>O', buildrun,  { noremap=true, silent=true }) -- build and run

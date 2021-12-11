@@ -29,38 +29,6 @@ require('Comment').setup({
     ---@type string|function
     ignore = nil,
 
-    ---Create basic (operator-pending) and extended mappings for NORMAL + VISUAL mode
-    ---@type table
-    mappings = {
-        ---operator-pending mapping
-        ---Includes `gcc`, `gcb`, `gc[count]{motion}` and `gb[count]{motion}`
-        basic = true,
-        ---extra mapping
-        ---Includes `gco`, `gcO`, `gcA`
-        extra = true,
-        ---extended mapping
-        ---Includes `g>`, `g<`, `g>[count]{motion}` and `g<[count]{motion}`
-        extended = false,
-    },
-
-    ---LHS of toggle mapping in NORMAL + VISUAL mode
-    ---@type table
-    toggler = {
-        ---line-comment keymap
-        line = 'cc',
-        ---block-comment keymap
-        block = 'gcb',
-    },
-
-    ---LHS of operator-pending mapping in NORMAL + VISUAL mode
-    ---@type table
-    opleader = {
-        ---line-comment keymap
-        line = 'gc',
-        ---block-comment keymap
-        block = 'gb',
-    },
-
     ---Pre-hook, called before commenting the line
     ---@type function|nil
     pre_hook = nil,
@@ -85,33 +53,23 @@ require('Comment').setup({
 require('Comment').setup({
 
     mappings = {
-        ---operator-pending mapping
-        ---Includes `gcc`, `gcb`, `gc[count]{motion}` and `gb[count]{motion}`
-        basic = true,
-        ---extra mapping
-        ---Includes `gco`, `gcO`, `gcA`
-        extra = true,
-        ---extended mapping
-        ---Includes `g>`, `g<`, `g>[count]{motion}` and `g<[count]{motion}`
-        extended = false,
+        basic = true,       ---Includes `gcc`, `gcb`, `gc[count]{motion}` and `gb[count]{motion}`
+        extra = true,       ---Includes `gco`, `gcO`, `gcA`
+        extended = false,   ---Includes `g>`, `g<`, `g>[count]{motion}` and `g<[count]{motion}`
     },
 
-    ---LHS of toggle mapping in NORMAL + VISUAL mode
+    ---LHS of toggle mapping in NORMAL
     ---@type table
     toggler = {
-        ---line-comment keymap
-        line = 'cc',
-        ---block-comment keymap
-        block = 'gcb',
+        line = 'cc',    ---line-comment keymap
+        block = 'gcb',  ---block-comment keymap
     },
 
-    ---LHS of operator-pending mapping in NORMAL + VISUAL mode
+    ---LHS of operator-pending mapping in VISUAL mode
     ---@type table
     opleader = {
-        ---line-comment keymap
-        line = 'gc',
-        ---block-comment keymap
-        block = 'gb',
+        line = 'gc',    ---line-comment keymap
+        block = 'gb',   ---block-comment keymap
     },
 })
 

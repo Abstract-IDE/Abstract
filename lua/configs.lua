@@ -50,7 +50,6 @@ set.fillchars = {
 }
 
 
-
 if root then
   set.shada         = ''            -- Don't create root-owned files.
   set.shadafile     = 'NONE'
@@ -82,20 +81,9 @@ else
 end
 
 
-
-
-
-
 set.clipboard       = set.clipboard + "unnamedplus" --copy & paste
-
 set.wrap            = false         -- don't automatically wrap on load
 set.showmatch       = true 	        -- show the matching part of the pair for [] {} and ()
---[[
-        i dont know why, but LSP now work if "syntax on" is set
-        but don't worry, syntax is still highlighted
-cmd('syntax on')                    -- color syntax enable
-set.synmaxcol       = 200           -- don't bother syntax highlighting long lines
-]]
 
 set.cursorline      = true 	        -- highlight current line
 set.number          = true          -- show line numbers
@@ -106,31 +94,34 @@ set.hlsearch        = true 	        -- highlighted search results
 set.ignorecase      = true 	        -- ignore case sensetive while searching
 set.smartcase       = true
 
-
 set.scrolloff       = 1             -- when scrolling, keep cursor 1 lines away from screen border
 set.sidescrolloff   = 2             -- keep 30 columns visible left and right of the cursor at all times
 set.backspace       = 'indent,start,eol' -- make backspace behave like normal again
 --set.mouse = "a"  		-- turn on mouse interaction
-set.updatetime      = 500              -- CursorHold interval
+set.updatetime      = 500           -- CursorHold interval
 
 set.softtabstop     = 4
-set.shiftwidth      = 2             -- spaces per tab (when shifting), when using the >> or << commands, shift lines by 4 spaces
+set.shiftwidth      = 4             -- spaces per tab (when shifting), when using the >> or << commands, shift lines by 4 spaces
 set.tabstop         = 4             -- spaces per tab
 set.smarttab        = true          -- <tab>/<BS> indent/dedent in leading whitespace
 set.autoindent      = true          -- maintain indent of current line
 set.expandtab       = false         -- don't expand tabs into spaces
 set.shiftround      = true
 
-
 set.splitbelow      = true      -- open horizontal splits below current window
 set.splitright      = true      -- open vertical splits to the right of the current window
 set.laststatus      = 2         -- always show status line
 --set.colorcolumn = "79"        -- vertical word limit line
 
-
 set.hidden          = true      -- allows you to hide buffers with unsaved changes without being prompted
 set.inccommand      = 'split'   -- live preview of :s results
 set.shell           = 'zsh'     -- shell to use for `!`, `:!`, `system()` etc.
+set.lazyredraw      = true      -- faster scrolling
+
+set.wildignore      = set.wildignore + '*.o,*.rej,*.so' -- patterns to ignore during file-navigation
+set.completeopt     = 'menuone,noselect,noinsert'       -- completion options
+
+
 
 
 
@@ -152,32 +143,11 @@ if has("autocmd")
 endif
 ]])
 
-
--- patterns to ignore during file-navigation
-set.wildignore  = set.wildignore + '*.o,*.rej,*.so'
-
 -- remove whitespace on save
 cmd([[au BufWritePre * :%s/\s\+$//e]])
 
--- faster scrolling
-set.lazyredraw = true
-
 -- don't auto commenting new lines
 cmd([[au BufEnter * set fo-=c fo-=r fo-=o]])
-
--- completion options
-set.completeopt = 'menuone,noselect,noinsert'
-
-
--- 2 spaces for selected filetypes
-cmd([[ autocmd FileType xml,html,xhtml,css,scssjavascript,lua,dart setlocal shiftwidth=2 tabstop=2 ]])
--- 4 spaces for selected filetypes
-cmd([[ autocmd FileType python,c,cpp setlocal shiftwidth=4 tabstop=4 ]])
--- 8 spaces for Go files
-cmd([[ autocmd FileType go setlocal shiftwidth=8 tabstop=8 ]])
-
-
-
 
 --────────────────────────────────────────────────────
 --[[		for specific filetypes/languages
@@ -186,16 +156,16 @@ cmd([[ autocmd FileType go setlocal shiftwidth=8 tabstop=8 ]])
           fo = Create a fold for the lines in {range}.
 ]]
 
--- python
-cmd([[ au BufEnter *.py set ai sw=4 ts=4 sta et fo=croql ]])
--- C/C++
-cmd([[ au BufEnter *.c,*.cpp,*cxx,*C,*CPP set ai sw=8 ts=8 sta fo=croql ]])
--- lua
-cmd([[ au BufEnter *.lua set ai expandtab shiftwidth=2 tabstop=2 sta fo=croql ]])
--- vim
-cmd([[ au BufEnter *.vim set ai expandtab shiftwidth=2 tabstop=2 sta fo=croql ]])
--- json
-cmd([[ au BufEnter *.json set ai expandtab shiftwidth=2 tabstop=2 sta fo=croql ]])
+-- -- python
+-- cmd([[ au BufEnter *.py set ai sw=4 ts=4 sta et fo=croql ]])
+-- -- C/C++
+-- cmd([[ au BufEnter *.c,*.cpp,*cxx,*C,*CPP set ai sw=8 ts=8 sta fo=croql ]])
+-- -- lua
+-- cmd([[ au BufEnter *.lua set ai expandtab shiftwidth=2 tabstop=2 sta fo=croql ]])
+-- -- vim
+-- cmd([[ au BufEnter *.vim set ai expandtab shiftwidth=2 tabstop=2 sta fo=croql ]])
+-- -- json
+-- cmd([[ au BufEnter *.json set ai expandtab shiftwidth=2 tabstop=2 sta fo=croql ]])
 --────────────────────────────────────────────────────
 
 
