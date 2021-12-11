@@ -10,12 +10,12 @@
 
 
 
---━━━━━━━━━━━━━❰ Leader Mapping ❱━━━━━━━━━━━━━--
---mapping leader here. it will work for every mapped
+--━━━━━━━━━━━━━━━━❰ Leader Mapping ❱━━━━━━━━━━━━━━━--
+-- mapping leader here. it will work for every mapped
 
 vim.g.mapleader = ';'
 vim.g.maplocalleader = '|'
---━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━--
+--━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━--
 
 
 --━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━--
@@ -32,9 +32,11 @@ require('customs/roshniline')
 
 -- always put this config(override_defalut) at last because it's use to overide the any already defined config
 require('customs/override_defalut')
+-- load/source ".__nvim__" configs that are defined in working environment/project
+require('customs/project_env')
+
 --━━━━━━━━━━━━━━━━━❰ end of Load ❱━━━━━━━━━━━━━━━━━--
 --━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━--
-
 
 
 
@@ -57,8 +59,8 @@ return require('packer').startup{function()
   -- Packer can manage itself
   use 'wbthomason/packer.nvim'
 
---━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━--
---━━━━━━━━━━━━━━━❰ currently Using ❱━━━━━━━━━━━━━━━━━--
+--━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━--
+--━━━━━━━━━━━━━━❰ currently Using ❱━━━━━━━━━━━━━━━━--
 
   --            Improve Start-UP time
   use { -- Speed up loading Lua modules in Neovim to improve startup time.
@@ -243,17 +245,17 @@ return require('packer').startup{function()
         config = [[ require('plugins/ts-autotag_nvim') ]],
   }
 
---━━━━━━━━━━━━━━━━━❰ end of DEVELOPMENT ❱━━━━━━━━━━━━━━━━━--
+--━━━━━━━━━━━━━━❰ end of DEVELOPMENT ❱━━━━━━━━━━━━━--
 
 
---━━━━━━━━━━━━━❰ end currently Using ❱━━━━━━━━━━━━━━━--
---━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━--
+--━━━━━━━━━━━━❰ end currently Using ❱━━━━━━━━━━━━━━--
+--━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━--
 
 
 
 
---━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━--
---━━━━━━━━━━━━━❰ Not currently Using ❱━━━━━━━━━━━━━━━--
+--━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━--
+--━━━━━━━━━━━━❰ Not currently Using ❱━━━━━━━━━━━━━━--
 
 --[=======[
 
@@ -294,8 +296,8 @@ return require('packer').startup{function()
   }
 --]=======]
 
---━━━━━━━━━━━━━━━━❰ end Not Using ❱━━━━━━━━━━━━━━━━━━--
---━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━--
+--━━━━━━━━━━━━━━━❰ end Not Using ❱━━━━━━━━━━━━━━━━━--
+--━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━--
 
 end, config = {
   -- Move to lua dir so impatient.nvim can cache it
@@ -304,7 +306,7 @@ end, config = {
   }
 }
 
---━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━--
---━━━━━━━━━━━━━━━━❰ end of Plugin Manager ❱━━━━━━━━━━━━━━━--
---━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━--
+--━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━--
+--━━━━━━━━━━━━❰ end of Plugin Manager ❱━━━━━━━━━━━━--
+--━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━--
 

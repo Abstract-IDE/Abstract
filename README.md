@@ -110,20 +110,21 @@ Distributed under the MIT License.
 ## Screenshots
 
 <details close><summary>expand</summary>
-  
+
    ![screenshot_lua](https://raw.githubusercontent.com/shaeinst/media/main/images/github-repositories/roshnivim/init.lua.png)
    ![screenshot_running_c](https://raw.githubusercontent.com/shaeinst/media/main/images/github-repositories/roshnivim/running_c.png)
-   ![screenshot_telescode](https://raw.githubusercontent.com/shaeinst/media/main/images/github-repositories/roshnivim/telescope_as_fuzzy_finder.png) 
-   ![screenshot_codeaction](https://raw.githubusercontent.com/shaeinst/media/main/images/github-repositories/roshnivim/codeaction_in_flutter_app.png) 
+   ![screenshot_telescode](https://raw.githubusercontent.com/shaeinst/media/main/images/github-repositories/roshnivim/telescope_as_fuzzy_finder.png)
+   ![screenshot_codeaction](https://raw.githubusercontent.com/shaeinst/media/main/images/github-repositories/roshnivim/codeaction_in_flutter_app.png)
    ![screenshot_pythonlsp](https://raw.githubusercontent.com/shaeinst/media/main/images/github-repositories/roshnivim/python_lsp.png)
 
 </details>
-      
-  
-  
+
+
+
 <br>
 
 ## To-Do
+- load config from .__nvim__.lua file if it's defined in project
 - write Document --(one day, for sure)
 
 ## Thanks to
@@ -135,3 +136,7 @@ Distributed under the MIT License.
 ## Warning!
 this is not final. there is no specific rule made to follow to change in roshnivim. i will do this all later. <br>
 But don't worry. if anything big is going to change, it's mapping or colors
+
+## Known Bugs
+- shows false line number status
+
