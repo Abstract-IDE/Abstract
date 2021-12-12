@@ -105,13 +105,19 @@ end
 -- location else return false
 local function conf_file(cfdir)
   local conff
+  -- don't look for .__nvim__.lua if directory is not a chld of /home/user/
+  local os_user = osuser()
+  if dirsplit(cfdir, "/")[2] ~= os_user then
+	return false
+  end
+
   for _, _ in ipairs(dirsplit(cfdir, "/")) do
     conff = cfdir .. ".__nvim__.lua"
 
     if file_exists(conff) then
       return  cfdir .. ".__nvim__.lua"
     else
-      if cfdir == "/" or cfdir == "/home/"..osuser().."/" then
+      if cfdir == "/" or cfdir == "/home/"..os_user.."/" then
         return false
       else
         cfdir = cfdir.."../"
