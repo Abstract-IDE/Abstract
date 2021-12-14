@@ -28,9 +28,9 @@ local components = {
 
 components.active[1] = {
     {
-        provider = '▊ ',
+        provider = ' ',
         hl = {
-            fg = 'skyblue'
+            fg = 'skyblue',
         }
     },
     {
@@ -215,13 +215,14 @@ components.active[3] = {
         },
     },
     {
-        provider = 'scroll_bar',
+        -- provider = 'scroll_bar',
+        provider = ' ',
         hl = {
             fg = 'black',
             bg = 'fg',
-            style = 'bold',
+            -- style = 'bold',
             left_sep = ' ',
-            right_sep = ' '
+            -- right_sep = ' '
         }
     }
 }

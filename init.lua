@@ -28,7 +28,7 @@ require('plugins/filetype_nvim')  -- Easily speed up your neovim startup time!
 require('configs')
 require('mappings')
 
-require('customs/roshniline')
+-- require('customs/roshniline')
 
 -- always put this config(override_defalut) at last because it's use to overide the any already defined config
 require('customs/override_defalut')
