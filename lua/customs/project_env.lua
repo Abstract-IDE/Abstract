@@ -130,6 +130,13 @@ end
 
 
 ----------------------------------------------
+-- load ~/.__nvim__.lua
+local user_home = "/home/"..osuser()
+if file_exists(user_home .. "/.__nvim__.lua") then
+    dofile(user_home.."/.__nvim__.lua")
+end
+
+
 local curr_file_dir = filedir(curr_file)
 
 if curr_file_dir ~= "/" then
