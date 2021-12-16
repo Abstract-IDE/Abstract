@@ -81,7 +81,7 @@ return require('packer').startup{function()
         config = [[ require('plugins/lspconfig') ]]
   }
 
-  use {
+  use { -- Companion plugin for nvim-lspconfig that allows you to seamlessly install LSP servers locally (inside :echo stdpath("data")).
         'williamboman/nvim-lsp-installer',
         config = [[ require('plugins/lsp_installer_nvim') ]]
   }
@@ -89,11 +89,6 @@ return require('packer').startup{function()
   use { -- vscode-like pictograms for neovim lsp completion items Topics
         'onsails/lspkind-nvim',
         config = [[ require('plugins/lspkind') ]]
-  }
-
-  use { -- Utility functions for getting diagnostic status and progress messages from LSP servers, for use in the Neovim statusline
-        'nvim-lua/lsp-status.nvim',
-        config = [[ require('plugins/lspstatus') ]]
   }
 
   use { -- Nvim Treesitter configurations and abstraction layer
@@ -168,9 +163,9 @@ return require('packer').startup{function()
         config = [[ require('plugins/colorizer') ]]
   }
 
-  use { -- A vim plugin to display the indention levels with thin vertical lines
-        'Yggdroot/indentLine',
-        config = [[ require('plugins/indentLine') ]]
+  use {
+        'lukas-reineke/indent-blankline.nvim',
+        config = [[ require('plugins/indent_blankline') ]]
   }
 
   use { -- to change current working directory to project's root directory.
@@ -294,6 +289,17 @@ return require('packer').startup{function()
         'lukas-reineke/indent-blankline.nvim',
         config = [[ require('plugins/indent_blankline') ]]
   }
+
+  use { -- Utility functions for getting diagnostic status and progress messages from LSP servers, for use in the Neovim statusline
+        'nvim-lua/lsp-status.nvim',
+        config = [[ require('plugins/lspstatus') ]]
+  }
+
+  use { -- A vim plugin to display the indention levels with thin vertical lines
+        'Yggdroot/indentLine',
+        config = [[ require('plugins/indentLine') ]]
+  }
+
 --]=======]
 
 --━━━━━━━━━━━━━━━❰ end Not Using ❱━━━━━━━━━━━━━━━━━--

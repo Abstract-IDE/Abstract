@@ -17,6 +17,7 @@
 local lsp = require('feline.providers.lsp')
 local vi_mode_utils = require('feline.providers.vi_mode')
 local lsp_status = require('lsp-status')
+lsp_status.register_progress()
 
 local b = vim.b
 local fn = vim.fn
@@ -197,7 +198,6 @@ components.active[2] = {
     },
     {
       provider = function ()
-          lsp_status.register_progress()
           return lsp_status.status()
       end
     },
