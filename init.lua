@@ -199,9 +199,9 @@ return require('packer').startup{function()
 
   use { -- A minimal, stylish and customizable statusline for Neovim written in Lua
         'Famiu/feline.nvim',
-        requires = {
-          'nvim-lua/lsp-status.nvim',
-        },
+        -- requires = {
+        --   'nvim-lua/lsp-status.nvim',
+        -- },
         config = [[ require('plugins/feline_nvim') ]],
   }
 

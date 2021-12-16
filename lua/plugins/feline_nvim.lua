@@ -196,11 +196,11 @@ components.active[2] = {
       }
 
     },
-    {
-      provider = function ()
-          return lsp_status.status()
-      end
-    },
+    -- {
+    --   provider = function ()
+    --       return lsp_status.status()
+    --   end
+    -- },
 
 }
 
