@@ -215,6 +215,12 @@ return require('packer').startup{function()
         config = [[ require('plugins/formatter') ]]
   }
 
+  use { -- fast and highly customizable greeter for neovim.
+		"goolord/alpha-nvim",
+		requires = { 'kyazdani42/nvim-web-devicons' },
+        config = [[ require('plugins/alpha-nvim') ]]
+  }
+
 --━━━━━━━━━━━━━━━━━❰ DEVELOPMENT ❱━━━━━━━━━━━━━━━━━--
 
   ----           for flutter/dart
