@@ -87,7 +87,7 @@ set.showmatch       = true 	        -- show the matching part of the pair for []
 
 set.cursorline      = true 	        -- highlight current line
 set.number          = true          -- show line numbers
-set.relativenumber  = true	        -- show relative line number
+set.relativenumber  = false	        -- show relative line number
 
 set.incsearch       = true 	        -- incremental search
 set.hlsearch        = true 	        -- highlighted search results
