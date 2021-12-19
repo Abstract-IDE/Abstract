@@ -48,7 +48,15 @@ filetype = {
             args = {'--indent-size 4', '--max-preserve-newlines 3'},
             stdin = true
         } end
-    }
+    },
+
+    -- Lua
+    lua = { function() return {
+            exe = "lua-format",
+            args = {'--indent-width 4' },
+            stdin = true
+        } end
+    },
 }
 
 })
