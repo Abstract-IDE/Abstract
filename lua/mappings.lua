@@ -52,8 +52,6 @@ keymap('n', '//', ':noh <CR>', silent)
 
 --[[
     on[ly] close all other windows but leave all buffers open.
-    you cant map alt in vim, so following is required to bind alt with vim
-    execute "set <M-q>=\eq"
 --]]
 keymap('n', '<M-q>', '<C-W>on', silent)
 
@@ -77,7 +75,7 @@ keymap('v', '>', '>gv', options)
 
 -- going back to normal mode which works even in vim's terminal
 -- you will need this if you use floaterm to escape terminal
-cmd([[ tmap <Esc> <c-\><c-n> ]])
+keymap('t', '<Esc>', '<c-\\><c-n>', options)
 
 -- move selected line(s) up or down
 keymap('v', 'J', ":m '>+1<CR>gv=gv", options)
