@@ -56,10 +56,13 @@ if fn.empty(fn.glob(install_path)) > 0 then
     execute 'packadd packer.nvim'
 end
 
+-- don't throw any error on first use by packer
+local ok, packer = pcall(require, "packer")
+if not ok then return end
 
 
 
-return require('packer').startup {
+return packer.startup {
     function()
         -- Packer can manage itself
         use 'wbthomason/packer.nvim'
@@ -104,12 +107,12 @@ return require('packer').startup {
         use { -- A completion plugin for neovim coded in Lua.
             'hrsh7th/nvim-cmp',
             requires = {
-                "hrsh7th/cmp-nvim-lsp", -- nvim-cmp source for neovim builtin LSP client
-                "hrsh7th/cmp-nvim-lua", -- nvim-cmp source for nvim lua
-                "hrsh7th/cmp-buffer", -- nvim-cmp source for buffer words.
-                "hrsh7th/cmp-path", -- nvim-cmp source for filesystem paths.
-                "hrsh7th/cmp-calc", -- nvim-cmp source for math calculation.
-                "saadparwaiz1/cmp_luasnip" -- luasnip completion source for nvim-cmp
+                "hrsh7th/cmp-nvim-lsp",		-- nvim-cmp source for neovim builtin LSP client
+                "hrsh7th/cmp-nvim-lua",		-- nvim-cmp source for nvim lua
+                "hrsh7th/cmp-buffer",		-- nvim-cmp source for buffer words.
+                "hrsh7th/cmp-path",			-- nvim-cmp source for filesystem paths.
+                "hrsh7th/cmp-calc",			-- nvim-cmp source for math calculation.
+                "saadparwaiz1/cmp_luasnip"	-- luasnip completion source for nvim-cmp
             },
             config = [[ require('plugins/cmp') ]]
         }
@@ -211,7 +214,7 @@ return require('packer').startup {
             config = [[ require('plugins/fterm_nvim') ]]
         }
 
-        use { -- No-nonsense floating terminal plugin for neovim
+        use { -- A format runner for neovim, written in lua.
             "mhartington/formatter.nvim",
             config = [[ require('plugins/formatter') ]]
         }
@@ -227,8 +230,10 @@ return require('packer').startup {
         ----           for flutter/dart
         use { -- Tools to help create flutter apps in neovim using the native lsp
             'akinsho/flutter-tools.nvim',
+			ft = { 'dart' },
             requires = {
-                {'nvim-lua/plenary.nvim'}, {'Neevash/awesome-flutter-snippets'}, -- collection snippets and shortcuts for commonly used Flutter functions and classes
+                {'nvim-lua/plenary.nvim'},
+				{'Neevash/awesome-flutter-snippets'}, -- collection snippets and shortcuts for commonly used Flutter functions and classes
                 {
                     'dart-lang/dart-vim-plugin', -- Syntax highlighting for Dart in Vim
                     config = [[ require('plugins/dart_vim_plugin') ]]
@@ -240,6 +245,7 @@ return require('packer').startup {
         --            for Web-Development
         use { --  Use treesitter to auto close and auto rename html tag, work with html,tsx,vue,svelte,php.
             "windwp/nvim-ts-autotag",
+			ft = { 'html', 'tsx', 'vue', 'svelte', 'php' },
             requires = {{'nvim-treesitter/nvim-treesitter'}},
             config = [[ require('plugins/ts-autotag_nvim') ]]
         }
@@ -310,8 +316,13 @@ return require('packer').startup {
 
     config = {
         -- Move to lua dir so impatient.nvim can cache it
-        compile_path = vim.fn.stdpath('config') .. '/plugin/packer_compiled.lua'
+        compile_path = vim.fn.stdpath('config') .. '/plugin/packer_compiled.lua',
 
+		display = {
+			open_fn = function()
+				return require('packer.util').float({ border = 'single' })
+			end
+		}
     }
 }
 
