@@ -49,12 +49,12 @@ components.active[1] = {
         provider = 'file_info',
         hl = {
             fg = 'black',
-            bg = 'fg',
+            bg = 'white1',
             style = 'bold'
         },
         left_sep = {
             ' ', 'slant_left_2',
-            {str = ' ', hl = {bg = 'fg', fg = 'NONE'}}
+            {str = ' ', hl = {bg = 'white1', fg = 'NONE'}}
         },
         right_sep = {'slant_right_2', ' '}
     },
@@ -87,12 +87,12 @@ components.active[1] = {
     {
         provider = 'git_branch',
         hl = {
-            fg = 'white',
-            bg = 'black1',
+            fg = 'white1',
+            bg = 'bg',
             style = 'bold'
         },
         right_sep = function()
-            local val = {hl = {fg = 'NONE', bg = 'black1'}}
+            local val = {hl = {fg = 'NONE', bg = 'bg'}}
             if b.gitsigns_status_dict then val.str = ' ' else val.str = '' end
             return val
         end
@@ -210,7 +210,7 @@ components.active[3] = {
         left_sep = ' ',
         hl = {
             fg = 'black',
-            bg = 'fg',
+            bg = 'white1',
             style = 'bold'
         },
     },
@@ -219,7 +219,7 @@ components.active[3] = {
         provider = ' ',
         hl = {
             fg = 'black',
-            bg = 'fg',
+            bg = 'white1',
             -- style = 'bold',
             left_sep = ' ',
             -- right_sep = ' '
@@ -232,7 +232,7 @@ components.inactive[1] = {
         provider = 'file_info',
         hl = {
             fg = 'black',
-            bg = 'white1',
+            bg = '#464646',
             style = 'bold'
         },
         -- left_sep = {
