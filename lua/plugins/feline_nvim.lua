@@ -149,22 +149,22 @@ components.active[1] = {
 components.active[2] = {
     {
         provider = 'diagnostic_errors',
-        enabled = function() return lsp.diagnostics_exist('Error') end,
+        enabled = function() return lsp.diagnostics_exist(vim.diagnostic.severity.ERROR) end,
         hl = { fg = 'red' }
     },
     {
         provider = 'diagnostic_warnings',
-        enabled = function() return lsp.diagnostics_exist('Warning') end,
+        enabled = function() return lsp.diagnostics_exist(vim.diagnostic.severity.WARN) end,
         hl = { fg = 'yellow' }
     },
     {
         provider = 'diagnostic_hints',
-        enabled = function() return lsp.diagnostics_exist('Hint') end,
+        enabled = function() return lsp.diagnostics_exist(vim.diagnostic.severity.HINT) end,
         hl = { fg = 'cyan' }
     },
     {
         provider = 'diagnostic_info',
-        enabled = function() return lsp.diagnostics_exist('Information') end,
+        enabled = function() return lsp.diagnostics_exist(vim.diagnostic.severity.INFO) end,
         hl = { fg = 'skyblue' }
     },
     {
