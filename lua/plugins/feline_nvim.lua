@@ -350,7 +350,7 @@ local update_triggers = {
 }
 
 require('feline').setup({
-    colors = colors,
+    theme = colors,
     separators = separators,
     vi_mode_colors = vi_mode_colors,
     force_inactive = force_inactive,
