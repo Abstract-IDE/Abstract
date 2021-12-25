@@ -53,7 +53,7 @@ filetype = {
     -- Lua
     lua = { function() return {
             exe = "lua-format",
-            args = {'--indent-width 4' },
+            args = {'--indent-width 1', '--tab-width 4', '--use-tab' },
             stdin = true
         } end
     },
