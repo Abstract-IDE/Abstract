@@ -151,13 +151,13 @@ def compile_nvim():
 
 # -------------------------------
 def remove_no_require():
-    subprocess.run(["rm", "-rf", ".git*", "LICENSE", "README.md", "setup.py"],
+    subprocess.run(["rm", "-rf", ".git*", "LICENSE", "README.md", "setup.py", ".__*"],
                    cwd=NVIM_CONF_PATH)
     print("Removed: .git")
     print("Removed: LICENSE")
     print("Removed: README.md")
     print("Removed: setup.py")
-
+    print("Removed: .__roshnivim__")
 # -------------------------------
 
 
