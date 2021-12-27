@@ -81,6 +81,9 @@ keymap('t', '<Esc>', '<c-\\><c-n>', options)
 keymap('v', 'J', ":m '>+1<CR>gv=gv", options)
 keymap('v', 'K', ":m '<-2<CR>gv=gv", options)
 
+-- map ctl+z to nothing so that it don't suspend terminal
+cmd([[ :nnoremap <c-z> <nop><CR> ]])
+
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━❰ end of Plugin Mapping ❱━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --

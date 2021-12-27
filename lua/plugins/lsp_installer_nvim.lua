@@ -87,7 +87,7 @@ local servers = {
 }
 
 -- setup the LS
-require "plugins.lspconfig"
+local On_attach = require("plugins.lspconfig").On_attach
 make_server_ready(On_attach) -- LSP mappings
 
 -- install the LS

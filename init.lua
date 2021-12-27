@@ -126,6 +126,11 @@ return packer.startup {
 			config = [[ require('plugins/luasnip') ]]
 		}
 
+		use { -- Use Neovim as a language server to inject LSP diagnostics, code actions, and more via Lua.
+			'jose-elias-alvarez/null-ls.nvim',
+			config = [[ require('plugins/null-ls_nvim') ]]
+		}
+
 		use { -- A super powerful autopairs for Neovim. It support multiple character.
 			'windwp/nvim-autopairs',
 			config = [[ require('plugins/autopairs') ]]
@@ -216,11 +221,6 @@ return packer.startup {
 			config = [[ require('plugins/fterm_nvim') ]]
 		}
 
-		use { -- A format runner for neovim, written in lua.
-			"mhartington/formatter.nvim",
-			config = [[ require('plugins/formatter') ]]
-		}
-
 		use { -- fast and highly customizable greeter for neovim.
 			"goolord/alpha-nvim",
 			requires = {'kyazdani42/nvim-web-devicons'},
@@ -309,6 +309,10 @@ return packer.startup {
 			config = [[ require('plugins/indentLine') ]]
 		}
 
+		use { -- A format runner for neovim, written in lua.
+			"mhartington/formatter.nvim",
+			config = [[ require('plugins/formatter') ]]
+		}
 		--]=======]
 
 		-- ━━━━━━━━━━━━━━━❰ end Not Using ❱━━━━━━━━━━━━━━━━━ --
