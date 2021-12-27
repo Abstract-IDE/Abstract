@@ -9,27 +9,28 @@
 
 
 
+
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━━━❰ configs ❱━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
+local M = {}
+
 -- options for lsp diagnostic
 -- ───────────────────────────────────────────────── --
-vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with (
-	vim.lsp.diagnostic.on_publish_diagnostics,
-	{
-		underline = true,
-		signs = true,
-		update_in_insert = true,
-		virtual_text = {
-			true,
-			spacing = 6
-			-- severity_limit='Error'  -- Only show virtual text on error
-		},
-	}
-)
+vim.lsp.handlers["textDocument/publishDiagnostics"] =
+				vim.lsp.with(vim.lsp.diagnostic.on_publish_diagnostics, {
+					underline = true,
+					signs = true,
+					update_in_insert = true,
+					virtual_text = {
+						true,
+						spacing = 6,
+						-- severity_limit='Error'  -- Only show virtual text on error
+					},
+				})
 
-vim.diagnostic.config ({
+vim.diagnostic.config({
 	float = {
 		border = "rounded",
 		focusable = true,
@@ -40,15 +41,11 @@ vim.diagnostic.config ({
 	},
 })
 
-vim.lsp.handlers["textDocument/hover"] = vim.lsp.with (
-	vim.lsp.handlers.hover,
-	{ border = "rounded" }
-)
+vim.lsp.handlers["textDocument/hover"] =
+				vim.lsp.with(vim.lsp.handlers.hover, {border = "rounded"})
 
-vim.lsp.handlers["textDocument/signatureHelp"] = vim.lsp.with (
-	vim.lsp.handlers.signature_help,
-	{ border = "rounded" }
-)
+vim.lsp.handlers["textDocument/signatureHelp"] =
+				vim.lsp.with(vim.lsp.handlers.signature_help, {border = "rounded"})
 
 -- show diagnostic on float window(like auto complete)
 -- vim.api.nvim_command [[ autocmd CursorHold  *.lua,*.sh,*.bash,*.dart,*.py,*.cpp,*.c,js lua vim.lsp.diagnostic.show_line_diagnostics() ]]
@@ -90,46 +87,51 @@ vim.api.nvim_command [[ hi DiagnosticUnderlineInfo cterm=underline  gui=underlin
 -- Use an on_attach function to only map the following keys
 -- after the language server attaches to the current buffer
 -- ───────────────────────────────────────────────── --
-On_attach = function(client, bufnr)
+M.On_attach = function(client, bufnr)
 
-    local function buf_set_keymap(...)
-        vim.api.nvim_buf_set_keymap(bufnr, ...)
-    end
-    local function buf_set_option(...)
-        vim.api.nvim_buf_set_option(bufnr, ...)
-    end
+	local function buf_set_keymap(...) vim.api.nvim_buf_set_keymap(bufnr, ...) end
+	local function buf_set_option(...) vim.api.nvim_buf_set_option(bufnr, ...) end
 
-    -- Enable completion triggered by <c-x><c-o>
-    buf_set_option('omnifunc', 'v:lua.vim.lsp.omnifunc')
+	---------------------
+	-- Avoiding LSP formatting conflicts
+	-- ref: https://github.com/jose-elias-alvarez/null-ls.nvim/wiki/Avoiding-LSP-formatting-conflicts
+	client.resolved_capabilities.document_formatting = false
+	client.resolved_capabilities.document_range_formatting = false
+	--------------------------
 
-    -- Mappings.
-    local opts = {noremap = true, silent = true}
+	-- Enable completion triggered by <c-x><c-o>
+	buf_set_option('omnifunc', 'v:lua.vim.lsp.omnifunc')
 
-    -- See `:help vim.lsp.*` for documentation on any of the below functions
-    -- ───────────────────────────────────────────────── --
-    buf_set_keymap('n', '<space>e', '<cmd>lua vim.lsp.diagnostic.show_line_diagnostics()<CR>', opts)
-    buf_set_keymap('n', '[d',		'<cmd>lua vim.lsp.diagnostic.goto_prev()<CR>',	opts)
-    buf_set_keymap('n', ']d',		'<cmd>lua vim.lsp.diagnostic.goto_next()<CR>',	opts)
-    buf_set_keymap('n', '<space>q', '<cmd>lua vim.lsp.diagnostic.set_loclist()<CR>',opts)
+	-- Mappings.
+	local opts = {noremap = true, silent = true}
 
-    buf_set_keymap('n', 'gD',		'<Cmd>lua vim.lsp.buf.declaration()<CR>',		opts)
-    buf_set_keymap('n', 'gd',		'<Cmd>lua vim.lsp.buf.definition()<CR>',		opts)
-    buf_set_keymap('n', 'K',  		'<Cmd>lua vim.lsp.buf.hover()<CR>',				opts)
-    buf_set_keymap('n', 'gi', 		'<cmd>lua vim.lsp.buf.implementation()<CR>',	opts)
-    buf_set_keymap('n', '[ls',		'<cmd>lua vim.lsp.buf.signature_help()<CR>',	opts)
-    buf_set_keymap('n', '<space>D', '<cmd>lua vim.lsp.buf.type_definition()<CR>',	opts)
-    buf_set_keymap('n', '<space>rn','<cmd>lua vim.lsp.buf.rename()<CR>',			opts)
-    buf_set_keymap('n', 'gr',		'<cmd>lua vim.lsp.buf.references()<CR>',		opts)
-    buf_set_keymap("n", "<space>f", '<cmd>lua vim.lsp.buf.formatting()<CR>',		opts)
+	-- See `:help vim.lsp.*` for documentation on any of the below functions
+	-- ───────────────────────────────────────────────── --
+	buf_set_keymap('n', '<space>e',		'<cmd>lua vim.lsp.diagnostic.show_line_diagnostics()<CR>', opts)
+	buf_set_keymap('n', '[d',			'<cmd>lua vim.lsp.diagnostic.goto_prev()<CR>', opts)
+	buf_set_keymap('n', ']d',			'<cmd>lua vim.lsp.diagnostic.goto_next()<CR>', opts)
+	buf_set_keymap('n', '<space>q',		'<cmd>lua vim.lsp.diagnostic.set_loclist()<CR>', opts)
 
-    -- code action is integrated with telescope, for more see "telescope.lua" file
-    -- buf_set_keymap('n', '<space>ca',    '<cmd>lua vim.lsp.buf.code_action()<CR>',                   opts)
-    -- buf_set_keymap('n', '<leader>wa',    '<cmd>lua vim.lsp.buf.add_workleader_folder()<CR>',          opts)
-    -- buf_set_keymap('n', '<leader>wr',    '<cmd>lua vim.lsp.buf.remove_workleader_folder()<CR>',       opts)
-    -- buf_set_keymap('n', '<leader>wl',   '<cmd>lua print(vim.inspect(vim.lsp.buf.list_workleader_folders()))<CR>', opts)
+	buf_set_keymap('n', 'gD',			'<Cmd>lua vim.lsp.buf.declaration()<CR>', opts)
+	buf_set_keymap('n', 'gd',			'<Cmd>lua vim.lsp.buf.definition()<CR>', opts)
+	buf_set_keymap('n', 'K',			'<Cmd>lua vim.lsp.buf.hover()<CR>', opts)
+	buf_set_keymap('n', 'gi',			'<cmd>lua vim.lsp.buf.implementation()<CR>', opts)
+	buf_set_keymap('n', '[ls',			'<cmd>lua vim.lsp.buf.signature_help()<CR>', opts)
+	buf_set_keymap('n', '<space>D',		'<cmd>lua vim.lsp.buf.type_definition()<CR>', opts)
+	buf_set_keymap('n', '<space>rn',	'<cmd>lua vim.lsp.buf.rename()<CR>', opts)
+	buf_set_keymap('n', 'gr',			'<cmd>lua vim.lsp.buf.references()<CR>', opts)
+	buf_set_keymap("n", "<space>f",		'<cmd>lua vim.lsp.buf.formatting()<CR>', opts)
+
+	-- code action is integrated with telescope, for more see "telescope.lua" file
+	-- buf_set_keymap('n', '<space>ca',    '<cmd>lua vim.lsp.buf.code_action()<CR>',                   opts)
+	-- buf_set_keymap('n', '<leader>wa',    '<cmd>lua vim.lsp.buf.add_workleader_folder()<CR>',          opts)
+	-- buf_set_keymap('n', '<leader>wr',    '<cmd>lua vim.lsp.buf.remove_workleader_folder()<CR>',       opts)
+	-- buf_set_keymap('n', '<leader>wl',   '<cmd>lua print(vim.inspect(vim.lsp.buf.list_workleader_folders()))<CR>', opts)
 end
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━❰ end Mappings ❱━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
+
+return M
 

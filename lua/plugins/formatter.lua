@@ -98,8 +98,8 @@ require('formatter').setup({
 -- ━━━━━━━━━━━━━━━━━━━❰ Mappings ❱━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
-local keymap = vim.api.nvim_set_keymap
-keymap('n', '<Space>fm', '<ESC>:Format<CR>', {noremap = true, silent = true})
+-- local keymap = vim.api.nvim_set_keymap
+-- keymap('n', '<Space>fm', '<ESC>:Format<CR>', {noremap = true, silent = true})
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━❰ end Mappings ❱━━━━━━━━━━━━━━━━ --
