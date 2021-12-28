@@ -30,6 +30,7 @@
 * [To-do](#to-do)
 * [#Warning](#warning)
 
+![screenshot_welcome](https://raw.githubusercontent.com/shaeinst/media/main/images/github-repositories/roshnivim/roshnivim-welcom.png)
 
 ## About
 <div align="center"
