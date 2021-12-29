@@ -205,7 +205,7 @@ return packer.startup {
 
 		use { -- A File Explorer For Neovim Written In Lua
 			'kyazdani42/nvim-tree.lua',
-			config = [[ require('plugins/tree_nvim') ]]
+			config = [[ require('plugins/nvim-tree_lua') ]]
 		}
 
 		use { -- A minimal, stylish and customizable statusline for Neovim written in Lua
