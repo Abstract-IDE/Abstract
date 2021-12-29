@@ -61,7 +61,7 @@ require'nvim-tree'.setup {
 		icons = {hint = "", info = "", warning = "", error = ""},
 	},
 	git = {enable = false},
-	update_focused_file = {enable = false, update_cwd = false, ignore_list = {}},
+	update_focused_file = {enable = true, update_cwd = false, ignore_list = {}},
 	system_open = {cmd = nil, args = {}},
 	filters = {dotfiles = false, custom = {}},
 
