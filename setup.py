@@ -238,7 +238,7 @@ def main():
             )
         else:
             print("copying config...")
-            subprocess.run(["cp", "-r", "../roshnivim", f"{CONFIG}/nvim"])
+            subprocess.run(["cp", "-r", "../*n*vim*", f"{CONFIG}/nvim"])
         install_roshnivim()
 
     # cloning lazy-builder tool (https://github.com/shaeinst/lazy-builder)
