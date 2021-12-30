@@ -83,7 +83,7 @@ local servers = {
 }
 
 -- setup the LS
-local On_attach = require("plugins.lspconfig").On_attach
+local On_attach = require("plugins.nvim-lspconfig").On_attach
 make_server_ready(On_attach) -- LSP mappings
 
 -- install the LS

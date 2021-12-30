@@ -85,24 +85,24 @@ return packer.startup {
 
 		use { -- A collection of common configurations for Neovim's built-in language server client
 			'neovim/nvim-lspconfig',
-			config = [[ require('plugins/lspconfig') ]]
+			config = [[ require('plugins/nvim-lspconfig') ]]
 		}
 
 		use { -- Companion plugin for nvim-lspconfig that allows you to seamlessly install LSP servers locally (inside :echo stdpath("data")).
 			'williamboman/nvim-lsp-installer',
-			config = [[ require('plugins/lsp_installer_nvim') ]]
+			config = [[ require('plugins/nvim-lsp-installer') ]]
 		}
 
 		use { -- vscode-like pictograms for neovim lsp completion items Topics
 			'onsails/lspkind-nvim',
-			config = [[ require('plugins/lspkind') ]]
+			config = [[ require('plugins/lspkind-nvim') ]]
 		}
 
 		use { -- Nvim Treesitter configurations and abstraction layer
 			'nvim-treesitter/nvim-treesitter',
 			'nvim-treesitter/playground', -- Treesitter playground integrated into Neovim
 			run = ':TSUpdate',
-			config = [[ require('plugins/treesitter') ]]
+			config = [[ require('plugins/nvim-treesitter') ]]
 		}
 
 		use { -- A completion plugin for neovim coded in Lua.
@@ -115,7 +115,7 @@ return packer.startup {
 				"hrsh7th/cmp-calc", -- nvim-cmp source for math calculation.
 				"saadparwaiz1/cmp_luasnip" -- luasnip completion source for nvim-cmp
 			},
-			config = [[ require('plugins/cmp') ]]
+			config = [[ require('plugins/nvim-cmp') ]]
 		}
 
 		use { -- Snippet Engine for Neovim written in Lua.
@@ -123,7 +123,7 @@ return packer.startup {
 			requires = {
 				"rafamadriz/friendly-snippets" -- Snippets collection for a set of different programming languages for faster development.
 			},
-			config = [[ require('plugins/luasnip') ]]
+			config = [[ require('plugins/LuaSnip') ]]
 		}
 
 		use { -- Use Neovim as a language server to inject LSP diagnostics, code actions, and more via Lua.
@@ -133,7 +133,7 @@ return packer.startup {
 
 		use { -- A super powerful autopairs for Neovim. It support multiple character.
 			'windwp/nvim-autopairs',
-			config = [[ require('plugins/autopairs') ]]
+			config = [[ require('plugins/nvim-autopairs') ]]
 		}
 
 		use { -- Find, Filter, Preview, Pick. All lua, all the time.
@@ -143,27 +143,27 @@ return packer.startup {
 				{'nvim-lua/plenary.nvim'},
 				{'nvim-telescope/telescope-fzf-native.nvim', run = 'make'} -- FZF sorter for telescope written in c
 			},
-			config = [[ require('plugins/telescope') ]]
+			config = [[ require('plugins/telescope_nvim') ]]
 		}
 
 		use { -- Use (neo)vim terminal in the floating/popup window.
 			'voldikss/vim-floaterm',
-			config = [[ require('plugins/floaterm') ]]
+			config = [[ require('plugins/vim-floaterm') ]]
 		}
 
 		use { -- lua `fork` of vim-web-devicons for neovim
 			'kyazdani42/nvim-web-devicons',
-			config = [[ require('plugins/webdevicons_nvim') ]]
+			config = [[ require('plugins/nvim-web-devicons') ]]
 		}
 
 		use { -- Maximizes and restores the current window in Vim
 			'szw/vim-maximizer',
-			config = [[ require('plugins/maximizer') ]]
+			config = [[ require('plugins/vim-maximizer') ]]
 		}
 
 		use { -- Smart and powerful comment plugin for neovim. Supports commentstring, dot repeat, left-right/up-down motions, hooks, and more
 			'numToStr/Comment.nvim',
-			config = [[ require('plugins/comment_nvim') ]]
+			config = [[ require('plugins/Comment_nvim') ]]
 		}
 
 		use { -- A surround text object plugin for neovim written in lua.
@@ -173,12 +173,12 @@ return packer.startup {
 
 		use { -- The fastest Neovim colorizer.
 			'norcalli/nvim-colorizer.lua',
-			config = [[ require('plugins/colorizer') ]]
+			config = [[ require('plugins/nvim-colorizer_lua') ]]
 		}
 
 		use {
 			'lukas-reineke/indent-blankline.nvim',
-			config = [[ require('plugins/indent_blankline') ]]
+			config = [[ require('plugins/indent-blankline_nvim') ]]
 		}
 
 		use { -- to change current working directory to project's root directory.
@@ -200,7 +200,7 @@ return packer.startup {
 		use { -- A snazzy bufferline for Neovim
 			'akinsho/nvim-bufferline.lua',
 			requires = 'kyazdani42/nvim-web-devicons',
-			config = [[ require('plugins/bufferline_nvim') ]]
+			config = [[ require('plugins/nvim-bufferline_lua') ]]
 		}
 
 		use { -- A File Explorer For Neovim Written In Lua
@@ -238,10 +238,10 @@ return packer.startup {
 				{'Neevash/awesome-flutter-snippets'}, -- collection snippets and shortcuts for commonly used Flutter functions and classes
 				{
 					'dart-lang/dart-vim-plugin', -- Syntax highlighting for Dart in Vim
-					config = [[ require('plugins/dart_vim_plugin') ]]
+					config = [[ require('plugins/dart-vim-plugin') ]]
 				}
 			},
-			config = [[ require('plugins/fluttertools') ]]
+			config = [[ require('plugins/flutter-tools_nvim') ]]
 		}
 
 		--            for Web-Development
@@ -249,7 +249,7 @@ return packer.startup {
 			"windwp/nvim-ts-autotag",
 			ft = {'html', 'tsx', 'vue', 'svelte', 'php'},
 			requires = {'nvim-treesitter/nvim-treesitter'},
-			config = [[ require('plugins/ts-autotag_nvim') ]]
+			config = [[ require('plugins/nvim-ts-autotag') ]]
 		}
 		-- ━━━━━━━━━━━━━━❰ end of DEVELOPMENT ❱━━━━━━━━━━━━━ --
 
