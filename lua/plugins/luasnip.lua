@@ -1,29 +1,28 @@
---━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━--
---─────────────────────────────────────────────────--
+
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
+-- ───────────────────────────────────────────────── --
 --   Plugin:    LuaSnip
 --   Github:    github.com/L3MON4D3/LuaSnip
---─────────────────────────────────────────────────--
---━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━--
+-- ───────────────────────────────────────────────── --
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
 
 
 
 
---━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━--
---━━━━━━━━━━━━━━━━━━━❰ configs ❱━━━━━━━━━━━━━━━━━━━--
---━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━--
-
-
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
+-- ━━━━━━━━━━━━━━━━━━━❰ configs ❱━━━━━━━━━━━━━━━━━━━ --
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
 local ls = require("luasnip")
 -- some shorthands...
-local s = ls.snippet
-local sn = ls.snippet_node
-local t = ls.text_node
-local i = ls.insert_node
-local f = ls.function_node
-local c = ls.choice_node
-local d = ls.dynamic_node
+-- local s = ls.snippet
+-- local sn = ls.snippet_node
+-- local t = ls.text_node
+-- local i = ls.insert_node
+-- local f = ls.function_node
+-- local c = ls.choice_node
+-- local d = ls.dynamic_node
 
 -- Every unspecified option will be set to the default.
 ls.config.set_config({
@@ -32,15 +31,7 @@ ls.config.set_config({
 	updateevents = "TextChanged,TextChangedI",
 })
 
-
-ls.snippets = {
-
-	all = {
-  },
-
-  html = {}
-
-}
+ls.snippets = {all = {}, html = {}}
 
 -- enable html snippets in javascript/javascript(REACT)
 ls.snippets.javascript = ls.snippets.html
@@ -55,14 +46,15 @@ require("luasnip/loaders/from_vscode").load({include = {"html"}})
 -- will need to extend the table yourself instead of setting a new one.
 ]]
 
---require("luasnip/loaders/from_vscode").load({ include = { "python" } }) -- Load only python snippets
---require("luasnip/loaders/from_vscode").load({ paths = { "~/.config/nvim/extra/snippets" } }) -- Load snippets from my-snippets folder
+-- require("luasnip/loaders/from_vscode").load({ include = { "python" } }) -- Load only python snippets
+-- require("luasnip/loaders/from_vscode").load({ paths = { "~/.config/nvim/extra/snippets" } }) -- Load snippets from my-snippets folder
 
 -- You can also use lazy loading so you only get in memory snippets of languages you use
-require'luasnip/loaders/from_vscode'.lazy_load({ paths = {"~/.config/nvim/extra/snippets"} })
+require'luasnip/loaders/from_vscode'.lazy_load({
+	paths = {"~/.config/nvim/extra/snippets"},
+})
 
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
+-- ━━━━━━━━━━━━━━━━━❰ end configs ❱━━━━━━━━━━━━━━━━━ --
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
-
---━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━--
---━━━━━━━━━━━━━━━━━❰ end configs ❱━━━━━━━━━━━━━━━━━--
---━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━--

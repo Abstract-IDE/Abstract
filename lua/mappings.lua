@@ -1,3 +1,4 @@
+
 --  .______       ______        _______. __    __  .__   __.  __  ____    ____  __  .___  ___.
 --  |   _  \     /  __  \      /       ||  |  |  | |  \ |  | |  | \   \  /   / |  | |   \/   |
 --  |  |_)  |   |  |  |  |    |   (----`|  |__|  | |   \|  | |  |  \   \/   /  |  | |  \  /  |
@@ -55,7 +56,7 @@ keymap('n', '//', ':noh <CR>', silent)
 --]]
 keymap('n', '<M-q>', '<C-W>on', silent)
 
---					Resize splits more quickly
+--			Resize splits more quickly
 -- ────────────────────────────────────────────────────
 -- resize up and down
 keymap('n', ';k', ':resize +3 <CR>', options)
