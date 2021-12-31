@@ -38,7 +38,7 @@ components.active[1] = {
 		right_sep = ' ',
 	},
 	{
-		provider = 'file_info',
+		provider = { name = "file_info", opts = { type = "relative" } },
 		hl = {fg = 'black', bg = 'white1', style = 'bold'},
 		left_sep = {
 			' ',
