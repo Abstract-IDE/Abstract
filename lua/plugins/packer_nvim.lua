@@ -186,11 +186,6 @@ return packer.startup {
 			config = [[ require('plugins/feline_nvim') ]]
 		}
 
-		use { -- No-nonsense floating terminal plugin for neovim
-			"numtostr/FTerm.nvim",
-			config = [[ require('plugins/fterm_nvim') ]]
-		}
-
 		use { -- fast and highly customizable greeter for neovim.
 			"goolord/alpha-nvim",
 			requires = {'kyazdani42/nvim-web-devicons'},
@@ -292,6 +287,11 @@ return packer.startup {
 		use { -- A format runner for neovim, written in lua.
 			"mhartington/formatter.nvim",
 			config = [[ require('plugins/formatter') ]]
+		}
+
+		use { -- No-nonsense floating terminal plugin for neovim
+			"numtostr/FTerm.nvim",
+			config = [[ require('plugins/fterm_nvim') ]]
 		}
 		--]=======]
 
