@@ -79,10 +79,10 @@ return packer.startup {
 			'hrsh7th/nvim-cmp',
 			requires = {
 				"hrsh7th/cmp-nvim-lsp", -- nvim-cmp source for neovim builtin LSP client
-				"hrsh7th/cmp-nvim-lua", -- nvim-cmp source for nvim lua
+				{"hrsh7th/cmp-nvim-lua", ft = 'lua'}, -- nvim-cmp source for nvim lua
 				"hrsh7th/cmp-buffer", -- nvim-cmp source for buffer words.
 				"hrsh7th/cmp-path", -- nvim-cmp source for filesystem paths.
-				"hrsh7th/cmp-calc", -- nvim-cmp source for math calculation.
+				-- "hrsh7th/cmp-calc", -- nvim-cmp source for math calculation.
 				"saadparwaiz1/cmp_luasnip" -- luasnip completion source for nvim-cmp
 			},
 			config = [[ require('plugins/nvim-cmp') ]]
