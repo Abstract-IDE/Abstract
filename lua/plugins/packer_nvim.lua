@@ -293,6 +293,11 @@ return packer.startup {
 			"numtostr/FTerm.nvim",
 			config = [[ require('plugins/fterm_nvim') ]]
 		}
+
+		use {
+			'puremourning/vimspector',
+			config = [[ require('plugins/vimspector') ]]
+		}
 		--]=======]
 
 -- ━━━━━━━━━━━━━━━❰ end Not Using ❱━━━━━━━━━━━━━━━━━ --
