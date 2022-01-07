@@ -19,6 +19,7 @@
 ## Table Of Contents
 
 * [About](#about)
+* [Features](#features)
 * [Getting Started](#getting-started)
   * [Prerequisites](#prerequisites)
   * [Installation](#installation)
