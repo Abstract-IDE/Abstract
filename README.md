@@ -1,3 +1,4 @@
+
 <br/>
 <p align="center">
   <a href="https://github.com/shaeinst/roshnivim">
@@ -32,6 +33,7 @@
 
 
 ## About
+
 <div align="center"
   roshnivim ->  roshni + vim -> light + vim (roshni means light in hindi/urdu) <br>
   logo-style -> rosh(n)i(vim)  <br>
@@ -41,7 +43,10 @@ roshnivim, can be called neovim's distro, is a predefined configs so that you do
 
 ![screenshot_welcome](https://raw.githubusercontent.com/shaeinst/media/main/images/github-repositories/roshnivim/roshnivim-welcom.png)
 
+
+
 ## Features
+
 - ```Project based config loading``` ( you can define configs in ```.__nvim__.lua``` file in the root of your working project so that you don't have to change config everytime you work on new/seperate project )
 - ```Your own custom configs and Mappings``` (if you don't like roshnivim's default config/mapping, you can change/override it on [override_defalut.lua](https://github.com/shaeinst/roshnivim/blob/main/lua/customs/override_defalut.lua) OR ```~/.__nvim__.lua``` file )
 - ```Separate config file for each plugins``` each plugin has their own config file which is defined in lua/plugins directory
@@ -49,12 +54,16 @@ roshnivim, can be called neovim's distro, is a predefined configs so that you do
 - ```Easy Installation``` install roshnivim with single command
 
 
+
 ## Getting Started
+
 roshnivim can be installed by just runing a script.
+
 
 #### Prerequisites
 
   * neovim >= 6.0
+
 
 #### Installation
 
@@ -85,11 +94,14 @@ for example: to install C/C++'s LS ``` :LspInstall clangd ```
 
 
 ## Usage
+
 every one has their own favourite configs and keybindings. roshnivim try its best to provide likable configs and mapping.
 <br>
 so in case you don't like to use mapping or configs by roshnivim, you can change it in [override_defalut.lua](https://github.com/shaeinst/roshnivim/blob/main/lua/customs/override_defalut.lua) file. <br>
 
+
 ### Project Stracture
+
 ```
 ├── extra/
 │   └── snippets/                  / custom defined snippets
@@ -108,14 +120,36 @@ so in case you don't like to use mapping or configs by roshnivim, you can change
 ├── plugin/                        / auto-created by plugin manager
 └── setup.py                       / python-script to install/update roshnivim
 ```
+
+
 ### Mappings
-``` ; M ``` to show mappings (it will show mapping in telescope) <br>
-```;```     is a ```leader key```.   you can change it in [init.lua](https://github.com/shaeinst/roshnivim/blob/main/init.lua) file
-<br>
+
+you can change ```Leader key``` in [init.lua](https://github.com/shaeinst/roshnivim/blob/main/init.lua) file
+
+| Keys                | Functions                                                              |
+| --------------------|:---------------------------------------------------------------------- |
+| ```;```             | leader key                                                             |
+| ```<leader>M```     | show all mappings (it will show mapping in telescope)                  |
+| ```<C-p>```         | Find files from current file's project                                 |
+| ```<C-f>```         | show all files from current working directory                          |
+| ```\\```            | Launch Telescope without any argument                                  |
+| ```<Leader>q```     | close buffer                                                           |
+| ```<C-s>```         | save file                                                              |
+| ```<C-h>```         | scroll window horizontally (left)                                      |
+| ```<C-l>```         | scroll window horizontally (right)                                     |
+| ```//```            | clear Search Results                                                   |
+| ```<M-q>```         | (M=Alt) on[ly] close all other windows but leave all buffers open.     |
+| ```K```             | move selected line(s) up                                               |
+| ```J```             | move selected line(s) down                                             |
+
+
 
 ## License
+
 Distributed under the MIT License.
 <br><br>
+
+
 
 ## Screenshots
    ![screenshot_lua](https://raw.githubusercontent.com/shaeinst/media/main/images/github-repositories/roshnivim/buff_and_nerdtree.png)
@@ -124,20 +158,24 @@ Distributed under the MIT License.
    ![screenshot_telescode](https://raw.githubusercontent.com/shaeinst/media/main/images/github-repositories/roshnivim/telescope_as_fuzzy_finder.png)
    ![screenshot_lua](https://raw.githubusercontent.com/shaeinst/media/main/images/github-repositories/roshnivim/packer.png)
    ![screenshot_codeaction](https://raw.githubusercontent.com/shaeinst/media/main/images/github-repositories/roshnivim/codeaction_in_flutter_app.png)
-
-
-
 <br>
 
+
+
 ## To-Do
+
 - write decent documentation
 
 
+
 ## Known Bugs
+
 - shows false line number on status line (sometime)
 
 
+
 ## Thanks to
+
 - [Neovim](https://github.com/neovim/) -- for awesome EDITOR
 - [shaankhan](https://readme.shaankhan.dev/) -- for readme
 - [Neovim-Subreddit](https://www.reddit.com/r/neovim/) -- for awesome supporting community
@@ -145,3 +183,4 @@ Distributed under the MIT License.
 - Plugin Authors -- without you, neovim is incomplete
 - and YOU
 <br>
+
