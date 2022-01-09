@@ -29,6 +29,7 @@ require("indent_blankline").setup {
 		'packer',
 		'neogitstatus',
 		'NvimTree',
+		'lsp-installer',
 	},
 	buftype_exclude = {'terminal'},
 	use_treesitter = true,
