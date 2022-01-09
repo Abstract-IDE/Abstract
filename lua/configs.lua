@@ -20,7 +20,9 @@
 		it's own config file. some settings are already default in neovim so you
 		don't need to define explicitly but it won't make any difference
     :end of NOTE
---]] local exec = vim.api.nvim_exec -- execute Vimscript
+--]]
+
+local exec = vim.api.nvim_exec -- execute Vimscript
 local set = vim.opt -- global options
 local cmd = vim.cmd -- execute Vim commands
 -- local fn    = vim.fn            -- call Vim functions
@@ -40,6 +42,7 @@ set.listchars = {
 	trail = '•', -- BULLET (U+2022, UTF-8: E2 80 A2)
 	space = ' ',
 }
+
 set.fillchars = {
 	diff = '∙', -- BULLET OPERATOR (U+2219, UTF-8: E2 88 99)
 	eob = ' ', -- NO-BREAK SPACE (U+00A0, UTF-8: C2 A0) to suppress ~ at EndOfBuffer
@@ -109,17 +112,17 @@ set.completeopt = 'menuone,noselect,noinsert' -- completion options
 
 -- highlight on yank
 exec([[
-  augroup YankHighlight
-    autocmd!
-    autocmd TextYankPost * silent! lua vim.highlight.on_yank{higroup="IncSearch", timeout=500, on_visual=true}
-  augroup end
+	augroup YankHighlight
+		autocmd!
+    	autocmd TextYankPost * silent! lua vim.highlight.on_yank{higroup="IncSearch", timeout=500, on_visual=true}
+	augroup end
 ]], false)
 
 -- jump to the last position when reopening a file
 cmd([[
-if has("autocmd")
-  au BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$") | exe "normal! g`\"" | endif
-endif
+	if has("autocmd")
+		au BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$") | exe "normal! g`\"" | endif
+	endif
 ]])
 
 -- remove whitespace on save
@@ -127,25 +130,6 @@ cmd([[au BufWritePre * :%s/\s\+$//e]])
 
 -- don't auto commenting new lines
 cmd([[au BufEnter * set fo-=c fo-=r fo-=o]])
-
--- ────────────────────────────────────────────────────
---[[		for specific filetypes/languages
-    NOTE: et = extand tab
-          ai = autoindent
-          fo = Create a fold for the lines in {range}.
-]]
-
--- -- python
--- cmd([[ au BufEnter *.py set ai sw=4 ts=4 sta et fo=croql ]])
--- -- C/C++
--- cmd([[ au BufEnter *.c,*.cpp,*cxx,*C,*CPP set ai sw=8 ts=8 sta fo=croql ]])
--- -- lua
--- cmd([[ au BufEnter *.lua set ai expandtab shiftwidth=2 tabstop=2 sta fo=croql ]])
--- -- vim
--- cmd([[ au BufEnter *.vim set ai expandtab shiftwidth=2 tabstop=2 sta fo=croql ]])
--- -- json
--- cmd([[ au BufEnter *.json set ai expandtab shiftwidth=2 tabstop=2 sta fo=croql ]])
--- ────────────────────────────────────────────────────
 
 -- ━━━━━━━━━━━━━━━━❰ end of Automate ❱━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
