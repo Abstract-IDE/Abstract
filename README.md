@@ -164,13 +164,14 @@ Distributed under the MIT License.
 
 ## To-Do
 
+- installer(setup.py) support for Windows OS
 - write decent documentation
 
 
 
 ## Known Bugs
 
-- shows false line number on status line (sometime)
+- there is no known bugs yet. Please open the issue if you find one.
 
 
 
