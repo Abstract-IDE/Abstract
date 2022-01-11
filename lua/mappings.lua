@@ -33,8 +33,8 @@ cmd([[ autocmd BufEnter * nmap silent <buffer> <Leader>q :bd<CR> ]])
 
 -- keymap('n', '<Leader>q',':q <CR>',      options)
 -- to save file
-keymap('i', '<C-s>', '<ESC>:w <CR>', options)
-keymap('n', '<C-s>', '<ESC>:w <CR>', options)
+keymap('i', '<C-s>', '<ESC>ma<ESC>:w <CR>`a', options)
+keymap('n', '<C-s>', '<ESC>ma<ESC>:w <CR>`a', options)
 
 -- scroll window up/down
 keymap('i', '<C-e>', '<ESC><C-e>', silent)
