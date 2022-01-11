@@ -40,7 +40,7 @@ require('customs/project_env') -- load/source ".__nvim__" configs that are defin
 -- loading plugins and its configs are managed in seperate config file
 -- ~/.config/nvim/lua/plugins/packer_nvim.lua
 -- NOTE: laways load plugins at last
-require('packer')
+require('packer_nvim')
 
 
 -- ━━━━━━━━━━━━━━━━━❰ end of Load ❱━━━━━━━━━━━━━━━━━ --
