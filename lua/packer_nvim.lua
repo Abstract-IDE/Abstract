@@ -179,7 +179,7 @@ return packer.startup {
 		}
 
 		use { -- A minimal, stylish and customizable statusline for Neovim written in Lua
-			'Famiu/feline.nvim',
+			'feline-nvim/feline.nvim',
 			-- requires = {
 			--   'nvim-lua/lsp-status.nvim',
 			-- },
