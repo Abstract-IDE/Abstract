@@ -21,6 +21,12 @@ require'nvim-treesitter.configs'.setup {
 
 	highlight = {
 		enable = true, -- {"c", "cpp", "dart", "python", "javascript"}, enable = true (false will disable the whole extension)
+		-- disable lighlight if file is too long
+		disable = function(lang, bufnr) -- Disable in large C++ buffers
+			-- disable highlight if file has > 6000 LOC
+			return vim.api.nvim_buf_line_count(bufnr) > 6000
+			-- return lang == "cpp" and vim.api.nvim_buf_line_count(bufnr) > 50000
+		end,
 		-- disable = { "c", "rust" },  -- list of language that will be disabled
 		custom_captures = {
 			-- Highlight the @foo.bar capture group with the "Identifier" highlight group.
