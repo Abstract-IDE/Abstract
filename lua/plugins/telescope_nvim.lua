@@ -123,7 +123,7 @@ keymap('n', "<C-f>",
 --       --> Code Action
 -- for example, in flutter/dart you can wrap or delete widgets using code action.
 -- for more see :help builtin.lsp_code_actions() or :help builtin.lsp_range_code_actions()
-keymap('n', "<leader>ca",
+keymap('n', "<Space>ca",
        "<cmd>lua  require('telescope.builtin').lsp_code_actions( {layout_config={width=50, height=20} } ) <CR>",
        {silent = true, noremap = true})
 keymap('x', "<leader>ca",
