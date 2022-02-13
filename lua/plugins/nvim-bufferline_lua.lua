@@ -84,6 +84,13 @@ require('bufferline').setup {
 		duplicate_selected = {
 			guifg = {highlight = "BufferCurrentSign", attribute = "fg"},
 		},
+		modified = {
+			guifg = {highlight = "BufferCurrentSign", attribute = "fg"},
+			guibg = {highlight = "BufferLineFill", attribute = "bg"},
+		},
+		modified_selected = {
+			guifg = {highlight = "BufferCurrentSign", attribute = "fg"},
+		},
 		-- duplicate_visible = {
 		-- },
 		-- close_button = {
@@ -96,11 +103,7 @@ require('bufferline').setup {
 		-- },
 		-- buffer_selected = {
 		-- },
-		-- modified = {
-		-- },
 		-- modified_visible = {
-		-- },
-		-- modified_selected = {
 		-- },
 		-- separator_visible = {
 		-- },
