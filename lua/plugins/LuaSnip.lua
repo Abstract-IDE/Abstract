@@ -37,6 +37,10 @@ ls.snippets = {all = {}, html = {}}
 ls.snippets.javascript = ls.snippets.html
 ls.snippets.javascriptreact = ls.snippets.html
 ls.snippets.typescriptreact = ls.snippets.html
+
+-- enable html snippets in django (htmldjango)
+ls.snippets.htmldjango = ls.snippets.html
+
 require("luasnip/loaders/from_vscode").load({include = {"html"}})
 
 --[[

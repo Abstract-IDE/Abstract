@@ -62,10 +62,10 @@ local function make_server_ready(attach)
 			capabilities.offsetEncoding = { "utf-16" }
 		end
 
-		-- -- for html
-		-- if server.name == "html" then
-		-- 	opts.filetypes = {"html", "htmldjango"}
-		-- end
+		-- for html
+		if server.name == "html" then
+			opts.filetypes = {"html", "htmldjango"}
+		end
 
 
 		opts.capabilities = capabilities
