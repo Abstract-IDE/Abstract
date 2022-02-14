@@ -82,11 +82,11 @@ if vim.fn.executable("black") == 1 then
 end
 
 -- Django ("htmldjango")
-if vim.fn.executable("djhtml") == 1 then
+if vim.fn.executable("djlint") == 1 then
 	ld = true
-	sources[#sources+1] = formatting.djhtml.with({
-		command = "djhtml",
-		-- args = {"--quiet", "--fast", "-"},
+	sources[#sources+1] = formatting.djlint.with({
+		command = "djlint",
+		args = { "--reformat", "-"},
 	})
 end
 
