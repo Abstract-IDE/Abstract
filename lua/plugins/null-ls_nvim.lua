@@ -28,11 +28,11 @@ local formatting = builtins.formatting
 
 -- register any number of sources simultaneously
 local sources = {}
-local ld = false
+local load = false
 
 -- Lua
 if vim.fn.executable("lua-format") == 1 then
-	ld = true
+	load = true
 	sources[#sources+1] = formatting.lua_format.with({
 		command = "lua-format",
 		args = {
@@ -49,7 +49,7 @@ end
 
  -- C, C++, CS, Java
 if vim.fn.executable("clang-format") == 1 then
-	ld = true
+	load = true
 	sources[#sources+1] = formatting.clang_format.with({
 		command = "clang-format",
 		args = {
@@ -65,7 +65,7 @@ end
 -- "javascript", "javascriptreact", "typescript", "typescriptreact", "vue",
 -- "css", "scss", "less", "html", "json", "yaml", "markdown", "graphql"
 if vim.fn.executable("prettier") == 1 then
-	ld = true
+	load = true
 	sources[#sources+1] = formatting.prettier.with({
 		command = "prettier",
 		args = {"--stdin-filepath", "$FILENAME"},
@@ -74,7 +74,7 @@ end
 
 -- Python
 if vim.fn.executable("black") == 1 then
-	ld = true
+	load = true
 	sources[#sources+1] = formatting.black.with({
 		command = "black",
 		args = {"--quiet", "--fast", "-"},
@@ -83,15 +83,18 @@ end
 
 -- Django ("htmldjango")
 if vim.fn.executable("djlint") == 1 then
-	ld = true
+	load = true
 	sources[#sources+1] = formatting.djlint.with({
 		command = "djlint",
 		args = { "--reformat", "-"},
 	})
 end
 
-if ld then
-	require("null-ls").setup({sources = sources})
+
+if load then
+	require("null-ls").setup({
+		sources = sources
+	})
 end
 
 -- ───────────────❰ end FORMATTING ❱──────────────── --
