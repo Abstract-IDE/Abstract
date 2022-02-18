@@ -27,6 +27,8 @@ vim.g.floaterm_title = 'Terminal: $1/$2'
 
 -- Set it to 'split' or 'vsplit' if you don't want to use floating or popup window.
 vim.g.floaterm_wintype = 'float'
+-- don't auto close terminal (useful when you try to compile/run code)
+vim.g.floaterm_autoclose = 0
 
 -- Type Number (number of columns) or Float (between 0 and 1). If Float, the width is relative to &columns.
 vim.g.floaterm_width = 0.6
