@@ -12,15 +12,17 @@
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━❰ Plugin-Independent Mapping ❱━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
---[[this config file contains the mapping that don't depends
- on any plugin. mappings for plugins-dependent are in
- lua/plugin" directory. each plugin has it's own config file
+--[===[
+        this config file contains the mapping that don't depends
+        on any plugin. mappings for plugins-dependent are in
+        lua/plugin" directory. each plugin has it's own config file
 
-To see the current mapping for |<Leader>| type :echo mapleader.
-If it reports an undefined variable it means the leader key is
-set to the "default of '\'.
-i defined leader on very start of init.lua file so that every
-keymap would work]]
+        To see the current mapping for |<Leader>| type :echo mapleader.
+        If it reports an undefined variable it means the leader key is
+        set to the "default of '\'.
+        i defined leader on very start of init.lua file so that every
+        keymap would work
+--]===]
 
 
 local keymap	= vim.api.nvim_set_keymap
