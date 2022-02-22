@@ -22,13 +22,14 @@ local formatting = builtins.formatting
 -- local diagnostics = builtins.diagnostics
 -- local code_actions = builtins.code_actions
 
--- ───────────────────────────────────────────────── --
--- ─────────────────❰ FORMATTING ❱────────────────── --
--- https://github.com/jose-elias-alvarez/null-ls.nvim/tree/main/lua/null-ls/builtins/formatting
-
 -- register any number of sources simultaneously
 local sources = {}
 local load = false
+
+
+-- ───────────────────────────────────────────────── --
+-- ─────────────────❰ FORMATTING ❱────────────────── --
+-- https://github.com/jose-elias-alvarez/null-ls.nvim/tree/main/lua/null-ls/builtins/formatting
 
 -- Lua
 if vim.fn.executable("lua-format") == 1 then
@@ -90,14 +91,28 @@ if vim.fn.executable("djlint") == 1 then
 	})
 end
 
+-- ───────────────❰ end FORMATTING ❱──────────────── --
+-- ───────────────────────────────────────────────── --
 
-if load then
-	require("null-ls").setup({
-		sources = sources
+
+-- ───────────────────────────────────────────────── --
+-- ─────────────────❰ CODEACTION ❱────────────────── --
+-- https://github.com/jose-elias-alvarez/null-ls.nvim/tree/main/lua/null-ls/builtins/code_actions
+
+--[===[
+-- Javascript
+if vim.fn.executable("clang-format") == 1 then
+	load = true
+	sources[#sources+1] = code_actions.eslint.with({
+		command = "eslint",
+		filetypes = { "javascript", "javascriptreact", "typescript", "typescriptreact", "vue" },
+		args = { "-f", "json", "--stdin", "--stdin-filename", "$FILENAME" },
+		to_stdin = true,
 	})
 end
+---]===]
 
--- ───────────────❰ end FORMATTING ❱──────────────── --
+-- ───────────────❰ end CODEACTION ❱──────────────── --
 -- ───────────────────────────────────────────────── --
 
 
@@ -106,25 +121,23 @@ end
 -- https://github.com/jose-elias-alvarez/null-ls.nvim/tree/main/lua/null-ls/builtins/completion
 -- ───────────────❰ end COMPLETION ❱──────────────── --
 -- ───────────────────────────────────────────────── --
-
 -- ───────────────────────────────────────────────── --
 -- ─────────────────❰ DIAGNOSTICS ❱───────────────── --
 -- https://github.com/jose-elias-alvarez/null-ls.nvim/tree/main/lua/null-ls/builtins/diagnostics
 -- ───────────────❰ end DIAGNOSTICS ❱─────────────── --
 -- ───────────────────────────────────────────────── --
-
--- ───────────────────────────────────────────────── --
--- ─────────────────❰ CODEACTION ❱────────────────── --
--- https://github.com/jose-elias-alvarez/null-ls.nvim/tree/main/lua/null-ls/builtins/code_actions
--- ───────────────❰ end CODEACTION ❱──────────────── --
--- ───────────────────────────────────────────────── --
-
 -- ───────────────────────────────────────────────── --
 -- ───────────────────❰ HOVER ❱───────────────────── --
 -- https://github.com/jose-elias-alvarez/null-ls.nvim/tree/main/lua/null-ls/builtins/hover
 -- ─────────────────❰ end HOVER ❱─────────────────── --
 -- ───────────────────────────────────────────────── --
 
+
+if load then
+	require("null-ls").setup({
+		sources = sources
+	})
+end
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━❰ end configs ❱━━━━━━━━━━━━━━━━━ --

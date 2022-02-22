@@ -34,8 +34,9 @@ lsp_installer.settings {
 local function make_server_ready(attach)
 	lsp_installer.on_server_ready(function(server)
 		local opts = {}
-		local capabilities = {}
 		opts.on_attach = attach
+
+
 		-- for lua
 		if server.name == "sumneko_lua" then
 			-- only apply these settings for the "sumneko_lua" server
@@ -58,8 +59,9 @@ local function make_server_ready(attach)
 		-- for clangd (c/c++)
 		-- [https://github.com/jose-elias-alvarez/null-ls.nvim/issues/428]
 		if server.name == "clangd" then
-			capabilities = vim.lsp.protocol.make_client_capabilities()
+			local capabilities = vim.lsp.protocol.make_client_capabilities()
 			capabilities.offsetEncoding = { "utf-16" }
+			opts.capabilities = capabilities
 		end
 
 		-- for html
@@ -68,7 +70,6 @@ local function make_server_ready(attach)
 		end
 
 
-		opts.capabilities = capabilities
 		-- This setup() function is exactly the same as lspconfig's setup function (:help lspconfig-quickstart)
 		server:setup(opts)
 		vim.cmd [[ do User LspAttachBuffers ]]
