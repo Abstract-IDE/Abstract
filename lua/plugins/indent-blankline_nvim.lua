@@ -18,6 +18,7 @@
     NOTE:
         to know more about filetype_exclude and buftype_exclude
         https://github.com/lukas-reineke/indent-blankline.nvim/issues/284
+		:set buftype
 --]===]
 
 require("indent_blankline").setup {
@@ -46,6 +47,17 @@ require("indent_blankline").setup {
 	show_trailing_blankline_indent = false,
 	-- context_char = '┃' -- pecifies the character to be used for the current context indent line
 	-- context_patterns = {'class, function', 'method', '^if'},
+
+    char_highlight_list = {
+        "IndentBlanklineIndent1",
+        "IndentBlanklineIndent2",
+        "IndentBlanklineIndent3",
+        "IndentBlanklineIndent4",
+        "IndentBlanklineIndent5",
+        "IndentBlanklineIndent6",
+        "IndentBlanklineIndent7",
+        "IndentBlanklineIndent8",
+    },
 }
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
