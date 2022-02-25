@@ -49,11 +49,17 @@ vim.g.floaterm_height = 0.7
 local keymap = vim.api.nvim_set_keymap
 local g = vim.g
 
-g.floaterm_keymap_toggle = 'tt' -- toggle open/close floaterm
-g.floaterm_keymap_prev = 'tk' -- go to previous floaterm window
-g.floaterm_keymap_next = 'tj' -- go to next floaterm window
+-- use this (global, g) if you want your keymap works on any view(normal, insert, ...)
+g.floaterm_keymap_toggle = '<C-t>' -- toggle open/close floaterm
+-- g.floaterm_keymap_prev = 'tk' -- go to previous floaterm window
+-- g.floaterm_keymap_next = 'tj' -- go to next floaterm window
 -- g.floaterm_keymap_new    = 'tn'         -- create new terminal
 -- g.floaterm_keymap_kill   = 'tq'         -- quit current terminal
+
+-- go to previous floaterm window
+keymap('n', 'tk', ':FloatermPrev<CR>', {noremap = true, silent = true})
+-- go to next floaterm window
+keymap('n', 'tj', ':FloatermNext<CR>', {noremap = true, silent = true})
 -- create new floaterm window
 keymap('n', 'tn', ':FloatermNew<CR>', {noremap = true, silent = true})
 -- exit floaterm window
@@ -79,24 +85,6 @@ keymap('n', '<Leader>r', run, {noremap = true, silent = true}) -- Run
 keymap('n', '<Leader>o', build, {noremap = true, silent = true}) -- build
 keymap('n', '<Leader>O', buildrun, {noremap = true, silent = true}) -- build and run
 
---[[
--- Run
-nnoremap <Leader>r :w <CR><bar> :FloatermNew
-    \ python ~/.config/nvim/extra/tools/lazy-builder/build.py
-    \       -o ~/.cache/build_files/ -r 1 % <CR><CR>
-
--- build
-nnoremap <Leader>o :w <CR><bar> :FloatermNew
-    \ time
-    \ python ~/.config/nvim/extra/tools/lazy-builder/build.py
-    \       -o ~/.cache/build_files/ -b 1 % <CR><CR>
-
--- build and run
-nnoremap <Leader>O :w <CR><bar> :FloatermNew
-    \ time
-    \ python ~/.config/nvim/extra/tools/lazy-builder/build.py
-    \       -o ~/.cache/build_files/ -br 1 % <CR><CR>
-]]
 -- ━━━━━━━━━━━━━━━━❰ end Build/Run ❱━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
