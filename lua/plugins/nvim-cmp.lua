@@ -51,11 +51,11 @@ cmp.setup({
 		{name = 'path'},
 		{name = 'luasnip'},
 		{name = 'buffer', keyword_length = 1},
-		{name = 'calc'},
+		-- {name = 'calc'},
 	},
 
 	documentation = {
-		border = {"╭", "─", "╮", "│", "╯", "─", "╰", "│"},
+		border = {"┌", "─", "┐", "│", "┘", "─", "└", "│"},
 	},
 
 	experimental = {

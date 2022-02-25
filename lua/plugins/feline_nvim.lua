@@ -146,7 +146,7 @@ components.active[2] = {
 			end
 			return msg
 		end,
-		hl = {style = 'italic'},
+		-- hl = {style = 'italic'},
 		left_sep = {' ', {str = ' ', hl = {fg = 'fg', bg = 'bg'}}},
 	},
 	-- {
