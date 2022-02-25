@@ -52,6 +52,10 @@ if ext=='js' or ext=='ts' then
 	require('langs/javascript') -- JAVASCRIPT, TYPESCRIPT
 	return
 end
+if ext=='json' then
+	require('langs/json')       -- JSON
+	return
+end
 
 
 -- ━━━━━━━━━━━━━━━━━❰ end of Load ❱━━━━━━━━━━━━━━━━━ --
