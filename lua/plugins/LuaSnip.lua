@@ -26,15 +26,17 @@ local ls = require("luasnip")
 
 -- Every unspecified option will be set to the default.
 ls.config.set_config({
-	history = true,
+	history = false,
 	-- Update more often, :h events for more info.
 	updateevents = "TextChanged,TextChangedI",
+	-- ref: https://github.com/L3MON4D3/LuaSnip/issues/91
+	region_check_events = "CursorMoved",
 })
 
 ls.snippets = {all = {}, html = {}}
 
 -- enable html snippets in javascript/javascript(REACT)
-ls.snippets.javascript = ls.snippets.html
+-- ls.snippets.javascript = ls.snippets.html
 ls.snippets.javascriptreact = ls.snippets.html
 ls.snippets.typescriptreact = ls.snippets.html
 
