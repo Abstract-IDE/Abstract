@@ -47,7 +47,8 @@ return packer.startup {
 		}
 
 		use { -- colorscheme for (neo)vim written in lua specially made for roshnivim
-			'shaeinst/roshnivim-cs'
+			'shaeinst/roshnivim-cs',
+			branch = 'v2',
 		}
 
 		use { -- A collection of common configurations for Neovim's built-in language server client
@@ -91,7 +92,7 @@ return packer.startup {
 		use { -- Snippet Engine for Neovim written in Lua.
 			'L3MON4D3/LuaSnip',
 			requires = {
-				"rafamadriz/friendly-snippets" -- Snippets collection for a set of different programming languages for faster development.
+				"rafamadriz/friendly-snippets", -- Snippets collection for a set of different programming languages for faster development.
 			},
 			config = [[ require('plugins/LuaSnip') ]]
 		}
@@ -134,11 +135,6 @@ return packer.startup {
 		use { -- Smart and powerful comment plugin for neovim. Supports commentstring, dot repeat, left-right/up-down motions, hooks, and more
 			'numToStr/Comment.nvim',
 			config = [[ require('plugins/Comment_nvim') ]]
-		}
-
-		use { -- A surround text object plugin for neovim written in lua.
-			'blackcauldron7/surround.nvim',
-			config = [[ require('plugins/surround_nvim') ]]
 		}
 
 		use { -- The fastest Neovim colorizer.
@@ -231,78 +227,6 @@ return packer.startup {
 		}
 	}
 }
-
-
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
--- ━━━━━━━━━━━━❰ Not currently Using ❱━━━━━━━━━━━━━━ --
-
-		--[=======[
-
-		use { -- A light-weight lsp plugin based on neovim built-in lsp with highly a performant UI.
-			'glepnir/lspsaga.nvim',
-			config = [[ require('plugins/lspsaga') ]]
-		}
-
-		use { -- A neovim tabline plugin.
-			'romgrk/barbar.nvim',
-			config = [[ require('plugins/barbar_nvim') ]]
-		}
-
-		use {
-			'hoob3rt/lualine.nvim',
-			requires = {'kyazdani42/nvim-web-devicons', opt = true},
-			config = [[ require('plugins/lualine') ]]
-		}
-
-		use { --neovim statusline plugin written in lua
-			'glepnir/galaxyline.nvim',
-			config = [[ require('plugins/galaxyline_nvim') ]]
-		}
-
-		use { -- Neovim commenting plugin, written in lua.
-			'b3nj5m1n/kommentary',
-			config = [[ require('plugins/kommentary') ]]
-		}
-
-		use { --  Github theme for Neovim, kitty, iTerm, Konsole, and Alacritty written in Lua
-			"projekt0n/github-nvim-theme",
-			config = [[ require('plugins/github-nvim-theme') ]]
-		}
-
-		use {
-			'lukas-reineke/indent-blankline.nvim',
-			config = [[ require('plugins/indent_blankline') ]]
-		}
-
-		use { -- Utility functions for getting diagnostic status and progress messages from LSP servers, for use in the Neovim statusline
-			'nvim-lua/lsp-status.nvim',
-			config = [[ require('plugins/lspstatus') ]]
-		}
-
-		use { -- A vim plugin to display the indention levels with thin vertical lines
-			'Yggdroot/indentLine',
-			config = [[ require('plugins/indentLine') ]]
-		}
-
-		use { -- A format runner for neovim, written in lua.
-			"mhartington/formatter.nvim",
-			config = [[ require('plugins/formatter') ]]
-		}
-
-		use { -- No-nonsense floating terminal plugin for neovim
-			"numtostr/FTerm.nvim",
-			config = [[ require('plugins/fterm_nvim') ]]
-		}
-
-		use {
-			'puremourning/vimspector',
-			config = [[ require('plugins/vimspector') ]]
-		}
-		--]=======]
-
--- ━━━━━━━━━━━━━━━❰ end Not Using ❱━━━━━━━━━━━━━━━━━ --
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
-
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━❰ end configs ❱━━━━━━━━━━━━━━━━━ --
