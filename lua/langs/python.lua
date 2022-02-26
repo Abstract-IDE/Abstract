@@ -3,6 +3,14 @@
 --                        PYTHON
 -- ───────────────────────────────────────────────── --
 
+-- don't load config if document is not python
+local filetype = vim.bo.filetype
+if filetype ~= "python"	then
+	return
+end
+
+
+
 local set = vim.opt -- global options
 
 set.softtabstop = 4
