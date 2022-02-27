@@ -22,12 +22,18 @@
 --]===]
 
 require("indent_blankline").setup {
+
 	show_end_of_line = true,
 	space_char_blankline = " ",
 	show_current_context = true,
 	show_current_context_start = true,
+    show_trailing_blankline_indent = false,
+    use_treesitter = true,
 
-	-- char_list = {'|', '¦', '┆', '┊'},
+	char_list = {'│'}, -- {'|', '¦', '┆', '┊'},
+    -- context_char = '┃' -- pecifies the character to be used for the current context indent line
+    -- context_patterns = {'class, function', 'method', '^if'},
+
 	filetype_exclude = {
 		'help',
 		'startify',
@@ -38,15 +44,11 @@ require("indent_blankline").setup {
 		'NvimTree',
 		'lsp-installer',
 	},
+
 	buftype_exclude = {
 		'terminal',
 		'nofile',
 	},
-
-	use_treesitter = true,
-	show_trailing_blankline_indent = false,
-	-- context_char = '┃' -- pecifies the character to be used for the current context indent line
-	-- context_patterns = {'class, function', 'method', '^if'},
 
     char_highlight_list = {
         "IndentBlanklineIndent1",
