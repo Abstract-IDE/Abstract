@@ -2,11 +2,11 @@
 --[=================================================[
 create .__nvim__.lua file in your project root directory and
 define options/configs in that file.
------------- planning ---------------
+
 1. check if	~/.__nvim__.lua file exist
    	if exists: load ~/.__nvim__.lua
 2. check if .__nvim__.lua file exist in the project
-		if exist: load  .__nvim__.lua config
+    if exist: load .__nvim__.lua config
 --]=================================================]
 
 
