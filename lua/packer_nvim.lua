@@ -112,7 +112,8 @@ return packer.startup {
 			requires = {
 				{'nvim-lua/popup.nvim'},
 				{'nvim-lua/plenary.nvim'},
-				{'nvim-telescope/telescope-fzf-native.nvim', run = 'make'} -- FZF sorter for telescope written in c
+				{'nvim-telescope/telescope-fzf-native.nvim', run = 'make'}, -- FZF sorter for telescope written in c
+				{'nvim-telescope/telescope-file-browser.nvim'}, -- File Browser extension for telescope.nvim
 			},
 			config = [[ require('plugins/telescope_nvim') ]]
 		}
@@ -186,6 +187,15 @@ return packer.startup {
 			"goolord/alpha-nvim",
 			requires = {'kyazdani42/nvim-web-devicons'},
 			config = [[ require('plugins/alpha-nvim') ]]
+		}
+
+		use { -- Prismatic line decorations for the adventurous vim user
+			'mvllow/modes.nvim',
+			config = [[ require('plugins/modes_nvim') ]]
+		}
+
+		use { -- Heuristically set buffer options
+			'tpope/vim-sleuth',
 		}
 
 		-- ━━━━━━━━━━━━━━━━━❰ DEVELOPMENT ❱━━━━━━━━━━━━━━━━━ --

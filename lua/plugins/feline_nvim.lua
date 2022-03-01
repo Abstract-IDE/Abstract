@@ -45,6 +45,10 @@ components.active[1] = {
 			'slant_left_2',
 			{str = ' ', hl = {bg = 'white1', fg = 'NONE'}},
 		},
+	},
+	{
+		provider = function () return " [" .. vim.bo.filetype .. "]" end,
+		hl = {fg = 'black', bg = 'white1', style = 'NONE'},
 		right_sep = {'slant_right_2', ' '},
 	},
 	{
