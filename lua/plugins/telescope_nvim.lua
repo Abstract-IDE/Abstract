@@ -15,6 +15,7 @@
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
 require('telescope').setup {
+
 	defaults = {
 		vimgrep_arguments = {
 			'rg',
@@ -57,30 +58,32 @@ require('telescope').setup {
 	},
 
 	extensions = {
+
 		fzf = {
 			fuzzy = true, -- false will only do exact matching
 			override_generic_sorter = false, -- override the generic sorter
 			override_file_sorter = true, -- override the file sorter
 			case_mode = "smart_case", -- or "ignore_case" or "respect_case". the default case_mode is "smart_case"
 		},
+
+		file_browser = {
+			theme = "ivy",
+		},
 	},
+
 }
+-- To get telescope-extension loaded and working with telescope,
+-- you need to call load_extension, somewhere after setup function:
 require('telescope').load_extension('fzf')
--- require('telescope').load_extension('coc')
+require("telescope").load_extension('file_browser')
 
--- replace the simple file browsing capabilities of netrw with builtins.file_browse
---  for example, nvim ~/downloads  opens directory in Telescope
---  taken from https://github.com/nvim-telescope/telescope.nvim/issues/892#issuecomment-855348423
-vim.api.nvim_command [[
-  augroup ReplaceNetrw
-      autocmd VimEnter * silent! autocmd! FileExplorer
-      autocmd StdinReadPre * let s:std_in=1
-      autocmd VimEnter * if argc() == 1 && isdirectory(argv()[0]) && !exists("s:std_in") | call luaeval("require('telescope.builtin').file_browser({cwd = _A})", argv()[0]) | endif
-  augroup END
-]]
 
-vim.api.nvim_command(
-				"autocmd FileType clap_input call compe#setup({ 'enabled': v:false }, 0)")
+-- replace the simple file browsing capabilities of netrw with telescope file_browse extension
+--  for example, nvim ~/downloads will open directory in Telescope
+-- local bufnr = vim.api.nvim_get_current_buf() -- get bufffer number
+-- local curr_file = vim.api.nvim_buf_get_name(bufnr) -- get buffer/filename with location
+-- local is_dir = require("funcs.is_dir").is_dir(curr_file)
+-- if is_dir then vim.cmd([[au BufEnter * :Telescope file_browser <CR> ]]) end
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━❰ end configs ❱━━━━━━━━━━━━━━━━━ --

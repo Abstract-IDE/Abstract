@@ -48,8 +48,8 @@ gl.nvim_tree_highlight_opened_files = 1 -- 0 by default, will enable folder and 
 
 -- each of these are documented in `:help nvim-tree.OPTION_NAME`
 require'nvim-tree'.setup {
-	disable_netrw = true,
-	hijack_netrw = true,
+	disable_netrw = false,
+	hijack_netrw = false,
 	open_on_setup = false,
 	ignore_ft_on_setup = {},
 	auto_close = false,
