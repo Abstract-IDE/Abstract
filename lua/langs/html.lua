@@ -9,10 +9,12 @@ if filetype ~= "html"	then
 	return
 end
 
+--[[
 local set = vim.opt -- global options
 
-set.softtabstop = 2
-set.shiftwidth = 2 -- spaces per tab (when shifting)
-set.tabstop = 2 -- spaces per tab
-set.expandtab = true -- expand tabs into spaces
+vim.opt.softtabstop = 2
+vim.opt.shiftwidth = 2 -- spaces per tab (when shifting)
+vim.opt.tabstop = 2 -- spaces per tab
+vim.opt.expandtab = true -- expand tabs into spaces
+--]]
 
