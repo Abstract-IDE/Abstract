@@ -1,22 +1,20 @@
 
---[=================================================[
-create .__nvim__.lua file in your project root directory and
-define options/configs in that file.
+--[[
+     create .__nvim__.lua file in your project root directory and
+     define options/configs in that file.
 
-1. check if	~/.__nvim__.lua file exist
-   	if exists: load ~/.__nvim__.lua
-2. check if .__nvim__.lua file exist in the project
-    if exist: load .__nvim__.lua config
---]=================================================]
+     1. check if ~/.__nvim__.lua file exist
+         if exists: load ~/.__nvim__.lua
+     2. check if .__nvim__.lua file exist in the project
+         if exist: load .__nvim__.lua config
+]]
 
 
 
--- --------------------------------------------
 local bufnr = vim.api.nvim_get_current_buf() -- get bufffer number
 local curr_file = vim.api.nvim_buf_get_name(bufnr) -- get buffer/filename with location
--- --------------------------------------------
 
--- --------------------------------------------
+
 local function dirsplit(inputstr, sep)
 	-- https://stackoverflow.com/a/7615129/11812032
 	if sep == nil then sep = "%s" end
@@ -26,9 +24,8 @@ local function dirsplit(inputstr, sep)
 	end
 	return t
 end
--- --------------------------------------------
 
--- --------------------------------------------
+
 -- get file directory (i dont know if api exist for this)
 -- /home/user/document/file.txt --> /home/user/document/
 local function filedir(file)
@@ -41,9 +38,8 @@ local function filedir(file)
 	end
 	return dir
 end
--- --------------------------------------------
 
--- --------------------------------------------
+
 -- check if file exist
 local function file_exists(fname)
 	local f = io.open(fname, "r")
@@ -54,9 +50,8 @@ local function file_exists(fname)
 		return false
 	end
 end
--- --------------------------------------------
 
--- --------------------------------------------
+
 function os.capture(cmd, raw)
 	-- https://gist.github.com/dukeofgaming/453cf950abd99c3dc8fc
 	local handle = assert(io.popen(cmd, 'r'))
@@ -67,22 +62,19 @@ function os.capture(cmd, raw)
 	                     '[\n\r]+', ' ')
 	return output
 end
--- --------------------------------------------
 
-----------------------------------------------
+
 local function osuser() return os.capture("whoami") end
--- --------------------------------------------
 
--- --------------------------------------------
+
 --  normalize dir
 --  /home/user/../user/download/../ --> /home/user
 local function normalize_dir(dir)
 	local pwd = os.capture("cd " .. dir .. " && pwd")
 	return pwd .. "/"
 end
--- --------------------------------------------
 
--- --------------------------------------------
+
 -- if .__nvim__.lua file exist, return it with full
 -- location else return false
 local function conf_file(cfdir)
@@ -105,14 +97,14 @@ local function conf_file(cfdir)
 		end
 	end
 end
--- --------------------------------------------
 
--- --------------------------------------------
+
 -- load ~/.__nvim__.lua
 local user_home = "/home/" .. osuser()
 if file_exists(user_home .. "/.__nvim__.lua") then
 	dofile(user_home .. "/.__nvim__.lua")
 end
+
 
 local curr_file_dir = filedir(curr_file)
 
@@ -123,5 +115,4 @@ if curr_file_dir ~= "/" then
 		dofile(conff)
 	end
 end
--- --------------------------------------------
 
