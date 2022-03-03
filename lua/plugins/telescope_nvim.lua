@@ -53,6 +53,10 @@ require('telescope').setup {
 		set_env = {['COLORTERM'] = 'truecolor'}, -- default = nil,
 		path_display = {'absolute'}, -- How file paths are displayed ()
 
+		preview = {
+		msg_bg_fillchar = " ",
+		},
+
 		-- Developer configurations: Not meant for general override
 		buffer_previewer_maker = require'telescope.previewers'.buffer_previewer_maker,
 	},
