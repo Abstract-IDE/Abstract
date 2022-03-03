@@ -47,7 +47,12 @@ components.active[1] = {
 		},
 	},
 	{
-		provider = function () return " [" .. vim.bo.filetype .. "]" end,
+		provider = function ()
+			if vim.bo.filetype ~= "" then
+				return " [" .. vim.bo.filetype .. "]"
+			end
+			return " "
+		end,
 		hl = {fg = 'black', bg = 'white1', style = 'NONE'},
 		right_sep = {'slant_right_2', ' '},
 	},
