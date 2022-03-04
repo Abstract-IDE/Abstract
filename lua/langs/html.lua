@@ -3,12 +3,6 @@
 --                        HTML
 -- ───────────────────────────────────────────────── --
 
--- don't load config if document is not html
-local filetype = vim.bo.filetype
-if filetype ~= "html"	then
-	return
-end
-
 --[[
 local set = vim.opt -- global options
 

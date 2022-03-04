@@ -31,6 +31,14 @@ end
 local ok, packer = pcall(require, "packer")
 if not ok then return end
 
+-- automatically run :PackerCompile whenever plugins.lua is updated
+vim.cmd([[
+  augroup packer_user_config
+    autocmd!
+    autocmd BufWritePost plugins.lua source <afile> | PackerCompile
+  augroup end
+]])
+
 
 return packer.startup {
 	function()
@@ -192,10 +200,6 @@ return packer.startup {
 		use { -- Prismatic line decorations for the adventurous vim user
 			'mvllow/modes.nvim',
 			config = [[ require('plugins/modes_nvim') ]]
-		}
-
-		use { -- Heuristically set buffer options
-			'tpope/vim-sleuth',
 		}
 
 		-- ━━━━━━━━━━━━━━━━━❰ DEVELOPMENT ❱━━━━━━━━━━━━━━━━━ --

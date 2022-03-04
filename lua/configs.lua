@@ -85,15 +85,12 @@ set.backspace = 'indent,start,eol' -- make backspace behave like normal again
 -- set.mouse		= "a"  		-- turn on mouse interaction
 set.updatetime = 500 -- CursorHold interval
 
---[[
--- indenting related configuration is managed by 3rd party plugin https://github.com/tpope/vim-sleuth
 set.softtabstop = 4
 set.shiftwidth = 4 -- spaces per tab (when shifting), when using the >> or << commands, shift lines by 4 spaces
 set.tabstop = 4 -- spaces per tab
 set.smarttab = true -- <tab>/<BS> indent/dedent in leading whitespace
 set.autoindent = true -- maintain indent of current line
-set.expandtab = false -- don't expand tabs into spaces
-]]
+-- set.expandtab = false -- don't expand tabs into spaces
 
 set.shiftround = true
 

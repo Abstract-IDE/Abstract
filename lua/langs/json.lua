@@ -2,11 +2,6 @@
 -- ───────────────────────────────────────────────── --
 --              JSON
 -- ───────────────────────────────────────────────── --
--- don't load config if document is not json
-local filetype = vim.bo.filetype
-if filetype ~= "json" then
-	return
-end
 
 --[[
 vim.opt.softtabstop = 2
