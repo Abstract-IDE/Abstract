@@ -51,8 +51,9 @@ components.active[1] = {
 	},
 	{
 		provider = function ()
-			if vim.bo.filetype ~= "" then
-				return " [" .. vim.bo.filetype .. "]"
+			local filetype = vim.bo.filetype
+			if filetype ~= "" and filetype ~= "alpha" then
+				return " [" .. filetype .. "]"
 			end
 			return " "
 		end,
