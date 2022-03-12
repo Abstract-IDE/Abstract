@@ -27,7 +27,10 @@ local components = {active = {}, inactive = {}}
 components.active[1] = {
 	{provider = ' ', hl = {fg = 'skyblue'}},
 	{
-		provider = 'vi_mode',
+		provider = function ()
+			local mode = vim.api.nvim_exec('echo mode()', true)
+			return string.upper(mode)
+		end,
 		hl = function()
 			return {
 				name = vi_mode_utils.get_mode_highlight_name(),
