@@ -38,10 +38,13 @@ components.active[1] = {
 				style = 'bold',
 			}
 		end,
-		right_sep = ' ',
+		right_sep = '',
 	},
 	{
-		provider = { name = "file_info", opts = { type = "relative" } },
+		provider = {
+			name = "file_info",
+			opts = { type = "relative" }
+		},
 		hl = {fg = 'black', bg = 'white1', style = 'bold'},
 		left_sep = {
 			' ',
