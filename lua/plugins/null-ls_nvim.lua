@@ -117,15 +117,26 @@ end
 
 
 -- ───────────────────────────────────────────────── --
+-- ─────────────────❰ DIAGNOSTICS ❱───────────────── --
+-- -- https://github.com/jose-elias-alvarez/null-ls.nvim/tree/main/lua/null-ls/builtins/diagnostics
+-- -- Django ("htmldjango")
+-- if vim.fn.executable("djlint") == 1 then
+-- 	load = true
+-- 	sources[#sources+1] = diagnostics.djlint.with({
+-- 		command = "djlint",
+-- 		args = { "$FILENAME" },
+-- 	})
+-- end
+-- ───────────────❰ end DIAGNOSTICS ❱─────────────── --
+-- ───────────────────────────────────────────────── --
+
+
+-- ───────────────────────────────────────────────── --
 -- ─────────────────❰ COMPLETION ❱────────────────── --
 -- https://github.com/jose-elias-alvarez/null-ls.nvim/tree/main/lua/null-ls/builtins/completion
 -- ───────────────❰ end COMPLETION ❱──────────────── --
 -- ───────────────────────────────────────────────── --
--- ───────────────────────────────────────────────── --
--- ─────────────────❰ DIAGNOSTICS ❱───────────────── --
--- https://github.com/jose-elias-alvarez/null-ls.nvim/tree/main/lua/null-ls/builtins/diagnostics
--- ───────────────❰ end DIAGNOSTICS ❱─────────────── --
--- ───────────────────────────────────────────────── --
+
 -- ───────────────────────────────────────────────── --
 -- ───────────────────❰ HOVER ❱───────────────────── --
 -- https://github.com/jose-elias-alvarez/null-ls.nvim/tree/main/lua/null-ls/builtins/hover
