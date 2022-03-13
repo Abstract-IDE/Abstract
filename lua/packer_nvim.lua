@@ -122,6 +122,7 @@ return packer.startup {
 				{'nvim-lua/plenary.nvim'},
 				{'nvim-telescope/telescope-fzf-native.nvim', run = 'make'}, -- FZF sorter for telescope written in c
 				{'nvim-telescope/telescope-file-browser.nvim'}, -- File Browser extension for telescope.nvim
+				{'nvim-telescope/telescope-media-files.nvim'}, -- Telescope extension to preview media files using Ueberzug.
 			},
 			config = [[ require('plugins/telescope_nvim') ]]
 		}

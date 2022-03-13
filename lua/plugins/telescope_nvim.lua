@@ -32,8 +32,16 @@ require('telescope').setup {
 		sorting_strategy = "ascending",
 		layout_strategy = "horizontal",
 		layout_config = {
-			horizontal = {mirror = false, prompt_position = "top"},
-			vertical = {mirror = false},
+			horizontal = {
+				mirror = false,
+				prompt_position = "top",
+			},
+			vertical = { mirror = false, },
+
+            width = 0.8,
+            height = 0.9,
+			preview_width = 0.4,
+            preview_cutoff = 80,
 		},
 		file_ignore_patterns = {},
 		file_sorter = require'telescope.sorters'.get_fuzzy_file,
@@ -51,10 +59,10 @@ require('telescope').setup {
 		color_devicons = true,
 		use_less = true,
 		set_env = {['COLORTERM'] = 'truecolor'}, -- default = nil,
-		path_display = {'absolute'}, -- How file paths are displayed ()
+		path_display = {'truncate'}, -- How file paths are displayed ()
 
 		preview = {
-		msg_bg_fillchar = " ",
+			msg_bg_fillchar = " ",
 		},
 
 		-- Developer configurations: Not meant for general override
@@ -70,6 +78,12 @@ require('telescope').setup {
 			case_mode = "smart_case", -- or "ignore_case" or "respect_case". the default case_mode is "smart_case"
 		},
 
+		media_files = {
+			-- filetypes whitelist
+			filetypes = {"png", "jpg", "mp4", "webm", "pdf"},
+			find_cmd = "fd" -- find command (defaults to `fd`)
+		},
+
 		file_browser = {
 			theme = "ivy",
 		},
@@ -80,6 +94,7 @@ require('telescope').setup {
 -- you need to call load_extension, somewhere after setup function:
 require('telescope').load_extension('fzf')
 require("telescope").load_extension('file_browser')
+require('telescope').load_extension('media_files')
 
 
 -- replace the simple file browsing capabilities of netrw with telescope file_browse extension
