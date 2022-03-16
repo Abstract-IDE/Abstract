@@ -99,10 +99,12 @@ require('telescope').load_extension('media_files')
 
 -- replace the simple file browsing capabilities of netrw with telescope file_browse extension
 --  for example, nvim ~/downloads will open directory in Telescope
--- local bufnr = vim.api.nvim_get_current_buf() -- get bufffer number
--- local curr_file = vim.api.nvim_buf_get_name(bufnr) -- get buffer/filename with location
--- local is_dir = require("funcs.is_dir").is_dir(curr_file)
--- if is_dir then vim.cmd([[au BufEnter * :Telescope file_browser <CR> ]]) end
+vim.cmd([[
+	autocmd! VimEnter *
+	\ if isdirectory(expand('%:p'))
+	\	| exe 'cd %:p:h' | exe 'bd!'| exe 'Telescope file_browser' |
+	\ endif
+]])
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━❰ end configs ❱━━━━━━━━━━━━━━━━━ --
