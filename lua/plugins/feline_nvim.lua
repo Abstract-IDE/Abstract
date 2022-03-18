@@ -29,6 +29,9 @@ components.active[1] = {
 	{
 		provider = function ()
 			local mode = vim.api.nvim_exec('echo mode()', true)
+			if mode == "" then
+				return "C"
+			end
 			return string.upper(mode)
 		end,
 		hl = function()
