@@ -48,6 +48,12 @@ set.fillchars = {
 	eob = ' ', -- NO-BREAK SPACE (U+00A0, UTF-8: C2 A0) to suppress ~ at EndOfBuffer
 	fold = '·', -- MIDDLE DOT (U+00B7, UTF-8: C2 B7)
 	vert = ' ', -- remove ugly vertical lines on window division
+	-- horiz     = '━',
+	-- horizup   = '┻',
+	-- horizdown = '┳',
+	-- vertleft  = '┫',
+	-- vertright = '┣',
+	-- verthoriz = '╋',
 }
 
 if root then
@@ -96,7 +102,7 @@ set.shiftround = true
 
 set.splitbelow = true -- open horizontal splits below current window
 set.splitright = true -- open vertical splits to the right of the current window
-set.laststatus = 2 -- always show status line
+set.laststatus = 3 -- always show status line. 3 means Global Status Line
 -- set.colorcolumn	= "79"			-- vertical word limit line
 
 set.hidden = true -- allows you to hide buffers with unsaved changes without being prompted
