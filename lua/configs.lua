@@ -47,13 +47,7 @@ set.fillchars = {
 	diff = '∙', -- BULLET OPERATOR (U+2219, UTF-8: E2 88 99)
 	eob = ' ', -- NO-BREAK SPACE (U+00A0, UTF-8: C2 A0) to suppress ~ at EndOfBuffer
 	fold = '·', -- MIDDLE DOT (U+00B7, UTF-8: C2 B7)
-	vert = '│', -- window border when window splits vertically
-	horiz     = '─',
-	horizup   = '┴',
-	horizdown = '┬',
-	vertleft  = '┤',
-	vertright = '├',
-	verthoriz = '┼',
+	vert = '│', -- window border when window splits vertically ─ ┴ ┬ ┤ ├ ┼
 }
 
 if root then
@@ -88,7 +82,7 @@ set.smartcase = true
 set.scrolloff = 1 -- when scrolling, keep cursor 1 lines away from screen border
 set.sidescrolloff = 2 -- keep 30 columns visible left and right of the cursor at all times
 set.backspace = 'indent,start,eol' -- make backspace behave like normal again
--- set.mouse		= "a"  		-- turn on mouse interaction
+-- set.mouse = "a"  -- turn on mouse interaction
 set.updatetime = 500 -- CursorHold interval
 
 set.softtabstop = 4
@@ -103,7 +97,7 @@ set.shiftround = true
 set.splitbelow = true -- open horizontal splits below current window
 set.splitright = true -- open vertical splits to the right of the current window
 set.laststatus = 3 -- always show status line. 3 means Global Status Line
--- set.colorcolumn	= "79"			-- vertical word limit line
+-- set.colorcolumn = "79" -- vertical word limit line
 
 set.hidden = true -- allows you to hide buffers with unsaved changes without being prompted
 set.inccommand = 'split' -- live preview of :s results
