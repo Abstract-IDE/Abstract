@@ -43,6 +43,7 @@ require("indent_blankline").setup {
 		'neogitstatus',
 		'NvimTree',
 		'lsp-installer',
+		"",
 	},
 
 	buftype_exclude = {
