@@ -216,7 +216,7 @@ components.inactive[1] = {
 -- This table is equal to the default colors table
 local colors = {
 	fg        = '#C8C8C8',
-	bg        = '#1F1F23',
+	bg        = '#141414',
 	black     = "#000000",
 	black1    = '#1B1B1B',
 	skyblue   = '#50B0F0',
