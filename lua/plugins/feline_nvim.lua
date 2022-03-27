@@ -228,7 +228,7 @@ local colors = {
 	red       = '#D10000',
 	violet    = '#9E93E8',
 	white     = '#FFFFFF',
-	white1    = '#808080',
+	white1    = '#0f5b5e',
 	yellow    = '#E1E120',
 }
 
