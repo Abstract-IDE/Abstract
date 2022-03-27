@@ -48,11 +48,11 @@ components.active[1] = {
 			name = "file_info",
 			opts = { type = "relative" }
 		},
-		hl = {fg = 'black', bg = 'white1', style = 'bold'},
+		hl = {fg = 'black', bg = 'f_color', style = 'bold'},
 		left_sep = {
 			' ',
 			'slant_left_2',
-			{str = ' ', hl = {bg = 'white1', fg = 'NONE'}},
+			{str = ' ', hl = {bg = 'f_color', fg = 'NONE'}},
 		},
 	},
 	{
@@ -63,7 +63,7 @@ components.active[1] = {
 			end
 			return " "
 		end,
-		hl = {fg = 'black', bg = 'white1', style = 'NONE'},
+		hl = {fg = 'black', bg = 'f_color', style = 'NONE'},
 		right_sep = {'slant_right_2', ' '},
 	},
 	{
@@ -85,7 +85,7 @@ components.active[1] = {
 	},
 	{
 		provider = 'git_branch',
-		hl = {fg = 'white1', bg = 'bg', style = 'bold'},
+		hl = {fg = 'f_color', bg = 'bg', style = 'bold'},
 		right_sep = function()
 			local val = {hl = {fg = 'NONE', bg = 'bg'}}
 			if b.gitsigns_status_dict then
@@ -180,14 +180,14 @@ components.active[3] = {
 	{
 		provider = '  %l:%-2c- %L ',
 		left_sep = ' ',
-		hl = {fg = 'black', bg = 'white1', style = 'bold'},
+		hl = {fg = 'black', bg = 'f_color', style = 'bold'},
 	},
 	{
 		-- provider = 'scroll_bar',
 		provider = ' ',
 		hl = {
 			fg = 'black',
-			bg = 'white1',
+			bg = 'f_color',
 			-- style = 'bold',
 			left_sep = ' ',
 			-- right_sep = ' '
@@ -228,7 +228,7 @@ local colors = {
 	red       = '#D10000',
 	violet    = '#9E93E8',
 	white     = '#FFFFFF',
-	white1    = '#0f5b5e',
+	f_color   = '#0f5b5e',
 	yellow    = '#E1E120',
 }
 
