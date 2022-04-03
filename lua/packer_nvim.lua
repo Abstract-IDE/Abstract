@@ -157,11 +157,6 @@ return packer.startup {
 			config = [[ require('plugins/indent-blankline_nvim') ]]
 		}
 
-		use { -- to change current working directory to project's root directory.
-			'ygm2/rooter.nvim',
-			config = [[ require('plugins/rooter_nvim') ]]
-		}
-
 		use { -- Git signs written in pure lua
 			'lewis6991/gitsigns.nvim',
 			requires = {'nvim-lua/plenary.nvim'},
@@ -198,9 +193,9 @@ return packer.startup {
 			config = [[ require('plugins/alpha-nvim') ]]
 		}
 
-		use { -- Prismatic line decorations for the adventurous vim user
-			'mvllow/modes.nvim',
-			config = [[ require('plugins/modes_nvim') ]]
+		use {
+			'shaeinst/penvim', --  smart indent and project detector with project based config loader
+			config = [[ require('plugins/penvim') ]]
 		}
 
 		-- ━━━━━━━━━━━━━━━━━❰ DEVELOPMENT ❱━━━━━━━━━━━━━━━━━ --
