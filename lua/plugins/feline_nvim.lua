@@ -111,7 +111,7 @@ components.active[1] = {
 		icon = {str = ' -', hl = {fg = 'red', style = 'bold'}},
 		hl = {fg = 'red', style = 'bold'},
 		right_sep = function()
-			local val = {hl = {fg = 'NONE', bg = 'black1'}}
+			local val = {hl = {fg = 'NONE', bg = 'bg'}}
 			if b.gitsigns_status_dict then
 				val.str = ' '
 			else
