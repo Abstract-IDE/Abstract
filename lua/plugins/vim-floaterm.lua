@@ -74,15 +74,15 @@ keymap('n', 'tq', ':FloatermKill<CR>', {noremap = true, silent = true})
 
 local lazy_builder_py = "~/.local/share/nvim/custom_tools/lazy-builder/build.py"
 local build_path = "~/.cache/build_files"
+local buffer_num = vim.api.nvim_get_current_buf() -- current buffer
+local filename = vim.api.nvim_buf_get_name(buffer_num) -- current filename with full location
 
-local run = ":w | :FloatermNew python " .. lazy_builder_py .. " -o " ..
-				            build_path .. " -r 1 % <CR>"
-local build = ":w | :FloatermNew time python " .. lazy_builder_py .. " -o " ..
-				            build_path .. " -b 1 % <CR>"
-local buildrun = ":w | :FloatermNew time python " .. lazy_builder_py .. " -o " ..
-							build_path .. " -br 1 % <CR>"
-keymap('n', '<Leader>r', run, {noremap = true, silent = true}) -- Run
-keymap('n', '<Leader>o', build, {noremap = true, silent = true}) -- build
+local run = ":w | :FloatermNew python " .. lazy_builder_py .. " -o " .. build_path .. " -r 1 " .. filename .. " <CR>"
+local build = ":w | :FloatermNew time python " .. lazy_builder_py .. " -o " .. build_path .. " -b 1 " .. filename .. " <CR>"
+local buildrun = ":w | :FloatermNew time python " .. lazy_builder_py .. " -o " .. build_path .. " -br 1 " .. filename .. " <CR>"
+
+keymap('n', '<Leader>r', run, {noremap = true, silent = true})      -- Run
+keymap('n', '<Leader>o', build, {noremap = true, silent = true})    -- build
 keymap('n', '<Leader>O', buildrun, {noremap = true, silent = true}) -- build and run
 
 -- ━━━━━━━━━━━━━━━━❰ end Build/Run ❱━━━━━━━━━━━━━━━━ --
