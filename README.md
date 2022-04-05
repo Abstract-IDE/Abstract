@@ -111,7 +111,6 @@ so in case you don't like to use mapping or configs by roshnivim, you can change
 │   ├── configs.lua                / configs that's don't depends on plugins
 │   ├── mappings.lua               / mappings that don't depends on plugins
 │   ├── customs/
-│   │   ├── project_env.lua        / load configs from .__nvim__.lua file defined in any project you're working on
 │   │   ├── override_defalut.lua   / configs to override defined config
 │   │   └── roshniline.lua         / i am working on it. btw it's a status line
 │   └── plugins/                   / dir containing configs for plugins. each plugin has it's own config and can be locaed through init.lua file
@@ -165,7 +164,7 @@ Distributed under the MIT License.
 ## To-Do
 
 - installer(setup.py) support for Windows OS
-- write decent documentation
+- write a decent documentation
 
 
 
