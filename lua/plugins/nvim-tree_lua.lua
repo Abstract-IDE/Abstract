@@ -29,7 +29,6 @@ cmd('autocmd FileType NvimTree setlocal winhighlight=Normal:NvimTreeBg')
 -- gl.nvim_tree_auto_ignore_ft        = { 'startify', 'dashboard' }   --empty by default, don't auto open tree on specific filetypes.
 -- gl.nvim_tree_quit_on_open          = 1   --0 by default, closes the tree when you open a file
 -- gl.nvim_tree_follow                = 1   --0 by default, this option allows the cursor to be updated when entering a buffer
-gl.nvim_tree_indent_markers = 1 -- 0 by default, this option shows indent markers when folders are open
 -- gl.nvim_tree_hide_dotfiles         = 1   --0 by default, this option hides files and folders starting with a dot `.`
 -- gl.nvim_tree_git_hl                = 1   --0 by default, will enable file highlight for git attributes (can be used without the icons).
 gl.nvim_tree_highlight_opened_files = 1 -- 0 by default, will enable folder and file icon highlight for opened files/directories.
@@ -65,6 +64,12 @@ require'nvim-tree'.setup {
 	update_focused_file = {enable = true, update_cwd = false, ignore_list = {}},
 	system_open = {cmd = nil, args = {}},
 	filters = {dotfiles = false, custom = {}},
+
+	renderer = {
+		indent_markers = {
+			enable = false, -- show indent markers when folders are open
+		}
+	},
 
 	view = {
 		width = 25,
