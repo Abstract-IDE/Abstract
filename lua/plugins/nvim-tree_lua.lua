@@ -67,7 +67,7 @@ require'nvim-tree'.setup {
 
 	renderer = {
 		indent_markers = {
-			enable = false, -- show indent markers when folders are open
+			enable = true, -- show indent markers when folders are open
 		}
 	},
 
