@@ -25,10 +25,10 @@
 --]===]
 
 
-local keymap	= vim.api.nvim_set_keymap
-local cmd		= vim.cmd
-local options	= {noremap = true, silent = true}
-local silent	= {silent = true}
+local keymap  = vim.api.nvim_set_keymap
+local cmd     = vim.cmd
+local options = {noremap = true, silent = true}
+local silent  = {silent = true}
 
 -- to quit vim
 cmd([[ autocmd BufEnter * nmap silent <buffer> <Leader>q :bd<CR> ]])
