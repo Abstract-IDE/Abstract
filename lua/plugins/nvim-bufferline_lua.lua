@@ -91,6 +91,9 @@ require('bufferline').setup {
 		modified_selected = {
 			guifg = {highlight = "BufferCurrentSign", attribute = "fg"},
 		},
+		numbers = {
+			guibg = {highlight = "BuffNumbers", attribute = "bg"},
+		},
 		-- duplicate_visible = {
 		-- },
 		-- close_button = {
