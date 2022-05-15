@@ -35,12 +35,11 @@ require('telescope').setup {
 			horizontal = {
 				mirror = false,
 				prompt_position = "top",
+				preview_width = 0.4,
 			},
 			vertical = { mirror = false, },
-
 			width = 0.8,
 			height = 0.9,
-			preview_width = 0.4,
             preview_cutoff = 80,
 		},
 		file_ignore_patterns = {},
@@ -87,6 +86,21 @@ require('telescope').setup {
 		file_browser = {
 			theme = "ivy",
 		},
+
+		["ui-select"] = {
+			require("telescope.themes").get_dropdown {
+				winblend = 15,
+				layout_config = {
+					prompt_position = "top",
+					width = 64,
+					height = 15,
+				},
+				border = {},
+				previewer = false,
+				shorten_path = false,
+			},
+		}
+
 	},
 
 }
@@ -95,6 +109,7 @@ require('telescope').setup {
 require('telescope').load_extension('fzf')
 require("telescope").load_extension('file_browser')
 require('telescope').load_extension('media_files')
+require("telescope").load_extension("ui-select")
 
 
 -- replace the simple file browsing capabilities of netrw with telescope file_browse extension
@@ -148,11 +163,13 @@ keymap('n', "<C-f>",
 -- for example, in flutter/dart you can wrap or delete widgets using code action.
 -- for more see :help builtin.lsp_code_actions() or :help builtin.lsp_range_code_actions()
 keymap('n', "<Space>ca",
-       "<cmd>lua  require('telescope.builtin').lsp_code_actions( {layout_config={width=50, height=20} } ) <CR>",
-       {silent = true, noremap = true})
+       "<cmd>lua vim.lsp.buf.code_action() <CR>",
+       {silent = true, noremap = true}
+)
 keymap('x', "<leader>ca",
-       "<cmd>lua  require('telescope.builtin').lsp_range_code_actions( {layout_config={width=50, height=25} } ) <CR>",
-       {silent = true, noremap = true})
+       "<cmd>lua vim.lsp.buf.range_code_action() <CR>",
+       {silent = true, noremap = true}
+)
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━❰ end Mappings ❱━━━━━━━━━━━━━━━━ --
