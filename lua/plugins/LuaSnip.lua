@@ -43,7 +43,15 @@ ls.snippets.typescriptreact = ls.snippets.html
 -- enable html snippets in django (htmldjango)
 ls.snippets.htmldjango = ls.snippets.html
 
-require("luasnip/loaders/from_vscode").load({include = {"html"}})
+-- -- this will load according to filetype mentioned in include={}
+-- require("luasnip/loaders/from_vscode").load({
+-- 	include = {
+-- 		"dart", "python", "javascript", "typescript", "css", "sass", "html", "php",
+-- 	}
+-- })
+-- [its slowdown the startup speed. code needs some optimization ]
+-- this will load for all filetype
+require("luasnip/loaders/from_vscode").load()
 
 --[[
 -- Beside defining your own snippets you can also load snippets from "vscode-like" packages
