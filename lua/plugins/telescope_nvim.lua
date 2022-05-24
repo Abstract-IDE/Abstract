@@ -85,6 +85,8 @@ require('telescope').setup {
 
 		file_browser = {
 			theme = "ivy",
+			-- disables netrw and use telescope-file-browser in its place
+			hijack_netrw = true,
 		},
 
 		["ui-select"] = {
@@ -110,16 +112,6 @@ require('telescope').load_extension('fzf')
 require("telescope").load_extension('file_browser')
 require('telescope').load_extension('media_files')
 require("telescope").load_extension("ui-select")
-
-
--- replace the simple file browsing capabilities of netrw with telescope file_browse extension
---  for example, nvim ~/downloads will open directory in Telescope
-vim.cmd([[
-	autocmd! VimEnter *
-	\ if isdirectory(expand('%:p'))
-	\	| exe 'cd %:p:h' | exe 'bd!'| exe 'Telescope file_browser' |
-	\ endif
-]])
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━❰ end configs ❱━━━━━━━━━━━━━━━━━ --
