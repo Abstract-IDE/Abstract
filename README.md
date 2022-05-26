@@ -62,7 +62,7 @@ roshnivim can be installed by just runing a script.
 
 #### Prerequisites
 
-  * neovim >= 6.0
+  * neovim v0.7
 
 
 #### Installation
@@ -110,12 +110,12 @@ so in case you don't like to use mapping or configs by roshnivim, you can change
 ├── lua/
 │   ├── configs.lua                / configs that's don't depends on plugins
 │   ├── mappings.lua               / mappings that don't depends on plugins
+│   ├── packer_nvim.lua            / manage plugins
 │   ├── customs/
 │   │   ├── override_defalut.lua   / configs to override defined config
 │   │   └── roshniline.lua         / i am working on it. btw it's a status line
 │   └── plugins/                   / dir containing configs for plugins. each plugin has it's own config and can be locaed through init.lua file
-│       └── packer_nvim.lua        / manage plugins
-│       ...
+│   ...
 ├── plugin/                        / auto-created by plugin manager
 └── setup.py                       / python-script to install/update roshnivim
 ```
