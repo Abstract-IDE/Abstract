@@ -41,6 +41,18 @@ vim.cmd([[
 
 
 return packer.startup {
+
+	config = {
+		-- Move to lua dir so impatient.nvim can cache it
+		compile_path = vim.fn.stdpath('config') .. '/plugin/packer_compiled.lua',
+
+		display = {
+			open_fn = function()
+				return require('packer.util').float({border = 'single'})
+			end
+		}
+	},
+
 	function()
 		-- Packer can manage itself
 		use 'wbthomason/packer.nvim'
@@ -153,7 +165,7 @@ return packer.startup {
 			config = [[ require('plugins/nvim-colorizer_lua') ]]
 		}
 
-		use {
+		use { --  Indent guides for Neovim
 			'lukas-reineke/indent-blankline.nvim',
 			config = [[ require('plugins/indent-blankline_nvim') ]]
 		}
@@ -224,19 +236,7 @@ return packer.startup {
 			config = [[ require('plugins/nvim-ts-autotag') ]]
 		}
 		-- ━━━━━━━━━━━━━━❰ end of DEVELOPMENT ❱━━━━━━━━━━━━━ --
-	end,
-
-
-	config = {
-		-- Move to lua dir so impatient.nvim can cache it
-		compile_path = vim.fn.stdpath('config') .. '/plugin/packer_compiled.lua',
-
-		display = {
-			open_fn = function()
-				return require('packer.util').float({border = 'single'})
-			end
-		}
-	}
+	end
 }
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
