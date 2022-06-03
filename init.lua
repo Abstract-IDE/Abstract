@@ -25,7 +25,7 @@ vim.g.maplocalleader = '|'
 -- ━━━━━━━━━━━━━❰ Load/Source Configs ❱━━━━━━━━━━━━━ --
 
 -- plugin config to improve start-up time.
--- it should be always on top on init.lua file
+-- it should be always on top of init.lua file
 require('plugins/impatient_nvim') -- impatient needs to be setup before any other lua plugin is loaded so it is recommended you add the following near the start of your
 require('plugins/filetype_nvim') -- Easily speed up your neovim startup time!
 
