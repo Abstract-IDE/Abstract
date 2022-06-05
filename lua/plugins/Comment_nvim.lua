@@ -32,12 +32,12 @@ require('Comment').setup({
 
 	---Pre-hook, called before commenting the line
 	---@type function|nil
-	pre_hook = nil,
+	-- NOTE: Already implemented with JoosepAlviste/nvim-ts-context-commentstring
+	-- pre_hook = nil,
 
 	---Post-hook, called after commenting is done
 	---@type function|nil
 	post_hook = nil,
-})
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━❰ end configs ❱━━━━━━━━━━━━━━━━━ --
@@ -49,8 +49,6 @@ require('Comment').setup({
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━━━❰ Mappings ❱━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
-
-require('Comment').setup({
 
 	mappings = {
 		basic = true, ---Includes `gcc`, `gcb`, `gc[count]{motion}` and `gb[count]{motion}`

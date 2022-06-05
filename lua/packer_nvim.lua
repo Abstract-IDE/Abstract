@@ -160,6 +160,11 @@ return packer.startup {
 			config = [[ require('plugins/Comment_nvim') ]]
 		}
 
+		use {
+			'JoosepAlviste/nvim-ts-context-commentstring', --  Neovim treesitter plugin for setting the commentstring based on the cursor location in a file.
+			config = [[ require('plugins/nvim-ts-context-commentstring') ]]
+		}
+
 		use { -- The fastest Neovim colorizer.
 			'norcalli/nvim-colorizer.lua',
 			config = [[ require('plugins/nvim-colorizer_lua') ]]
