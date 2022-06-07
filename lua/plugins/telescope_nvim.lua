@@ -42,7 +42,9 @@ require('telescope').setup {
 			height = 0.9,
             preview_cutoff = 80,
 		},
-		file_ignore_patterns = {},
+		file_ignore_patterns = {
+			"node_modules/",
+		},
 		file_sorter = require'telescope.sorters'.get_fuzzy_file,
 		generic_sorter = require'telescope.sorters'.get_generic_fuzzy_sorter,
 		file_previewer = require'telescope.previewers'.vim_buffer_cat.new,
