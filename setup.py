@@ -139,7 +139,7 @@ def replace_text(filename, old_text, new_text):
 # -------------------------------
 def compile_nvim():
     packer_compile_cmd = ["nvim", "--headless", "-c", "PackerSync"]
-    subprocess.run(packer_compile_cmd, cwd=NVIM_CONF_PATH)
+    subprocess.run(packer_compile_cmd)
 
 # -------------------------------
 
@@ -196,9 +196,9 @@ def install_roshnivim():
 
     # recompile configs
 
-    print("--------------------------------")
+    print("\n--------------------------------\n")
     print("\n\nroshnivim is installed.\nsetting up plugins...")
-    print("--------------------------------")
+    print("--------------------------------\n")
     try:
         print(
             "\npress CTRL+C when you see something like: \"packer.compile: Complete\"\n"
@@ -215,7 +215,7 @@ def main():
 
     print("--------------------------------")
     print("installing...this may take some time.")
-    print("--------------------------------")
+    print("--------------------------------\n")
     # create required directories
     create_require_dir(require_dir)
     # backup config if backup argument is 1
