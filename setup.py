@@ -138,7 +138,7 @@ def replace_text(filename, old_text, new_text):
 
 # -------------------------------
 def compile_nvim():
-    packer_compile_cmd = ["nvim", "--headless", "-c", "PackerSync"]
+    packer_compile_cmd = [ "nvim", "--headless", "-c", "autocmd User PackerComplete quitall", "-c", "PackerSync" ]
     subprocess.run(packer_compile_cmd)
 
 # -------------------------------
@@ -183,26 +183,24 @@ def install_roshnivim():
 
     # run nvim command to install plugins
     print("\ninstalling PLUGINS...")
-    packer_install_cmd = [ "nvim", "--headless", "-c", "autocmd User PackerComplete quitall", "-c", "PackerSync" ]
     try:
-        subprocess.run(packer_install_cmd, cwd=NVIM_CONF_PATH)
+        compile_nvim()
+
+        # uncomment the line of code we commented before installing the plugin
+        disable_config(False, text_colorscheme, text_impatient, text_filetype)
     except KeyboardInterrupt:
         # uncomment the line of code we commented before installing the plugin
         disable_config(False, text_colorscheme, text_impatient, text_filetype)
         print("\n")
-
-    # uncomment the line of code we commented before installing the plugin
-    disable_config(False, text_colorscheme, text_impatient, text_filetype)
 
     # recompile configs
 
     print("\n--------------------------------\n")
     print("\n\nroshnivim is installed.\nsetting up plugins...")
     print("--------------------------------\n")
+    print( "\npress CTRL+C when you see something like: \"packer.compile: Complete\"")
+    print("press CTRL+C if it's taking more than 5min")
     try:
-        print(
-            "\npress CTRL+C when you see something like: \"packer.compile: Complete\"\n"
-        )
         compile_nvim()
     except KeyboardInterrupt:
         print("\n")
@@ -226,7 +224,7 @@ def main():
         subprocess.run(["git", "pull"], cwd=NVIM_CONF_PATH)
         try:
             print(
-                "\nwhen you see something like: 'packer.compile: Complete', press CTRL+C\n"
+                "\npress CTRL+C when you see something like: \"packer.compile: Complete\"\n"
             )
             compile_nvim()
         except KeyboardInterrupt:
