@@ -91,20 +91,20 @@ end
 -- ───────────────────────────────────────────────── --
 
 -- ───────────────────────────────────────────────── --
-local servers = {
-	"sumneko_lua", -- for Lua
-	-- "rust_analyzer",      -- for Rust
-	-- "pyright",            -- for Python
-	-- "clangd",             -- for C/C++
-	-- "bashls",             -- for Bash
-}
 
 -- setup the LS
 local On_attach = require("plugins.nvim-lspconfig").On_attach
 make_server_ready(On_attach) -- LSP mappings
 
+-- local servers = {
+	-- "sumneko_lua",        -- for Lua
+	-- "rust_analyzer",      -- for Rust
+	-- "pyright",            -- for Python
+	-- "clangd",             -- for C/C++
+	-- "bashls",             -- for Bash
+-- }
 -- install the LS
-for _, server in ipairs(servers) do install_server(server) end
+-- for _, server in ipairs(servers) do install_server(server) end
 
 -- ───────────────────────────────────────────────── --
 
