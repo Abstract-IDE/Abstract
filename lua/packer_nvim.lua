@@ -215,6 +215,11 @@ return packer.startup {
 			config = [[ require('plugins/penvim') ]]
 		}
 
+		use {
+			'rmagatti/goto-preview',
+			config = [[ require('plugins/goto-preview') ]]
+		}
+
 		-- ━━━━━━━━━━━━━━━━━❰ DEVELOPMENT ❱━━━━━━━━━━━━━━━━━ --
 
 		----           for flutter/dart
