@@ -91,7 +91,7 @@ def clone_repro(path, repository, name):
 def backup_nvim():
     current_date = datetime.today().strftime("%Y-%m-%d_%T")
     if Path(NVIM_CONF_PATH).exists():
-        subprocess.run(['cp', '-rf' 'nvim', f'nvim-old_{current_date}'], cwd=CONFIG)
+        subprocess.run(['cp', '-rf', 'nvim', f'nvim-old_{current_date}'], cwd=CONFIG)
         print(f"your old config: {NVIM_CONF_PATH}_{current_date}\n")
 
 # -------------------------------
@@ -231,7 +231,7 @@ def main():
         if need_to_clone_roshnivim():
             clone_repro(CONFIG, "https://github.com/shaeinst/roshnivim", "nvim")
 
-        else:
+        if not roshnivim_git:
             print("copying config...")
             subprocess.run(["cp", "-rfv", "../*n*vim*", f"{CONFIG}/nvim"])
 
