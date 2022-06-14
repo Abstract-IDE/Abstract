@@ -92,7 +92,6 @@ return packer.startup {
 				'nvim-treesitter/playground', -- Treesitter playground integrated into Neovim
 				opt = true
 			},
-			run = ':TSUpdate',
 			config = [[ require('plugins/nvim-treesitter') ]]
 		}
 
