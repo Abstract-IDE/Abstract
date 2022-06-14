@@ -81,8 +81,8 @@ def create_require_dir(dirs):
 
 
 # -------------------------------
-def clone_repro(path, repository):
-    subprocess.run(['git', 'clone', repository], cwd=path)
+def clone_repro(path, repository, name):
+    subprocess.run(['git', 'clone', repository, name], cwd=path)
 
 # -------------------------------
 
@@ -91,8 +91,8 @@ def clone_repro(path, repository):
 def backup_nvim():
     current_date = datetime.today().strftime("%Y-%m-%d_%T")
     if Path(NVIM_CONF_PATH).exists():
-        subprocess.run(['mv', 'nvim', f'nvim-old_{current_date}'], cwd=CONFIG)
-        print(f"your old config: {NVIM_CONF_PATH}_{current_date}")
+        subprocess.run(['cp', '-rf' 'nvim', f'nvim-old_{current_date}'], cwd=CONFIG)
+        print(f"your old config: {NVIM_CONF_PATH}_{current_date}\n")
 
 # -------------------------------
 
@@ -229,7 +229,7 @@ def main():
 
     else:
         if need_to_clone_roshnivim():
-            clone_repro(CONFIG, "https://github.com/shaeinst/roshnivim nvim")
+            clone_repro(CONFIG, "https://github.com/shaeinst/roshnivim", "nvim")
 
         else:
             print("copying config...")
@@ -246,7 +246,7 @@ def main():
     if not Path(lazy_builder_path).exists():
         print("installing additional...")
         repository = "https://github.com/shaeinst/lazy-builder"
-        clone_repro(CUSTOM_TOOLS_DIR, repository)
+        clone_repro(CUSTOM_TOOLS_DIR, repository, 'lazy-builder')
 
 # -------------------------------
 
