@@ -71,10 +71,11 @@ require_dir = [
 
 # -------------------------------
 def create_require_dir(dirs):
+    print("creating required directories...")
     for dir in dirs:
         if not Path(dir).exists():
             Path(dir).mkdir(parents=True)
-            print(dir)
+            print(" ",dir)
 
 # -------------------------------
 
@@ -97,22 +98,12 @@ def backup_nvim():
 
 
 # -------------------------------
-def roshnivim_exist():
-    """check if roshnivim already exist"""
-
+def roshnivim_git():
+    """check if roshnivim exist as a git project"""
     if Path(NVIM_CONF_PATH).exists():
         if Path(f"{NVIM_CONF_PATH}/.__roshnivim__").is_file():
-            return True
-    return False
-
-# -------------------------------
-
-
-# -------------------------------
-def roshnivim_git():
-    """check if roshnivim is git project"""
-    if Path(f"{NVIM_CONF_PATH}/.git").exists():
-        return True
+                if Path(f"{NVIM_CONF_PATH}/.git").exists():
+                    return True
     return False
 
 # -------------------------------
@@ -123,10 +114,14 @@ def need_to_clone_roshnivim():
     """check if we need to clone the roshnivim repro,
     if setup.py run without cloning roshnivim
     """
+
     script_path = Path(__file__).parent.absolute()
     if Path(f"{script_path}/setup.py").is_file() and \
        Path(f"{script_path}/.__roshnivim__").is_file():
         return False
+    if roshnivim_git():
+        return False
+
     return True
 
 # -------------------------------
@@ -162,37 +157,42 @@ def remove_no_require():
 
 
 # -------------------------------
+def disable_config(comment, text_colorscheme, text_impatient, text_filetype):
+    # Make Comment
+    if comment:
+        replace_text(f"{NVIM_CONF_PATH}/lua/configs.lua", text_colorscheme, f"--{text_colorscheme}")
+        replace_text(f"{NVIM_CONF_PATH}/init.lua", text_impatient, f"--{text_impatient}")
+        replace_text(f"{NVIM_CONF_PATH}/init.lua", text_filetype, f"--{text_filetype}")
+    #UnComment
+    else:
+        replace_text(f"{NVIM_CONF_PATH}/lua/configs.lua", f"--{text_colorscheme}", text_colorscheme)
+        replace_text(f"{NVIM_CONF_PATH}/init.lua", f"--{text_impatient}", text_impatient)
+        replace_text(f"{NVIM_CONF_PATH}/init.lua", f"--{text_filetype}", text_filetype)
+
+# -------------------------------
+
+
+# -------------------------------
 def install_roshnivim():
 
     text_colorscheme = "cmd('colorscheme rvcs'"
     text_impatient = "require('plugins/impatient_nvim')"
     text_filetype = "require('plugins/filetype_nvim')"
     # going to comment some line of code to prevent getting any error.
-    replace_text(f"{NVIM_CONF_PATH}/lua/configs.lua", text_colorscheme,
-                 f"--{text_colorscheme}")
-    replace_text(f"{NVIM_CONF_PATH}/init.lua", text_impatient,
-                 f"--{text_impatient}")
-    replace_text(f"{NVIM_CONF_PATH}/init.lua", text_filetype,
-                 f"--{text_filetype}")
+    disable_config(True, text_colorscheme, text_impatient, text_filetype)
 
     # run nvim command to install plugins
     print("\ninstalling PLUGINS...")
-    packer_install_cmd = [
-        "nvim", "--headless", "-c", "autocmd User PackerComplete quitall",
-        "-c", "PackerSync"
-    ]
+    packer_install_cmd = [ "nvim", "--headless", "-c", "autocmd User PackerComplete quitall", "-c", "PackerSync" ]
     try:
         subprocess.run(packer_install_cmd, cwd=NVIM_CONF_PATH)
     except KeyboardInterrupt:
+        # uncomment the line of code we commented before installing the plugin
+        disable_config(False, text_colorscheme, text_impatient, text_filetype)
         print("\n")
 
     # uncomment the line of code we commented before installing the plugin
-    replace_text(f"{NVIM_CONF_PATH}/lua/configs.lua", f"--{text_colorscheme}",
-                 text_colorscheme)
-    replace_text(f"{NVIM_CONF_PATH}/init.lua", f"--{text_impatient}",
-                 text_impatient)
-    replace_text(f"{NVIM_CONF_PATH}/init.lua", f"--{text_filetype}",
-                 text_filetype)
+    disable_config(False, text_colorscheme, text_impatient, text_filetype)
 
     # recompile configs
     print("\n\nwow! roshnivim is installed")
@@ -211,35 +211,35 @@ def install_roshnivim():
 # -------------------------------
 def main():
 
-    if update == 0:
-        print("creating required directories...")
-        create_require_dir(require_dir)
+    # create required directories
+    create_require_dir(require_dir)
+    # backup config if backup argument is 1
+    if backup == 1:
+        backup_nvim()
 
-    if update == 1 or roshnivim_exist() and roshnivim_git():
-        if update == 0:
-            print("Roshnivim exist, updating...")
+    if update == 1 and roshnivim_git():
         subprocess.run(["git", "pull"], cwd=NVIM_CONF_PATH)
         try:
             print(
-                "\nwhen you see something like: 'packer.compile: Complete'\n, \
-                        press CTRL+C\n"
+                "\nwhen you see something like: 'packer.compile: Complete', press CTRL+C\n"
             )
             compile_nvim()
         except KeyboardInterrupt:
             print("\n")
 
     else:
-        if backup == 1:
-            backup_nvim()
         if need_to_clone_roshnivim():
-            roshnivim_link = "https://github.com/shaeinst/roshnivim"
-            subprocess.run(
-                ["git", "clone", roshnivim_link, "nvim"], cwd=CONFIG
-            )
+            clone_repro(CONFIG, "https://github.com/shaeinst/roshnivim nvim")
+
         else:
             print("copying config...")
-            subprocess.run(["cp", "-r", "../*n*vim*", f"{CONFIG}/nvim"])
+            subprocess.run(["cp", "-rfv", "../*n*vim*", f"{CONFIG}/nvim"])
+
         install_roshnivim()
+
+    if delete == 1:
+        print("cleaning config...")
+        remove_no_require()
 
     # cloning lazy-builder tool (https://github.com/shaeinst/lazy-builder)
     lazy_builder_path = f"{CUSTOM_TOOLS_DIR}/lazy-builder"
@@ -247,10 +247,6 @@ def main():
         print("installing additional...")
         repository = "https://github.com/shaeinst/lazy-builder"
         clone_repro(CUSTOM_TOOLS_DIR, repository)
-
-    if delete == 1:
-        print("cleaning config...")
-        remove_no_require()
 
 # -------------------------------
 
