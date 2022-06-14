@@ -197,11 +197,11 @@ def install_roshnivim():
     # recompile configs
 
     print("--------------------------------")
-    print("\n\nroshnivim is installed.\nsetting plugins...")
+    print("\n\nroshnivim is installed.\nsetting up plugins...")
     print("--------------------------------")
     try:
         print(
-            "\nwhen you see something like: 'packer.compile: Complete', press CTRL+C\n"
+            "\npress CTRL+C when you see something like: \"packer.compile: Complete\"\n"
         )
         compile_nvim()
     except KeyboardInterrupt:
