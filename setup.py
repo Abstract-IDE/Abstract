@@ -195,7 +195,10 @@ def install_roshnivim():
     disable_config(False, text_colorscheme, text_impatient, text_filetype)
 
     # recompile configs
-    print("\n\nwow! roshnivim is installed")
+
+    print("--------------------------------")
+    print("\n\nroshnivim is installed.\nsetting plugins...")
+    print("--------------------------------")
     try:
         print(
             "\nwhen you see something like: 'packer.compile: Complete', press CTRL+C\n"
@@ -210,6 +213,9 @@ def install_roshnivim():
 # -------------------------------
 def main():
 
+    print("--------------------------------")
+    print("installing...this may take some time.")
+    print("--------------------------------")
     # create required directories
     create_require_dir(require_dir)
     # backup config if backup argument is 1
@@ -243,9 +249,13 @@ def main():
     # cloning lazy-builder tool (https://github.com/shaeinst/lazy-builder)
     lazy_builder_path = f"{CUSTOM_TOOLS_DIR}/lazy-builder"
     if not Path(lazy_builder_path).exists():
-        print("installing additional...")
-        repository = "https://github.com/shaeinst/lazy-builder"
-        clone_repro(CUSTOM_TOOLS_DIR, repository, 'lazy-builder')
+        try:
+            print("installing additional...")
+            repository = "https://github.com/shaeinst/lazy-builder"
+            clone_repro(CUSTOM_TOOLS_DIR, repository, 'lazy-builder')
+        except KeyboardInterrupt:
+            print("additional tools didn't install")
+
 
 # -------------------------------
 
