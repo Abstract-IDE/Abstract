@@ -215,7 +215,6 @@ return packer.startup {
 			config = [[ require('plugins/penvim') ]]
 		}
 
-		use {
 		use { -- preview native LSP's goto definition calls in floating windows.
 			'rmagatti/goto-preview',
 			config = [[ require('plugins/goto-preview') ]]
