@@ -17,6 +17,9 @@
 -- Set completeopt to have a better completion experience
 vim.o.completeopt = 'menuone,noselect'
 local cmp = require 'cmp'
+-- for completion window width
+local ELLIPSIS_CHAR = '…'
+local MAX_LABEL_WIDTH = 35
 
 cmp.setup({
 
@@ -32,6 +35,13 @@ cmp.setup({
 		format = function(entry, vim_item)
 			-- fancy icons and a name of kind
 			vim_item.kind = require("lspkind").presets.default[vim_item.kind]
+
+			-- limit completion width
+			local label = vim_item.abbr
+			local truncated_label = vim.fn.strcharpart(label, 0, MAX_LABEL_WIDTH)
+			if truncated_label ~= label then
+				vim_item.abbr = truncated_label .. ELLIPSIS_CHAR
+			end
 
 			-- set a name for each source
 			vim_item.menu = ({
