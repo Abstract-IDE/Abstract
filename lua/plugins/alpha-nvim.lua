@@ -16,11 +16,16 @@
 
 local alpha = require("alpha")
 local dashboard = require("alpha.themes.dashboard")
+local datetime = os.date("%I:%M:%p 🕔 %d-%m-%Y")
+local ok, nvim_version = pcall(os.capture, "nvim --version | awk 'NR == 1'")
+
 
 local function footer()
-	local datetime = os.date("%I:%M:%p | %d-%m-%Y")
-	local nvim_version = os.capture("nvim --version | awk 'NR == 1'")
-	return nvim_version .. ' | ' .. datetime
+	if ok then
+		return nvim_version .. ' | ' .. datetime
+	else
+		return datetime
+	end
 end
 
 -- Set header
