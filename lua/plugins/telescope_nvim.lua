@@ -140,6 +140,10 @@ keymap('n', "<leader>M", "<cmd>lua require('telescope.builtin').keymaps() <CR>",
 keymap('n', "<C-b>", "<cmd>lua require('telescope.builtin').buffers() <CR>",
        {silent = true, noremap = true})
 
+--       --> show buffers/opened files
+keymap('n', "<leader>/", "<cmd>lua require('telescope.builtin').current_buffer_fuzzy_find() <CR>",
+       {silent = true, noremap = true})
+
 --       --> Find Files
 -- NOTE1: to get project root's directory, extra plugin (github.com/ygm2/rooter.nvim) is used.
 -- any config related to project root is in seperate config file (lua/plugin_confs/rooter_nvim.lua)
