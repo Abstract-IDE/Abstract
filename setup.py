@@ -51,6 +51,7 @@ CACHE_BUILD_PATH = f"{CACHE}/build_files"
 NVIM_CONF_PATH = f"{CONFIG}/nvim"
 NVIM_PLUG_PATH = f"{HOME}/.local/share/nvim"
 CUSTOM_TOOLS_DIR = f"{NVIM_PLUG_PATH}/custom_tools"
+SCRIPT_PATH = Path(__file__).parent.absolute()
 
 # -------------------------------
 
@@ -115,9 +116,8 @@ def need_to_clone_roshnivim():
     if setup.py run without cloning roshnivim
     """
 
-    script_path = Path(__file__).parent.absolute()
-    if Path(f"{script_path}/setup.py").is_file() and \
-       Path(f"{script_path}/.__roshnivim__").is_file():
+    if Path(f"{SCRIPT_PATH}/setup.py").is_file() and \
+       Path(f"{SCRIPT_PATH}/.__roshnivim__").is_file():
         return False
     if roshnivim_git():
         return False
@@ -234,9 +234,9 @@ def main():
         if need_to_clone_roshnivim():
             clone_repro(CONFIG, "https://github.com/shaeinst/roshnivim", "nvim")
 
-        if not roshnivim_git:
+        else:
             print("copying config...")
-            subprocess.run(["cp", "-rfv", "../*n*vim*", f"{CONFIG}/nvim"])
+            subprocess.run(["cp", "-rf", SCRIPT_PATH, f"{CONFIG}/nvim"])
 
         install_roshnivim()
 
