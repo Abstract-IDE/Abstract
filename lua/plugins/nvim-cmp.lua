@@ -58,6 +58,9 @@ cmp.setup({
 		documentation = {
 			border = {"┌", "─", "┐", "│", "┘", "─", "└", "│"},
 		},
+		completion = {
+			border = {"┌", "─", "┐", "│", "┘", "─", "└", "│"},
+		}
 	},
 
 	experimental = {
