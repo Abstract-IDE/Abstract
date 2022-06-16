@@ -51,7 +51,7 @@ keymap('n', '<C-l>', 'zl', silent) -- right
 keymap('n', '<leader>n', ':set rnu! <CR>', silent)
 
 -- clear Search Results
-keymap('n', '//', ':noh <CR>', silent)
+keymap('n', '??', ':noh <CR>', silent)
 
 --[[
     on[ly] close all other windows but leave all buffers open.
