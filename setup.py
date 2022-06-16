@@ -1,10 +1,10 @@
+
 # importing required module
 # -------------------------------
 import subprocess
 import argparse
 from pathlib import Path
 from datetime import datetime
-import fileinput
 # -------------------------------
 
 
@@ -128,16 +128,8 @@ def need_to_clone_roshnivim():
 
 
 # -------------------------------
-def replace_text(filename, old_text, new_text):
-    with fileinput.FileInput(filename, inplace=True) as file:
-        for line in file:
-            print(line.replace(old_text, new_text), end='')
-
-# -------------------------------
-
-
-# -------------------------------
 def compile_nvim():
+    print( "\npress CTRL+C when you see something like: \"packer.compile: Complete\"\n")
     packer_compile_cmd = [ "nvim", "--headless", "-c", "autocmd User PackerComplete quitall", "-c", "PackerSync" ]
     subprocess.run(packer_compile_cmd)
 
@@ -148,63 +140,7 @@ def compile_nvim():
 def remove_no_require():
     subprocess.run(["rm", "-rf", ".git*", "LICENSE", "README.md", "setup.py", ".__*"],
                    cwd=NVIM_CONF_PATH)
-    print("Removed: .git")
-    print("Removed: LICENSE")
-    print("Removed: README.md")
-    print("Removed: setup.py")
-    print("Removed: .__roshnivim__")
-# -------------------------------
-
-
-# -------------------------------
-def disable_config(comment, text_colorscheme, text_impatient, text_filetype):
-    # Make Comment
-    if comment:
-        replace_text(f"{NVIM_CONF_PATH}/lua/configs.lua", text_colorscheme, f"--{text_colorscheme}")
-        replace_text(f"{NVIM_CONF_PATH}/init.lua", text_impatient, f"--{text_impatient}")
-        replace_text(f"{NVIM_CONF_PATH}/init.lua", text_filetype, f"--{text_filetype}")
-    #UnComment
-    else:
-        replace_text(f"{NVIM_CONF_PATH}/lua/configs.lua", f"--{text_colorscheme}", text_colorscheme)
-        replace_text(f"{NVIM_CONF_PATH}/init.lua", f"--{text_impatient}", text_impatient)
-        replace_text(f"{NVIM_CONF_PATH}/init.lua", f"--{text_filetype}", text_filetype)
-
-# -------------------------------
-
-
-# -------------------------------
-def install_roshnivim():
-
-    text_colorscheme = "cmd('colorscheme rvcs'"
-    text_impatient = "require('plugins/impatient_nvim')"
-    text_filetype = "require('plugins/filetype_nvim')"
-    # going to comment some line of code to prevent getting any error.
-    disable_config(True, text_colorscheme, text_impatient, text_filetype)
-
-    # run nvim command to install plugins
-    print("\ninstalling PLUGINS...")
-    try:
-        compile_nvim()
-
-        # uncomment the line of code we commented before installing the plugin
-        disable_config(False, text_colorscheme, text_impatient, text_filetype)
-    except KeyboardInterrupt:
-        # uncomment the line of code we commented before installing the plugin
-        disable_config(False, text_colorscheme, text_impatient, text_filetype)
-        print("\n")
-
-    # recompile configs
-
-    print("\n--------------------------------\n")
-    print("\n\nroshnivim is installed.\nsetting up plugins...")
-    print("--------------------------------\n")
-    print( "\npress CTRL+C when you see something like: \"packer.compile: Complete\"")
-    print("press CTRL+C if it's taking more than 5min")
-    try:
-        compile_nvim()
-    except KeyboardInterrupt:
-        print("\n")
-
+    print("REMOVED: .git ,LICENSE ,README.md ,setup.py ,.__roshnivim__")
 # -------------------------------
 
 
@@ -214,31 +150,35 @@ def main():
     print("--------------------------------")
     print("installing...this may take some time.")
     print("--------------------------------\n")
+
     # create required directories
     create_require_dir(require_dir)
+
     # backup config if backup argument is 1
     if backup == 1:
         backup_nvim()
 
     if update == 1 and roshnivim_git():
         subprocess.run(["git", "pull"], cwd=NVIM_CONF_PATH)
-        try:
-            print(
-                "\npress CTRL+C when you see something like: \"packer.compile: Complete\"\n"
-            )
-            compile_nvim()
-        except KeyboardInterrupt:
-            print("\n")
 
     else:
         if need_to_clone_roshnivim():
             clone_repro(CONFIG, "https://github.com/shaeinst/roshnivim", "nvim")
 
         else:
-            print("copying config...")
-            subprocess.run(["cp", "-rf", SCRIPT_PATH, f"{CONFIG}/nvim"])
+            # prevent copying or removing if setup.up is running from ~/.config/nvim/
+            if SCRIPT_PATH != NVIM_CONF_PATH:
+                # remove ~/.config/nvim/ to prevent depth parent copy(eg: ~/.config/nvim/nvim)
+                subprocess.run(["rm", "-rf", NVIM_CONF_PATH])
 
-        install_roshnivim()
+                print("copying config...")
+                subprocess.run(["cp", "-rf", SCRIPT_PATH, NVIM_CONF_PATH])
+
+    # compile configs
+    try:
+        compile_nvim()
+    except KeyboardInterrupt:
+        print("\n\n")
 
     if delete == 1:
         print("cleaning config...")
@@ -254,8 +194,8 @@ def main():
         except KeyboardInterrupt:
             print("additional tools didn't install")
 
-
 # -------------------------------
 
+if __name__ == '__main__':
+    main()
 
-main()
