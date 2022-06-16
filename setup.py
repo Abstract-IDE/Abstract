@@ -63,6 +63,7 @@ require_dir = [
     f"{CACHE}/nvim/shada",
     f"{CACHE}/nvim/backedUP",
     f"{CACHE}/nvim/undos",
+    f"{CACHE}/build_files"
     CUSTOM_TOOLS_DIR,
     CACHE_BUILD_PATH,
 ]
