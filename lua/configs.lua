@@ -98,6 +98,11 @@ for option, value in pairs(configs) do
 	vim.opt[option] = value
 end
 
+-- configs
+if vim.api.nvim_call_function('has', {'nvim-0.8'}) == 1 then
+	vim.opt.cmdheight = 0 -- command height
+end
+
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━━━❰ Automate ❱━━━━━━━━━━━━━━━━━━━━ --
 
