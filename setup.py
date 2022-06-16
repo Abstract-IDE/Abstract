@@ -167,7 +167,7 @@ def main():
 
         else:
             # prevent copying or removing if setup.up is running from ~/.config/nvim/
-            if SCRIPT_PATH != NVIM_CONF_PATH:
+            if str(SCRIPT_PATH) != str(NVIM_CONF_PATH):
                 # remove ~/.config/nvim/ to prevent depth parent copy(eg: ~/.config/nvim/nvim)
                 subprocess.run(["rm", "-rf", NVIM_CONF_PATH])
 
@@ -176,6 +176,7 @@ def main():
 
     # compile configs
     try:
+        print("compiling config and plugins...")
         compile_nvim()
     except KeyboardInterrupt:
         print("\n\n")
