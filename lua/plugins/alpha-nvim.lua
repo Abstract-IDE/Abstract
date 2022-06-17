@@ -56,6 +56,7 @@ update_cmd = update_cmd .. "echo updated && "
 update_cmd = update_cmd .. " <CR><CR>"
 dashboard.section.buttons.val = {
 	dashboard.button("r", "  > Recent", ":Telescope oldfiles<CR>", options),
+	dashboard.button("<C-S>", "S  > Sessions", ":SessionManager load_session<CR>", options),
 	-- Disabling as it conflicting with nvim v0.8
 	-- dashboard.button("n", "  > New file", ":ene <BAR> startinsert <CR>", options),
 	dashboard.button("t", "  > Find text", ":Telescope live_grep <CR>", options),
