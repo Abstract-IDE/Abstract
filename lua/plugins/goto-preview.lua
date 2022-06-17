@@ -22,7 +22,12 @@ require('goto-preview').setup {
   	debug = false; -- Print debug information
   	opacity = nil; -- 0-100 opacity level of the floating window where 100 is fully transparent.
   	resizing_mappings = false; -- Binds arrow keys to resizing the floating window.
-  	post_open_hook = nil; -- A function taking two arguments, a buffer and a window to be ran as a hook.
+	-- A function taking two arguments, a buffer and a window to be ran as a hook.
+  	post_open_hook = function()
+		-- add preview window to buffer list
+		local buffer_num = vim.api.nvim_get_current_buf() -- current buffer
+		vim.api.nvim_buf_set_option(buffer_num, "buflisted")
+	end;
   	references = { -- Configure the telescope UI for slowing the references cycling window.
 		telescope = {
 			require("telescope.themes").get_dropdown {
