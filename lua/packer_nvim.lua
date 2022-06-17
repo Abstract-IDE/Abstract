@@ -210,14 +210,20 @@ return packer.startup {
 			config = [[ require('plugins/alpha-nvim') ]]
 		}
 
-		use {
-			'shaeinst/penvim', --  smart indent and project detector with project based config loader
+		use { --  smart indent and project detector with project based config loader
+			'shaeinst/penvim',
 			config = [[ require('plugins/penvim') ]]
 		}
 
 		use { -- preview native LSP's goto definition calls in floating windows.
 			'rmagatti/goto-preview',
 			config = [[ require('plugins/goto-preview') ]]
+		}
+
+		use { --  Show desktop notifications for vim.notify calls
+			'simrat39/desktop-notify.nvim',
+			requires = {'nvim-lua/plenary.nvim'},
+			config = [[ require('plugins/desktop-notify_nvim') ]]
 		}
 
 		-- ━━━━━━━━━━━━━━━━━❰ DEVELOPMENT ❱━━━━━━━━━━━━━━━━━ --
@@ -242,6 +248,7 @@ return packer.startup {
 			"windwp/nvim-ts-autotag",
 			ft = {'html', 'tsx', 'vue', 'svelte', 'php'},
 			requires = {'nvim-treesitter/nvim-treesitter'},
+
 			config = [[ require('plugins/nvim-ts-autotag') ]]
 		}
 		-- ━━━━━━━━━━━━━━❰ end of DEVELOPMENT ❱━━━━━━━━━━━━━ --
