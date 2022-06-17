@@ -19,6 +19,10 @@ local lsp_installer = require("nvim-lsp-installer")
 -- Provide settings first!
 lsp_installer.settings {
 	ui = {
+		-- Whether to automatically check for outdated servers when opening the UI window.
+		check_outdated_servers_on_open = true,
+		-- The border to use for the UI window. Accepts same border values as |nvim_open_win()|.
+		border = "rounded",
 		icons = {
 			server_installed = "✓",
 			server_pending = "➜",
