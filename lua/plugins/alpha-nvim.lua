@@ -14,17 +14,22 @@
 -- ━━━━━━━━━━━━━━━━━━━❰ configs ❱━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
-local alpha = require("alpha")
-local dashboard = require("alpha.themes.dashboard")
-local datetime = os.date("%I:%M:%p 🕔 %d-%m-%Y")
-local ok, nvim_version = pcall(os.capture, "nvim --version | awk 'NR == 1'")
+local alpha_ok, alpha = pcall(require, "alpha")
+if not alpha_ok then return end
+
+local dashboard_ok, dashboard = pcall(require, "alpha.themes.dashboard")
+if not dashboard_ok then return end
+
+local datetime_ok, datetime = pcall(os.date, "%I:%M:%p 🕔 %d-%m-%Y")
+local version_ok, nvim_version = pcall(os.capture, "nvim --version | awk 'NR == 1'")
 
 
 local function footer()
-	if ok then
+	if version_ok and datetime_ok then
 		return nvim_version .. ' | ' .. datetime
-	else
+	elseif datetime_ok then
 		return datetime
+	else return ""
 	end
 end
 
@@ -43,6 +48,7 @@ dashboard.section.header.val = {
 -- Set menu
 local options = {}
 dashboard.section.buttons.val = {
+	-- "",
 	dashboard.button("e", "  > New file", ":ene <BAR> startinsert <CR>", options),
 	dashboard.button("r", "  > Recent", ":Telescope oldfiles<CR>", options),
 	dashboard.button("t", "  > Find text", ":Telescope live_grep <CR>", options),
