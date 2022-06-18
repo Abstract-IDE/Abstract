@@ -14,7 +14,13 @@
 -- ━━━━━━━━━━━━━━━━━━━❰ configs ❱━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
-require'nvim-treesitter.configs'.setup {
+-- safely import tree-sitter
+local ok, treesitter =  pcall(require, 'nvim-treesitter.configs')
+if not ok then
+	return
+end
+
+treesitter.setup {
 
 	-- ensure_installed  = "maintained", -- one of "all", "maintained" (parsers with maintainers), or a list of languages
 	-- ignore_install    = { "javascript" }, -- List of parsers to ignore installing
