@@ -14,7 +14,11 @@
 -- ━━━━━━━━━━━━━━━━━━━❰ configs ❱━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
-require'colorizer'.setup({
+-- safely import colorizer
+local colorizer_imported_ok, colorizer = pcall(require, 'colorizer')
+if not colorizer_imported_ok then return end
+
+colorizer.setup({
 	'css',
 	'html',
 	'javascript',

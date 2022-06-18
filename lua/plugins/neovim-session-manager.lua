@@ -14,7 +14,11 @@
 -- ━━━━━━━━━━━━━━━━━━━❰ configs ❱━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
-require('session_manager').setup({
+-- safely import session_manager
+local session_imported, session = pcall(require, 'session_manager')
+if not session_imported then return end
+
+session.setup({
 	sessions_dir = vim.fn.expand('~/.cache/nvim/sessions'), -- The directory where the session files will be saved.
 	path_replacer = '__', -- The character to which the path separator will be replaced for session files.
 	colon_replacer = '++', -- The character to which the colon symbol will be replaced for session files.

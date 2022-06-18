@@ -14,7 +14,9 @@
 -- ━━━━━━━━━━━━━━━━━━━❰ configs ❱━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
-local lsp_installer = require("nvim-lsp-installer")
+-- safely import nvim-lsp-installer
+local installer_imported_ok, lsp_installer = pcall(require, "nvim-lsp-installer")
+if not installer_imported_ok then return end
 
 -- Provide settings first!
 lsp_installer.settings {
@@ -97,8 +99,10 @@ end
 -- ───────────────────────────────────────────────── --
 
 -- setup the LS
-local On_attach = require("plugins.nvim-lspconfig").On_attach
-make_server_ready(On_attach) -- LSP mappings
+
+local on_attach = require("plugins.nvim-lspconfig").on_attach
+
+make_server_ready(on_attach) -- LSP mappings
 
 -- local servers = {
 	-- "sumneko_lua",        -- for Lua

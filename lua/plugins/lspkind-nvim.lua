@@ -15,7 +15,10 @@
 -- ━━━━━━━━━━━━━━━━━━━❰ configs ❱━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
-require('lspkind').init({
+local lspkind_imported_ok, lspkind = pcall(require, "lspkind")
+if not lspkind_imported_ok then return end
+
+lspkind.init({
 	-- enables text annotations (default: true)
 	mode = true,
 

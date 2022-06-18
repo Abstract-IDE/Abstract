@@ -14,7 +14,11 @@
 -- ━━━━━━━━━━━━━━━━━━━❰ configs ❱━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
-require'nvim-treesitter.configs'.setup {
+-- safely import tree-sitter
+local treesitter_imported_ok, treesitter =  pcall(require, 'nvim-treesitter.configs')
+if not treesitter_imported_ok then return end
+
+treesitter.setup {
 	context_commentstring = {
 		enable = true,
 		enable_autocmd = false,
@@ -35,8 +39,11 @@ require'nvim-treesitter.configs'.setup {
 	},
 }
 
+-- safely import Comment
+local comment_imported_ok, comment = pcall(require, 'Comment')
+if not comment_imported_ok then return end
 
-require('Comment').setup({
+comment.setup({
 
 	-- Integration of nvim-ts-context-commentstring to numToStr/Comment.nvim
 	---Pre-hook, called before commenting the line

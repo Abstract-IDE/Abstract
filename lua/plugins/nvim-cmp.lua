@@ -16,7 +16,10 @@
 
 -- Set completeopt to have a better completion experience
 vim.o.completeopt = 'menuone,noselect'
-local cmp = require 'cmp'
+
+local cmp_imported_ok, cmp = pcall(require, 'cmp')
+if not cmp_imported_ok then return end
+
 -- for completion window width
 local ELLIPSIS_CHAR = '…'
 local MAX_LABEL_WIDTH = 35
@@ -99,7 +102,8 @@ cmp.setup({
 -- 		:match("%s") == nil
 -- end
 
-local luasnip = require("luasnip")
+local luasnip_imported_ok, luasnip = pcall(require, 'luasnip')
+if not luasnip_imported_ok then return end
 
 cmp.setup({
 	mapping = {

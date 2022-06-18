@@ -14,6 +14,10 @@
 -- ━━━━━━━━━━━━━━━━━━━❰ configs ❱━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
+-- safely import telescope
+local telescope_imported_ok, telescope = pcall(require, 'telescope')
+if not telescope_imported_ok then return end
+
 require('telescope').setup {
 
 	defaults = {

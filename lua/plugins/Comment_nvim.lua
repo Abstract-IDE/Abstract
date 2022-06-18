@@ -14,7 +14,11 @@
 -- ━━━━━━━━━━━━━━━━━━━❰ configs ❱━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
-require('Comment').setup({
+-- safely import Comment
+local comment_imported_ok, comment = pcall(require, 'Comment')
+if not comment_imported_ok then return end
+
+comment.setup({
 	---Add a space b/w comment and the line
 	---@type boolean
 	padding = true,

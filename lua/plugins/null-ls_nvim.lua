@@ -16,11 +16,14 @@
 
 -- https://github.com/jose-elias-alvarez/null-ls.nvim/blob/main/doc/BUILTINS.md
 
-local builtins = require("null-ls.builtins")
-local formatting = builtins.formatting
--- local completion = builtins.completion
--- local diagnostics = builtins.diagnostics
--- local code_actions = builtins.code_actions
+-- safley import null-ls
+local null_imported_ok, null = pcall(require, "null-ls")
+if not null_imported_ok then return end
+
+local formatting = null.builtins.formatting
+-- local completion = null.builtins.completion
+-- local diagnostics = null.builtins.diagnostics
+-- local code_actions = null.builtins.code_actions
 
 -- register any number of sources simultaneously
 local sources = {}
@@ -145,7 +148,7 @@ end
 
 
 if load then
-	require("null-ls").setup({
+	null.setup({
 		sources = sources
 	})
 end

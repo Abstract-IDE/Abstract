@@ -14,7 +14,11 @@
 -- ━━━━━━━━━━━━━━━━━━━❰ configs ❱━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
-require('bufferline').setup {
+-- safely import bufferline
+local bufferline_imported, bufferline = pcall(require, 'bufferline')
+if not bufferline_imported then return end
+
+bufferline.setup {
 	options = {
 		numbers = "ordinal", -- "none" | "ordinal" | "buffer_id" | "both" | function({ ordinal, id, lower, raise }): string
 		always_show_bufferline = false, -- don't show bufferline if there is only one file is opened

@@ -13,7 +13,11 @@
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━━━❰ Configs ❱━━━━━━━━━━━━━━━━━━━ --
 
-require('nvim-autopairs').setup({
+-- safely import nvim-autopairs
+local autopairs_imported_ok, autopairs = pcall(require, 'nvim-autopairs')
+if not autopairs_imported_ok then return end
+
+autopairs.setup({
 	enable_check_bracket_line = true, -- Don't add pairs if it already have a close pairs in same line
 	disable_filetype = {"TelescopePrompt", "vim"}, --
 	enable_afterquote = false, -- add bracket pairs after quote
