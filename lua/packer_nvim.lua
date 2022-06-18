@@ -73,6 +73,7 @@ return packer.startup {
 
 		use { -- A collection of common configurations for Neovim's built-in language server client
 			'neovim/nvim-lspconfig',
+			after = "nvim-lsp-installer", -- make sure setup for nvim-lsp-installer executes before the setup for lspconfig
 			config = [[ require('plugins/nvim-lspconfig') ]]
 		}
 

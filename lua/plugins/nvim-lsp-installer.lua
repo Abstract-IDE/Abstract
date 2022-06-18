@@ -14,12 +14,11 @@
 -- ━━━━━━━━━━━━━━━━━━━❰ configs ❱━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
--- safely import nvim-lsp-installer
-local installer_imported_ok, lsp_installer = pcall(require, "nvim-lsp-installer")
-if not installer_imported_ok then return end
+local lspinstaller_imported, lspinstaller = pcall(require, 'nvim-lsp-installer')
+if not lspinstaller_imported then return end
 
--- Provide settings first!
-lsp_installer.settings {
+
+lspinstaller.setup{
 	ui = {
 		-- Whether to automatically check for outdated servers when opening the UI window.
 		check_outdated_servers_on_open = true,
@@ -30,89 +29,96 @@ lsp_installer.settings {
 			server_pending = "➜",
 			server_uninstalled = "✗",
 		},
+        keymaps = {
+            -- Keymap to expand a server in the UI
+            toggle_server_expand = "<CR>",
+            -- Keymap to install the server under the current cursor position
+            install_server = "i",
+            -- Keymap to reinstall/update the server under the current cursor position
+            update_server = "u",
+            -- Keymap to check for new version for the server under the current cursor position
+            check_server_version = "c",
+            -- Keymap to update all installed servers
+            update_all_servers = "U",
+            -- Keymap to check which installed servers are outdated
+            check_outdated_servers = "C",
+            -- Keymap to uninstall a server
+            uninstall_server = "X",
+        },
 	},
-	-- Limit for the maximum amount of servers to be installed at the same time. Once this limit is reached, any further
-	-- servers that are requested to be installed will be put in a queue.
-	max_concurrent_installers = 4,
+
+    -- The directory in which to install all servers.
+    -- install_root_dir = path.concat { vim.fn.stdpath "data", "lsp_servers" },
+
+    -- Controls to which degree logs are written to the log file. It's useful to set this to vim.log.levels.DEBUG when
+    -- debugging issues with server installations.
+    log_level = vim.log.levels.INFO,
+
+    -- Limit for the maximum amount of servers to be installed at the same time. Once this limit is reached, any further
+    -- servers that are requested to be installed will be put in a queue.
+    max_concurrent_installers = 4,
 }
 
--- ───────────────────────────────────────────────── --
-local function make_server_ready(attach)
-	lsp_installer.on_server_ready(function(server)
-		local opts = {}
-		opts.on_attach = attach
+
+-- always call require("nvim-lsp-installer") after require("nvim-lsp-installer").setup {}, this is the way
+local lspconfig_imported, lspconfig = pcall(require, 'lspconfig')
+if not lspconfig_imported then return end
+
+local attach_imported, attach = pcall(require, "plugins.nvim-lspconfig")
+if not attach_imported then return end
+local on_attach = (attach).on_attach
+
+local capabilities = vim.lsp.protocol.make_client_capabilities()
+local options = {
+	on_attach = on_attach,
+	flags = {
+		debounce_text_changes = 150,
+	},
+	capabilities = require('cmp_nvim_lsp').update_capabilities(capabilities),
+}
+
+local installed_servers = lspinstaller.get_installed_servers()
+-- don't setup servers if atleast one server is installed, or it will throw an error
+if #installed_servers == 0 then
+	return
+end
 
 
-		-- for lua
-		if server.name == "sumneko_lua" then
-			-- only apply these settings for the "sumneko_lua" server
-			opts.settings = {
-				Lua = {
-					diagnostics = {
-						-- Get the language server to recognize the 'vim', 'use' global
-						globals = {'vim', 'use', 'require'},
-					},
-					workspace = {
-						-- Make the server aware of Neovim runtime files
-						library = vim.api.nvim_get_runtime_file("", true),
-					},
-					-- Do not send telemetry data containing a randomized but unique identifier
-					telemetry = {enable = false},
+for _, server in ipairs(installed_servers) do
+
+	-- for lua
+	if server.name == "sumneko_lua" then
+		options.settings = {
+			Lua = {
+				diagnostics = {
+					-- Get the language server to recognize the 'vim', 'use' global
+					globals = {'vim', 'use', 'require'},
 				},
-			}
-		end
-
-		-- for clangd (c/c++)
-		-- [https://github.com/jose-elias-alvarez/null-ls.nvim/issues/428]
-		if server.name == "clangd" then
-			local capabilities = vim.lsp.protocol.make_client_capabilities()
-			capabilities.offsetEncoding = { "utf-16" }
-			opts.capabilities = capabilities
-		end
-
-		-- for html
-		if server.name == "html" then
-			opts.filetypes = {"html", "htmldjango"}
-		end
-
-
-		-- This setup() function is exactly the same as lspconfig's setup function (:help lspconfig-quickstart)
-		server:setup(opts)
-		vim.cmd [[ do User LspAttachBuffers ]]
-	end)
-end
--- ───────────────────────────────────────────────── --
-
--- ───────────────────────────────────────────────── --
-local function install_server(server)
-	local lsp_installer_servers = require 'nvim-lsp-installer.servers'
-	local ok, server_analyzer = lsp_installer_servers.get_server(server)
-	if ok then
-		if not server_analyzer:is_installed() then
-			server_analyzer:install(server) -- will install in background
-			-- lsp_installer.install(server)     -- install window will popup
-		end
+				workspace = {
+					-- Make the server aware of Neovim runtime files
+					library = vim.api.nvim_get_runtime_file("", true),
+				},
+				-- Do not send telemetry data containing a randomized but unique identifier
+				telemetry = {enable = false},
+			},
+		}
 	end
+
+	-- for clangd (c/c++)
+	-- [https://github.com/jose-elias-alvarez/null-ls.nvim/issues/428]
+	if server.name == "clangd" then
+		capabilities = vim.lsp.protocol.make_client_capabilities()
+		capabilities.offsetEncoding = { "utf-16" }
+		options.capabilities = capabilities
+	end
+
+	-- for html
+	if server.name == "html" then
+		options.filetypes = {"html", "htmldjango"}
+	end
+
+	lspconfig[server.name].setup(options)
 end
--- ───────────────────────────────────────────────── --
-
--- ───────────────────────────────────────────────── --
-
--- setup the LS
-
-local on_attach = require("plugins.nvim-lspconfig").on_attach
-
-make_server_ready(on_attach) -- LSP mappings
-
--- local servers = {
-	-- "sumneko_lua",        -- for Lua
-	-- "rust_analyzer",      -- for Rust
-	-- "pyright",            -- for Python
-	-- "clangd",             -- for C/C++
-	-- "bashls",             -- for Bash
--- }
--- install the LS
--- for _, server in ipairs(servers) do install_server(server) end
 
 -- ───────────────────────────────────────────────── --
 
