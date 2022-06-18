@@ -76,11 +76,11 @@ def create_require_dir(dirs):
     need_to_inform = False
     once = True
     for dir in dirs:
-        if need_to_inform and once:
-            print("creating required directories...")
-            once = False
         if not Path(dir).exists():
             need_to_inform = True
+            if need_to_inform and once:
+                print("creating required directories...")
+                once = False
             Path(dir).mkdir(parents=True)
             print(" ",dir)
 
@@ -135,7 +135,7 @@ def need_to_clone_roshnivim():
 
 # -------------------------------
 def compile_nvim():
-    print( "\npress CTRL+C when you see something like: \"packer.compile: Complete\"\n")
+    print( "\npress CTRL+C if it's taking while \n")
     packer_compile_cmd = [ "nvim", "--headless", "-c", "autocmd User PackerComplete quitall", "-c", "PackerSync" ]
     subprocess.run(packer_compile_cmd)
 
@@ -157,12 +157,12 @@ def main():
     print("installing...this may take some time.")
     print("--------------------------------\n")
 
-    # create required directories
-    create_require_dir(require_dir)
-
     # backup config if backup argument is 1
     if backup == 1:
         backup_nvim()
+
+    # create required directories
+    create_require_dir(require_dir)
 
     if update == 1 and roshnivim_git():
         subprocess.run(["git", "pull"], cwd=NVIM_CONF_PATH)
