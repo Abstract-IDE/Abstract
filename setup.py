@@ -60,6 +60,7 @@ SCRIPT_PATH = Path(__file__).parent.absolute()
 require_dir = [
     f"{CONFIG}",
     f"{CACHE}/nvim/swap",
+    f"{CACHE}/nvim/view",
     f"{CACHE}/nvim/shada",
     f"{CACHE}/nvim/backedUP",
     f"{CACHE}/nvim/undos",
@@ -99,7 +100,7 @@ def backup_nvim():
     current_date = datetime.today().strftime("%Y-%m-%d_%T")
     if Path(NVIM_CONF_PATH).exists():
         subprocess.run(['cp', '-rf', 'nvim', f'nvim-old_{current_date}'], cwd=CONFIG)
-        print(f"your old config: {NVIM_CONF_PATH}_{current_date}\n")
+        print(f"\nyour old config: {NVIM_CONF_PATH}_{current_date}\n")
 
 # -------------------------------
 
@@ -146,7 +147,7 @@ def compile_nvim():
 def remove_no_require():
     subprocess.run(["rm", "-rf", ".git*", "LICENSE", "README.md", "setup.py", ".__*"],
                    cwd=NVIM_CONF_PATH)
-    print("REMOVED: .git ,LICENSE ,README.md ,setup.py ,.__roshnivim__")
+    print("\nREMOVED: .git ,LICENSE ,README.md ,setup.py ,.__roshnivim__")
 # -------------------------------
 
 
@@ -169,6 +170,7 @@ def main():
 
     else:
         if need_to_clone_roshnivim():
+            print("\n")
             clone_repro(CONFIG, "https://github.com/shaeinst/roshnivim", "nvim")
 
         else:
@@ -177,29 +179,29 @@ def main():
                 # remove ~/.config/nvim/ to prevent depth parent copy(eg: ~/.config/nvim/nvim)
                 subprocess.run(["rm", "-rf", NVIM_CONF_PATH])
 
-                print("copying config...")
+                print("\ncopying config...")
                 subprocess.run(["cp", "-rf", SCRIPT_PATH, NVIM_CONF_PATH])
 
     # compile configs
     try:
-        print("compiling config and plugins...")
+        print("\ncompiling config and plugins...")
         compile_nvim()
     except KeyboardInterrupt:
         print("\n\n")
 
     if delete == 1:
-        print("cleaning config...")
+        print("\ncleaning config...")
         remove_no_require()
 
     # cloning lazy-builder tool (https://github.com/shaeinst/lazy-builder)
     lazy_builder_path = f"{CUSTOM_TOOLS_DIR}/lazy-builder"
     if not Path(lazy_builder_path).exists():
         try:
-            print("installing additional...")
+            print("\ninstalling additional...")
             repository = "https://github.com/shaeinst/lazy-builder"
             clone_repro(CUSTOM_TOOLS_DIR, repository, 'lazy-builder')
         except KeyboardInterrupt:
-            print("additional tools didn't install")
+            print("additional tools didn't install\n")
 
 # -------------------------------
 
