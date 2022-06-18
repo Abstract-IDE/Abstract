@@ -19,6 +19,22 @@ require'nvim-treesitter.configs'.setup {
 	-- ensure_installed  = "maintained", -- one of "all", "maintained" (parsers with maintainers), or a list of languages
 	-- ignore_install    = { "javascript" }, -- List of parsers to ignore installing
 
+	autotag = {
+		enable = true,
+		filetypes = {
+			"html" , "xml",
+			'html',
+			'javascript', 'javascriptreact', 'jsx',
+			'typescript', 'typescriptreact', 'tsx',
+			'rescript',
+			'svelte',
+			'vue',
+			'php',
+			'markdown',
+			'glimmer','handlebars','hbs'
+		},
+	},
+
 	highlight = {
 		enable = true, -- {"c", "cpp", "dart", "python", "javascript"}, enable = true (false will disable the whole extension)
 		-- disable lighlight if file is too long
