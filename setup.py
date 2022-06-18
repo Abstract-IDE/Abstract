@@ -73,9 +73,12 @@ require_dir = [
 
 # -------------------------------
 def create_require_dir(dirs):
-    print("creating required directories...")
+    need_to_inform = False
     for dir in dirs:
+        if need_to_inform:
+            print("creating required directories...")
         if not Path(dir).exists():
+            need_to_inform = True
             Path(dir).mkdir(parents=True)
             print(" ",dir)
 
