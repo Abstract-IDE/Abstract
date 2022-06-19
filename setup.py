@@ -52,7 +52,6 @@ NVIM_CONF_PATH = f"{CONFIG}/nvim"
 NVIM_PLUG_PATH = f"{HOME}/.local/share/nvim"
 CUSTOM_TOOLS_DIR = f"{NVIM_PLUG_PATH}/custom_tools"
 SCRIPT_PATH = Path(__file__).parent.absolute()
-
 # -------------------------------
 
 # directories we must have
@@ -68,7 +67,6 @@ require_dir = [
     CUSTOM_TOOLS_DIR,
     CACHE_BUILD_PATH,
 ]
-
 # -------------------------------
 
 
@@ -84,14 +82,18 @@ def create_require_dir(dirs):
                 once = False
             Path(dir).mkdir(parents=True)
             print(" ",dir)
-
 # -------------------------------
 
 
 # -------------------------------
 def clone_repro(path, repository, name):
     subprocess.run(['git', 'clone', repository, name], cwd=path)
+# -------------------------------
 
+
+# -------------------------------
+def update_abstract():
+    subprocess.run(["git", "pull"], cwd=NVIM_CONF_PATH)
 # -------------------------------
 
 
@@ -101,7 +103,6 @@ def backup_nvim():
     if Path(NVIM_CONF_PATH).exists():
         subprocess.run(['cp', '-rf', 'nvim', f'nvim-old_{current_date}'], cwd=CONFIG)
         print(f"\nyour old config: {NVIM_CONF_PATH}_{current_date}\n")
-
 # -------------------------------
 
 
@@ -113,7 +114,6 @@ def abstract_git():
                 if Path(f"{NVIM_CONF_PATH}/.git").exists():
                     return True
     return False
-
 # -------------------------------
 
 
@@ -130,7 +130,6 @@ def need_to_clone_abstract():
         return False
 
     return True
-
 # -------------------------------
 
 
@@ -166,7 +165,7 @@ def main():
     create_require_dir(require_dir)
 
     if update == 1 and abstract_git():
-        subprocess.run(["git", "pull"], cwd=NVIM_CONF_PATH)
+        update_abstract()
 
     else:
         if need_to_clone_abstract():
@@ -176,11 +175,19 @@ def main():
         else:
             # prevent copying or removing if setup.up is running from ~/.config/nvim/
             if str(SCRIPT_PATH) != str(NVIM_CONF_PATH):
-                # remove ~/.config/nvim/ to prevent depth parent copy(eg: ~/.config/nvim/nvim)
-                subprocess.run(["rm", "-rf", NVIM_CONF_PATH])
 
-                print("\ncopying config...")
-                subprocess.run(["cp", "-rf", SCRIPT_PATH, NVIM_CONF_PATH])
+                if Path(f"{SCRIPT_PATH}/setup.py").is_file() and \
+                Path(f"{SCRIPT_PATH}/.__abstract__").is_file():
+
+                    # remove ~/.config/nvim/ to prevent depth parent copy(eg: ~/.config/nvim/nvim)
+                    subprocess.run(["rm", "-rf", NVIM_CONF_PATH])
+
+                    print("\ncopying config...")
+                    subprocess.run(["cp", "-rf", SCRIPT_PATH, NVIM_CONF_PATH])
+                else:
+                    update_abstract()
+            else:
+                update_abstract()
 
     # compile configs
     try:
