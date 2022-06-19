@@ -199,14 +199,8 @@ components.active[3] = {
 components.inactive[1] = {
 	{
 		provider = 'file_info',
-		hl = {fg = 'black', bg = '#464646', style = 'bold'},
-		-- left_sep = {
-		--     str = ' ',
-		--     hl = {
-		--         fg = 'black',
-		--         bg = 'white',
-		--     }
-		-- },
+		hl = {fg = 'fg', bg = '#141414', style = 'bold'},
+		left_sep = { str = ' ', hl = { fg = 'black', bg = 'bg', } },
 		right_sep = {
 			{str = ' ', hl = {fg = 'black', bg = 'bg'}},
 			-- 'slant_right'
