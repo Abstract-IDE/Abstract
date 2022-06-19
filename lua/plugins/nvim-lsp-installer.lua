@@ -22,7 +22,7 @@ lspinstaller.setup{
 
     -- A list of servers to automatically install if they're not already installed. Example: { "rust_analyzer", "sumneko_lua" }
     -- This setting has no relation with the `automatic_installation` setting.
-    -- ensure_installed = {},
+    ensure_installed = {"sumneko_lua"},
 
     -- Whether servers that are set up (via lspconfig) should be automatically installed if they're not already installed.
     -- This setting has no relation with the `ensure_installed` setting.
@@ -133,6 +133,10 @@ for _, server in ipairs(installed_servers) do
 
 	lspconfig[server.name].setup(options)
 end
+
+-- for Flutter and Dart
+-- don't put this on loop to set it because dart LSP installed and maintained by akinsho/flutter-tools.nvim
+lspconfig["dartls"].setup(options)
 
 -- ───────────────────────────────────────────────── --
 
