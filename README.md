@@ -1,9 +1,16 @@
 
 <br/>
 <p align="center">
-  <a href="https://github.com/Abstract-IDE/Abstract">
-    <img src="https://raw.githubusercontent.com/shaeinst/media/main/images/github-repositories/roshnivim/roshnivim_logo_transparent.png" alt="Logo" width="500" height="320">
-  </a>
+
+   █████████   █████              █████                                  █████
+  ███░░░░░███ ░░███              ░░███                                  ░░███
+ ░███    ░███  ░███████   █████  ███████   ████████   ██████    ██████  ███████
+ ░███████████  ░███░░███ ███░░  ░░░███░   ░░███░░███ ░░░░░███  ███░░███░░░███░
+ ░███░░░░░███  ░███ ░███░░█████   ░███     ░███ ░░░   ███████ ░███ ░░░   ░███
+ ░███    ░███  ░███ ░███ ░░░░███  ░███ ███ ░███      ███░░███ ░███  ███  ░███ ███
+ █████   █████ ████████  ██████   ░░█████  █████    ░░████████░░██████   ░░█████
+░░░░░   ░░░░░ ░░░░░░░░  ░░░░░░     ░░░░░  ░░░░░      ░░░░░░░░  ░░░░░░     ░░░░░
+
 </p>
 
 <br>
@@ -34,14 +41,9 @@
 
 ## About
 
-<div align="center"
-  roshnivim ->  roshni + vim -> light + vim (roshni means light in hindi/urdu) <br>
-  logo-style -> rosh(n)i(vim)  <br>
-</div>
-<br>
-Abstract, can be called neovim's distro, is a predefined configs so that you don't need 1000hr to setup neovim as an IDE. <br><br><br>
+Abstract, The NeoVim configuration to achieve the power of Modern IDE
 
-![screenshot_welcome](https://raw.githubusercontent.com/shaeinst/media/main/images/github-repositories/roshnivim/roshnivim-welcom.png)
+![screenshot_welcome](https://raw.githubusercontent.com/shaeinst/media/main/images/github-repositories/abstract/abstract-welcom.png)
 
 
 
@@ -113,7 +115,7 @@ so in case you don't like to use mapping or configs by Abstract, you can change 
 │   ├── packer_nvim.lua            / manage plugins
 │   ├── customs/
 │   │   ├── override_defalut.lua   / configs to override defined config
-│   │   └── roshniline.lua         / i am working on it. btw it's a status line
+│   │   └── abstractline.lua         / i am working on it. btw it's a status line
 │   └── plugins/                   / dir containing configs for plugins. each plugin has it's own config and can be locaed through init.lua file
 │   ...
 ├── plugin/                        / auto-created by plugin manager
@@ -180,6 +182,7 @@ Distributed under the MIT License.
 - [shaankhan](https://readme.shaankhan.dev/) -- for readme
 - [Neovim-Subreddit](https://www.reddit.com/r/neovim/) -- for awesome supporting community
 - [LunarVim](https://github.com/LunarVim/LunarVim) -- for some reference
+- [Manytools.org](https://manytools.org/hacker-tools/ascii-banner) -- for ascii-banner
 - Plugin Authors -- without you, neovim is incomplete
 - and YOU
 <br>
