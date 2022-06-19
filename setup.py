@@ -205,7 +205,7 @@ def main():
     if not Path(lazy_builder_path).exists():
         try:
             print("\ninstalling additional...")
-            repository = "https://github.com/Abstract-IDE/Abstract"
+            repository = "https://github.com/Abstract-IDE/lazy-builder"
             clone_repro(CUSTOM_TOOLS_DIR, repository, 'lazy-builder')
         except KeyboardInterrupt:
             print("additional tools didn't install\n")
