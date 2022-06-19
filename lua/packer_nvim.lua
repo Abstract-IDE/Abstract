@@ -66,8 +66,8 @@ return packer.startup {
 			'nathom/filetype.nvim'
 		}
 
-		use { -- colorscheme for (neo)vim written in lua specially made for roshnivim
-			'shaeinst/roshnivim-cs',
+		use { -- colorscheme for (neo)vim written in lua specially made for Abstract
+			'Abstract-IDE/Abstract-cs',
 			branch = 'v2',
 		}
 
