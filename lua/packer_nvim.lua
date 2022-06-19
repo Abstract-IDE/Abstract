@@ -71,15 +71,16 @@ return packer.startup {
 			branch = 'v2',
 		}
 
-		use { -- A collection of common configurations for Neovim's built-in language server client
-			'neovim/nvim-lspconfig',
-			after = "nvim-lsp-installer", -- make sure setup for nvim-lsp-installer executes before the setup for lspconfig
-			config = [[ require('plugins/nvim-lspconfig') ]]
-		}
-
 		use { -- Companion plugin for nvim-lspconfig that allows you to seamlessly install LSP servers locally (inside :echo stdpath("data")).
 			'williamboman/nvim-lsp-installer',
 			config = [[ require('plugins/nvim-lsp-installer') ]]
+		}
+
+		use { -- A collection of common configurations for Neovim's built-in language server client
+			'neovim/nvim-lspconfig',
+			-- [loading with after causing errors. for now, disable it]
+			-- after = "nvim-lsp-installer", -- make sure setup for nvim-lsp-installer executes before the setup for lspconfig
+			config = [[ require('plugins/nvim-lspconfig') ]]
 		}
 
 		use { -- vscode-like pictograms for neovim lsp completion items Topics
