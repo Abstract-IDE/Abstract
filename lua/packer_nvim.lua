@@ -233,6 +233,13 @@ return packer.startup {
 			config = [[ require('plugins/neovim-session-manager') ]]
 		}
 
+		use { -- VS Code-like renaming UI for Neovim, writen in Lua.
+			'filipdutescu/renamer.nvim',
+			branch = 'master',
+			requires = {'nvim-lua/plenary.nvim'},
+			config = [[ require('plugins/renamer_nvim') ]]
+		}
+
 		-- ━━━━━━━━━━━━━━━━━❰ DEVELOPMENT ❱━━━━━━━━━━━━━━━━━ --
 
 		----           for flutter/dart
