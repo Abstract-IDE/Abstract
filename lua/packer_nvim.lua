@@ -240,6 +240,10 @@ return packer.startup {
 			config = [[ require('plugins/renamer_nvim') ]]
 		}
 
+		use { -- EditorConfig plugin for Neovim
+			'gpanders/editorconfig.nvim'
+		}
+
 		-- ━━━━━━━━━━━━━━━━━❰ DEVELOPMENT ❱━━━━━━━━━━━━━━━━━ --
 
 		----           for flutter/dart
