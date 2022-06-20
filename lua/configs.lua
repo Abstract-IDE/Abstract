@@ -91,7 +91,7 @@ local configs = {
 }
 
 -- apply colorscheme without throwing any errors
-pcall(vim.cmd, 'colorscheme rvcs')
+pcall(vim.cmd, 'colorscheme abscs')
 
 -- applying defined configs
 for option, value in pairs(configs) do
