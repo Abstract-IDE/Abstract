@@ -146,7 +146,6 @@ keymap('n', '<Leader>,', ':BufferLineMovePrev<CR>', options)
 
 -- Close buffer
 -- nnoremap <silent>    <A-c> :BufferClose<CR>
-keymap('n', '<Leader>q', ':bd<CR>', options)
 
 -- Magic buffer-picking mode
 keymap('n', '<Leader>?', ':BufferLinePick<CR>', options)

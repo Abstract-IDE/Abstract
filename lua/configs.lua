@@ -106,13 +106,18 @@ end
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━━━❰ Automate ❱━━━━━━━━━━━━━━━━━━━━ --
 
--- highlight on yank
-vim.api.nvim_exec([[
-	augroup YankHighlight
-		autocmd!
-    	autocmd TextYankPost * silent! lua vim.highlight.on_yank{higroup="IncSearch", timeout=500, on_visual=true}
-	augroup end
-]], false)
+vim.api.nvim_create_autocmd(
+	"TextYankPost",
+	{
+        pattern = "*",
+        callback = function()
+			vim.highlight.on_yank {
+				higroup="Search", timeout=400, on_visual=true
+			}
+        end,
+        desc = "highlight text on yank",
+	}
+)
 
 -- jump to the last position when reopening a file
 vim.cmd([[
@@ -121,11 +126,32 @@ vim.cmd([[
 	endif
 ]])
 
--- remove whitespace on save
-vim.cmd([[au BufWritePre * :%s/\s\+$//e]])
+vim.api.nvim_create_autocmd(
+	"BufWritePre",
+	{
+		pattern = "*",
+		command = "%s/\\s\\+$//e",
+		desc = "remove whitespaces on save",
+	}
+)
 
--- don't auto comment new line
-vim.cmd([[au BufEnter * set fo-=c fo-=r fo-=o]])
+vim.api.nvim_create_autocmd(
+	"BufEnter",
+	{
+		pattern = "*",
+		command = "setlocal formatoptions-=c formatoptions-=r formatoptions-=o",
+		desc = "don't auto comment new line",
+	}
+)
+
+vim.api.nvim_create_autocmd(
+	"VimResized",
+	{
+		pattern = "*",
+		command = "tabdo wincmd =",
+		desc = "auto resize splited windows",
+	}
+)
 
 -- ━━━━━━━━━━━━━━━━❰ end of Automate ❱━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
