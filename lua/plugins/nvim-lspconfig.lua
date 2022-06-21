@@ -107,8 +107,9 @@ M.on_attach = function(client, bufnr)
 	---------------------
 	-- Avoiding LSP formatting conflicts
 	-- ref: https://github.com/jose-elias-alvarez/null-ls.nvim/wiki/Avoiding-LSP-formatting-conflicts
-	client.resolved_capabilities.document_formatting = false
-	client.resolved_capabilities.document_range_formatting = false
+	-- 2nd red: https://github.com/neovim/nvim-lspconfig/issues/1891#issuecomment-1157964108
+	client.server_capabilities.documentFormattingProvider = false
+	client.server_capabilities.documentRangeFormattingProvider = false
 	--------------------------
 
 	-- Enable completion triggered by <c-x><c-o>

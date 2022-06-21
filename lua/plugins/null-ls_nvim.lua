@@ -171,7 +171,7 @@ vim.api.nvim_create_autocmd("FileType", {
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
 local keymap = vim.api.nvim_set_keymap
-keymap('n', '<Space>fm', '<ESC>:lua vim.lsp.buf.formatting()<CR>', {noremap = true, silent = true})
+keymap('n', '<Space>fm', '<ESC>:lua vim.lsp.buf.format{ async=true }<CR>', {noremap = true, silent = true})
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━❰ end Mappings ❱━━━━━━━━━━━━━━━━ --
