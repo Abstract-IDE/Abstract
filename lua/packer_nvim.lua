@@ -90,6 +90,7 @@ return packer.startup {
 
 		use { -- Nvim Treesitter configurations and abstraction layer
 			'nvim-treesitter/nvim-treesitter',
+			run = ':TSUpdate'
 			requires = {
 				'nvim-treesitter/playground', -- Treesitter playground integrated into Neovim
 				opt = true
