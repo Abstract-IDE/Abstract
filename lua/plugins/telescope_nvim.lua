@@ -47,8 +47,19 @@ require('telescope').setup {
             preview_cutoff = 80,
 		},
 		file_ignore_patterns = {
-			"node_modules/",
+			"__pycache__/", "__pycache__/*",
+
+			"build/",       "env/",    "gradle/",  "node_modules/", "node_modules/*",
+			"smalljre_*/*", "target/", "vendor/*",
+
+			".dart_tool/",  ".git/",   ".github/", ".gradle/",      ".idea/",        ".vscode/",
+
+			"%.sqlite3",    "%.ipynb", "%.lock",   "%.pdb",
+			"%.dll",        "%.class", "%.exe",    "%.cache", "%.pdf",  "%.dylib",
+			"%.jar",        "%.docx",  "%.met",    "%.burp",  "%.mp4",  "%.mkv", "%.rar",
+			"%.zip",        "%.7z",    "%.tar",    "%.bz2",   "%.epub", "%.flac","%.tar.gz",
 		},
+
 		file_sorter = require'telescope.sorters'.get_fuzzy_file,
 		generic_sorter = require'telescope.sorters'.get_generic_fuzzy_sorter,
 		file_previewer = require'telescope.previewers'.vim_buffer_cat.new,
