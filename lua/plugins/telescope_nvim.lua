@@ -79,6 +79,13 @@ require('telescope').setup {
 
 		preview = {
 			msg_bg_fillchar = " ",
+			treesitter = false,
+		},
+
+		live_grep = {
+			preview = {
+				treesitter = false
+			}
 		},
 
 		-- Developer configurations: Not meant for general override
