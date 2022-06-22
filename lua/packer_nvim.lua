@@ -223,12 +223,6 @@ return packer.startup {
 			config = [[ require('plugins/goto-preview') ]]
 		}
 
-		use { --  Show desktop notifications for vim.notify calls
-			'simrat39/desktop-notify.nvim',
-			requires = {'nvim-lua/plenary.nvim'},
-			config = [[ require('plugins/desktop-notify_nvim') ]]
-		}
-
 		use { --  A simple wrapper around :mksession
 			'Shatur/neovim-session-manager',
 			config = [[ require('plugins/neovim-session-manager') ]]
