@@ -98,64 +98,10 @@ for option, value in pairs(configs) do
 	vim.opt[option] = value
 end
 
--- configs
-if vim.api.nvim_call_function('has', {'nvim-0.8'}) == 1 then
-	vim.opt.cmdheight = 0 -- command height
-end
-
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
--- ━━━━━━━━━━━━━━━━━━━❰ Automate ❱━━━━━━━━━━━━━━━━━━━━ --
-
-vim.api.nvim_create_autocmd(
-	"TextYankPost",
-	{
-        pattern = "*",
-        callback = function()
-			vim.highlight.on_yank {
-				higroup="Search", timeout=400, on_visual=true
-			}
-        end,
-        desc = "highlight text on yank",
-	}
-)
-
--- jump to the last position when reopening a file
-vim.cmd([[
-	if has("autocmd")
-		au BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$") | exe "normal! g`\"" | endif
-	endif
-]])
-
-vim.api.nvim_create_autocmd(
-	"BufWritePre",
-	{
-		pattern = "*",
-		command = "%s/\\s\\+$//e",
-		desc = "remove whitespaces on save",
-	}
-)
-
-vim.api.nvim_create_autocmd(
-	"BufEnter",
-	{
-		pattern = "*",
-		command = "setlocal formatoptions-=c formatoptions-=r formatoptions-=o",
-		desc = "don't auto comment new line",
-	}
-)
-
-vim.api.nvim_create_autocmd(
-	"VimResized",
-	{
-		pattern = "*",
-		command = "tabdo wincmd =",
-		desc = "auto resize splited windows",
-	}
-)
-
--- ━━━━━━━━━━━━━━━━❰ end of Automate ❱━━━━━━━━━━━━━━━━ --
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
-
+-- -- configs
+-- if vim.api.nvim_call_function('has', {'nvim-0.8'}) == 1 then
+-- 	vim.opt.cmdheight = 0 -- command height
+-- end
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━❰ end of Plugin Configs ❱━━━━━━━━━━━━━━━━ --
