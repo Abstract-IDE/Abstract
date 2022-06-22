@@ -120,30 +120,27 @@ M.on_attach = function(client, bufnr)
 
 	-- See `:help vim.lsp.*` for documentation on any of the below functions
 	-- ───────────────────────────────────────────────── --
-	buf_set_keymap('n', '<space>e',		'<cmd>lua vim.diagnostic.open_float()<CR>', options)
-	buf_set_keymap('n', '[d',			'<cmd>lua vim.lsp.diagnostic.goto_prev()<CR>', options)
-	buf_set_keymap('n', ']d',			'<cmd>lua vim.lsp.diagnostic.goto_next()<CR>', options)
-	buf_set_keymap('n', '<space>q',		'<cmd>lua vim.lsp.diagnostic.set_loclist()<CR>', options)
+	buf_set_keymap('n', 'ge',           '<cmd>lua vim.diagnostic.open_float()<CR>', options)
+	buf_set_keymap('n', 'gq',           '<cmd>lua vim.diagnostic.set_loclist({})<CR>', options)
+	buf_set_keymap('n', 'gg',           '<cmd>lua vim.diagnostic.goto_next()<CR>', options)
+	buf_set_keymap('n', 'gn',           '<cmd>lua vim.diagnostic.goto_next()<CR>', options)
+	buf_set_keymap('n', 'gG',           '<cmd>lua vim.diagnostic.goto_prev()<CR>', options)
+	buf_set_keymap('n', 'gb',           '<cmd>lua vim.diagnostic.goto_prev()<CR>', options)
 
-	buf_set_keymap('n', 'gD',			'<Cmd>lua vim.lsp.buf.declaration()<CR>', options)
-	buf_set_keymap('n', 'gd',			'<Cmd>lua vim.lsp.buf.definition()<CR>', options)
-	buf_set_keymap('n', 'K',			'<Cmd>lua vim.lsp.buf.hover()<CR>', options)
-	buf_set_keymap('n', 'gi',			'<cmd>lua vim.lsp.buf.implementation()<CR>', options)
-	buf_set_keymap('n', '[ls',			'<cmd>lua vim.lsp.buf.signature_help()<CR>', options)
-	buf_set_keymap('n', '<space>D',		'<cmd>lua vim.lsp.buf.type_definition()<CR>', options)
+	buf_set_keymap('n', 'gd',           '<Cmd>lua vim.lsp.buf.definition()<CR>', options)
+	buf_set_keymap('n', 'gD',           '<Cmd>lua vim.lsp.buf.declaration()<CR>', options)
+	buf_set_keymap('n', 'GD',           '<cmd>lua vim.lsp.buf.type_definition()<CR>', options)
+	buf_set_keymap('n', 'gi',           '<cmd>lua vim.lsp.buf.implementation()<CR>', options)
+	buf_set_keymap('n', 'gs',           '<cmd>lua vim.lsp.buf.signature_help()<CR>', options)
+	buf_set_keymap('n', 'gh',           '<Cmd>lua vim.lsp.buf.hover()<CR>', options)
+	buf_set_keymap('n', 'K',            '<Cmd>lua vim.lsp.buf.hover()<CR>', options)
 	-- using 'filipdutescu/renamer.nvim' for rename
 	-- buf_set_keymap('n', '<space>rn',	'<cmd>lua vim.lsp.buf.rename()<CR>', opts)
 	buf_set_keymap('n', 'gr',			'<cmd>lua vim.lsp.buf.references()<CR>', options)
-	buf_set_keymap("n", "<space>f",		'<cmd>lua vim.lsp.buf.format{ async=true }<CR>', options)
+	buf_set_keymap("n", "gfm",          '<cmd>lua vim.lsp.buf.format{ async=true }<CR>', options)
 
-	--       --> Code Action
-	-- for example, in flutter/dart you can wrap or delete widgets using code action.
-	-- for more see :help builtin.lsp_code_actions() or :help builtin.lsp_range_code_actions()
-	buf_set_keymap('n', '<space>ca',    '<cmd>lua vim.lsp.buf.code_action()<CR>',       options)
-	buf_set_keymap('n', 'ta',           '<cmd>lua vim.lsp.buf.code_action()<CR>',       options)
-	buf_set_keymap('x', '<space>ca',   '<cmd>lua vim.lsp.buf.range_code_action()<CR>', options)
-	buf_set_keymap('x', 'ta',           '<cmd>lua vim.lsp.buf.range_code_action()<CR>', options)
-
+	buf_set_keymap('n', 'ga',           '<cmd>lua vim.lsp.buf.code_action()<CR>',       options)
+	buf_set_keymap('x', 'ga',           '<cmd>lua vim.lsp.buf.range_code_action()<CR>', options)
 
 	-- buf_set_keymap('n', '<leader>wa',    '<cmd>lua vim.lsp.buf.add_workleader_folder()<CR>',          opts)
 	-- buf_set_keymap('n', '<leader>wr',    '<cmd>lua vim.lsp.buf.remove_workleader_folder()<CR>',       opts)

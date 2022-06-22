@@ -64,7 +64,7 @@ comment.setup({
 	---@type table
 	toggler = {
 		line = 'cc', ---line-comment keymap
-		block = 'gcb', ---block-comment keymap
+		block = 'cb', ---block-comment keymap
 	},
 
 	---LHS of operator-pending mapping in VISUAL mode
