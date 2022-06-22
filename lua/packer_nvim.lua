@@ -245,6 +245,11 @@ return packer.startup {
 			'gpanders/editorconfig.nvim'
 		}
 
+		use { --  Neovim motions on speed!
+			'phaazon/hop.nvim',
+			config = [[ require('plugins/hop_nvim') ]]
+		}
+
 		-- ━━━━━━━━━━━━━━━━━❰ DEVELOPMENT ❱━━━━━━━━━━━━━━━━━ --
 
 		----           for flutter/dart
