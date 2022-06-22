@@ -47,23 +47,23 @@ vim.g.floaterm_height = 0.7
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
 local keymap = vim.api.nvim_set_keymap
-local g = vim.g
+local options = { noremap=true, silent=true }
 
 -- use this (global, g) if you want your keymap works on any view(normal, insert, ...)
-g.floaterm_keymap_toggle = '<C-t>' -- toggle open/close floaterm
--- g.floaterm_keymap_prev = 'tk' -- go to previous floaterm window
--- g.floaterm_keymap_next = 'tj' -- go to next floaterm window
--- g.floaterm_keymap_new    = 'tn'         -- create new terminal
--- g.floaterm_keymap_kill   = 'tq'         -- quit current terminal
+vim.g.floaterm_keymap_toggle = '<C-t>' -- toggle open/close floaterm
+-- vim.g.floaterm_keymap_prev = 'tk' -- go to previous floaterm window
+-- vim.g.floaterm_keymap_next = 'tj' -- go to next floaterm window
+-- vim.g.floaterm_keymap_new    = 'tn'         -- create new terminal
+-- vim.g.floaterm_keymap_kill   = 'tq'         -- quit current terminal
 
 -- go to previous floaterm window
-keymap('n', 'tk', ':FloatermPrev<CR>', {noremap = true, silent = true})
+keymap('n', 'tk', ':FloatermPrev<CR>', options)
 -- go to next floaterm window
-keymap('n', 'tj', ':FloatermNext<CR>', {noremap = true, silent = true})
+keymap('n', 'tj', ':FloatermNext<CR>', options)
 -- create new floaterm window
-keymap('n', 'tn', ':FloatermNew<CR>', {noremap = true, silent = true})
+keymap('n', 'tn', ':FloatermNew<CR>',  options)
 -- exit floaterm window
-keymap('n', 'tq', ':FloatermKill<CR>', {noremap = true, silent = true})
+keymap('n', 'tq', ':FloatermKill<CR>', options)
 
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
@@ -73,9 +73,9 @@ keymap('n', 'tq', ':FloatermKill<CR>', {noremap = true, silent = true})
 -- it depends on python script, https://github.com/shaeinst/lazy-builder. visit to know more.
 
 local lazy_builder_py = "~/.local/share/nvim/custom_tools/lazy-builder/build.py"
-local build_path = "~/.cache/build_files"
-local buffer_num = vim.api.nvim_get_current_buf() -- current buffer
-local filename = vim.api.nvim_buf_get_name(buffer_num) -- current filename with full location
+local build_path      = "~/.cache/build_files"
+local buffer_num      = vim.api.nvim_get_current_buf() -- current buffer
+local filename        = vim.api.nvim_buf_get_name(buffer_num) -- current filename with full location
 -- local filename_with_dir = vim.fn.expand('%:p')
 -- local filename_dir= vim.fn.expand('%:p:h')
 
