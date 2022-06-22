@@ -18,7 +18,7 @@
 local telescope_imported_ok, telescope = pcall(require, 'telescope')
 if not telescope_imported_ok then return end
 
-require('telescope').setup {
+telescope.setup {
 
 	defaults = {
 		vimgrep_arguments = {
@@ -149,22 +149,20 @@ require("telescope").load_extension("ui-select")
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
 local keymap = vim.api.nvim_set_keymap
+local options = { silent = true, noremap = true }
 
 --      --> Launch Telescope without any argument
-keymap('n', "\\\\", "<cmd>lua require('telescope.builtin').builtin() <CR>",
-       {silent = true, noremap = true})
+keymap('n', "tt",   "<cmd>lua require('telescope.builtin').builtin() <CR>", options)
 
 --       --> show all availabe MAPPING
-keymap('n', "<leader>M", "<cmd>lua require('telescope.builtin').keymaps() <CR>",
-       {silent = true, noremap = true})
+keymap('n', "tm", "<cmd>lua require('telescope.builtin').keymaps() <CR>", options)
 
 --       --> show buffers/opened files
-keymap('n', "<C-b>", "<cmd>lua require('telescope.builtin').buffers() <CR>",
-       {silent = true, noremap = true})
+keymap('n', "<C-b>", "<cmd>lua require('telescope.builtin').buffers() <CR>", options)
+keymap('n', "<tb>",  "<cmd>lua require('telescope.builtin').buffers() <CR>", options)
 
---       --> show buffers/opened files
-keymap('n', "<leader>/", "<cmd>lua require('telescope.builtin').current_buffer_fuzzy_find() <CR>",
-       {silent = true, noremap = true})
+--       --> show and grep current buffer
+keymap('n', "tg", "<cmd>lua require('telescope.builtin').current_buffer_fuzzy_find() <CR>", options)
 
 --       --> Find Files
 -- NOTE1: to get project root's directory, extra plugin (github.com/ygm2/rooter.nvim) is used.
@@ -172,24 +170,19 @@ keymap('n', "<leader>/", "<cmd>lua require('telescope.builtin').current_buffer_f
 -- to change settings related to working directory, refer to rooter_nvim.lua config file
 
 -- Find files from current file's project
-keymap('n', "<C-p>", ":Telescope find_files <cr>",
-       {silent = true, noremap = true})
+keymap('n', "<C-p>", ":Telescope find_files <cr>", options)
+keymap('n', "tp",    ":Telescope find_files <cr>", options)
 -- show all files from current working directory
-keymap('n', "<C-f>",
-       "<cmd>lua require('telescope.builtin').find_files( { cwd = vim.fn.expand('%:p:h') }) <CR>",
-       {silent = true, noremap = true})
+keymap('n', "<C-f>", "<cmd>lua require('telescope.builtin').find_files( { cwd = vim.fn.expand('%:p:h') }) <CR>", options)
+keymap('n', "tf",    "<cmd>lua require('telescope.builtin').find_files( { cwd = vim.fn.expand('%:p:h') }) <CR>", options)
 
 --       --> Code Action
 -- for example, in flutter/dart you can wrap or delete widgets using code action.
 -- for more see :help builtin.lsp_code_actions() or :help builtin.lsp_range_code_actions()
-keymap('n', "<Space>ca",
-       "<cmd>lua vim.lsp.buf.code_action() <CR>",
-       {silent = true, noremap = true}
-)
-keymap('x', "<leader>ca",
-       "<cmd>lua vim.lsp.buf.range_code_action() <CR>",
-       {silent = true, noremap = true}
-)
+keymap('n', "<Space>ca", "<cmd>lua vim.lsp.buf.code_action() <CR>",       options)
+keymap('n', "ta",        "<cmd>lua vim.lsp.buf.code_action() <CR>",       options)
+keymap('x', "<leader>ca","<cmd>lua vim.lsp.buf.range_code_action() <CR>", options)
+keymap('x', "ta",        "<cmd>lua vim.lsp.buf.range_code_action() <CR>", options)
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━❰ end Mappings ❱━━━━━━━━━━━━━━━━ --

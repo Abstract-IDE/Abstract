@@ -1,7 +1,7 @@
 
 
 <br/>
-<p align="center" 
+<p align="center"
   <a href="url"><img src="https://user-images.githubusercontent.com/41078534/174880558-6403a57d-9eae-401b-a309-1240d2c6ca16.png" align="left" height="500" width="600" ></a>
 </p>
 
@@ -122,16 +122,16 @@ you can change ```Leader key``` in [init.lua](https://github.com/Abstract-IDE/Ab
 | Keys                | Functions                                                              |
 | --------------------|:---------------------------------------------------------------------- |
 | ```;```             | leader key                                                             |
-| ```<leader>M```     | show all mappings (it will show mapping in telescope)                  |
+| ```tm```            | show all mappings (it will show mapping in telescope)                  |
 | ```<C-p>```         | Find files from current file's project                                 |
 | ```<C-f>```         | show all files from current working directory                          |
-| ```\\```            | Launch Telescope without any argument                                  |
+| ```tt```            | Launch Telescope without any argument                                  |
 | ```<Leader>q```     | close buffer                                                           |
 | ```<C-s>```         | save file                                                              |
 | ```<C-h>```         | scroll window horizontally (left)                                      |
 | ```<C-l>```         | scroll window horizontally (right)                                     |
-| ```//```            | clear Search Results                                                   |
-| ```<M-q>```         | (M=Alt) on[ly] close all other windows but leave all buffers open.     |
+| ```??```            | clear Search Results                                                   |
+| ```<M-q>```         | (M=Alt) close all other windows but leave current buffers    open.     |
 | ```K```             | move selected line(s) up                                               |
 | ```J```             | move selected line(s) down                                             |
 
@@ -157,7 +157,7 @@ Distributed under the MIT License.
 
 ## To-Do
 
-- installer(setup.py) support for Windows OS
+- add installer(setup.py) support for Windows OS
 - write a decent documentation
 
 
