@@ -162,7 +162,8 @@ keymap('n', "<C-b>", "<cmd>lua require('telescope.builtin').buffers() <CR>", opt
 keymap('n', "<tb>",  "<cmd>lua require('telescope.builtin').buffers() <CR>", options)
 
 --       --> show and grep current buffer
-keymap('n', "tg", "<cmd>lua require('telescope.builtin').current_buffer_fuzzy_find() <CR>", options)
+keymap('n', "tw", "<cmd>lua require('telescope.builtin').current_buffer_fuzzy_find() <CR>", options)
+keymap('n', "tg", "<cmd>lua require('telescope.builtin').live_grep() <CR>", options)
 
 --       --> Find Files
 -- NOTE1: to get project root's directory, extra plugin (github.com/ygm2/rooter.nvim) is used.
@@ -175,14 +176,6 @@ keymap('n', "tp",    ":Telescope find_files <cr>", options)
 -- show all files from current working directory
 keymap('n', "<C-f>", "<cmd>lua require('telescope.builtin').find_files( { cwd = vim.fn.expand('%:p:h') }) <CR>", options)
 keymap('n', "tf",    "<cmd>lua require('telescope.builtin').find_files( { cwd = vim.fn.expand('%:p:h') }) <CR>", options)
-
---       --> Code Action
--- for example, in flutter/dart you can wrap or delete widgets using code action.
--- for more see :help builtin.lsp_code_actions() or :help builtin.lsp_range_code_actions()
-keymap('n', "<Space>ca", "<cmd>lua vim.lsp.buf.code_action() <CR>",       options)
-keymap('n', "ta",        "<cmd>lua vim.lsp.buf.code_action() <CR>",       options)
-keymap('x', "<leader>ca","<cmd>lua vim.lsp.buf.range_code_action() <CR>", options)
-keymap('x', "ta",        "<cmd>lua vim.lsp.buf.range_code_action() <CR>", options)
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━❰ end Mappings ❱━━━━━━━━━━━━━━━━ --
