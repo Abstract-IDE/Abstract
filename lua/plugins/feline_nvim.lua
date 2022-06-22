@@ -196,17 +196,7 @@ components.active[3] = {
 	},
 }
 
-components.inactive[1] = {
-	{
-		provider = 'file_info',
-		hl = {fg = 'fg', bg = '#141414', style = 'bold'},
-		left_sep = { str = ' ', hl = { fg = 'black', bg = 'bg', } },
-		right_sep = {
-			{str = ' ', hl = {fg = 'black', bg = 'bg'}},
-			-- 'slant_right'
-		},
-	},
-}
+-- components.inactive[1] = { }
 
 -- This table is equal to the default colors table
 local colors = {
