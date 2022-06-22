@@ -1,11 +1,8 @@
 
-
 <br/>
-<p align="center"
-  <a href="url"><img src="https://user-images.githubusercontent.com/41078534/174880558-6403a57d-9eae-401b-a309-1240d2c6ca16.png" align="left" height="500" width="600" ></a>
-</p>
+<img src="https://user-images.githubusercontent.com/41078534/174880558-6403a57d-9eae-401b-a309-1240d2c6ca16.png" align="left" height="300" width="400" >
 
-<br>
+<br><br><br><br><br><br><br><br><br><br><br><br><br>
 
 <div align="center" >
   <a href="https://github.com/Abstract-IDE/Abstract#screenshots">Screenshots</a>
@@ -13,6 +10,11 @@
 
   ![Contributors](https://img.shields.io/github/contributors/Abstract-IDE/Abstract?color=dark-green) ![Issues](https://img.shields.io/github/issues/Abstract-IDE/Abstract) ![License](https://img.shields.io/github/license/Abstract-IDE/Abstract)
 </div>
+
+
+
+
+
 
 
 
@@ -102,6 +104,7 @@ so in case you don't like to use mapping or configs by Abstract, you can change 
 │   ...
 ├── init.lua                       / load/source configs | heart of Abstract
 ├── lua/
+│   ├── autocmd.lua                / auto command configs 
 │   ├── configs.lua                / configs that's don't depends on plugins
 │   ├── mappings.lua               / mappings that don't depends on plugins
 │   ├── packer_nvim.lua            / manage plugins
