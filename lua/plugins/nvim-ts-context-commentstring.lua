@@ -34,7 +34,8 @@ treesitter.setup {
 					-- if a node has this as the parent, use the `//` commentstring
 					jsx_expression = '// %s',
 				},
-			}
+			},
+			css = '// %s',
 		}
 	},
 }
@@ -49,17 +50,15 @@ comment.setup({
 	---Pre-hook, called before commenting the line
 	pre_hook = function(ctx)
 		local U = require 'Comment.utils'
-
-    	local location = nil
-    	if ctx.ctype == U.ctype.block then
+		local location = nil
+		if ctx.ctype == U.ctype.block then
 			location = require('ts_context_commentstring.utils').get_cursor_location()
-    	elseif ctx.cmotion == U.cmotion.v or ctx.cmotion == U.cmotion.V then
+		elseif ctx.cmotion == U.cmotion.v or ctx.cmotion == U.cmotion.V then
 			location = require('ts_context_commentstring.utils').get_visual_start_location()
-    	end
-
-    	return require('ts_context_commentstring.internal').calculate_commentstring {
+		end
+		return require('ts_context_commentstring.internal').calculate_commentstring {
 			key = ctx.ctype == U.ctype.line and '__default' or '__multiline',
-    	  	location = location,
+			location = location,
 		}
 	end,
 })
