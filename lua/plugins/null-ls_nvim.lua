@@ -171,7 +171,7 @@ vim.api.nvim_create_autocmd("FileType", {
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
 local keymap = vim.api.nvim_set_keymap
-keymap('n', 'gfm', '<ESC>:lua vim.lsp.buf.format{ async=true }<CR>', {noremap = true, silent = true})
+keymap('n', 'gf', '<ESC>:lua vim.lsp.buf.format{ async=true }<CR>', {noremap = true, silent = true})
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━❰ end Mappings ❱━━━━━━━━━━━━━━━━ --
