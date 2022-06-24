@@ -14,59 +14,53 @@
 -- ━━━━━━━━━━━━━━━━━━━❰ configs ❱━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
-local imported_hydra, hydra = pcall(require, 'hydra')
+local imported_hydra, Hydra = pcall(require, 'hydra')
 if not imported_hydra then return end
 
-local hint = [[
-^^    _h_: move left    _l_: move right    ^
-^^    _k_: move up      _j_: move down    ^
-^
-^^    _H_: resize left  _L_: resize right    ^
-^^    _K_: resize up    _J_: resize down    ^
-^^	  ^^       _<Esc>_: quit
-]]
-
-hydra({
-	name = 'Change/Resize Window',
-	hint = hint,
+Hydra({
+	hint = [[
+ ^^^^^^     Move     ^^^^^^   ^^     Split         ^^^^    Size
+ ^^^^^^--------------^^^^^^   ^^---------------    ^^^^-------------
+ ^ ^ _k_ ^ ^   ^ ^ _K_ ^ ^    _s_: horizontally    _+_ _-_: height
+ _h_ ^ ^ _l_   _H_ ^ ^ _L_    _v_: vertically      _>_ _<_: width
+ ^ ^ _j_ ^ ^   ^ ^ _J_ ^ ^    _q_: close           ^ _=_ ^: equalize
+ focus^^^^^^   window^^^^^^
+ ^ ^ ^ ^ ^ ^   ^ ^ ^ ^ ^ ^    ^ ^ ^    _<Esc>_
+]],
 	config = {
-		color = 'pink',
+		-- timeout = 4000,
 		invoke_on_body = false,
 		hint = {
-			position = 'bottom',
-			border = 'rounded'
+			border = 'rounded',
+			-- position = 'bottom',
 		},
 	},
-
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
--- ━━━━━━━━━━━━━━━━━❰ end configs ❱━━━━━━━━━━━━━━━━━ --
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
-
-
-
-
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
--- ━━━━━━━━━━━━━━━━━━━❰ Mappings ❱━━━━━━━━━━━━━━━━━━ --
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
-
 	mode = 'n',
 	body = '<C-w>',
 	heads = {
-		-- resize window
-		{ 'H', '<C-w>1<' },
-		{ 'L', '<C-w>1>' },
-		{ 'K', '<C-w>1+' },
-		{ 'J', '<C-w>1-' },
-
-		-- move between window
-		{ 'h', '<C-w>h' },
-		{ 'l', '<C-w>l' },
-		{ 'k', '<C-w>k' },
-		{ 'j', '<C-w>j' },
-
-		-- quit
-		-- { '<Esc', nil, { nowait = true } }
-	}
+		-- Move focus
+		{'h', '<C-w>h'},
+		{'j', '<C-w>j'},
+		{'k', '<C-w>k'},
+		{'l', '<C-w>l'},
+		-- Move window
+		{'H', '<Cmd>WinShift left<CR>'},
+		{'J', '<Cmd>WinShift down<CR>'},
+		{'K', '<Cmd>WinShift up<CR>'},
+		{'L', '<Cmd>WinShift right<CR>'},
+		-- Split
+		{'s', '<C-w>s'},
+		{'v', '<C-w>v'},
+		{'q', '<Cmd>try | close | catch | endtry<CR>', {desc = 'close window'}},
+		-- Size
+		{'+', '<C-w>+'},
+		{'-', '<C-w>-'},
+		{'>', '2<C-w>>', {desc = 'increase width'}},
+		{'<', '2<C-w><', {desc = 'decrease width'}},
+		{'=', '<C-w>=', {desc = 'equalize'}},
+		--
+		{'<Esc>', nil, {exit = true}},
+	},
 })
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
