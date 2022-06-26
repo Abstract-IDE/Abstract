@@ -138,6 +138,7 @@ for _, server in ipairs(installed_servers) do
 			`vscode-css-language-server` only provides completions when snippet support is enabled.
 			To enable completion, install a snippet plugin and add the following override to your
 			language client capabilities during setup. Enable (broadcasting) snippet capability for completion
+			https://github.com/neovim/nvim-lspconfig/blob/master/lua/lspconfig/server_configurations/cssls.lua
 		--]==]
 		capabilities = vim.lsp.protocol.make_client_capabilities()
 		capabilities.textDocument.completion.completionItem.snippetSupport = true
