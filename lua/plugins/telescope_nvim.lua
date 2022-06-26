@@ -162,7 +162,7 @@ keymap('n', "tm", "<cmd>lua require('telescope.builtin').keymaps() <CR>", option
 
 --       --> show buffers/opened files
 keymap('n', "<C-b>", "<cmd>lua require('telescope.builtin').buffers() <CR>", options)
-keymap('n', "<tb>",  "<cmd>lua require('telescope.builtin').buffers() <CR>", options)
+keymap('n', "tb",  "<cmd>lua require('telescope.builtin').buffers() <CR>", options)
 
 --       --> show and grep current buffer
 keymap('n', "tw", "<cmd>lua require('telescope.builtin').current_buffer_fuzzy_find() <CR>", options)
