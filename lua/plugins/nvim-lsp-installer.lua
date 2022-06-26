@@ -131,6 +131,19 @@ for _, server in ipairs(installed_servers) do
 		options.filetypes = {"html", "htmldjango"}
 	end
 
+	if server.name == "cssls" then
+
+		--[==[
+			Neovim does not currently include built-in snippets.
+			`vscode-css-language-server` only provides completions when snippet support is enabled.
+			To enable completion, install a snippet plugin and add the following override to your
+			language client capabilities during setup. Enable (broadcasting) snippet capability for completion
+		--]==]
+		capabilities = vim.lsp.protocol.make_client_capabilities()
+		capabilities.textDocument.completion.completionItem.snippetSupport = true
+		options.capabilities = capabilities
+	end
+
 	lspconfig[server.name].setup(options)
 end
 
