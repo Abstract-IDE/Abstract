@@ -74,35 +74,27 @@ lspinstaller.setup{
 }
 
 
--- always call require("nvim-lsp-installer") after require("nvim-lsp-installer").setup {}, this is the way
+-- ───────────────────────────────────────────────── --
+-- setup LSPs manually
+-- ───────────────────────────────────────────────── --
+local installed_servers = lspinstaller.get_installed_servers()
+-- don't setup servers if atleast one server is installed, or it will throw an error
+if #installed_servers == 0 then return end
+
+-- always call require("lspconfig") after require("nvim-lsp-installer").setup {}, this is the way
 local lspconfig_imported, lspconfig = pcall(require, 'lspconfig')
 if not lspconfig_imported then return end
 
-local attach_imported, attach = pcall(require, "plugins.nvim-lspconfig")
-if not attach_imported then return end
-local on_attach = (attach).on_attach
-
 local capabilities = vim.lsp.protocol.make_client_capabilities()
-local options = {
-	on_attach = on_attach,
-	flags = {
-		debounce_text_changes = 150,
-	},
-	capabilities = require('cmp_nvim_lsp').update_capabilities(capabilities),
-}
-
-local installed_servers = lspinstaller.get_installed_servers()
--- don't setup servers if atleast one server is installed, or it will throw an error
-if #installed_servers == 0 then
-	return
-end
+-- import lsp configs/options which are managed in seprate file, nvim-lspconfig.lua
+local lsp_options = require("plugins.nvim-lspconfig").options
 
 
 for _, server in ipairs(installed_servers) do
 
 	-- for lua
 	if server.name == "sumneko_lua" then
-		options.settings = {
+		lsp_options.settings = {
 			Lua = {
 				diagnostics = {
 					-- Get the language server to recognize the 'vim', 'use' global
@@ -121,38 +113,39 @@ for _, server in ipairs(installed_servers) do
 	-- for clangd (c/c++)
 	-- [https://github.com/jose-elias-alvarez/null-ls.nvim/issues/428]
 	if server.name == "clangd" then
-		capabilities = vim.lsp.protocol.make_client_capabilities()
 		capabilities.offsetEncoding = { "utf-16" }
-		options.capabilities = capabilities
+		lsp_options.capabilities = capabilities
 	end
 
 	-- for html
 	if server.name == "html" then
-		options.filetypes = {"html", "htmldjango"}
+		lsp_options.filetypes = {"html", "htmldjango"}
 	end
 
+	-- for css / scss / sass
 	if server.name == "cssls" then
 
 		--[==[
-			Neovim does not currently include built-in snippets.
-			`vscode-css-language-server` only provides completions when snippet support is enabled.
-			To enable completion, install a snippet plugin and add the following override to your
-			language client capabilities during setup. Enable (broadcasting) snippet capability for completion
-			https://github.com/neovim/nvim-lspconfig/blob/master/lua/lspconfig/server_configurations/cssls.lua
+				Neovim does not currently include built-in snippets.
+				`vscode-css-language-server` only provides completions when snippet support is enabled.
+				To enable completion, install a snippet plugin and add the following override to your
+				language client capabilities during setup. Enable (broadcasting) snippet capability for completion
+				https://github.com/neovim/nvim-lspconfig/blob/master/lua/lspconfig/server_configurations/cssls.lua
 		--]==]
-		capabilities = vim.lsp.protocol.make_client_capabilities()
 		capabilities.textDocument.completion.completionItem.snippetSupport = true
-		options.capabilities = capabilities
+		lsp_options.capabilities = capabilities
 	end
 
-	lspconfig[server.name].setup(options)
+	lspconfig[server.name].setup(lsp_options)
 end
 
 -- for Flutter and Dart
 -- don't put this on loop to set it because dart LSP installed and maintained by akinsho/flutter-tools.nvim
-lspconfig["dartls"].setup(options)
-
+lspconfig["dartls"].setup(lsp_options)
 -- ───────────────────────────────────────────────── --
+-- end LSP setup
+-- ───────────────────────────────────────────────── --
+
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━❰ end configs ❱━━━━━━━━━━━━━━━━━ --

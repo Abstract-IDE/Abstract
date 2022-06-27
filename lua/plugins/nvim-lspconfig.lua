@@ -9,88 +9,7 @@
 
 
 
-
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
--- ━━━━━━━━━━━━━━━━━━━❰ configs ❱━━━━━━━━━━━━━━━━━━━ --
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
-
 local M = {}
-
--- -- change float window border
--- -- [https://github.com/williamboman/nvim-lsp-installer/issues/475#issuecomment-1037222808]
--- -- [NOTE: this setting can consume upto 20ms startup time]
--- local lspconfig_window = require("lspconfig.ui.windows")
--- local old_defaults = lspconfig_window.default_opts
---
--- function lspconfig_window.default_opts(opts)
---     local win_opts = old_defaults(opts)
---     win_opts.border = "rounded"
---     return win_opts
--- end
-
--- options for lsp diagnostic
--- ───────────────────────────────────────────────── --
-vim.lsp.handlers["textDocument/publishDiagnostics"] =
-				vim.lsp.with(vim.lsp.diagnostic.on_publish_diagnostics, {
-					underline = true,
-					signs = true,
-					update_in_insert = true,
-					virtual_text = {
-						true,
-						spacing = 6,
-						-- severity_limit='Error'  -- Only show virtual text on error
-					},
-				})
-
-vim.diagnostic.config({
-	float = {
-		border = "rounded",
-		focusable = true,
-		style = "minimal",
-		source = "always",
-		header = "",
-		prefix = "",
-	},
-})
-
-vim.lsp.handlers["textDocument/hover"] =
-				vim.lsp.with(vim.lsp.handlers.hover, {border = "rounded"})
-
-vim.lsp.handlers["textDocument/signatureHelp"] =
-				vim.lsp.with(vim.lsp.handlers.signature_help, {border = "rounded"})
-
--- show diagnostic on float window(like auto complete)
--- vim.api.nvim_command [[ autocmd CursorHold  *.lua,*.sh,*.bash,*.dart,*.py,*.cpp,*.c,js lua vim.lsp.diagnostic.show_line_diagnostics() ]]
-
--- se LSP diagnostic symbols/signs
--- ─────────────────────────────────────────────────--
-vim.api.nvim_command [[ sign define DiagnosticSignError text= texthl=DiagnosticSignError linehl= numhl= ]]
-vim.api.nvim_command [[ sign define DiagnosticSignWarn  text= texthl=DiagnosticSignWarn  linehl= numhl= ]]
-vim.api.nvim_command [[ sign define DiagnosticSignInfo  text= texthl=DiagnosticSignInfo  linehl= numhl= ]]
-vim.api.nvim_command [[ sign define DiagnosticSignHint  text= texthl=DiagnosticSignHint  linehl= numhl= ]]
-
-vim.api.nvim_command [[ hi DiagnosticUnderlineError cterm=underline gui=underline guisp=#840000 ]]
-vim.api.nvim_command [[ hi DiagnosticUnderlineHint cterm=underline  gui=underline guisp=#07454b ]]
-vim.api.nvim_command [[ hi DiagnosticUnderlineWarn cterm=underline  gui=underline guisp=#2f2905 ]]
-vim.api.nvim_command [[ hi DiagnosticUnderlineInfo cterm=underline  gui=underline guisp=#265478 ]]
-
--- Auto-format files prior to saving them
--- vim.api.nvim_command[[autocmd BufWritePre <buffer> lua vim.lsp.buf.formatting_sync(nil, 1000)]]
-
---[[
-   " to change colors, it's better to define in color scheme
-   " highlight LspDiagnosticsUnderlineError         guifg=#EB4917 gui=undercurl
-   " highlight LspDiagnosticsUnderlineWarning       guifg=#EBA217 gui=undercurl
-   " highlight LspDiagnosticsUnderlineInformation   guifg=#17D6EB gui=undercurl
-   " highlight LspDiagnosticsUnderlineHint          guifg=#17EB7A gui=undercurl
---]]
-
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
--- ━━━━━━━━━━━━━━━━━❰ end configs ❱━━━━━━━━━━━━━━━━━ --
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
-
-
-
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━━━❰ Mappings ❱━━━━━━━━━━━━━━━━━━ --
@@ -99,7 +18,7 @@ vim.api.nvim_command [[ hi DiagnosticUnderlineInfo cterm=underline  gui=underlin
 -- Use an on_attach function to only map the following keys
 -- after the language server attaches to the current buffer
 -- ───────────────────────────────────────────────── --
-M.on_attach = function(client, bufnr)
+local on_attach = function(client, bufnr)
 
 	local function buf_set_keymap(...) vim.api.nvim_buf_set_keymap(bufnr, ...) end
 	local function buf_set_option(...) vim.api.nvim_buf_set_option(bufnr, ...) end
@@ -145,9 +64,99 @@ M.on_attach = function(client, bufnr)
 	-- buf_set_keymap('n', '<leader>wl',   '<cmd>lua print(vim.inspect(vim.lsp.buf.list_workleader_folders()))<CR>', opts)
 end
 
-
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━❰ end Mappings ❱━━━━━━━━━━━━━━━━ --
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
+
+
+
+
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
+-- ━━━━━━━━━━━━━━━━━━━❰ configs ❱━━━━━━━━━━━━━━━━━━━ --
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
+
+local lsp = vim.lsp
+local capabilities = lsp.protocol.make_client_capabilities()
+local handlers = lsp.handlers
+
+M.options = {
+	on_attach = on_attach,
+	flags = {
+		debounce_text_changes = 150,
+	},
+	capabilities = require('cmp_nvim_lsp').update_capabilities(capabilities),
+}
+
+
+-- options for lsp diagnostic
+-- ───────────────────────────────────────────────── --
+vim.diagnostic.config({
+	float = {
+		border = "rounded",
+		focusable = true,
+		style = "minimal",
+		source = "always",
+		header = "",
+		prefix = "",
+	},
+})
+
+handlers["textDocument/publishDiagnostics"] =
+			lsp.with(lsp.diagnostic.on_publish_diagnostics, {
+				underline = true,
+				signs = true,
+				update_in_insert = true,
+				virtual_text = {
+					true,
+					spacing = 6,
+					-- severity_limit='Error'  -- Only show virtual text on error
+				},
+			})
+
+handlers["textDocument/hover"] = lsp.with(handlers.hover, {border = "rounded"})
+handlers["textDocument/signatureHelp"] = lsp.with(handlers.signature_help, {border = "rounded"})
+
+-- show diagnostic on float window(like auto complete)
+-- vim.api.nvim_command [[ autocmd CursorHold  *.lua,*.sh,*.bash,*.dart,*.py,*.cpp,*.c,js lua vim.lsp.diagnostic.show_line_diagnostics() ]]
+
+-- se LSP diagnostic symbols/signs
+-- ─────────────────────────────────────────────────--
+vim.api.nvim_command [[ sign define DiagnosticSignError text= texthl=DiagnosticSignError linehl= numhl= ]]
+vim.api.nvim_command [[ sign define DiagnosticSignWarn  text= texthl=DiagnosticSignWarn  linehl= numhl= ]]
+vim.api.nvim_command [[ sign define DiagnosticSignInfo  text= texthl=DiagnosticSignInfo  linehl= numhl= ]]
+vim.api.nvim_command [[ sign define DiagnosticSignHint  text= texthl=DiagnosticSignHint  linehl= numhl= ]]
+
+vim.api.nvim_command [[ hi DiagnosticUnderlineError cterm=underline gui=underline guisp=#840000 ]]
+vim.api.nvim_command [[ hi DiagnosticUnderlineHint cterm=underline  gui=underline guisp=#07454b ]]
+vim.api.nvim_command [[ hi DiagnosticUnderlineWarn cterm=underline  gui=underline guisp=#2f2905 ]]
+vim.api.nvim_command [[ hi DiagnosticUnderlineInfo cterm=underline  gui=underline guisp=#265478 ]]
+
+-- Auto-format files prior to saving them
+-- vim.api.nvim_command[[autocmd BufWritePre <buffer> lua vim.lsp.buf.formatting_sync(nil, 1000)]]
+
+--[[
+   " to change colors, it's better to define in color scheme
+   " highlight LspDiagnosticsUnderlineError         guifg=#EB4917 gui=undercurl
+   " highlight LspDiagnosticsUnderlineWarning       guifg=#EBA217 gui=undercurl
+   " highlight LspDiagnosticsUnderlineInformation   guifg=#17D6EB gui=undercurl
+   " highlight LspDiagnosticsUnderlineHint          guifg=#17EB7A gui=undercurl
+--]]
+
+
+-- -- change float window border
+-- -- [https://github.com/williamboman/nvim-lsp-installer/issues/475#issuecomment-1037222808]
+-- -- [NOTE: this setting can consume upto 20ms startup time]
+-- local lspconfig_window = require("lspconfig.ui.windows")
+-- local old_defaults = lspconfig_window.default_opts
+--
+-- function lspconfig_window.default_opts(opts)
+--     local win_opts = old_defaults(opts)
+--     win_opts.border = "rounded"
+--     return win_opts
+-- end
+
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
+-- ━━━━━━━━━━━━━━━━━❰ end configs ❱━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
 return M
