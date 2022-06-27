@@ -1,8 +1,9 @@
-
 <br/>
-<img src="https://user-images.githubusercontent.com/41078534/174880558-6403a57d-9eae-401b-a309-1240d2c6ca16.png" align="left" height="300" width="400" >
 
-<br><br><br><br><br><br><br><br><br><br><br><br><br>
+<p align="center"> 
+ <img src="https://user-images.githubusercontent.com/41078534/175897440-adaa1da8-08d9-4f6a-9d80-f687b4e296e6.svg" height="400 widht="400" >
+</p>
+
 
 <div align="center" >
   <a href="https://github.com/Abstract-IDE/Abstract#screenshots">Screenshots</a>
@@ -10,9 +11,6 @@
 
   ![Contributors](https://img.shields.io/github/contributors/Abstract-IDE/Abstract?color=dark-green) ![Issues](https://img.shields.io/github/issues/Abstract-IDE/Abstract) ![License](https://img.shields.io/github/license/Abstract-IDE/Abstract)
 </div>
-
-
-
 
 
 
