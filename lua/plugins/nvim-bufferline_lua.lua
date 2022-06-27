@@ -19,7 +19,10 @@ local bufferline_imported, bufferline = pcall(require, 'bufferline')
 if not bufferline_imported then return end
 
 bufferline.setup {
+
 	options = {
+
+		mode = "buffers", -- set to "tabs" to only show tabpages instead
 		numbers = "ordinal", -- "none" | "ordinal" | "buffer_id" | "both" | function({ ordinal, id, lower, raise }): string
 		always_show_bufferline = false, -- don't show bufferline if there is only one file is opened
 
@@ -55,7 +58,8 @@ bufferline.setup {
 		show_close_icon = false,
 		show_buffer_icons = true, -- disable filetype icons for buffers
 		show_buffer_close_icons = false,
-		show_tab_indicators = false,
+		show_tab_indicators = true,
+		enforce_regular_tabs = true, -- if set true, tabs will be prevented from extending beyond the tab size and all tabs will be the same length
 
 		view = "multiwindow",
 		-- can also be a table containing 2 custom separators
@@ -98,6 +102,16 @@ bufferline.setup {
 		numbers = {
 			guibg = {highlight = "BuffNumbers", attribute = "bg"},
 		},
+
+		tab_selected = {
+			guifg = {highlight = "TabSelectedFG", attribute = "fg"},
+			guibg = {highlight = "TabSelectedBG", attribute = "bg"},
+		},
+		tab = {
+			guifg = {highlight = "TabFG", attribute = "fg"},
+			guibg = {highlight = "TabBG", attribute = "bg"},
+		},
+
 		-- duplicate_visible = {
 		-- },
 		-- close_button = {
