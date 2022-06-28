@@ -60,35 +60,35 @@ return packer.startup {
 
 		use { -- Packer can manage itself
 			'wbthomason/packer.nvim',
-			commit = commits.packer,
+			commit = commits.packer_nvim,
 		}
 
 		-- Improve Start-UP time
 		use { -- Speed up loading Lua modules in Neovim to improve startup time.
 			'lewis6991/impatient.nvim',
-			commit = commits.impatient,
+			commit = commits.impatient_nvim,
 		}
 
 		use { -- Easily speed up your neovim startup time!. A faster version of filetype.vim
 			'nathom/filetype.nvim',
-			commit = commits.filetype,
+			commit = commits.filetype_nvim,
 		}
 
 		use { -- colorscheme for (neo)vim written in lua specially made for Abstract
 			'Abstract-IDE/Abstract-cs',
-			commit = commits.Abstract_cs,
+			-- commit = commits.Abstract_cs,
 			branch = 'v2',
 		}
 
 		use { -- Companion plugin for nvim-lspconfig that allows you to seamlessly install LSP servers locally (inside :echo stdpath("data")).
 			'williamboman/nvim-lsp-installer',
-			commit = commits.lsp_installer,
+			commit = commits.nvim_lsp_installer,
 			config = [[ require('plugins/nvim-lsp-installer') ]]
 		}
 
 		use { -- A collection of common configurations for Neovim's built-in language server client
 			'neovim/nvim-lspconfig',
-			commit = commits.lspconfig,
+			commit = commits.nvim_lspconfig,
 			-- [loading with after causing errors. for now, disable it]
 			-- after = "nvim-lsp-installer", -- make sure setup for nvim-lsp-installer executes before the setup for lspconfig
 			config = [[ require('plugins/nvim-lspconfig') ]]
@@ -96,13 +96,13 @@ return packer.startup {
 
 		use { -- vscode-like pictograms for neovim lsp completion items Topics
 			'onsails/lspkind-nvim',
-			commit = commits.lspkind,
+			commit = commits.lspkind_nvim,
 			config = [[ require('plugins/lspkind-nvim') ]]
 		}
 
 		use { -- Nvim Treesitter configurations and abstraction layer
 			'nvim-treesitter/nvim-treesitter',
-			commit = commits.treesitter,
+			commit = commits.nvim_treesitter,
 			run = ':TSUpdate',
 			requires = {'nvim-treesitter/playground', commit=commits.playground, opt = true},  -- Treesitter playground integrated into Neovim
 			config = [[ require('plugins/nvim-treesitter') ]]
@@ -110,122 +110,122 @@ return packer.startup {
 
 		use { -- A completion plugin for neovim coded in Lua.
 			'hrsh7th/nvim-cmp',
-			commit = commits.cmp,
+			commit = commits.nvim_cmp,
 			requires = {
-				{"hrsh7th/cmp-nvim-lsp", commit=commits.cmp_lsp},     -- nvim-cmp source for neovim builtin LSP client
+				{"hrsh7th/cmp-nvim-lsp", commit=commits.cmp_nvim_lsp},     -- nvim-cmp source for neovim builtin LSP client
 				{"hrsh7th/cmp-buffer", commit=commits.cmp_buffer},    -- nvim-cmp source for buffer words.
 				{"hrsh7th/cmp-path", commit=commits.cmp_path},        -- nvim-cmp source for filesystem paths.
 				{"saadparwaiz1/cmp_luasnip", commit=commits.cmp_luasnip},-- luasnip completion source for nvim-cmp
-				{"hrsh7th/cmp-nvim-lsp-signature-help", commit=commits.cmp_lsp_signature_help}, -- nvim-cmp source for displaying function signatures with the current parameter emphasized:
-				{"hrsh7th/cmp-nvim-lua", ft = 'lua', commit=commits.cmp_lua}, -- nvim-cmp source for nvim lua
+				{"hrsh7th/cmp-nvim-lsp-signature-help", commit=commits.cmp_nvim_lsp_signature_help}, -- nvim-cmp source for displaying function signatures with the current parameter emphasized:
+				{"hrsh7th/cmp-nvim-lua", ft = 'lua', commit=commits.cmp_nvim_lua}, -- nvim-cmp source for nvim lua
 			},
 			config = [[ require('plugins/nvim-cmp') ]]
 		}
 
 		use { -- Snippet Engine for Neovim written in Lua.
 			'L3MON4D3/LuaSnip',
-			commit = commits.luasnip,
+			commit = commits.LuaSnip,
 			requires = {"rafamadriz/friendly-snippets", commit=commits.friendly_snippets},  -- Snippets collection for a set of different programming languages for faster development.
 			config = [[ require('plugins/LuaSnip') ]]
 		}
 
 		use { -- Use Neovim as a language server to inject LSP diagnostics, code actions, and more via Lua.
 			'jose-elias-alvarez/null-ls.nvim',
-			commit = commits.null_ls,
+			commit = commits.null_ls_nvim,
 			config = [[ require('plugins/null-ls_nvim') ]]
 		}
 
 		use { -- A super powerful autopairs for Neovim. It support multiple character.
 			'windwp/nvim-autopairs',
-			commit = commits.autopairs,
+			commit = commits.nvim_autopairs,
 			config = [[ require('plugins/nvim-autopairs') ]]
 		}
 
 		use { -- Find, Filter, Preview, Pick. All lua, all the time.
 			'nvim-telescope/telescope.nvim',
-			commit = commits.telescope,
+			commit = commits.telescope_nvim,
 			requires = {
-				{'nvim-lua/popup.nvim', commit=commits.popup},
-				{'nvim-lua/plenary.nvim', commit=commits.plenary},
-				{'nvim-telescope/telescope-fzf-native.nvim', commit=commits.telescope_fzf_native, run = 'make'}, -- FZF sorter for telescope written in c
-				{'nvim-telescope/telescope-file-browser.nvim', commit=commits.telescope_file_browser}, -- File Browser extension for telescope.nvim
-				{'nvim-telescope/telescope-media-files.nvim', commit=commits.telescope_media_files}, -- Telescope extension to preview media files using Ueberzug.
-				{'nvim-telescope/telescope-ui-select.nvim', commit=commits.telescope_ui_select}, -- It sets vim.ui.select to telescope.
+				{'nvim-lua/popup.nvim', commit=commits.popup_nvim},
+				{'nvim-lua/plenary.nvim', commit=commits.plenary_nvim},
+				{'nvim-telescope/telescope-fzf-native.nvim', commit=commits.telescope_fzf_native_nvim, run = 'make'}, -- FZF sorter for telescope written in c
+				{'nvim-telescope/telescope-file-browser.nvim', commit=commits.telescope_file_browser_nvim}, -- File Browser extension for telescope.nvim
+				{'nvim-telescope/telescope-media-files.nvim', commit=commits.telescope_media_files_nvim}, -- Telescope extension to preview media files using Ueberzug.
+				{'nvim-telescope/telescope-ui-select.nvim', commit=commits.telescope_ui_select_nvim}, -- It sets vim.ui.select to telescope.
 			},
 			config = [[ require('plugins/telescope_nvim') ]]
 		}
 
 		use { -- Use (neo)vim terminal in the floating/popup window.
 			'voldikss/vim-floaterm',
-			commit = commits.floaterm,
+			commit = commits.vim_floaterm,
 			config = [[ require('plugins/vim-floaterm') ]]
 		}
 
 		use { -- lua `fork` of vim-web-devicons for neovim
 			'kyazdani42/nvim-web-devicons',
-			commit = commits.web_devicons,
+			commit = commits.nvim_web_devicons,
 			config = [[ require('plugins/nvim-web-devicons') ]]
 		}
 
 		use { -- Maximizes and restores the current window in Vim
 			'szw/vim-maximizer',
-			commit = commits.maximizer,
+			commit = commits.vim_maximizer,
 			config = [[ require('plugins/vim-maximizer') ]]
 		}
 
 		use { -- Smart and powerful comment plugin for neovim. Supports commentstring, dot repeat, left-right/up-down motions, hooks, and more
 			'numToStr/Comment.nvim',
-			commit = commits.Comment,
+			commit = commits.Comment_nvim,
 			config = [[ require('plugins/Comment_nvim') ]]
 		}
 
 		use {
 			'JoosepAlviste/nvim-ts-context-commentstring', --  Neovim treesitter plugin for setting the commentstring based on the cursor location in a file.
-			commit = commits.ts_context_commentstring,
+			commit = commits.nvim_ts_context_commentstring,
 			config = [[ require('plugins/nvim-ts-context-commentstring') ]]
 		}
 
 		use { -- The fastest Neovim colorizer.
 			'norcalli/nvim-colorizer.lua',
-			commit = commits.colorizer,
+			commit = commits.nvim_colorizer_lua,
 			config = [[ require('plugins/nvim-colorizer_lua') ]]
 		}
 
 		use { --  Indent guides for Neovim
 			'lukas-reineke/indent-blankline.nvim',
-			commit = commits.indent_blankline,
+			commit = commits.indent_blankline_nvim,
 			config = [[ require('plugins/indent-blankline_nvim') ]]
 		}
 
 		use { -- Git signs written in pure lua
 			'lewis6991/gitsigns.nvim',
-			commit = commits.gitsigns,
-			requires = {'nvim-lua/plenary.nvim', commit=commits.plenary},
+			commit = commits.gitsigns_nvim,
+			requires = {'nvim-lua/plenary.nvim', commit=commits.plenary_nvim},
 			config = [[ require('plugins/gitsigns_nvim') ]]
 		}
 
 		use { -- A pretty diagnostics, references, telescope results, quickfix and location list to help you solve all the trouble your code is causing.
 			'folke/trouble.nvim',
-			commit = commits.trouble,
+			commit = commits.trouble_nvim,
 			config = [[ require('plugins/trouble_nvim') ]]
 		}
 
 		use { -- A snazzy bufferline for Neovim
 			'akinsho/nvim-bufferline.lua',
-			commit = commits.bufferline_lua,
-			requires = {'kyazdani42/nvim-web-devicons', commit=commits.web_devicons},
+			commit = commits.nvim_bufferline_lua,
+			requires = {'kyazdani42/nvim-web-devicons', commit=commits.nvim_web_devicons},
 			config = [[ require('plugins/nvim-bufferline_lua') ]]
 		}
 
 		use { -- A File Explorer For Neovim Written In Lua
 			'kyazdani42/nvim-tree.lua',
-			commit = commits.tree_lua,
+			commit = commits.nvim_tree_lua,
 			config = [[ require('plugins/nvim-tree_lua') ]]
 		}
 
 		use { -- A minimal, stylish and customizable statusline for Neovim written in Lua
 			'feline-nvim/feline.nvim',
-			commit = commits.feline,
+			commit = commits.feline_nvim,
 			-- requires = {
 			--   'nvim-lua/lsp-status.nvim',
 			-- },
@@ -234,8 +234,8 @@ return packer.startup {
 
 		use { -- fast and highly customizable greeter for neovim.
 			"goolord/alpha-nvim",
-			commit = commits.alpha,
-			requires = {'kyazdani42/nvim-web-devicons', commit=commits.web_devicons},
+			commit = commits.alpha_nvim,
+			requires = {'kyazdani42/nvim-web-devicons', commit=commits.nvim_web_devicons},
 			config = [[ require('plugins/alpha-nvim') ]]
 		}
 
@@ -253,26 +253,26 @@ return packer.startup {
 
 		use { --  A simple wrapper around :mksession
 			'Shatur/neovim-session-manager',
-			commit = commits.session_manager,
+			commit = commits.neovim_session_manager,
 			config = [[ require('plugins/neovim-session-manager') ]]
 		}
 
 		use { -- VS Code-like renaming UI for Neovim, writen in Lua.
 			'filipdutescu/renamer.nvim',
-			commit = commits.renamer,
+			commit = commits.renamer_nvim,
 			branch = 'master',
-			requires = {'nvim-lua/plenary.nvim', commit=commits.plenary},
+			requires = {'nvim-lua/plenary.nvim', commit=commits.plenary_nvim},
 			config = [[ require('plugins/renamer_nvim') ]]
 		}
 
 		use { -- EditorConfig plugin for Neovim
 			'gpanders/editorconfig.nvim',
-			commit = commits.editorconfig,
+			commit = commits.editorconfig_nvim,
 		}
 
 		use { --  Neovim motions on speed!
 			'phaazon/hop.nvim',
-			commit = commits.hop,
+			commit = commits.hop_nvim,
 			config = [[ require('plugins/hop_nvim') ]]
 		}
 
@@ -281,11 +281,11 @@ return packer.startup {
 		----           for flutter/dart
 		use { -- Tools to help create flutter apps in neovim using the native lsp
 			'akinsho/flutter-tools.nvim',
-			commit = commits.flutter_tools,
+			commit = commits.flutter_tools_nvim,
 			ft = {'dart'},
 			requires = {
-				{'nvim-lua/plenary.nvim', commit=commits.plenary},
-				{'Neevash/awesome-flutter-snippets', commit=commits.awesome_flutter_snipppets}, -- collection snippets and shortcuts for commonly used Flutter functions and classes
+				{'nvim-lua/plenary.nvim', commit=commits.plenary_nvim},
+				{'Neevash/awesome-flutter-snippets', commit=commits.awesome_flutter_snippets}, -- collection snippets and shortcuts for commonly used Flutter functions and classes
 				{
 					'dart-lang/dart-vim-plugin', -- Syntax highlighting for Dart in Vim
 					commit = commits.dart_vim_plugin,
@@ -298,9 +298,9 @@ return packer.startup {
 		--            for Web-Development
 		use { --  Use treesitter to auto close and auto rename html tag, work with html,tsx,vue,svelte,php.
 			"windwp/nvim-ts-autotag",
-			commit = commits.ts_autotag,
+			commit = commits.nvim_ts_autotag,
 			ft = {'html', 'tsx', 'vue', 'svelte', 'php'},
-			requires = {'nvim-treesitter/nvim-treesitter', commit=commits.treesitter},
+			requires = {'nvim-treesitter/nvim-treesitter', commit=commits.nvim_treesitter},
 
 			config = [[ require('plugins/nvim-ts-autotag') ]]
 		}
