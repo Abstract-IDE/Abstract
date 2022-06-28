@@ -94,6 +94,14 @@ if vim.fn.executable("djlint") == 1 then
 	})
 end
 
+-- Rust
+if vim.fn.executable("rustfmt") == 1 then
+	load = true
+	sources[#sources+1] = formatting.rustfmt.with({
+		command = "rustfmt",
+	})
+end
+
 -- ───────────────❰ end FORMATTING ❱──────────────── --
 -- ───────────────────────────────────────────────── --
 
