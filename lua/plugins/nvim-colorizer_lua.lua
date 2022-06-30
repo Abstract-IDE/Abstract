@@ -30,6 +30,7 @@ colorizer.setup({
 	'vim',
 	'dart',
 	'python',
+	'lua',
 	-- '*', -- all file type
 
 }, {mode = 'background', names = true, css = true, css_fn = true})
