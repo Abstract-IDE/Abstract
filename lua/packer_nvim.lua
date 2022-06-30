@@ -112,9 +112,9 @@ return packer.startup {
 			'hrsh7th/nvim-cmp',
 			commit = commits.nvim_cmp,
 			requires = {
-				{"hrsh7th/cmp-nvim-lsp", commit=commits.cmp_nvim_lsp},     -- nvim-cmp source for neovim builtin LSP client
-				{"hrsh7th/cmp-buffer", commit=commits.cmp_buffer},    -- nvim-cmp source for buffer words.
-				{"hrsh7th/cmp-path", commit=commits.cmp_path},        -- nvim-cmp source for filesystem paths.
+				{"hrsh7th/cmp-nvim-lsp", commit=commits.cmp_nvim_lsp},   -- nvim-cmp source for neovim builtin LSP client
+				{"hrsh7th/cmp-buffer", commit=commits.cmp_buffer},       -- nvim-cmp source for buffer words.
+				{"hrsh7th/cmp-path", commit=commits.cmp_path},           -- nvim-cmp source for filesystem paths.
 				{"saadparwaiz1/cmp_luasnip", commit=commits.cmp_luasnip},-- luasnip completion source for nvim-cmp
 				{"hrsh7th/cmp-nvim-lsp-signature-help", commit=commits.cmp_nvim_lsp_signature_help}, -- nvim-cmp source for displaying function signatures with the current parameter emphasized:
 				{"hrsh7th/cmp-nvim-lua", ft = 'lua', commit=commits.cmp_nvim_lua}, -- nvim-cmp source for nvim lua
