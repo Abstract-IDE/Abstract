@@ -14,7 +14,10 @@
 -- ━━━━━━━━━━━━━━━━━━━❰ configs ❱━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
-require("penvim").setup({
+local imported_penvim, penvim = pcall(require, "penvim")
+if not imported_penvim then return end
+
+penvim.setup({
 
 	project_env = {
 		enable = true,
@@ -29,7 +32,8 @@ require("penvim").setup({
 
 	indentor = {
 		enable = true,
-		length = 4,
+		indent_length = 4,
+		indent_type = "auto", -- auto|tab|space
 	},
 
 	-- langs = {
