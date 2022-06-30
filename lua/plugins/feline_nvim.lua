@@ -24,6 +24,8 @@ local fn = vim.fn
 
 local components = {active = {}, inactive = {}}
 
+vim.opt.termguicolors = true -- Enable GUI colors for the terminal to get truecolor
+
 components.active[1] = {
 	{provider = ' ', hl = {fg = 'skyblue'}},
 	{
