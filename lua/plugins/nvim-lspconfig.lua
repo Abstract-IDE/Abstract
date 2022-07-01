@@ -101,17 +101,19 @@ vim.diagnostic.config({
 	},
 })
 
-handlers["textDocument/publishDiagnostics"] =
-			lsp.with(lsp.diagnostic.on_publish_diagnostics, {
-				underline = true,
-				signs = true,
-				update_in_insert = true,
-				virtual_text = {
-					true,
-					spacing = 6,
-					-- severity_limit='Error'  -- Only show virtual text on error
-				},
-			})
+handlers["textDocument/publishDiagnostics"] = lsp.with(
+	lsp.diagnostic.on_publish_diagnostics,
+	{
+		underline = true,
+		signs = true,
+		update_in_insert = true,
+		virtual_text = {
+			true,
+			spacing = 6,
+			-- severity_limit='Error'  -- Only show virtual text on error
+		},
+	}
+)
 
 handlers["textDocument/hover"] = lsp.with(handlers.hover, {border = "rounded"})
 handlers["textDocument/signatureHelp"] = lsp.with(handlers.signature_help, {border = "rounded"})
