@@ -17,30 +17,20 @@
 --              NOTE:1
 -- If you want to automatically ensure that packer.nvim is installed on any machine you clone your configuration to,
 -- add the following snippet (which is due to @Iron-E) somewhere in your config before your first usage of packer:
-local execute = vim.api.nvim_command
 local fn = vim.fn
-local install_path = fn.stdpath('data') .. '/site/pack/packer/start/packer.nvim'
+local install_path = fn.stdpath('data')..'/site/pack/packer/start/packer.nvim'
 if fn.empty(fn.glob(install_path)) > 0 then
-	fn.system({
-		'git', 'clone', 'https://github.com/wbthomason/packer.nvim', install_path
+	Packer_bootstrap = fn.system({
+		'git', 'clone', '--depth', '1', 'https://github.com/wbthomason/packer.nvim',
+		install_path
 	})
-	execute 'packadd packer.nvim'
 end
 
 -- safely import packer
 local ok, packer = pcall(require, "packer")
 if not ok then return end
 
-
 local commits = require("plugins.commits")
-
--- automatically run :PackerCompile whenever plugins.lua is updated
-vim.cmd([[
-  augroup packer_user_config
-    autocmd!
-    autocmd BufWritePost plugins.lua source <afile> | PackerCompile
-  augroup end
-]])
 
 
 return packer.startup {
@@ -55,6 +45,7 @@ return packer.startup {
 			end
 		}
 	},
+
 
 	function()
 
@@ -305,6 +296,13 @@ return packer.startup {
 			config = [[ require('plugins/nvim-ts-autotag') ]]
 		}
 		-- ━━━━━━━━━━━━━━❰ end of DEVELOPMENT ❱━━━━━━━━━━━━━ --
+
+
+		-- Automatically set up your configuration after cloning packer.nvim
+		-- Put this at the end after all plugins
+		if Packer_bootstrap then
+			packer.sync()
+		end
 	end
 }
 
