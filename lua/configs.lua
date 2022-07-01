@@ -123,12 +123,15 @@ vim.api.nvim_create_autocmd(
 	}
 )
 
--- jump to the last position when reopening a file
-vim.cmd([[
-	if has("autocmd")
-		au BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$") | exe "normal! g`\"" | endif
-	endif
-]])
+vim.api.nvim_create_autocmd(
+	"BufEnter",
+	{
+        desc = "jump to the last position when reopening a file",
+        pattern = "*",
+		group = group,
+		command = [[ if line("'\"") > 0 && line("'\"") <= line("$") | exe "normal! g`\"" | endif ]]
+	}
+)
 
 vim.api.nvim_create_autocmd(
 	"BufWritePre",
