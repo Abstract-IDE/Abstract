@@ -17,8 +17,8 @@
 -- https://github.com/jose-elias-alvarez/null-ls.nvim/blob/main/doc/BUILTINS.md
 
 -- safley import null-ls
-local null_imported_ok, null = pcall(require, "null-ls")
-if not null_imported_ok then return end
+local imported_null, null = pcall(require, "null-ls")
+if not imported_null then return end
 
 local formatting = null.builtins.formatting
 -- local completion = null.builtins.completion
