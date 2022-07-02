@@ -65,7 +65,7 @@ Abstract can be installed by just runing a script.
 
 single command to install Abstract
 ```bash
-python <(curl -s https://raw.githubusercontent.com/Abstract-IDE/Abstract/release-0.7.2/setup.py)
+wget https://github.com/Abstract-IDE/Abstract/archive/refs/tags/v0.7.2.zip && unzip v0.7.2.zip && mv Abstract-0.7.2/ ~/.config/nvim
 ```
 or if you want to install it by cloning
 ```bash
@@ -73,11 +73,12 @@ $ git clone https://github.com/Abstract-IDE/Abstract
 $ cd Abstract
 $ git checkout release-0.7.2
 $ python setup.py
+$ cd ~/.config/nvim && git checkout release-0.7.2
 ```
 pass ```--delete 1``` as an argument if you don't want to keep ```.git```, ```README.md```, ```LICENSE``` and ```setup.py``` file.
 Example:
 ```bash
-python <(curl -s https://raw.githubusercontent.com/Abstract-IDE/Abstract/main/setup.py) --delete 1
+python setup.py --delete 1
 ```
 
 NOTE1:
