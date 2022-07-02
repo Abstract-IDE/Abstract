@@ -143,6 +143,20 @@ def compile_nvim():
 
 
 # -------------------------------
+def setup_packer():
+    nvim_plugin_dir = str(f"{HOME}/.local/share/nvim/site/pack/packer/start")
+    packer_dir = nvim_plugin_dir+"/packer.nvim"
+    if not Path(packer_dir).exists():
+        print("\nsetting up packer...")
+        if not Path(nvim_plugin_dir).exists():
+            Path(nvim_plugin_dir).mkdir(parents=True)
+
+            repository = "https://github.com/wbthomason/packer.nvim"
+            subprocess.run(["git", "clone", "--depth", "1", repository], cwd=nvim_plugin_dir)
+# -------------------------------
+
+
+# -------------------------------
 def remove_no_require():
     subprocess.run(["rm", "-rf", ".git*", "LICENSE", "README.md", "setup.py", ".__*"],
                    cwd=NVIM_CONF_PATH)
@@ -191,6 +205,7 @@ def main():
 
     # compile configs
     try:
+        setup_packer()
         print("\ncompiling config and plugins...")
         compile_nvim()
     except KeyboardInterrupt:
