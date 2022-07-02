@@ -16,9 +16,28 @@
 
 -- Set completeopt to have a better completion experience
 vim.o.completeopt = 'menuone,noselect'
-local cmp = require 'cmp'
+
+local cmp_imported_ok, cmp = pcall(require, 'cmp')
+if not cmp_imported_ok then return end
+
+-- for completion window width
+local ELLIPSIS_CHAR = '…'
+local MAX_LABEL_WIDTH = 35
 
 cmp.setup({
+
+	-- -- Disabling completion in certain contexts, such as comments
+	-- enabled = function()
+	-- 	-- disable completion in comments
+	-- 	local context = require 'cmp.config.context'
+	-- 	-- keep command mode completion enabled when cursor is in a comment
+	-- 	if vim.api.nvim_get_mode().mode == 'c' then
+	-- 		return true
+	-- 	else
+	-- 		return not context.in_treesitter_capture("comment")
+	-- 			and not context.in_syntax_group("Comment")
+	-- 	end
+	-- end,
 
 	completion = {
 		-- completeopt = 'menu,menuone,noinsert',
@@ -32,6 +51,13 @@ cmp.setup({
 		format = function(entry, vim_item)
 			-- fancy icons and a name of kind
 			vim_item.kind = require("lspkind").presets.default[vim_item.kind]
+
+			-- limit completion width
+			local label = vim_item.abbr
+			local truncated_label = vim.fn.strcharpart(label, 0, MAX_LABEL_WIDTH)
+			if truncated_label ~= label then
+				vim_item.abbr = truncated_label .. ELLIPSIS_CHAR
+			end
 
 			-- set a name for each source
 			vim_item.menu = ({
@@ -47,6 +73,7 @@ cmp.setup({
 
 	sources = {
 		{name = 'nvim_lsp'},
+		{name = 'nvim_lsp_signature_help' },
 		{name = 'nvim_lua'},
 		{name = 'path'},
 		{name = 'luasnip'},
@@ -54,8 +81,13 @@ cmp.setup({
 		-- {name = 'calc'},
 	},
 
-	documentation = {
-		border = {"┌", "─", "┐", "│", "┘", "─", "└", "│"},
+	window = {
+		documentation = {
+			border = {"┌", "─", "┐", "│", "┘", "─", "└", "│"},
+		},
+		completion = {
+			border = {"┌", "─", "┐", "│", "┘", "─", "└", "│"},
+		}
 	},
 
 	experimental = {
@@ -84,11 +116,12 @@ cmp.setup({
 -- 		:match("%s") == nil
 -- end
 
-local luasnip = require("luasnip")
+local luasnip_imported_ok, luasnip = pcall(require, 'luasnip')
+if not luasnip_imported_ok then return end
 
 cmp.setup({
 	mapping = {
-		['<C-Space>'] = cmp.mapping.complete(),
+		['<C-Space>'] = cmp.mapping.complete({}),
 		['<C-e>'] = cmp.mapping.close(),
 		['<C-u>'] = cmp.mapping.scroll_docs(-4),
 		['<C-d>'] = cmp.mapping.scroll_docs(4),

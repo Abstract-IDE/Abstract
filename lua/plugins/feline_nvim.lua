@@ -24,6 +24,8 @@ local fn = vim.fn
 
 local components = {active = {}, inactive = {}}
 
+vim.opt.termguicolors = true -- Enable GUI colors for the terminal to get truecolor
+
 components.active[1] = {
 	{provider = ' ', hl = {fg = 'skyblue'}},
 	{
@@ -46,7 +48,7 @@ components.active[1] = {
 	{
 		provider = {
 			name = "file_info",
-			opts = { type = "relative" }
+			opts = { type = "relative-short" }
 		},
 		hl = {fg = 'black', bg = 'f_color', style = 'italic'},
 		left_sep = {
@@ -196,23 +198,7 @@ components.active[3] = {
 	},
 }
 
-components.inactive[1] = {
-	{
-		provider = 'file_info',
-		hl = {fg = 'black', bg = '#464646', style = 'bold'},
-		-- left_sep = {
-		--     str = ' ',
-		--     hl = {
-		--         fg = 'black',
-		--         bg = 'white',
-		--     }
-		-- },
-		right_sep = {
-			{str = ' ', hl = {fg = 'black', bg = 'bg'}},
-			-- 'slant_right'
-		},
-	},
-}
+-- components.inactive[1] = { }
 
 -- This table is equal to the default colors table
 local colors = {

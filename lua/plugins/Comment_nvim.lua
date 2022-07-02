@@ -14,7 +14,11 @@
 -- ━━━━━━━━━━━━━━━━━━━❰ configs ❱━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
-require('Comment').setup({
+-- safely import Comment
+local comment_imported_ok, comment = pcall(require, 'Comment')
+if not comment_imported_ok then return end
+
+comment.setup({
 	---Add a space b/w comment and the line
 	---@type boolean
 	padding = true,
@@ -32,12 +36,12 @@ require('Comment').setup({
 
 	---Pre-hook, called before commenting the line
 	---@type function|nil
-	pre_hook = nil,
+	-- NOTE: Already implemented with JoosepAlviste/nvim-ts-context-commentstring
+	-- pre_hook = nil,
 
 	---Post-hook, called after commenting is done
 	---@type function|nil
 	post_hook = nil,
-})
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━❰ end configs ❱━━━━━━━━━━━━━━━━━ --
@@ -50,8 +54,6 @@ require('Comment').setup({
 -- ━━━━━━━━━━━━━━━━━━━❰ Mappings ❱━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
-require('Comment').setup({
-
 	mappings = {
 		basic = true, ---Includes `gcc`, `gcb`, `gc[count]{motion}` and `gb[count]{motion}`
 		extra = true, ---Includes `gco`, `gcO`, `gcA`
@@ -62,7 +64,7 @@ require('Comment').setup({
 	---@type table
 	toggler = {
 		line = 'cc', ---line-comment keymap
-		block = 'gcb', ---block-comment keymap
+		block = 'cb', ---block-comment keymap
 	},
 
 	---LHS of operator-pending mapping in VISUAL mode

@@ -1,19 +1,18 @@
-
 <br/>
-<p align="center">
-  <a href="https://github.com/shaeinst/roshnivim">
-    <img src="https://raw.githubusercontent.com/shaeinst/media/main/images/github-repositories/roshnivim/roshnivim_logo_transparent.png" alt="Logo" width="500" height="320">
-  </a>
+
+<p align="center"> 
+ <img src="https://user-images.githubusercontent.com/41078534/175897440-adaa1da8-08d9-4f6a-9d80-f687b4e296e6.svg" height="400 widht="400" >
 </p>
 
-<br>
 
 <div align="center" >
-  <a href="https://github.com/shaeinst/roshnivim#screenshots">Screenshots</a>
-  <a href="https://github.com/shaeinst/roshnivim/issues">Request Feature</a>
+  <a href="https://github.com/Abstract-IDE/Abstract#screenshots">Screenshots</a>
+  <a href="https://github.com/Abstract-IDE/Abstract/issues">Request Feature</a>
 
-  ![Contributors](https://img.shields.io/github/contributors/shaeinst/roshnivim?color=dark-green) ![Issues](https://img.shields.io/github/issues/shaeinst/roshnivim) ![License](https://img.shields.io/github/license/shaeinst/roshnivim)
+  ![Contributors](https://img.shields.io/github/contributors/Abstract-IDE/Abstract?color=dark-green) ![Issues](https://img.shields.io/github/issues/Abstract-IDE/Abstract) ![License](https://img.shields.io/github/license/Abstract-IDE/Abstract)
 </div>
+
+
 
 
 
@@ -25,62 +24,61 @@
   * [Prerequisites](#prerequisites)
   * [Installation](#installation)
 * [Usage](#usage)
-  * [Stracture](#stracture-of-roshnivim)
+  * [Stracture](#stracture-of-abstract)
 * [Mappings](#mappings)
 * [License](#license)
 * [Screenshots](#screenshots)
 * [To-do](#to-do)
 
+## NOTE:
+this is stable branch for neovim v0.7.2. <br><br>
 
 ## About
 
-<div align="center"
-  roshnivim ->  roshni + vim -> light + vim (roshni means light in hindi/urdu) <br>
-  logo-style -> rosh(n)i(vim)  <br>
-</div>
-<br>
-roshnivim, can be called neovim's distro, is a predefined configs so that you don't need 1000hr to setup neovim as an IDE. <br><br><br>
+Abstract, The NeoVim configuration to achieve the power of Modern IDE
 
-![screenshot_welcome](https://raw.githubusercontent.com/shaeinst/media/main/images/github-repositories/roshnivim/roshnivim-welcom.png)
+![screenshot_welcome](https://raw.githubusercontent.com/shaeinst/media/main/images/github-repositories/abstract/abstract-welcom.png)
 
 
 
 ## Features
 
 - ```Project based config loading``` ( you can define configs in ```.__nvim__.lua``` file in the root of your working project so that you don't have to change config everytime you work on new/seperate project )
-- ```Your own custom configs and Mappings``` (if you don't like roshnivim's default config/mapping, you can change/override it on [override_defalut.lua](https://github.com/shaeinst/roshnivim/blob/main/lua/customs/override_defalut.lua) OR ```~/.__nvim__.lua``` file )
+- ```Your own custom configs and Mappings``` (if you don't like Abstract's default config/mapping, you can change/override it on [override_defalut.lua](https://github.com/Abstract-IDE/Abstract/blob/main/lua/customs/override_defalut.lua) OR ```~/.__nvim__.lua``` file )
 - ```Separate config file for each plugins``` each plugin has their own config file which is defined in lua/plugins directory
-- ```Easily Disable plugin``` roshnivim's using [packer](https://github.com/wbthomason/packer.nvim) as plugin manager. conmmenting out ```config``` option from plugin options in [packer config file](https://github.com/shaeinst/roshnivim/blob/main/lua/plugins/packer_nvim.lua) will disable that plugin
-- ```Easy Installation``` install roshnivim with single command
+- ```Easily Disable plugin``` Abstract's using [packer](https://github.com/wbthomason/packer.nvim) as plugin manager. conmmenting out ```config``` option from plugin options in [packer config file](https://github.com/Abstract-IDE/Abstract/blob/main/lua/plugins/packer_nvim.lua) will disable that plugin
+- ```Easy Installation``` install Abstract with single command
 
 
 
 ## Getting Started
 
-roshnivim can be installed by just runing a script.
+Abstract can be installed by just runing a script.
 
 
 #### Prerequisites
 
-  * neovim >= 6.0
+  * neovim v0.7.2
 
 
 #### Installation
 
-single command to install roshnivim
+single command to install Abstract
 ```bash
-python <(curl -s https://raw.githubusercontent.com/shaeinst/roshnivim/main/setup.py)
+wget https://github.com/Abstract-IDE/Abstract/archive/refs/tags/v0.7.2.zip && unzip v0.7.2.zip && mv Abstract-0.7.2/ ~/.config/nvim
 ```
 or if you want to install it by cloning
 ```bash
-git clone https://github.com/shaeinst/roshnivim
-cd roshnivim
-python setup.py
+$ git clone https://github.com/Abstract-IDE/Abstract
+$ cd Abstract
+$ git checkout release-0.7.2
+$ python setup.py
+$ cd ~/.config/nvim && git checkout release-0.7.2
 ```
 pass ```--delete 1``` as an argument if you don't want to keep ```.git```, ```README.md```, ```LICENSE``` and ```setup.py``` file.
 Example:
 ```bash
-python <(curl -s https://raw.githubusercontent.com/shaeinst/roshnivim/main/setup.py) --delete 1
+python setup.py --delete 1
 ```
 
 NOTE1:
@@ -95,9 +93,9 @@ for example: to install C/C++'s LS ``` :LspInstall clangd ```
 
 ## Usage
 
-every one has their own favourite configs and keybindings. roshnivim try its best to provide likable configs and mapping.
+every one has their own favourite configs and keybindings. Abstract try its best to provide likable configs and mapping.
 <br>
-so in case you don't like to use mapping or configs by roshnivim, you can change it in [override_defalut.lua](https://github.com/shaeinst/roshnivim/blob/main/lua/customs/override_defalut.lua) file. <br>
+so in case you don't like to use mapping or configs by Abstract, you can change it in [override_defalut.lua](https://github.com/Abstract-IDE/Abstract/blob/main/lua/customs/override_defalut.lua) file. <br>
 
 
 ### Project Stracture
@@ -106,38 +104,39 @@ so in case you don't like to use mapping or configs by roshnivim, you can change
 ├── extra/
 │   └── snippets/                  / custom defined snippets
 │   ...
-├── init.lua                       / load/source configs | heart of roshnivim
+├── init.lua                       / load/source configs | heart of Abstract
 ├── lua/
+│   ├── autocmd.lua                / auto command configs 
 │   ├── configs.lua                / configs that's don't depends on plugins
 │   ├── mappings.lua               / mappings that don't depends on plugins
+│   ├── packer_nvim.lua            / manage plugins
 │   ├── customs/
 │   │   ├── override_defalut.lua   / configs to override defined config
-│   │   └── roshniline.lua         / i am working on it. btw it's a status line
+│   │   └── abstractline.lua         / i am working on it. btw it's a status line
 │   └── plugins/                   / dir containing configs for plugins. each plugin has it's own config and can be locaed through init.lua file
-│       └── packer_nvim.lua        / manage plugins
-│       ...
+│   ...
 ├── plugin/                        / auto-created by plugin manager
-└── setup.py                       / python-script to install/update roshnivim
+└── setup.py                       / python-script to install/update Abstract
 ```
 
 
 ### Mappings
 
-you can change ```Leader key``` in [init.lua](https://github.com/shaeinst/roshnivim/blob/main/init.lua) file
+you can change ```Leader key``` in [init.lua](https://github.com/Abstract-IDE/Abstract/blob/main/init.lua) file
 
 | Keys                | Functions                                                              |
 | --------------------|:---------------------------------------------------------------------- |
 | ```;```             | leader key                                                             |
-| ```<leader>M```     | show all mappings (it will show mapping in telescope)                  |
+| ```tm```            | show all mappings (it will show mapping in telescope)                  |
 | ```<C-p>```         | Find files from current file's project                                 |
 | ```<C-f>```         | show all files from current working directory                          |
-| ```\\```            | Launch Telescope without any argument                                  |
+| ```tt```            | Launch Telescope without any argument                                  |
 | ```<Leader>q```     | close buffer                                                           |
 | ```<C-s>```         | save file                                                              |
 | ```<C-h>```         | scroll window horizontally (left)                                      |
 | ```<C-l>```         | scroll window horizontally (right)                                     |
-| ```//```            | clear Search Results                                                   |
-| ```<M-q>```         | (M=Alt) on[ly] close all other windows but leave all buffers open.     |
+| ```??```            | clear Search Results                                                   |
+| ```<M-q>```         | (M=Alt) close all other windows but leave current buffers    open.     |
 | ```K```             | move selected line(s) up                                               |
 | ```J```             | move selected line(s) down                                             |
 
@@ -163,7 +162,7 @@ Distributed under the MIT License.
 
 ## To-Do
 
-- installer(setup.py) support for Windows OS
+- add installer(setup.py) support for Windows OS
 - write a decent documentation
 
 
@@ -180,6 +179,7 @@ Distributed under the MIT License.
 - [shaankhan](https://readme.shaankhan.dev/) -- for readme
 - [Neovim-Subreddit](https://www.reddit.com/r/neovim/) -- for awesome supporting community
 - [LunarVim](https://github.com/LunarVim/LunarVim) -- for some reference
+- [Manytools.org](https://manytools.org/hacker-tools/ascii-banner) -- for ascii-banner
 - Plugin Authors -- without you, neovim is incomplete
 - and YOU
 <br>

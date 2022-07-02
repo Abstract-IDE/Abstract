@@ -1,14 +1,4 @@
 
---  .______       ______        _______. __    __  .__   __.  __  ____    ____  __  .___  ___.
---  |   _  \     /  __  \      /       ||  |  |  | |  \ |  | |  | \   \  /   / |  | |   \/   |
---  |  |_)  |   |  |  |  |    |   (----`|  |__|  | |   \|  | |  |  \   \/   /  |  | |  \  /  |
---  |      /    |  |  |  |     \   \    |   __   | |  . `  | |  |   \      /   |  | |  |\/|  |
---  |  |\  \----|  `--'  | .----)   |   |  |  |  | |  |\   | |  |    \    /    |  | |  |  |  |
---  | _| `._____|\______/  |_______/    |__|  |__| |__| \__| |__|     \__/     |__| |__|  |__|
---                          Author:     Ali Shahid
---                          Github:     github.com/shaeinst
-
-
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━❰ Plugin-Independent Mapping ❱━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
@@ -25,13 +15,35 @@
 --]===]
 
 
-local keymap	= vim.api.nvim_set_keymap
-local cmd		= vim.cmd
-local options	= {noremap = true, silent = true}
-local silent	= {silent = true}
+local keymap  = vim.api.nvim_set_keymap
+local cmd     = vim.cmd
+local options = {noremap = true, silent = true}
+local silent  = {silent = true}
 
--- to quit vim
-cmd([[ autocmd BufEnter * nmap silent <buffer> <Leader>q :bd<CR> ]])
+
+-- TODO: fiqure out to implement <leader>q to quit only one buffer or one window at a time
+-- Close buffer
+cmd([[ autocmd BufEnter * nmap <silent> <buffer> <leader>q :bd<CR> ]])
+
+vim.api.nvim_create_autocmd(
+	"FileType",
+	{
+		pattern = {
+			"man", "help", "lspinfo", "null-ls-info", "lsp-installer"
+		},
+		command = "nnoremap <silent> <buffer> <leader>q :close<CR>",
+	}
+)
+
+
+-- map ctl+z to nothing so that it don't suspend terminal
+vim.api.nvim_create_autocmd(
+	"BufEnter",
+	{
+		pattern = "*",
+		command = "nnoremap <c-z> <nop>"
+	}
+)
 
 -- keymap('n', '<Leader>q',':q <CR>',      options)
 -- to save file
@@ -51,12 +63,12 @@ keymap('n', '<C-l>', 'zl', silent) -- right
 keymap('n', '<leader>n', ':set rnu! <CR>', silent)
 
 -- clear Search Results
-keymap('n', '//', ':noh <CR>', silent)
+keymap('n', '??', ':noh <CR>', silent)
 
 --[[
     on[ly] close all other windows but leave all buffers open.
 --]]
-keymap('n', '<M-q>', '<C-W>on', silent)
+keymap('n', '<M-q>', ':only<CR>', silent)
 
 --			Resize splits more quickly
 -- ────────────────────────────────────────────────────
@@ -83,9 +95,6 @@ keymap('t', '<Esc>', '<c-\\><c-n>', options)
 -- move selected line(s) up or down
 keymap('v', 'J', ":m '>+1<CR>gv=gv", options)
 keymap('v', 'K', ":m '<-2<CR>gv=gv", options)
-
--- map ctl+z to nothing so that it don't suspend terminal
-cmd([[ :nnoremap <c-z> <nop><CR> ]])
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━❰ end of Plugin Mapping ❱━━━━━━━━━━━━━━━━ --

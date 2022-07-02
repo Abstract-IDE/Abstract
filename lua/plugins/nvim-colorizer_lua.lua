@@ -14,8 +14,14 @@
 -- ━━━━━━━━━━━━━━━━━━━❰ configs ❱━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
-require'colorizer'.setup({
+-- safely import colorizer
+local colorizer_imported_ok, colorizer = pcall(require, 'colorizer')
+if not colorizer_imported_ok then return end
+
+colorizer.setup({
 	'css',
+	'scss',
+	'sass',
 	'html',
 	'javascript',
 	'javascriptreact',
@@ -24,7 +30,8 @@ require'colorizer'.setup({
 	'vim',
 	'dart',
 	'python',
-	'*',
+	'lua',
+	-- '*', -- all file type
 
 }, {mode = 'background', names = true, css = true, css_fn = true})
 

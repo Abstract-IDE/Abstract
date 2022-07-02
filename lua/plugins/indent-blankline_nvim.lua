@@ -21,7 +21,10 @@
 		:set buftype
 --]===]
 
-require("indent_blankline").setup {
+local indent_imported_ok, indent = pcall(require, "indent_blankline")
+if not indent_imported_ok then return end
+
+indent.setup {
 
 	show_end_of_line = true,
 	space_char_blankline = " ",

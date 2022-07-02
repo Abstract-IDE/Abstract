@@ -1,9 +1,8 @@
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 -- ───────────────────────────────────────────────── --
---   Plugin:      lspkind-nvim
---   Github:      github.com/onsails/lspkind-nvim
---   Description: vscode-like pictograms for neovim lsp completion items
+--    Plugin:    hop.nvim
+--    Github:    github.com/phaazon/hop.nvim
 -- ───────────────────────────────────────────────── --
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
@@ -15,43 +14,32 @@
 -- ━━━━━━━━━━━━━━━━━━━❰ configs ❱━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
-local lspkind_imported_ok, lspkind = pcall(require, "lspkind")
-if not lspkind_imported_ok then return end
+local imported_hop, hop = pcall(require, "hop")
+if not imported_hop then return end
 
-lspkind.init({
-	-- enables text annotations (default: true)
-	mode = true,
-
-	-- enables text annotations (default: 'default')
-	-- default symbol map can be either 'default' or 'codicons' for codicon preset (requires vscode-codicons font installed)
-	preset = 'codicons',
-
-	-- override preset symbols (default: {})
-	symbol_map = {
-		Text = '',
-		Method = 'ƒ',
-		Function = '',
-		Constructor = '',
-		Variable = '',
-		Class = '',
-		Interface = 'ﰮ',
-		Module = '',
-		Property = '',
-		Unit = '',
-		Value = '',
-		Enum = '了',
-		Keyword = '',
-		Snippet = '﬌',
-		Color = '',
-		File = '',
-		Folder = '',
-		EnumMember = '',
-		Constant = '',
-		Struct = '',
-	},
-})
+hop.setup {
+	keys = 'qwertyuiopasdfghjklzxcvbnm',
+	jump_on_sole_occurrence = false
+}
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━❰ end configs ❱━━━━━━━━━━━━━━━━━ --
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
+
+
+
+
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
+-- ━━━━━━━━━━━━━━━━━━━❰ Mappings ❱━━━━━━━━━━━━━━━━━━ --
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
+
+local keymap  = vim.api.nvim_set_keymap
+local options = {noremap = true, silent = true}
+
+keymap( 'n', 'F', "<cmd>lua require'hop'.hint_words()<cr>", options)
+
+
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
+-- ━━━━━━━━━━━━━━━━━❰ end Mappings ❱━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 

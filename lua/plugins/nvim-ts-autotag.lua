@@ -16,6 +16,9 @@
 
 require('nvim-ts-autotag').setup({
 
+	autotag = {
+		enable = true,
+	}
 	filetypes = {
 		'html',
 		'javascript', 'javascriptreact', 'jsx',
@@ -31,7 +34,7 @@ require('nvim-ts-autotag').setup({
 
 	skip_tags = {
 	'area', 'base', 'br', 'col', 'command', 'embed', 'hr', 'img', 'slot',
-	'input', 'keygen', 'link', 'meta', 'param', 'source', 'track', 'wbr','menuitem'
+	'input', 'keygen', 'link', 'meta', 'param', 'source', 'track', 'wbr', 'menuitem'
 	}
 })
 

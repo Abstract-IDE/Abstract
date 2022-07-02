@@ -16,11 +16,14 @@
 
 -- https://github.com/jose-elias-alvarez/null-ls.nvim/blob/main/doc/BUILTINS.md
 
-local builtins = require("null-ls.builtins")
-local formatting = builtins.formatting
--- local completion = builtins.completion
--- local diagnostics = builtins.diagnostics
--- local code_actions = builtins.code_actions
+-- safley import null-ls
+local imported_null, null = pcall(require, "null-ls")
+if not imported_null then return end
+
+local formatting = null.builtins.formatting
+-- local completion = null.builtins.completion
+-- local diagnostics = null.builtins.diagnostics
+-- local code_actions = null.builtins.code_actions
 
 -- register any number of sources simultaneously
 local sources = {}
@@ -91,6 +94,14 @@ if vim.fn.executable("djlint") == 1 then
 	})
 end
 
+-- Rust
+if vim.fn.executable("rustfmt") == 1 then
+	load = true
+	sources[#sources+1] = formatting.rustfmt.with({
+		command = "rustfmt",
+	})
+end
+
 -- ───────────────❰ end FORMATTING ❱──────────────── --
 -- ───────────────────────────────────────────────── --
 
@@ -145,10 +156,16 @@ end
 
 
 if load then
-	require("null-ls").setup({
+	null.setup({
 		sources = sources
 	})
 end
+
+-- give border to null-ls window
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = "null-ls-info",
+  callback = function() vim.api.nvim_win_set_config(0, { border = "rounded" }) end,
+})
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━❰ end configs ❱━━━━━━━━━━━━━━━━━ --
@@ -162,7 +179,7 @@ end
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
 local keymap = vim.api.nvim_set_keymap
-keymap('n', '<Space>fm', '<ESC>:lua vim.lsp.buf.formatting()<CR>', {noremap = true, silent = true})
+keymap('n', 'gf', '<ESC>:lua vim.lsp.buf.formatting_sync()<CR>', {noremap = true, silent = true})
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━❰ end Mappings ❱━━━━━━━━━━━━━━━━ --

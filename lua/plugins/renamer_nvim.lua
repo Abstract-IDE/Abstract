@@ -1,8 +1,8 @@
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 -- ───────────────────────────────────────────────── --
---   Plugin:    nvim-treesitter
---   Github:    github.com/nvim-treesitter/nvim-treesitter
+--    Plugin:    renamer.nvim
+--    Github:    github.com/filipdutescu/renamer.nvim
 -- ───────────────────────────────────────────────── --
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
@@ -14,56 +14,35 @@
 -- ━━━━━━━━━━━━━━━━━━━❰ configs ❱━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
--- safely import tree-sitter
-local treesitter_imported_ok, treesitter =  pcall(require, 'nvim-treesitter.configs')
-if not treesitter_imported_ok then return end
+local imported_renamer, renamer = pcall(require, 'renamer')
+if not imported_renamer then return end
 
-treesitter.setup {
+local mappings_utils = require('renamer.mappings.utils')
 
-	-- ensure_installed  = "maintained", -- one of "all", "maintained" (parsers with maintainers), or a list of languages
-	-- ignore_install    = { "javascript" }, -- List of parsers to ignore installing
-
-	autotag = {
-		enable = true,
-		filetypes = {
-			"html" , "xml",
-			'html',
-			'javascript', 'javascriptreact', 'jsx',
-			'typescript', 'typescriptreact', 'tsx',
-			'rescript',
-			'svelte',
-			'vue',
-			'php',
-			'markdown',
-			'glimmer','handlebars','hbs'
-		},
-	},
-
-	highlight = {
-		enable = true, -- {"c", "cpp", "dart", "python", "javascript"}, enable = true (false will disable the whole extension)
-		-- disable lighlight if file is too long
-		disable = function() -- Disable in large C++ buffers
-			-- disable highlight if file has > 6000 LOC
-			return vim.api.nvim_buf_line_count(0) > 6000
-			-- return lang == "cpp" and vim.api.nvim_buf_line_count(bufnr) > 50000
-		end,
-		-- disable = { "c", "rust" },  -- list of language that will be disabled
-		custom_captures = {
-			-- Highlight the @foo.bar capture group with the "Identifier" highlight group.
-			["foo.bar"] = "Identifier",
-		},
-		-- Setting this to true will run `:h syntax` and tree-sitter at the same time.
-		-- Set this to `true` if you depend on 'syntax' being enabled (like for indentation).
-		-- Using this option may slow down your editor, and you may see some duplicate highlights.
-		-- Instead of true it can also be a list of languages
-		additional_vim_regex_highlighting = true,
-	},
-
-	playground = {
-		enable = true,
-		disable = {},
-		updatetime = 25, -- Debounced time for highlighting nodes in the playground from source code
-		persist_queries = false, -- Whether the query persists across vim sessions
+renamer.setup {
+	-- The popup title, shown if `border` is true
+	title = 'Rename',
+	-- The padding around the popup content
+	padding = { top = 0, left = 0, bottom = 0, right = 0, },
+	-- The minimum width of the popup
+	min_width = 15,
+	-- The maximum width of the popup
+	max_width = 45,
+	-- Whether or not to shown a border around the popup
+	border = true,
+	-- The characters which make up the border
+	border_chars = { '─', '│', '─', '│', '╭', '╮', '╯', '╰' },
+	-- Whether or not to highlight the current word references through LSP
+	show_refs = true,
+	-- Whether or not to add resulting changes to the quickfix list
+	with_qf_list = true,
+	-- Whether or not to enter the new name through the UI or Neovim's `input` prompt
+	with_popup = true,
+	-- The keymaps available while in the `renamer` buffer. The example below
+	-- overrides the default values, but you can add others as well.
+	-- Custom handler to be run after successfully renaming the word. Receives
+	-- the LSP 'textDocument/rename' raw response as its parameter.
+	handler = nil,
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━❰ end configs ❱━━━━━━━━━━━━━━━━━ --
@@ -75,20 +54,23 @@ treesitter.setup {
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━━━❰ Mappings ❱━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
-		-- keybindings = {
-		--     toggle_query_editor = 'o',
-		--     toggle_hl_groups = 'i',
-		--     toggle_injected_languages = 't',
-		--     toggle_anonymous_nodes = 'a',
-		--     toggle_language_display = 'I',
-		--     focus_language = 'f',
-		--     unfocus_language = 'F',
-		--     update = 'R',
-		--     goto_node = '<cr>',
-		--     show_help = '?'
-		-- }
+	-- mappings for renamer popup window
+	mappings = {
+		['<c-i>'] = mappings_utils.set_cursor_to_start,
+		['<c-a>'] = mappings_utils.set_cursor_to_end,
+		['<c-e>'] = mappings_utils.set_cursor_to_word_end,
+		['<c-b>'] = mappings_utils.set_cursor_to_word_start,
+		['<c-c>'] = mappings_utils.clear_line,
+		['<c-u>'] = mappings_utils.undo,
+		['<c-r>'] = mappings_utils.redo,
 	},
 }
+
+-- to rename
+local options = {noremap = true, silent = true}
+local keymap = vim.api.nvim_set_keymap
+keymap('n', '<Space>R', '<cmd>lua require("renamer").rename()<cr>', options)
+keymap('v', '<Space>R', '<cmd>lua require("renamer").rename()<cr>', options)
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━❰ end Mappings ❱━━━━━━━━━━━━━━━━ --

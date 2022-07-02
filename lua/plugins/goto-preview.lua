@@ -1,8 +1,8 @@
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 -- ───────────────────────────────────────────────── --
---   Plugin:    nvim-treesitter
---   Github:    github.com/nvim-treesitter/nvim-treesitter
+--    Plugin:    goto-preview
+--    Github:    github.com/rmagatti/goto-preview
 -- ───────────────────────────────────────────────── --
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
@@ -14,56 +14,41 @@
 -- ━━━━━━━━━━━━━━━━━━━❰ configs ❱━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
--- safely import tree-sitter
-local treesitter_imported_ok, treesitter =  pcall(require, 'nvim-treesitter.configs')
-if not treesitter_imported_ok then return end
-
-treesitter.setup {
-
-	-- ensure_installed  = "maintained", -- one of "all", "maintained" (parsers with maintainers), or a list of languages
-	-- ignore_install    = { "javascript" }, -- List of parsers to ignore installing
-
-	autotag = {
-		enable = true,
-		filetypes = {
-			"html" , "xml",
-			'html',
-			'javascript', 'javascriptreact', 'jsx',
-			'typescript', 'typescriptreact', 'tsx',
-			'rescript',
-			'svelte',
-			'vue',
-			'php',
-			'markdown',
-			'glimmer','handlebars','hbs'
-		},
-	},
-
-	highlight = {
-		enable = true, -- {"c", "cpp", "dart", "python", "javascript"}, enable = true (false will disable the whole extension)
-		-- disable lighlight if file is too long
-		disable = function() -- Disable in large C++ buffers
-			-- disable highlight if file has > 6000 LOC
-			return vim.api.nvim_buf_line_count(0) > 6000
-			-- return lang == "cpp" and vim.api.nvim_buf_line_count(bufnr) > 50000
-		end,
-		-- disable = { "c", "rust" },  -- list of language that will be disabled
-		custom_captures = {
-			-- Highlight the @foo.bar capture group with the "Identifier" highlight group.
-			["foo.bar"] = "Identifier",
-		},
-		-- Setting this to true will run `:h syntax` and tree-sitter at the same time.
-		-- Set this to `true` if you depend on 'syntax' being enabled (like for indentation).
-		-- Using this option may slow down your editor, and you may see some duplicate highlights.
-		-- Instead of true it can also be a list of languages
-		additional_vim_regex_highlighting = true,
-	},
-
-	playground = {
-		enable = true,
-		disable = {},
-		updatetime = 25, -- Debounced time for highlighting nodes in the playground from source code
-		persist_queries = false, -- Whether the query persists across vim sessions
+require('goto-preview').setup {
+	width = 80; -- Width of the floating window
+  	height = 15; -- Height of the floating window
+  	border = {"↖", "─" ,"┐", "│", "┘", "─", "└", "│"}; -- Border characters of the floating window
+  	default_mappings = false; -- Bind default mappings
+  	debug = false; -- Print debug information
+  	opacity = nil; -- 0-100 opacity level of the floating window where 100 is fully transparent.
+  	resizing_mappings = false; -- Binds arrow keys to resizing the floating window.
+	-- A function taking two arguments, a buffer and a window to be ran as a hook.
+  	post_open_hook = function()
+		-- add preview window to buffer list
+		local buffer_num = vim.api.nvim_get_current_buf() -- current buffer
+		vim.api.nvim_buf_set_option(buffer_num, "buflisted")
+	end;
+  	references = { -- Configure the telescope UI for slowing the references cycling window.
+		telescope = {
+			require("telescope.themes").get_dropdown {
+				winblend = 15,
+				layout_config = {
+					prompt_position = "top",
+					width = 64,
+					height = 15,
+				},
+				border = {},
+				previewer = false,
+				shorten_path = false,
+			},
+		}
+  	};
+  	-- These two configs can also be passed down to the goto-preview definition and implementation calls for one off "peak" functionality.
+  	focus_on_open = true; -- Focus the floating window when opening it.
+  	dismiss_on_move = false; -- Dismiss the floating window when moving the cursor.
+  	force_close = true, -- passed into vim.api.nvim_win_close's second argument. See :h nvim_win_close
+  	bufhidden = "wipe", -- the bufhidden option to set on the floating window. See :h bufhidden
+}
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━❰ end configs ❱━━━━━━━━━━━━━━━━━ --
@@ -75,20 +60,13 @@ treesitter.setup {
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━━━❰ Mappings ❱━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
-		-- keybindings = {
-		--     toggle_query_editor = 'o',
-		--     toggle_hl_groups = 'i',
-		--     toggle_injected_languages = 't',
-		--     toggle_anonymous_nodes = 'a',
-		--     toggle_language_display = 'I',
-		--     focus_language = 'f',
-		--     unfocus_language = 'F',
-		--     update = 'R',
-		--     goto_node = '<cr>',
-		--     show_help = '?'
-		-- }
-	},
-}
+
+local options = { noremap=true }
+vim.api.nvim_set_keymap("n", "<Space>pd", "<cmd>lua require('goto-preview').goto_preview_definition()<CR>", options)
+vim.api.nvim_set_keymap("n", "<Space>pi", "<cmd>lua require('goto-preview').goto_preview_implementation()<CR>", options)
+-- Only set if telescope is installed
+vim.api.nvim_set_keymap("n", "<Space>pr", "<cmd>lua require('goto-preview').goto_preview_references()<CR>", options)
+vim.api.nvim_set_keymap("n", "<Space>P", "<cmd>lua require('goto-preview').close_all_win()<CR>", options)
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━❰ end Mappings ❱━━━━━━━━━━━━━━━━ --

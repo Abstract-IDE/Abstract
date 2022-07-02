@@ -14,8 +14,15 @@
 -- ━━━━━━━━━━━━━━━━━━━❰ configs ❱━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
-require('bufferline').setup {
+-- safely import bufferline
+local bufferline_imported, bufferline = pcall(require, 'bufferline')
+if not bufferline_imported then return end
+
+bufferline.setup {
+
 	options = {
+
+		mode = "buffers", -- set to "tabs" to only show tabpages instead
 		numbers = "ordinal", -- "none" | "ordinal" | "buffer_id" | "both" | function({ ordinal, id, lower, raise }): string
 		always_show_bufferline = false, -- don't show bufferline if there is only one file is opened
 
@@ -51,7 +58,8 @@ require('bufferline').setup {
 		show_close_icon = false,
 		show_buffer_icons = true, -- disable filetype icons for buffers
 		show_buffer_close_icons = false,
-		show_tab_indicators = false,
+		show_tab_indicators = true,
+		enforce_regular_tabs = true, -- if set true, tabs will be prevented from extending beyond the tab size and all tabs will be the same length
 
 		view = "multiwindow",
 		-- can also be a table containing 2 custom separators
@@ -91,6 +99,19 @@ require('bufferline').setup {
 		modified_selected = {
 			guifg = {highlight = "BufferCurrentSign", attribute = "fg"},
 		},
+		numbers = {
+			guibg = {highlight = "BuffNumbers", attribute = "bg"},
+		},
+
+		tab_selected = {
+			guifg = {highlight = "TabSelectedFG", attribute = "fg"},
+			guibg = {highlight = "TabSelectedBG", attribute = "bg"},
+		},
+		tab = {
+			guifg = {highlight = "TabFG", attribute = "fg"},
+			guibg = {highlight = "TabBG", attribute = "bg"},
+		},
+
 		-- duplicate_visible = {
 		-- },
 		-- close_button = {
@@ -113,7 +134,7 @@ require('bufferline').setup {
 
 }
 
-vim.cmd("autocmd BufDelete * if len(getbufinfo({'buflisted':1})) -1 < 1 | set showtabline=1 | endif")
+-- vim.cmd("autocmd BufDelete * if len(getbufinfo({'buflisted':1})) -1 < 1 | set showtabline=1 | endif")
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━❰ end configs ❱━━━━━━━━━━━━━━━━━ --
@@ -130,8 +151,8 @@ local keymap = vim.api.nvim_set_keymap
 local options = {noremap = true, silent = true}
 
 -- Move to previous/next
-keymap('n', '}}', ':BufferLineCycleNext<CR>', options)
-keymap('n', '{{', ':BufferLineCyclePrev<CR>', options)
+keymap('n', '\\', ':BufferLineCycleNext<CR>', options)
+keymap('n', '|', ':BufferLineCyclePrev<CR>', options)
 
 -- Re-order to previous/next
 keymap('n', '<Leader>.', ':BufferLineMoveNext<CR>', options)
@@ -139,10 +160,9 @@ keymap('n', '<Leader>,', ':BufferLineMovePrev<CR>', options)
 
 -- Close buffer
 -- nnoremap <silent>    <A-c> :BufferClose<CR>
-keymap('n', '<Leader>q', ':bd<CR>', options)
 
 -- Magic buffer-picking mode
-keymap('n', '<Leader>?', ':BufferLinePick<CR>', options)
+keymap('n', '<Space><Space>', ':BufferLinePick<CR>', options)
 
 -- go to buffer number
 keymap('n', '<Leader>1', ':BufferLineGoToBuffer 1<CR>', options)
