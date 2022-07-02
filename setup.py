@@ -192,6 +192,7 @@ def main():
     # compile configs
     try:
         print("\ncompiling config and plugins...")
+        subprocess.run(["git", "checkout", "release-0.7"], cwd=NVIM_CONF_PATH)
         compile_nvim()
     except KeyboardInterrupt:
         print("\n\n")
