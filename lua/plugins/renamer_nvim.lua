@@ -69,8 +69,8 @@ renamer.setup {
 -- to rename
 local options = {noremap = true, silent = true}
 local keymap = vim.api.nvim_set_keymap
-keymap('n', '<Space>rn', '<cmd>lua require("renamer").rename()<cr>', options)
-keymap('v', '<Space>rn', '<cmd>lua require("renamer").rename()<cr>', options)
+keymap('n', '<Space>R', '<cmd>lua require("renamer").rename()<cr>', options)
+keymap('v', '<Space>R', '<cmd>lua require("renamer").rename()<cr>', options)
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━❰ end Mappings ❱━━━━━━━━━━━━━━━━ --

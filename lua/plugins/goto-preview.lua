@@ -62,12 +62,11 @@ require('goto-preview').setup {
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
 local options = { noremap=true }
-vim.api.nvim_set_keymap("n", "gpd", "<cmd>lua require('goto-preview').goto_preview_definition()<CR>", options)
-vim.api.nvim_set_keymap("n", "gpi", "<cmd>lua require('goto-preview').goto_preview_implementation()<CR>", options)
+vim.api.nvim_set_keymap("n", "<Space>pd", "<cmd>lua require('goto-preview').goto_preview_definition()<CR>", options)
+vim.api.nvim_set_keymap("n", "<Space>pi", "<cmd>lua require('goto-preview').goto_preview_implementation()<CR>", options)
 -- Only set if telescope is installed
-vim.api.nvim_set_keymap("n", "gpr", "<cmd>lua require('goto-preview').goto_preview_references()<CR>", options)
-
-vim.api.nvim_set_keymap("n", "gP", "<cmd>lua require('goto-preview').close_all_win()<CR>", options)
+vim.api.nvim_set_keymap("n", "<Space>pr", "<cmd>lua require('goto-preview').goto_preview_references()<CR>", options)
+vim.api.nvim_set_keymap("n", "<Space>P", "<cmd>lua require('goto-preview').close_all_win()<CR>", options)
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━❰ end Mappings ❱━━━━━━━━━━━━━━━━ --
