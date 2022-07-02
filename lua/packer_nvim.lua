@@ -52,14 +52,13 @@ return packer.startup {
 		use { -- Packer can manage itself
 			'wbthomason/packer.nvim',
 			commit = commits.packer_nvim,
-
 		}
 
 		-- Improve Start-UP time
 		use { -- Speed up loading Lua modules in Neovim to improve startup time.
 			'lewis6991/impatient.nvim',
 			commit = commits.impatient_nvim,
-
+		}
 
 		use { -- Easily speed up your neovim startup time!. A faster version of filetype.vim
 			'nathom/filetype.nvim',
@@ -303,7 +302,6 @@ return packer.startup {
 		if Packer_bootstrap then
 			packer.sync()
 		end
-    
 	end
 }
 
