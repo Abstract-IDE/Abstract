@@ -31,7 +31,7 @@
 * [To-do](#to-do)
 
 ## NOTE:
-this is stable branch for neovim v0.7.2. <br><br>
+this is stable branch for neovim v0.7 <br><br>
 
 ## About
 
