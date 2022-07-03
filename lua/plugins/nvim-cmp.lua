@@ -20,6 +20,9 @@ vim.o.completeopt = 'menuone,noselect'
 local cmp_imported_ok, cmp = pcall(require, 'cmp')
 if not cmp_imported_ok then return end
 
+local luasnip_imported_ok, luasnip = pcall(require, 'luasnip')
+if not luasnip_imported_ok then return end
+
 -- for completion window width
 local ELLIPSIS_CHAR = '…'
 local MAX_LABEL_WIDTH = 35
@@ -44,7 +47,7 @@ cmp.setup({
 	},
 
 	snippet = {
-		expand = function(args) require('luasnip').lsp_expand(args.body) end,
+		expand = function(args) luasnip.lsp_expand(args.body) end,
 	},
 
 	formatting = {
@@ -115,9 +118,6 @@ cmp.setup({
 -- 		:sub(col, col)
 -- 		:match("%s") == nil
 -- end
-
-local luasnip_imported_ok, luasnip = pcall(require, 'luasnip')
-if not luasnip_imported_ok then return end
 
 cmp.setup({
 	mapping = {

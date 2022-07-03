@@ -103,6 +103,11 @@ return packer.startup {
 			'hrsh7th/nvim-cmp',
 			commit = commits.nvim_cmp,
 			requires = {
+				{ -- Snippet Engine for Neovim written in Lua.
+					'L3MON4D3/LuaSnip',
+					commit = commits.LuaSnip,
+					requires = {"rafamadriz/friendly-snippets", commit=commits.friendly_snippets},  -- Snippets collection for a set of different programming languages for faster development.
+				},
 				{"hrsh7th/cmp-nvim-lsp", commit=commits.cmp_nvim_lsp},   -- nvim-cmp source for neovim builtin LSP client
 				{"hrsh7th/cmp-buffer", commit=commits.cmp_buffer},       -- nvim-cmp source for buffer words.
 				{"hrsh7th/cmp-path", commit=commits.cmp_path},           -- nvim-cmp source for filesystem paths.
@@ -110,14 +115,10 @@ return packer.startup {
 				{"hrsh7th/cmp-nvim-lsp-signature-help", commit=commits.cmp_nvim_lsp_signature_help}, -- nvim-cmp source for displaying function signatures with the current parameter emphasized:
 				{"hrsh7th/cmp-nvim-lua", ft = 'lua', commit=commits.cmp_nvim_lua}, -- nvim-cmp source for nvim lua
 			},
-			config = [[ require('plugins/nvim-cmp') ]]
-		}
-
-		use { -- Snippet Engine for Neovim written in Lua.
-			'L3MON4D3/LuaSnip',
-			commit = commits.LuaSnip,
-			requires = {"rafamadriz/friendly-snippets", commit=commits.friendly_snippets},  -- Snippets collection for a set of different programming languages for faster development.
-			config = [[ require('plugins/LuaSnip') ]]
+			config = [[
+				require('plugins/nvim-cmp')
+				require('plugins/LuaSnip')
+			]]
 		}
 
 		use { -- Use Neovim as a language server to inject LSP diagnostics, code actions, and more via Lua.
