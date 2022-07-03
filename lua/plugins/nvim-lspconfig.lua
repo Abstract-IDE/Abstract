@@ -211,6 +211,11 @@ for _, server in ipairs(installed_servers) do
 		lsp_options.capabilities = capabilities
 	end
 
+	-- for python
+	if server.name == "pyright" then
+		lsp_options.filetypes = {"python", }
+	end
+
 	-- for html
 	if server.name == "html" then
 		lsp_options.filetypes = {"html", "htmldjango"}
