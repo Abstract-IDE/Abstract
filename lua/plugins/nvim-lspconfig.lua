@@ -9,7 +9,24 @@
 
 
 
-local M = {}
+
+-- ───────────────────────────────────────────────── --
+--[==[
+        import required plugins
+        NOTE: always call require("lspconfig") after require("nvim-lsp-installer").setup {}, this is the way
+              but don't worry,  we alreaed did it in 'packer config
+--]==]
+local lspconfig_imported, lspconfig = pcall(require, 'lspconfig')
+if not lspconfig_imported then return end
+
+local lspinstaller_imported, lspinstaller = pcall(require, 'nvim-lsp-installer')
+if not lspinstaller_imported then return end
+
+local installed_servers = lspinstaller.get_installed_servers()
+-- don't setup servers if atleast one server is installed, or it will throw an error
+if #installed_servers == 0 then return end
+-- ───────────────────────────────────────────────── --
+
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━━━❰ Mappings ❱━━━━━━━━━━━━━━━━━━ --
@@ -76,17 +93,7 @@ end
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
 local lsp = vim.lsp
-local capabilities = lsp.protocol.make_client_capabilities()
 local handlers = lsp.handlers
-
-M.options = {
-	on_attach = on_attach,
-	flags = {
-		debounce_text_changes = 150,
-	},
-	capabilities = require('cmp_nvim_lsp').update_capabilities(capabilities),
-}
-
 
 -- options for lsp diagnostic
 -- ───────────────────────────────────────────────── --
@@ -157,9 +164,86 @@ vim.api.nvim_command [[ hi DiagnosticUnderlineInfo cterm=underline  gui=underlin
 --     return win_opts
 -- end
 
+
+-- ───────────────────────────────────────────────── --
+-- setup LSPs
+-- ───────────────────────────────────────────────── --
+
+local capabilities = lsp.protocol.make_client_capabilities()
+
+lsp_options = {
+	on_attach = on_attach,
+	flags = {
+		debounce_text_changes = 150,
+	},
+	capabilities = function()
+		imported_cmp_nvim_lsp, cmp_nvim_lsp = pcall(require, 'cmp_nvim_lsp')
+		if not imported_cmp_nvim_lsp then
+			return capabilities
+		end
+		return cmp_nvim_lsp.update_capabilities(capabilities)
+	end
+}
+
+
+-- for Flutter and Dart
+-- don't put this on loop to set it because dart LSP installed and maintained by akinsho/flutter-tools.nvim
+lspconfig["dartls"].setup(lsp_options)
+
+for _, server in ipairs(installed_servers) do
+
+	-- for lua
+	if server.name == "sumneko_lua" then
+		lsp_options.settings = {
+			Lua = {
+				diagnostics = {
+					-- Get the language server to recognize the 'vim', 'use' global
+					globals = {'vim', 'use', 'require'},
+				},
+				workspace = {
+					-- Make the server aware of Neovim runtime files
+					library = vim.api.nvim_get_runtime_file("", true),
+				},
+				-- Do not send telemetry data containing a randomized but unique identifier
+				telemetry = {enable = false},
+			},
+		}
+	end
+
+	-- for clangd (c/c++)
+	-- [https://github.com/jose-elias-alvarez/null-ls.nvim/issues/428]
+	if server.name == "clangd" then
+		capabilities.offsetEncoding = { "utf-16" }
+		lsp_options.capabilities = capabilities
+	end
+
+	-- for html
+	if server.name == "html" then
+		lsp_options.filetypes = {"html", "htmldjango"}
+	end
+
+	-- for css / scss / sass
+	if server.name == "cssls" then
+
+		--[==[
+				Neovim does not currently include built-in snippets.
+				`vscode-css-language-server` only provides completions when snippet support is enabled.
+				To enable completion, install a snippet plugin and add the following override to your
+				language client capabilities during setup. Enable (broadcasting) snippet capability for completion
+				https://github.com/neovim/nvim-lspconfig/blob/master/lua/lspconfig/server_configurations/cssls.lua
+		--]==]
+		capabilities.textDocument.completion.completionItem.snippetSupport = true
+		lsp_options.capabilities = capabilities
+	end
+
+	lspconfig[server.name].setup(lsp_options)
+end
+-- ───────────────────────────────────────────────── --
+-- end LSP setup
+-- ───────────────────────────────────────────────── --
+
+
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━❰ end configs ❱━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
-
-return M
 
