@@ -176,13 +176,7 @@ lsp_options = {
 	flags = {
 		debounce_text_changes = 150,
 	},
-	capabilities = function()
-		imported_cmp_nvim_lsp, cmp_nvim_lsp = pcall(require, 'cmp_nvim_lsp')
-		if not imported_cmp_nvim_lsp then
-			return capabilities
-		end
-		return cmp_nvim_lsp.update_capabilities(capabilities)
-	end
+	capabilities = require('cmp_nvim_lsp').update_capabilities(capabilities),
 }
 
 
