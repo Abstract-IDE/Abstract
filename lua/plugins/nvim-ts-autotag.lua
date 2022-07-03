@@ -18,7 +18,8 @@ require('nvim-ts-autotag').setup({
 
 	autotag = {
 		enable = true,
-	}
+	},
+
 	filetypes = {
 		'html',
 		'javascript', 'javascriptreact', 'jsx',
