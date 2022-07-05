@@ -124,7 +124,7 @@ vim.api.nvim_create_autocmd(
 )
 
 vim.api.nvim_create_autocmd(
-	"BufEnter",
+	"BufWinEnter",
 	{
         desc = "jump to the last position when reopening a file",
         pattern = "*",
