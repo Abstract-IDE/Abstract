@@ -81,7 +81,7 @@ def create_require_dir(dirs):
                 print("creating required directories...")
                 once = False
             Path(dir).mkdir(parents=True)
-            print(" ",dir)
+            print(" ", dir)
 # -------------------------------
 
 
@@ -111,8 +111,8 @@ def abstract_git():
     """check if abstract exist as a git project"""
     if Path(NVIM_CONF_PATH).exists():
         if Path(f"{NVIM_CONF_PATH}/.__abstract__").is_file():
-                if Path(f"{NVIM_CONF_PATH}/.git").exists():
-                    return True
+            if Path(f"{NVIM_CONF_PATH}/.git").exists():
+                return True
     return False
 # -------------------------------
 
@@ -135,8 +135,8 @@ def need_to_clone_abstract():
 
 # -------------------------------
 def compile_nvim():
-    print( "\npress CTRL+C if it's taking while \n")
-    packer_compile_cmd = [ "nvim", "--headless", "-c", "autocmd User PackerComplete quitall", "-c", "PackerSync" ]
+    print("\npress CTRL+C if it's taking while \n")
+    packer_compile_cmd = ["nvim", "--headless", "-c", "autocmd User PackerComplete quitall", "-c", "PackerSync"]
     subprocess.run(packer_compile_cmd)
 
 # -------------------------------
@@ -226,6 +226,7 @@ def main():
             print("additional tools didn't install\n")
 
 # -------------------------------
+
 
 if __name__ == '__main__':
     main()
