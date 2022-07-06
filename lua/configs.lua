@@ -13,7 +13,7 @@
 --]]
 
  -- neovim backup directory
-local backup_dir = vim.fn.expand('~/.cache/nvim')
+local backup_dir = vim.fn.stdpath('data').."/.cache"
 
 -- define configs
 local configs = {
@@ -45,7 +45,7 @@ local configs = {
 	backupdir = backup_dir .. '/backedUP', -- where to put backup files
 	undodir = backup_dir .. '/undos', -- where to put undo files
 	viewdir = backup_dir .. '/view', -- where to store files for :mkview
-	shada = "'100,<50,f50,n~/.cache/nvim/shada/shada",
+	shada = "'100,<50,f50,n"..backup_dir.."/shada/shada",
 
 	clipboard = vim.opt.clipboard + "unnamedplus", -- copy & paste
 	wrap = false, -- don't automatically wrap on load
