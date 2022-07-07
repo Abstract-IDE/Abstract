@@ -162,7 +162,7 @@ keymap('n', '<Leader>,', ':BufferLineMovePrev<CR>', options)
 -- nnoremap <silent>    <A-c> :BufferClose<CR>
 
 -- Magic buffer-picking mode
-keymap('n', '<Space><Space>', ':BufferLinePick<CR>', options)
+keymap('n', '<Leader><\\>', ':BufferLinePick<CR>', options)
 
 -- go to buffer number
 keymap('n', '<Leader>1', ':BufferLineGoToBuffer 1<CR>', options)
