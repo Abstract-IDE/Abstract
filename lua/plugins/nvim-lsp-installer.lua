@@ -14,11 +14,9 @@
 -- ━━━━━━━━━━━━━━━━━━━❰ configs ❱━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
-local lspinstaller_imported, lspinstaller = pcall(require, 'nvim-lsp-installer')
-if not lspinstaller_imported then return end
+local M = {}
 
-
-lspinstaller.setup{
+M.setup = {
 
     -- A list of servers to automatically install if they're not already installed. Example: { "rust_analyzer", "sumneko_lua" }
     -- This setting has no relation with the `automatic_installation` setting.
@@ -72,6 +70,8 @@ lspinstaller.setup{
 	-- servers that are requested to be installed will be put in a queue.
 	max_concurrent_installers = 4,
 }
+
+return M
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━❰ end configs ❱━━━━━━━━━━━━━━━━━ --

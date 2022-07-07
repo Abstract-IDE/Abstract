@@ -80,11 +80,7 @@ return packer.startup {
 					commit = commits.nvim_lsp_installer,
 				}
 			},
-			-- make sure setup for nvim-lsp-installer executes before the setup for lspconfig
-			config = [[
-				require('plugins/nvim-lsp-installer')
-				require('plugins/nvim-lspconfig')
-			]]
+			config = [[ require('plugins/nvim-lspconfig') ]]
 		}
 
 		use { -- vscode-like pictograms for neovim lsp completion items Topics
