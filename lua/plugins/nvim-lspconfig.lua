@@ -171,9 +171,11 @@ local function setup_lsp()
 
 	for _, server in ipairs(installed_servers) do
 
+		local server_options = {}
+
 		-- for lua
 		if server.name == "sumneko_lua" then
-			lsp_options.settings = {
+			server_options.settings = {
 				Lua = {
 					diagnostics = {
 						-- Get the language server to recognize the 'vim', 'use' global
@@ -193,12 +195,12 @@ local function setup_lsp()
 		-- [https://github.com/jose-elias-alvarez/null-ls.nvim/issues/428]
 		if server.name == "clangd" then
 			capabilities.offsetEncoding = { "utf-16" }
-			lsp_options.capabilities = capabilities
+			server_options.capabilities = capabilities
 		end
 
 		-- for html
 		if server.name == "html" then
-			lsp_options.filetypes = {"html", "htmldjango"}
+			server_options.filetypes = {"html", "htmldjango"}
 		end
 
 		-- for css / scss / sass
@@ -212,10 +214,10 @@ local function setup_lsp()
 					https://github.com/neovim/nvim-lspconfig/blob/master/lua/lspconfig/server_configurations/cssls.lua
 			--]==]
 			capabilities.textDocument.completion.completionItem.snippetSupport = true
-			lsp_options.capabilities = capabilities
+			server_options.capabilities = capabilities
 		end
 
-		lspconfig[server.name].setup(lsp_options)
+		lspconfig[server.name].setup(vim.tbl_deep_extend('force', lsp_options, server_options))
 	end
 end
 
