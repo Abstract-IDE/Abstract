@@ -230,7 +230,7 @@ return packer.startup {
 		}
 
 		use { --  smart indent and project detector with project based config loader
-			'shaeinst/penvim',
+			'Abstract-IDE/penvim',
 			commit = commits.penvim,
 			config = [[ require('plugins/penvim') ]]
 		}
