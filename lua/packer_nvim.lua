@@ -131,6 +131,12 @@ return packer.startup {
 			config = [[ require('plugins/nvim-autopairs') ]]
 		}
 
+		use { --  Add/change/delete surrounding delimiter pairs with ease.
+			'kylechui/nvim-surround',
+			commit = commits.nvim_surround,
+			config = [[ require('plugins/nvim-surround') ]]
+		}
+
 		use { -- Find, Filter, Preview, Pick. All lua, all the time.
 			'nvim-telescope/telescope.nvim',
 			commit = commits.telescope_nvim,

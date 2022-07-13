@@ -51,5 +51,6 @@ return {
 	vim_floaterm = "",
 	vim_maximizer = "",
 	impatient_nvim = "",
+	nvim_surround = "",
 }
 
