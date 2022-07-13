@@ -49,8 +49,8 @@ telescope.setup {
 		file_ignore_patterns = {
 			"__pycache__/", "__pycache__/*",
 
-			"build/",       "env/",    "gradle/",  "node_modules/", "node_modules/*",
-			"smalljre_*/*", "target/", "vendor/*",
+			"build/",       "gradle/",  "node_modules/", "node_modules/*",
+			"smalljre_*/*", "target/",  "vendor/*",
 
 			".dart_tool/",  ".git/",   ".github/", ".gradle/",      ".idea/",        ".vscode/",
 
