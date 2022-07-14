@@ -54,6 +54,7 @@ require'nvim-tree'.setup {
 		height = 30,
 		hide_root_folder = false,
 		side = 'left',
+		signcolumn = "no",
 		-- auto_resize = true,
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --

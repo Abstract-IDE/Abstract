@@ -75,7 +75,7 @@ require("trouble").setup {
 local keymap = vim.api.nvim_set_keymap
 local opts =  {silent = true, noremap = true}
 
-keymap("n", "gt", "<cmd>TroubleToggle<cr>", opts)
+keymap("n", "<Space>t", "<cmd>TroubleToggle<cr>", opts)
 
 --[===[
 keymap("n", "<leader>xw", "<cmd>Trouble lsp_workspace_diagnostics<cr>",
