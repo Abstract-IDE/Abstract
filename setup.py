@@ -5,6 +5,20 @@ import subprocess
 import argparse
 from pathlib import Path
 from datetime import datetime
+
+# import pynvim and install it if it's not already installed
+try:
+    from pynvim import attach
+except ImportError:
+    # install pip if it's not installed
+    try:
+        import pip
+    except:
+        command = ["python3", "-m", "ensurepip", "--default-pip"]
+        subprocess.run(command)
+    command = ['pip', 'install', 'pynvim']
+    subprocess.run(command)
+    from pynvim import attach
 # -------------------------------
 
 
@@ -44,13 +58,16 @@ update = args.update
 
 # directory locations
 # -------------------------------
+nvim = attach('child', argv=["/bin/env", "nvim", "--embed", "--headless"])
+
 HOME = Path.home()
-CACHE = f"{HOME}/.cache"
-CONFIG = f"{HOME}/.config"
-CACHE_BUILD_PATH = f"{CACHE}/build_files"
-NVIM_CONF_PATH = f"{CONFIG}/nvim"
-NVIM_PLUG_PATH = f"{HOME}/.local/share/nvim"
-CUSTOM_TOOLS_DIR = f"{NVIM_PLUG_PATH}/custom_tools"
+NVIM_DATA_DIR = nvim.funcs.stdpath('data')
+NVIM_CONF_PATH = nvim.funcs.stdpath('config')
+
+CONFIG = NVIM_CONF_PATH.split("nvim")[0]
+CACHE = f"{NVIM_DATA_DIR}/.cache"
+CUSTOM_TOOLS_DIR = f"{NVIM_DATA_DIR}/custom_tools"
+CACHE_BUILD_PATH = f"{HOME}/.cache/build_files"
 SCRIPT_PATH = Path(__file__).parent.absolute()
 # -------------------------------
 
@@ -58,12 +75,11 @@ SCRIPT_PATH = Path(__file__).parent.absolute()
 # -------------------------------
 require_dir = [
     f"{CONFIG}",
-    f"{CACHE}/nvim/swap",
-    f"{CACHE}/nvim/view",
-    f"{CACHE}/nvim/shada",
-    f"{CACHE}/nvim/backedUP",
-    f"{CACHE}/nvim/undos",
-    f"{CACHE}/build_files",
+    f"{CACHE}/swap",
+    f"{CACHE}/view",
+    f"{CACHE}/shada",
+    f"{CACHE}/backedUP",
+    f"{CACHE}/undos",
     CUSTOM_TOOLS_DIR,
     CACHE_BUILD_PATH,
 ]
@@ -81,7 +97,7 @@ def create_require_dir(dirs):
                 print("creating required directories...")
                 once = False
             Path(dir).mkdir(parents=True)
-            print(" ",dir)
+            print(" ", dir)
 # -------------------------------
 
 
@@ -111,8 +127,8 @@ def abstract_git():
     """check if abstract exist as a git project"""
     if Path(NVIM_CONF_PATH).exists():
         if Path(f"{NVIM_CONF_PATH}/.__abstract__").is_file():
-                if Path(f"{NVIM_CONF_PATH}/.git").exists():
-                    return True
+            if Path(f"{NVIM_CONF_PATH}/.git").exists():
+                return True
     return False
 # -------------------------------
 
@@ -135,8 +151,8 @@ def need_to_clone_abstract():
 
 # -------------------------------
 def compile_nvim():
-    print( "\npress CTRL+C if it's taking while \n")
-    packer_compile_cmd = [ "nvim", "--headless", "-c", "autocmd User PackerComplete quitall", "-c", "PackerSync" ]
+    print("\npress CTRL+C if it's taking while \n")
+    packer_compile_cmd = ["nvim", "--headless", "-c", "autocmd User PackerComplete quitall", "-c", "PackerSync"]
     subprocess.run(packer_compile_cmd)
 
 # -------------------------------
@@ -144,13 +160,12 @@ def compile_nvim():
 
 # -------------------------------
 def setup_packer():
-    nvim_plugin_dir = str(f"{HOME}/.local/share/nvim/site/pack/packer/start")
+    nvim_plugin_dir = str(f"{NVIM_DATA_DIR}/site/pack/packer/start")
     packer_dir = nvim_plugin_dir+"/packer.nvim"
     if not Path(packer_dir).exists():
         print("\nsetting up packer...")
         if not Path(nvim_plugin_dir).exists():
             Path(nvim_plugin_dir).mkdir(parents=True)
-
             repository = "https://github.com/wbthomason/packer.nvim"
             subprocess.run(["git", "clone", "--depth", "1", repository], cwd=nvim_plugin_dir)
 # -------------------------------
