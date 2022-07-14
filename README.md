@@ -1,6 +1,6 @@
 <br/>
 
-<p align="center"> 
+<p align="center">
  <img src="https://user-images.githubusercontent.com/41078534/175897440-adaa1da8-08d9-4f6a-9d80-f687b4e296e6.svg" height="400 widht="400" >
 </p>
 
@@ -105,7 +105,7 @@ so in case you don't like to use mapping or configs by Abstract, you can change 
 │   ...
 ├── init.lua                       / load/source configs | heart of Abstract
 ├── lua/
-│   ├── autocmd.lua                / auto command configs 
+│   ├── autocmd.lua                / auto command configs
 │   ├── configs.lua                / configs that's don't depends on plugins
 │   ├── mappings.lua               / mappings that don't depends on plugins
 │   ├── packer_nvim.lua            / manage plugins
@@ -149,12 +149,12 @@ Distributed under the MIT License.
 
 
 ## Screenshots
-   ![screenshot_lua](https://raw.githubusercontent.com/shaeinst/media/main/images/github-repositories/roshnivim/buff_and_nerdtree.png)
-   ![screenshot_pythonlsp](https://raw.githubusercontent.com/shaeinst/media/main/images/github-repositories/roshnivim/python_lsp.png)
-   ![screenshot_running_c](https://raw.githubusercontent.com/shaeinst/media/main/images/github-repositories/roshnivim/running_c.png)
-   ![screenshot_telescode](https://raw.githubusercontent.com/shaeinst/media/main/images/github-repositories/roshnivim/telescope_as_fuzzy_finder.png)
-   ![screenshot_lua](https://raw.githubusercontent.com/shaeinst/media/main/images/github-repositories/roshnivim/packer.png)
-   ![screenshot_codeaction](https://raw.githubusercontent.com/shaeinst/media/main/images/github-repositories/roshnivim/codeaction_in_flutter_app.png)
+   ![screenshot_buff_and_nerdtree](https://user-images.githubusercontent.com/41078534/177386049-93fc7a75-2f23-4d53-92a3-9ce8999283bf.png)
+   ![screenshot_python_lsp](https://user-images.githubusercontent.com/41078534/177386239-f77ea88e-a934-4979-8806-017f39225e9d.png)
+   ![screenshot_running_c](https://user-images.githubusercontent.com/41078534/177386287-53ea37a3-6349-40f6-b0f3-fcb5942fdb8f.png)
+   ![screenshot_telescope_as_fuzzy_finder](https://user-images.githubusercontent.com/41078534/177386330-4863acdb-9c66-4f68-9b6a-96f379becf05.png)
+   ![screenshot_packer](https://user-images.githubusercontent.com/41078534/177386379-955c7ddf-8750-4497-8e94-1d4fde28d6da.png)
+   ![screenshot_codeaction_in_flutter_app](https://user-images.githubusercontent.com/41078534/177386497-bb984c56-9bf2-40e5-a9df-88f87767feb0.png)
 <br>
 
 
