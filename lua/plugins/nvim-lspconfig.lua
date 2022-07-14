@@ -149,14 +149,10 @@ end
 -- ───────────────────────────────────────────────── --
 -- setup LSPs
 -- ───────────────────────────────────────────────── --
-local function setup_lsp()
+local function setup_lsp(on_attach)
 
 	local installed_servers = lspinstaller.get_installed_servers()
-	-- don't setup servers if atleast one server is installed, or it will throw an error
-	if #installed_servers == 0 then return end
-
 	local capabilities = lsp.protocol.make_client_capabilities()
-
 	local lsp_options = {
 		on_attach = on_attach,
 		flags = {
@@ -169,8 +165,10 @@ local function setup_lsp()
 	-- don't put this on loop to set it because dart LSP installed and maintained by akinsho/flutter-tools.nvim
 	lspconfig["dartls"].setup(lsp_options)
 
-	for _, server in ipairs(installed_servers) do
+	-- don't setup servers if atleast one server is installed, or it will throw an error
+	if #installed_servers == 0 then return end
 
+	for _, server in ipairs(installed_servers) do
 		local server_options = {}
 
 		-- for lua
@@ -207,11 +205,11 @@ local function setup_lsp()
 		if server.name == "cssls" then
 
 			--[==[
-					Neovim does not currently include built-in snippets.
-					`vscode-css-language-server` only provides completions when snippet support is enabled.
-					To enable completion, install a snippet plugin and add the following override to your
-					language client capabilities during setup. Enable (broadcasting) snippet capability for completion
-					https://github.com/neovim/nvim-lspconfig/blob/master/lua/lspconfig/server_configurations/cssls.lua
+				Neovim does not currently include built-in snippets.
+				`vscode-css-language-server` only provides completions when snippet support is enabled.
+				To enable completion, install a snippet plugin and add the following override to your
+				language client capabilities during setup. Enable (broadcasting) snippet capability for completion
+				https://github.com/neovim/nvim-lspconfig/blob/master/lua/lspconfig/server_configurations/cssls.lua
 			--]==]
 			capabilities.textDocument.completion.completionItem.snippetSupport = true
 			server_options.capabilities = capabilities
@@ -230,7 +228,7 @@ if not imported_lspinstaller_config then return end
 
 lspinstaller.setup(lspinstaller_config.setup) -- setup lsp-installer
 setup_lsp_config() -- setup lsp configs (mainly UI)
-setup_lsp() -- setup lsp (like pyright, ccls ...)
+setup_lsp(on_attach) -- setup lsp (like pyright, ccls ...)
 
 -- ───────────────────────────────────────────────── --
 -- end LSP setup
