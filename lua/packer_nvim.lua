@@ -71,17 +71,15 @@ return packer.startup {
 			branch = 'v2',
 		}
 
-		use { -- Companion plugin for nvim-lspconfig that allows you to seamlessly install LSP servers locally (inside :echo stdpath("data")).
-			'williamboman/nvim-lsp-installer',
-			commit = commits.nvim_lsp_installer,
-			config = [[ require('plugins/nvim-lsp-installer') ]]
-		}
-
 		use { -- A collection of common configurations for Neovim's built-in language server client
 			'neovim/nvim-lspconfig',
 			commit = commits.nvim_lspconfig,
-			-- [loading with after causing errors. for now, disable it]
-			-- after = "nvim-lsp-installer", -- make sure setup for nvim-lsp-installer executes before the setup for lspconfig
+			requires = {
+				{ -- Companion plugin for nvim-lspconfig that allows you to seamlessly install LSP servers locally (inside :echo stdpath("data")).
+					'williamboman/nvim-lsp-installer',
+					commit = commits.nvim_lsp_installer,
+				}
+			},
 			config = [[ require('plugins/nvim-lspconfig') ]]
 		}
 
@@ -103,6 +101,11 @@ return packer.startup {
 			'hrsh7th/nvim-cmp',
 			commit = commits.nvim_cmp,
 			requires = {
+				{ -- Snippet Engine for Neovim written in Lua.
+					'L3MON4D3/LuaSnip',
+					commit = commits.LuaSnip,
+					requires = {"rafamadriz/friendly-snippets", commit=commits.friendly_snippets},  -- Snippets collection for a set of different programming languages for faster development.
+				},
 				{"hrsh7th/cmp-nvim-lsp", commit=commits.cmp_nvim_lsp},   -- nvim-cmp source for neovim builtin LSP client
 				{"hrsh7th/cmp-buffer", commit=commits.cmp_buffer},       -- nvim-cmp source for buffer words.
 				{"hrsh7th/cmp-path", commit=commits.cmp_path},           -- nvim-cmp source for filesystem paths.
@@ -110,14 +113,10 @@ return packer.startup {
 				{"hrsh7th/cmp-nvim-lsp-signature-help", commit=commits.cmp_nvim_lsp_signature_help}, -- nvim-cmp source for displaying function signatures with the current parameter emphasized:
 				{"hrsh7th/cmp-nvim-lua", ft = 'lua', commit=commits.cmp_nvim_lua}, -- nvim-cmp source for nvim lua
 			},
-			config = [[ require('plugins/nvim-cmp') ]]
-		}
-
-		use { -- Snippet Engine for Neovim written in Lua.
-			'L3MON4D3/LuaSnip',
-			commit = commits.LuaSnip,
-			requires = {"rafamadriz/friendly-snippets", commit=commits.friendly_snippets},  -- Snippets collection for a set of different programming languages for faster development.
-			config = [[ require('plugins/LuaSnip') ]]
+			config = [[
+				require('plugins/nvim-cmp')
+				require('plugins/LuaSnip')
+			]]
 		}
 
 		use { -- Use Neovim as a language server to inject LSP diagnostics, code actions, and more via Lua.
@@ -130,6 +129,12 @@ return packer.startup {
 			'windwp/nvim-autopairs',
 			commit = commits.nvim_autopairs,
 			config = [[ require('plugins/nvim-autopairs') ]]
+		}
+
+		use { --  Add/change/delete surrounding delimiter pairs with ease.
+			'kylechui/nvim-surround',
+			commit = commits.nvim_surround,
+			config = [[ require('plugins/nvim-surround') ]]
 		}
 
 		use { -- Find, Filter, Preview, Pick. All lua, all the time.
@@ -231,7 +236,7 @@ return packer.startup {
 		}
 
 		use { --  smart indent and project detector with project based config loader
-			'shaeinst/penvim',
+			'Abstract-IDE/penvim',
 			commit = commits.penvim,
 			config = [[ require('plugins/penvim') ]]
 		}
@@ -292,6 +297,7 @@ return packer.startup {
 			commit = commits.nvim_ts_autotag,
 			ft = {'html', 'tsx', 'vue', 'svelte', 'php'},
 			requires = {'nvim-treesitter/nvim-treesitter', commit=commits.nvim_treesitter},
+
 			config = [[ require('plugins/nvim-ts-autotag') ]]
 		}
 		-- ━━━━━━━━━━━━━━❰ end of DEVELOPMENT ❱━━━━━━━━━━━━━ --
