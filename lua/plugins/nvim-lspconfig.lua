@@ -14,8 +14,8 @@
 local lspconfig_imported, lspconfig = pcall(require, 'lspconfig')
 if not lspconfig_imported then return end
 
-local imported_lspinstaller, lspinstaller = pcall(require, 'nvim-lsp-installer')
-if not imported_lspinstaller then return end
+local imported_mason, mason = pcall(require, 'mason')
+if not imported_mason then return end
 
 local lsp = vim.lsp
 local handlers = lsp.handlers
@@ -151,7 +151,7 @@ end
 -- ───────────────────────────────────────────────── --
 local function setup_lsp(on_attach)
 
-	local installed_servers = lspinstaller.get_installed_servers()
+	local installed_packages = require('mason-registry').get_installed_packages()
 	local capabilities = lsp.protocol.make_client_capabilities()
 	local lsp_options = {
 		on_attach = on_attach,
@@ -166,9 +166,9 @@ local function setup_lsp(on_attach)
 	lspconfig["dartls"].setup(lsp_options)
 
 	-- don't setup servers if atleast one server is installed, or it will throw an error
-	if #installed_servers == 0 then return end
+	if #installed_packages == 0 then return end
 
-	for _, server in ipairs(installed_servers) do
+	for _, server in ipairs(installed_packages) do
 		local server_options = {}
 
 		-- for lua
@@ -223,10 +223,10 @@ end
 -- NOTE: always call require("lspconfig") after require("nvim-lsp-installer").setup {}, this is the way
 
 -- import nvim-lsp-installer configs
-local imported_lspinstaller_config, lspinstaller_config = pcall(require, "plugins.nvim-lsp-installer")
-if not imported_lspinstaller_config then return end
+local imported_mason_config, mason_config = pcall(require, "plugins.mason_nvim")
+if not imported_mason_config then return end
 
-lspinstaller.setup(lspinstaller_config.setup) -- setup lsp-installer
+mason.setup(mason_config.setup) -- setup mason
 setup_lsp_config() -- setup lsp configs (mainly UI)
 setup_lsp(on_attach) -- setup lsp (like pyright, ccls ...)
 
