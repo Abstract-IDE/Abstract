@@ -50,25 +50,25 @@ local on_attach = function(client, bufnr)
 
 	-- See `:help vim.lsp.*` for documentation on any of the below functions
 	-- ───────────────────────────────────────────────── --
-	buf_set_keymap('n', '<Space>e',           '<cmd>lua vim.diagnostic.open_float()<CR>', options)
-	buf_set_keymap('n', '<Space>q',           '<cmd>lua vim.diagnostic.set_loclist({})<CR>', options)
-	buf_set_keymap('n', '<Space>n',           '<cmd>lua vim.diagnostic.goto_next()<CR>', options)
-	buf_set_keymap('n', '<Space>b',           '<cmd>lua vim.diagnostic.goto_prev()<CR>', options)
+	buf_set_keymap('n', '<Space>e',  '<cmd>lua vim.diagnostic.open_float()<CR>', options)
+	buf_set_keymap('n', '<Space>q',  '<cmd>lua vim.diagnostic.set_loclist({})<CR>', options)
+	buf_set_keymap('n', '<Space>n',  '<cmd>lua vim.diagnostic.goto_next()<CR>', options)
+	buf_set_keymap('n', '<Space>b',  '<cmd>lua vim.diagnostic.goto_prev()<CR>', options)
 
-	buf_set_keymap('n', '<Space>d',           '<Cmd>lua vim.lsp.buf.definition()<CR>', options)
-	buf_set_keymap('n', '<Space>D',           '<Cmd>lua vim.lsp.buf.declaration()<CR>', options)
-	buf_set_keymap('n', '<Space>T',           '<cmd>lua vim.lsp.buf.type_definition()<CR>', options)
-	buf_set_keymap('n', '<Space>i',           '<cmd>lua vim.lsp.buf.implementation()<CR>', options)
-	buf_set_keymap('n', '<Space>s',           '<cmd>lua vim.lsp.buf.signature_help()<CR>', options)
-	buf_set_keymap('n', '<Space>h',           '<Cmd>lua vim.lsp.buf.hover()<CR>', options)
+	buf_set_keymap('n', '<Space>d',  '<Cmd>lua vim.lsp.buf.definition()<CR>', options)
+	buf_set_keymap('n', '<Space>D',  '<Cmd>lua vim.lsp.buf.declaration()<CR>', options)
+	buf_set_keymap('n', '<Space>T',  '<cmd>lua vim.lsp.buf.type_definition()<CR>', options)
+	buf_set_keymap('n', '<Space>i',  '<cmd>lua vim.lsp.buf.implementation()<CR>', options)
+	buf_set_keymap('n', '<Space>s',  '<cmd>lua vim.lsp.buf.signature_help()<CR>', options)
+	buf_set_keymap('n', '<Space>h',  '<Cmd>lua vim.lsp.buf.hover()<CR>', options)
 	buf_set_keymap('n', 'K',                  '<Cmd>lua vim.lsp.buf.hover()<CR>', options)
 	-- using 'filipdutescu/renamer.nvim' for rename
 	-- buf_set_keymap('n', '<space>rn',	'<cmd>lua vim.lsp.buf.rename()<CR>', opts)
-	buf_set_keymap('n', '<Space>r',			'<cmd>Telescope lsp_references<CR>', options)
-	buf_set_keymap("n", "<Space>f",           '<cmd>lua vim.lsp.buf.format{ async=true }<CR>', options)
+	buf_set_keymap('n', '<Space>r',  '<cmd>Telescope lsp_references<CR>', options)
+	buf_set_keymap("n", "<Space>f",  '<cmd>lua vim.lsp.buf.format{ async=true }<CR>', options)
 
-	buf_set_keymap('n', '<Space>a',           '<cmd>lua vim.lsp.buf.code_action()<CR>',       options)
-	buf_set_keymap('x', '<Space>a',           '<cmd>lua vim.lsp.buf.range_code_action()<CR>', options)
+	buf_set_keymap('n', '<Space>a',  '<cmd>lua vim.lsp.buf.code_action()<CR>',       options)
+	buf_set_keymap('x', '<Space>a',  '<cmd>lua vim.lsp.buf.range_code_action()<CR>', options)
 
 	-- buf_set_keymap('n', '<leader>wa',    '<cmd>lua vim.lsp.buf.add_workleader_folder()<CR>',          opts)
 	-- buf_set_keymap('n', '<leader>wr',    '<cmd>lua vim.lsp.buf.remove_workleader_folder()<CR>',       opts)
@@ -151,7 +151,6 @@ end
 -- ───────────────────────────────────────────────── --
 local function setup_lsp(on_attach)
 
-	local installed_packages = require('mason-registry').get_installed_packages()
 	local capabilities = lsp.protocol.make_client_capabilities()
 	local lsp_options = {
 		on_attach = on_attach,
@@ -161,62 +160,64 @@ local function setup_lsp(on_attach)
 		capabilities = require('cmp_nvim_lsp').update_capabilities(capabilities),
 	}
 
-	-- for Flutter and Dart
-	-- don't put this on loop to set it because dart LSP installed and maintained by akinsho/flutter-tools.nvim
-	lspconfig["dartls"].setup(lsp_options)
+	require("mason-lspconfig").setup_handlers({
 
-	-- don't setup servers if atleast one server is installed, or it will throw an error
-	if #installed_packages == 0 then return end
+		function (server_name)
+			require("lspconfig")[server_name].setup(lsp_options)
+		end,
 
-	for _, server in ipairs(installed_packages) do
-		local server_options = {}
-
-		-- for lua
-		if server.name == "sumneko_lua" then
-			server_options.settings = {
-				Lua = {
-					diagnostics = {
-						-- Get the language server to recognize the 'vim', 'use' global
-						globals = {'vim', 'use', 'require'},
-					},
-					workspace = {
-						-- Make the server aware of Neovim runtime files
-						library = vim.api.nvim_get_runtime_file("", true),
-					},
-					-- Do not send telemetry data containing a randomized but unique identifier
-					telemetry = {enable = false},
-				},
-			}
+		["clangd"] = function ()
+			require("lspconfig").clangd.setup(
+				vim.tbl_deep_extend(
+					"force", lsp_options,
+					{ capabilities = { offsetEncoding = { "utf-16" } } }
+				)
+			)
+		end,
+		["html"] = function ()
+			require("lspconfig").html.setup(
+				vim.tbl_deep_extend(
+					"force", lsp_options,
+					{ filetypes = {"html", "htmldjango"} }
+				)
+			)
+		end,
+		["cssls"] = function ()
+			require("lspconfig").cssls.setup(
+				vim.tbl_deep_extend(
+					"force", lsp_options,
+					{
+						capabilities = {
+							textDocument = { completion= { completionItem = { snippetSupport = true } } }
+						},
+					}
+				)
+			)
+		end,
+		["sumneko_lua"] = function ()
+			require("lspconfig").sumneko_lua.setup(
+				vim.tbl_deep_extend(
+					"force", lsp_options,
+					{
+						settings = {
+							Lua = {
+								diagnostics = {
+									-- Get the language server to recognize the 'vim', 'use' global
+									globals = {'vim', 'use', 'require'},
+								},
+								workspace = {
+									-- Make the server aware of Neovim runtime files
+									library = vim.api.nvim_get_runtime_file("", true),
+								},
+								-- Do not send telemetry data containing a randomized but unique identifier
+								telemetry = {enable = false},
+							},
+						}
+					}
+				)
+			)
 		end
-
-		-- for clangd (c/c++)
-		-- [https://github.com/jose-elias-alvarez/null-ls.nvim/issues/428]
-		if server.name == "clangd" then
-			capabilities.offsetEncoding = { "utf-16" }
-			server_options.capabilities = capabilities
-		end
-
-		-- for html
-		if server.name == "html" then
-			server_options.filetypes = {"html", "htmldjango"}
-		end
-
-		-- for css / scss / sass
-		if server.name == "cssls" then
-
-			--[==[
-				Neovim does not currently include built-in snippets.
-				`vscode-css-language-server` only provides completions when snippet support is enabled.
-				To enable completion, install a snippet plugin and add the following override to your
-				language client capabilities during setup. Enable (broadcasting) snippet capability for completion
-				https://github.com/neovim/nvim-lspconfig/blob/master/lua/lspconfig/server_configurations/cssls.lua
-			--]==]
-			capabilities.textDocument.completion.completionItem.snippetSupport = true
-			server_options.capabilities = capabilities
-		end
-
-		lspconfig[server.name].setup(vim.tbl_deep_extend('force', lsp_options, server_options))
-	end
+	})
 end
 
 
