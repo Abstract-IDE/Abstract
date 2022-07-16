@@ -32,7 +32,7 @@ penvim.setup({
 
 	indentor = {
 		enable = true,
-		indent_length = 8,
+		indent_length = 4,
 		indent_type = "auto", -- auto|tab|space
 	},
 
