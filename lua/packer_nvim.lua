@@ -76,8 +76,8 @@ return packer.startup {
 			commit = commits.nvim_lspconfig,
 			requires = {
 				{ -- Companion plugin for nvim-lspconfig that allows you to seamlessly install LSP servers locally (inside :echo stdpath("data")).
-					'williamboman/nvim-lsp-installer',
-					commit = commits.nvim_lsp_installer,
+					'williamboman/mason.nvim',
+					branch = "alpha",
 				}
 			},
 			config = [[ require('plugins/nvim-lspconfig') ]]
