@@ -56,7 +56,7 @@ Abstract can be installed by just runing a script.
 
 #### Prerequisites
 
-  * neovim v0.7
+  * neovim >= v0.7
 
 
 #### Installation
@@ -81,8 +81,8 @@ NOTE1:
 it could take some time depending on you connection (it's going to install plugins and some LSs).<br>
 So, be patient and follow the output throw by setup.py script<br><br>
 NOTE2:
-only some LSs are going to be installed. for more, install with [LspInstall](https://github.com/williamboman/nvim-lsp-installer) <br>
-for example: to install C/C++'s LS ``` :LspInstall clangd ```
+only some LSs are going to be installed. for more, install with [mason.nvim](https://github.com/williamboman/mason.nvim) <br>
+for example: to install C/C++'s LS ``` :MasonInstall clangd ```
 <br><br>
 
 
