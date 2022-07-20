@@ -50,7 +50,7 @@ telescope.setup {
 			"__pycache__/", "__pycache__/*",
 
 			"build/",       "gradle/",  "node_modules/", "node_modules/*",
-			"smalljre_*/*", "target/",  "vendor/*",
+			"smalljre_*/*", "target/",  "vendor/*","venv/",
 
 			".dart_tool/",  ".git/",   ".github/", ".gradle/",      ".idea/",        ".vscode/",
 
