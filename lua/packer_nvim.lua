@@ -89,6 +89,11 @@ return packer.startup {
 			config = [[ require('plugins/lspkind-nvim') ]]
 		}
 
+		use { -- Standalone UI for nvim-lsp progress
+			'j-hui/fidget.nvim',
+			config = [[ require('plugins/fidget_nivm') ]]
+		}
+
 		use { -- Nvim Treesitter configurations and abstraction layer
 			'nvim-treesitter/nvim-treesitter',
 			commit = commits.nvim_treesitter,
