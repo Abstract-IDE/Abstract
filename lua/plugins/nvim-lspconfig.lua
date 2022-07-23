@@ -162,6 +162,10 @@ local function setup_lsp(on_attach)
 		capabilities = require('cmp_nvim_lsp').update_capabilities(capabilities),
 	}
 
+	-- for Flutter and Dart
+	-- don't put this on setup_handlers to set it because dart LSP is installed and maintained by akinsho/flutter-tools.nvim
+	lspconfig["dartls"].setup(lsp_options)
+
 	require("mason-lspconfig").setup_handlers({
 
 		function (server_name)
