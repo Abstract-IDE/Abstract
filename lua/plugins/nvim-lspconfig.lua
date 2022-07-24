@@ -39,8 +39,12 @@ local on_attach = function(client, bufnr)
 	-- Avoiding LSP formatting conflicts
 	-- ref: https://github.com/jose-elias-alvarez/null-ls.nvim/wiki/Avoiding-LSP-formatting-conflicts
 	-- 2nd red: https://github.com/neovim/nvim-lspconfig/issues/1891#issuecomment-1157964108
+	-- nevim 0.8.x
 	client.server_capabilities.documentFormattingProvider = false
 	client.server_capabilities.documentRangeFormattingProvider = false
+	-- nevim 0.7.x
+	client.resolved_capabilities.document_formatting = false
+	client.resolved_capabilities.document_range_formatting = false
 	--------------------------
 
 	-- Enable completion triggered by <c-x><c-o>
@@ -150,7 +154,7 @@ end
 -- ───────────────────────────────────────────────── --
 -- setup LSPs
 -- ───────────────────────────────────────────────── --
-local function setup_lsp(on_attach)
+local function setup_lsp()
 
 	local tbl_deep_extend = vim.tbl_deep_extend
 	local capabilities = lsp.protocol.make_client_capabilities()
@@ -235,7 +239,7 @@ if not imported_mason_config then return end
 
 mason.setup(mason_config.setup) -- setup mason
 setup_lsp_config() -- setup lsp configs (mainly UI)
-setup_lsp(on_attach) -- setup lsp (like pyright, ccls ...)
+setup_lsp() -- setup lsp (like pyright, ccls ...)
 
 -- ───────────────────────────────────────────────── --
 -- end LSP setup
