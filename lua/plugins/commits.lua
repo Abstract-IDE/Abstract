@@ -52,5 +52,6 @@ return {
 	vim_maximizer = "",
 	impatient_nvim = "",
 	nvim_surround = "",
+	mason_nvim = "",
+	mason_lspconfig_nvim = "",
 }
-
