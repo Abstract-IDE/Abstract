@@ -163,6 +163,16 @@ vim.api.nvim_create_autocmd(
 	}
 )
 
+vim.api.nvim_create_autocmd(
+	"BufEnter",
+	{
+		desc = "clear the last used search pattern",
+		pattern = "*",
+		group = group,
+		command = "let @/ = ''",
+	}
+)
+
 -- ━━━━━━━━━━━━━━━━❰ end of Automate ❱━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
