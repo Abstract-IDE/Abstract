@@ -36,14 +36,14 @@ autopairs.setup({
 -- this is nvim-cmp Plugin dependent setting
 -- If you want insert `(` after select function or method item
 local cmp_autopairs = require('nvim-autopairs.completion.cmp')
-local cmp = require('cmp')
+
+local import_cmp, cmp = pcall(require, 'cmp')
+if not import_cmp then return end
 cmp.event:on( 'confirm_done', cmp_autopairs.on_confirm_done())
 
 local Rule = require('nvim-autopairs.rule')
-local npairs = require('nvim-autopairs')
 
-npairs.add_rules {
-
+autopairs.add_rules {
 	-- before   insert  after
 	--  (|)     ( |)	( | )
 	Rule(' ', ' '):with_pair(
@@ -64,7 +64,6 @@ npairs.add_rules {
 		(item)= 	> 	    (item)=> { }
 	--]===]
 	-- Rule('%(.*%)%s*%=>$', ' {  }', {'typescript', 'typescriptreact', 'javascript'}):use_regex( true):set_end_pair_length(2),
-
 }
 
 -- ━━━━━━━━━━━━━━━━━❰ end Configs ❱━━━━━━━━━━━━━━━━━ --
