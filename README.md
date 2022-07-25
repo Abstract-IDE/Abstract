@@ -35,7 +35,7 @@
 
 Abstract, The NeoVim configuration to achieve the power of Modern IDE
 
-![screenshot_welcome](https://raw.githubusercontent.com/shaeinst/media/main/images/github-repositories/abstract/abstract-welcom.png)
+![2022-07-25_20-56](https://user-images.githubusercontent.com/41078534/180812465-8e65807c-a25e-4bc6-8abd-38d32538259e.png)
 
 
 
