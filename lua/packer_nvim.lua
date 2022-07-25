@@ -181,6 +181,7 @@ return packer.startup {
 		use { -- Smart and powerful comment plugin for neovim. Supports commentstring, dot repeat, left-right/up-down motions, hooks, and more
 			'numToStr/Comment.nvim',
 			commit = commits.Comment_nvim,
+			keys = { "cc", "gc", "gb" },
 			config = [[ require('plugins/Comment_nvim') ]]
 		}
 
