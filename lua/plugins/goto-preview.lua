@@ -14,7 +14,11 @@
 -- ━━━━━━━━━━━━━━━━━━━❰ configs ❱━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
-require('goto-preview').setup {
+local import_goto_preview, goto_preview = pcall(require, "goto-preview")
+if not import_goto_preview then return end
+local import_themes, telescope_themes = pcall(require, 'telescope.themes')
+
+goto_preview.setup {
 	width = 80; -- Width of the floating window
   	height = 15; -- Height of the floating window
   	border = {"↖", "─" ,"┐", "│", "┘", "─", "└", "│"}; -- Border characters of the floating window
@@ -29,8 +33,8 @@ require('goto-preview').setup {
 		vim.api.nvim_buf_set_option(buffer_num, "buflisted")
 	end;
   	references = { -- Configure the telescope UI for slowing the references cycling window.
-		telescope = {
-			require("telescope.themes").get_dropdown {
+		telescope = import_themes and {
+			telescope_themes.get_dropdown {
 				winblend = 15,
 				layout_config = {
 					prompt_position = "top",
