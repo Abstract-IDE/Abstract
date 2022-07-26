@@ -54,4 +54,5 @@ return {
 	nvim_surround = "",
 	mason_nvim = "",
 	mason_lspconfig_nvim = "",
+	fidget_nvim = ""
 }
