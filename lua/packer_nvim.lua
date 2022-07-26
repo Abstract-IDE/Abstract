@@ -115,12 +115,12 @@ return packer.startup {
 					'j-hui/fidget.nvim',
 					commit = commits.fidget_nvim,
 					event = 'BufRead',
+					config = [[ require('plugins/fidget_nivm') ]]
 				},
 			},
 			config = [[
 				require('plugins/nvim-lspconfig')
 				require('plugins/null-ls_nvim')
-				require('plugins/fidget_nivm')
 				require('plugins/trouble_nvim')
 				require('plugins/goto-preview')
 			]]
