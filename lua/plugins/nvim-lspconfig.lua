@@ -154,7 +154,7 @@ end
 -- ───────────────────────────────────────────────── --
 -- setup LSPs
 -- ───────────────────────────────────────────────── --
-local function setup_lsp()
+local function setup_lsp(mason_lspconfig)
 
 	local tbl_deep_extend = vim.tbl_deep_extend
 	local capabilities = lsp.protocol.make_client_capabilities()
@@ -174,7 +174,7 @@ local function setup_lsp()
 	-- don't put this on setup_handlers to set it because dart LSP is installed and maintained by akinsho/flutter-tools.nvim
 	lspconfig["dartls"].setup(lsp_options)
 
-	require("mason-lspconfig").setup_handlers({
+	mason_lspconfig.setup_handlers({
 
 		function (server_name)
 			require("lspconfig")[server_name].setup(lsp_options)
@@ -237,13 +237,18 @@ end
 -- make sure `lspconfig` is not loaded after `mason-lspconfig`.
 -- Also, make sure not to set up any servers via `lspconfig` _before_ calling `mason-lspconfig`'s setup function.
 
--- import nvim-lsp-installer configs
-local imported_mason_config, mason_config = pcall(require, "plugins.mason_nvim")
-if not imported_mason_config then return end
 
-mason.setup(mason_config.setup) -- setup mason
+	-- require("mason-lspconfig").setup_handlers({
+local import_mlspconfig, mason_lspconfig = pcall(require, "mason-lspconfig")
+if not import_mlspconfig then return end
+
+-- import nvim-lsp-installer configs
+local import_mconfig, mconfig = pcall(require, "plugins.mason_nvim")
+if not import_mconfig then return end
+
+mason.setup(mconfig.setup) -- setup mason
 setup_lsp_config() -- setup lsp configs (mainly UI)
-setup_lsp() -- setup lsp (like pyright, ccls ...)
+setup_lsp(mason_lspconfig) -- setup lsp (like pyright, ccls ...)
 
 -- ───────────────────────────────────────────────── --
 -- end LSP setup

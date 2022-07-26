@@ -17,11 +17,11 @@
 -- Set completeopt to have a better completion experience
 vim.o.completeopt = 'menuone,noselect'
 
-local cmp_imported_ok, cmp = pcall(require, 'cmp')
-if not cmp_imported_ok then return end
+local import_cmp, cmp = pcall(require, 'cmp')
+if not import_cmp then return end
 
-local luasnip_imported_ok, luasnip = pcall(require, 'luasnip')
-if not luasnip_imported_ok then return end
+local import_luasnip, luasnip = pcall(require, 'luasnip')
+if not import_luasnip then return end
 
 
 cmp.setup({

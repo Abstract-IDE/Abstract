@@ -14,16 +14,23 @@
 -- ━━━━━━━━━━━━━━━━━━━❰ configs ❱━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
+local import_ntree, nvim_tree = pcall(require, "nvim-tree")
+if not import_ntree then return end
+
+local import_treecb, tree_cb = pcall(require, "nvim-tree.config")
+if import_treecb then
+	tree_cb = tree_cb.nvim_tree_callback
+end
+
 local keymap = vim.api.nvim_set_keymap
 local options = {noremap = true, silent = true}
-local tree_cb = require'nvim-tree.config'.nvim_tree_callback
 local cmd = vim.cmd -- execute Vim commands
 cmd('autocmd ColorScheme * highlight highlight NvimTreeBg guibg=None')
 cmd('autocmd FileType NvimTree setlocal winhighlight=Normal:NvimTreeBg')
 
 
 -- each of these are documented in `:help nvim-tree.OPTION_NAME`
-require'nvim-tree'.setup {
+nvim_tree.setup {
 	disable_netrw = false,
 	hijack_netrw = false,
 	open_on_setup = false,
@@ -71,7 +78,7 @@ require'nvim-tree'.setup {
 		mappings = {
 			custom_only = false,
 			list = {
-				{key = "g?", cb = tree_cb("toggle_help")},
+				{key = "g?", cb = import_treecb and tree_cb("toggle_help")},
 				-- { key = "<C-v>",  cb = tree_cb("vsplit") },
 				-- { key = "<C-x>",  cb = tree_cb("split") },
 				-- { key = "<C-t>",  cb = tree_cb("tabnew") },

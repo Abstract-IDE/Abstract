@@ -14,8 +14,12 @@
 -- ━━━━━━━━━━━━━━━━━━━❰ configs ❱━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
+local import_feline, feline = pcall(require, 'feline')
+if not import_feline then return end
+
 local lsp = require('feline.providers.lsp')
 local vi_mode_utils = require('feline.providers.vi_mode')
+
 -- local lsp_status = require('lsp-status')
 -- lsp_status.register_progress()
 
@@ -289,7 +293,7 @@ local update_triggers = {
 	'FileChangedShellPost',
 }
 
-require('feline').setup({
+feline.setup({
 	theme = colors,
 	separators = separators,
 	vi_mode_colors = vi_mode_colors,

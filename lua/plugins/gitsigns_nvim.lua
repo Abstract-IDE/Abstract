@@ -14,6 +14,9 @@
 -- ━━━━━━━━━━━━━━━━━━━❰ configs ❱━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
+local import_gitsigns, gitsigns = pcall(require, "gitsigns")
+if not import_gitsigns then return end
+
 require('gitsigns').setup {
 	signs = {
 		add = {
