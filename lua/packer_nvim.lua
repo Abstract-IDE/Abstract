@@ -173,7 +173,7 @@ return packer.startup {
 				},
 				{ 'windwp/nvim-autopairs', after='nvim-cmp', commit=commits.nvim_autopairs }, -- A super powerful autopairs for Neovim. It support multiple character.
 				{ 'hrsh7th/cmp-nvim-lsp', after='nvim-cmp', commit=commits.cmp_nvim_lsp }, -- nvim-cmp source for neovim builtin LSP client
-				{ 'hrsh7th/cmp-nvim-lua', after='nvim-cmp', ft='lua', commit=commits.cmp_nvim_lua}, -- nvim-cmp source for nvim lua
+				{ 'hrsh7th/cmp-nvim-lua', after='nvim-cmp', commit=commits.cmp_nvim_lua}, -- nvim-cmp source for nvim lua
 				{ 'hrsh7th/cmp-buffer', after='nvim-cmp', commit=commits.cmp_buffer }, -- nvim-cmp source for buffer words.
 				{ 'hrsh7th/cmp-path', after='nvim-cmp', commit=commits.cmp_path}, -- nvim-cmp source for filesystem paths.
 				{ 'hrsh7th/cmp-nvim-lsp-signature-help', after='nvim-cmp', commit=commits.cmp_nvim_lsp_signature_help}, -- nvim-cmp source for displaying function signatures with the current parameter emphasized:
