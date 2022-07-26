@@ -23,9 +23,6 @@ if not cmp_imported_ok then return end
 local luasnip_imported_ok, luasnip = pcall(require, 'luasnip')
 if not luasnip_imported_ok then return end
 
--- for completion window width
-local ELLIPSIS_CHAR = '…'
-local MAX_LABEL_WIDTH = 35
 
 cmp.setup({
 
@@ -51,11 +48,17 @@ cmp.setup({
 	},
 
 	formatting = {
+
 		format = function(entry, vim_item)
 			-- fancy icons and a name of kind
-			vim_item.kind = require("lspkind").presets.default[vim_item.kind]
+			local import_lspkind, lspkind = pcall(require, "lspkind")
+			if import_lspkind then
+				vim_item.kind = lspkind.presets.default[vim_item.kind]
+			end
 
 			-- limit completion width
+			local ELLIPSIS_CHAR = '…'
+			local MAX_LABEL_WIDTH = 35
 			local label = vim_item.abbr
 			local truncated_label = vim.fn.strcharpart(label, 0, MAX_LABEL_WIDTH)
 			if truncated_label ~= label then
