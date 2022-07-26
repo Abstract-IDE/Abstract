@@ -165,7 +165,7 @@ return packer.startup {
 				{ -- Snippet Engine for Neovim written in Lua.
 					'L3MON4D3/LuaSnip',
 					commit = commits.LuaSnip,
-					after = 'nvim-cmp',
+					module = "luasnip",
 					requires = {
 						{ "rafamadriz/friendly-snippets", event='InsertEnter', commit=commits.friendly_snippets }, -- Snippets collection for a set of different programming languages for faster development.
 						{ 'Neevash/awesome-flutter-snippets', ft='dart', commit=commits.awesome_flutter_snippets }, -- collection snippets and shortcuts for commonly used Flutter functions and classes
