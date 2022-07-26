@@ -163,8 +163,12 @@ local function setup_lsp()
 		flags = {
 			debounce_text_changes = 150,
 		},
-		capabilities = require('cmp_nvim_lsp').update_capabilities(capabilities),
+		capabilities = capabilities
 	}
+	local import_cmp_lsp, cmp_lsp = pcall(require, 'cmp_nvim_lsp')
+	if import_cmp_lsp then
+		lsp_options.capabilities = (cmp_lsp).update_capabilities(capabilities)
+	end
 
 	-- for Flutter and Dart
 	-- don't put this on setup_handlers to set it because dart LSP is installed and maintained by akinsho/flutter-tools.nvim
