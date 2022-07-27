@@ -164,7 +164,7 @@ vim.api.nvim_create_autocmd(
 )
 
 vim.api.nvim_create_autocmd(
-	"BufEnter",
+	"BufWinEnter",
 	{
 		desc = "clear the last used search pattern",
 		pattern = "*",
