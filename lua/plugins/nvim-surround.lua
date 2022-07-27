@@ -21,8 +21,6 @@ if not imported_surround then return end
 
 surround.setup({
 	keymaps = { -- vim-surround style keymaps
-		insert = "ys",
-		insert_line = "yss",
 		visual = "S",
 		delete = "ds",
 		change = "cs",
