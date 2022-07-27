@@ -13,7 +13,7 @@ except ImportError:
     # install pip if it's not installed
     try:
         import pip
-    except:
+    except ModuleNotFoundError:
         command = ["python3", "-m", "ensurepip", "--default-pip"]
         subprocess.run(command)
     command = ['pip', 'install', 'pynvim']
@@ -90,6 +90,7 @@ require_dir = [
 def create_require_dir(dirs):
     need_to_inform = False
     once = True
+
     for dir in dirs:
         if not Path(dir).exists():
             need_to_inform = True
@@ -125,6 +126,7 @@ def backup_nvim():
 # -------------------------------
 def abstract_git():
     """check if abstract exist as a git project"""
+
     if Path(NVIM_CONF_PATH).exists():
         if Path(f"{NVIM_CONF_PATH}/.__abstract__").is_file():
             if Path(f"{NVIM_CONF_PATH}/.git").exists():
@@ -142,6 +144,7 @@ def need_to_clone_abstract():
     if Path(f"{SCRIPT_PATH}/setup.py").is_file() and \
        Path(f"{SCRIPT_PATH}/.__abstract__").is_file():
         return False
+
     if abstract_git():
         return False
 
@@ -162,6 +165,7 @@ def compile_nvim():
 def setup_packer():
     nvim_plugin_dir = str(f"{NVIM_DATA_DIR}/site/pack/packer/start")
     packer_dir = nvim_plugin_dir+"/packer.nvim"
+
     if not Path(packer_dir).exists():
         print("\nsetting up packer...")
         if not Path(nvim_plugin_dir).exists():
@@ -173,8 +177,7 @@ def setup_packer():
 
 # -------------------------------
 def remove_no_require():
-    subprocess.run(["rm", "-rf", ".git*", "LICENSE", "README.md", "setup.py", ".__*"],
-                   cwd=NVIM_CONF_PATH)
+    subprocess.run(["rm", "-rf", ".git*", "LICENSE", "README.md", "setup.py", ".__*"], cwd=NVIM_CONF_PATH)
     print("\nREMOVED: .git ,LICENSE ,README.md ,setup.py ,.__abstract__")
 # -------------------------------
 
@@ -204,17 +207,15 @@ def main():
         else:
             # prevent copying or removing if setup.up is running from ~/.config/nvim/
             if str(SCRIPT_PATH) != str(NVIM_CONF_PATH):
-
-                if Path(f"{SCRIPT_PATH}/setup.py").is_file() and \
-                Path(f"{SCRIPT_PATH}/.__abstract__").is_file():
-
+                if Path(f"{SCRIPT_PATH}/setup.py").is_file() and Path(f"{SCRIPT_PATH}/.__abstract__").is_file():
                     # remove ~/.config/nvim/ to prevent depth parent copy(eg: ~/.config/nvim/nvim)
                     subprocess.run(["rm", "-rf", NVIM_CONF_PATH])
-
                     print("\ncopying config...")
                     subprocess.run(["cp", "-rf", SCRIPT_PATH, NVIM_CONF_PATH])
+
                 else:
                     update_abstract()
+
             else:
                 update_abstract()
 
