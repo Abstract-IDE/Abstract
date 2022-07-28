@@ -117,7 +117,7 @@ vim.api.nvim_create_autocmd(
 		group = group,
         callback = function()
 			vim.highlight.on_yank {
-				higroup="Search", timeout=400, on_visual=true
+				higroup="Search", timeout=150, on_visual=true
 			}
         end,
 	}
