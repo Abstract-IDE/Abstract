@@ -25,6 +25,7 @@ local vi_mode_utils = require('feline.providers.vi_mode')
 
 local b = vim.b
 local fn = vim.fn
+local api = vim.api
 
 local components = {active = {}, inactive = {}}
 
@@ -34,7 +35,7 @@ components.active[1] = {
 	{provider = ' ', hl = {fg = 'skyblue'}},
 	{
 		provider = function ()
-			local mode = vim.api.nvim_exec('echo mode()', true)
+			local mode = api.nvim_exec('echo mode()', true)
 			if mode == "" then
 				return "C"
 			end
@@ -160,7 +161,7 @@ components.active[2] = {
 	{
 		provider = function()
 			local msg = ''
-			local buf_ft = vim.api.nvim_buf_get_option(0, 'filetype')
+			local buf_ft = api.nvim_buf_get_option(0, 'filetype')
 			local clients = vim.lsp.get_active_clients()
 			if next(clients) == nil then return msg end
 			for _, client in ipairs(clients) do
@@ -184,6 +185,26 @@ components.active[2] = {
 }
 
 components.active[3] = {
+	{
+		provider = function()
+			-- thanks: https://github.com/nvim-lualine/lualine.nvim/issues/186#issuecomment-1170637440
+			local hlsearch = api.nvim_get_vvar("hlsearch")
+			if hlsearch == nil then goto empty end
+			if hlsearch == 1 then
+				local result = fn.searchcount({ maxcount = 999, timeout = 1000 })
+				local total = result.total
+				if total == nil then goto empty end
+				if total > 0 then
+					local search_string = fn.getreg("/")
+					return string.format("%s %d/%d", search_string, result.current, total)
+				end
+			end
+			::empty::
+			return ""
+		end,
+		left_sep = ' ',
+		hl = {fg = 'yellow'}
+	},
 	{
 		provider = '  %l:%-2c- %L ',
 		left_sep = ' ',
