@@ -28,6 +28,8 @@ luasnip.config.set_config({
 luasnip.filetype_extend("javascriptreact", {"html"})
 luasnip.filetype_extend("typescriptreact", {"html"})
 
+-- enable html snippets in Django (htmldjango)
+luasnip.filetype_extend("htmldjango", {"html"})
 
 -- this will lazy load all filetypes
 require("luasnip/loaders/from_vscode").lazy_load()
