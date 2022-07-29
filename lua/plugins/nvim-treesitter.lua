@@ -18,6 +18,14 @@
 local treesitter_imported_ok, treesitter =  pcall(require, 'nvim-treesitter.configs')
 if not treesitter_imported_ok then return end
 
+
+local import_parsers, parsers = pcall(require, 'nvim-treesitter.parsers')
+if import_parsers then
+	local parsername = parsers.filetype_to_parsername
+	parsername.htmldjango = 'html' -- enable html parser in htmldjango file
+end
+
+
 treesitter.setup {
 
 	-- ensure_installed  = "maintained", -- one of "all", "maintained" (parsers with maintainers), or a list of languages

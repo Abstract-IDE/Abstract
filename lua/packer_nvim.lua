@@ -137,7 +137,8 @@ return packer.startup {
 				{ --  Use treesitter to auto close and auto rename html tag, work with html,tsx,vue,svelte,php.
 					"windwp/nvim-ts-autotag",
 					commit = commits.nvim_ts_autotag,
-					ft = {'html', 'tsx', 'vue', 'svelte', 'php'},
+					after = 'nvim-treesitter',
+					ft = {'html', 'htmldjango', 'tsx', 'jsx', 'vue', 'svelte', 'php'},
 				},
 				{ --  Neovim treesitter plugin for setting the commentstring based on the cursor location in a file.
 					'JoosepAlviste/nvim-ts-context-commentstring',
@@ -190,6 +191,7 @@ return packer.startup {
 			'kylechui/nvim-surround',
 			commit = commits.nvim_surround,
 			event = 'InsertEnter',
+			keys = {'c'},
 			config = [[ require('plugins/nvim-surround') ]]
 		}
 

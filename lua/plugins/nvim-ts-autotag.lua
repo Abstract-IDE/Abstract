@@ -24,7 +24,7 @@ autotag.setup({
 	},
 
 	filetypes = {
-		'html',
+		'html', 'htmldjango',
 		'javascript', 'javascriptreact', 'jsx',
 		'typescript', 'typescriptreact', 'tsx',
 		'rescript',
