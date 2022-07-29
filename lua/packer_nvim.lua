@@ -137,7 +137,6 @@ return packer.startup {
 				{ --  Use treesitter to auto close and auto rename html tag, work with html,tsx,vue,svelte,php.
 					"windwp/nvim-ts-autotag",
 					commit = commits.nvim_ts_autotag,
-					after = 'nvim-treesitter',
 					ft = {'html', 'htmldjango', 'tsx', 'jsx', 'vue', 'svelte', 'php'},
 				},
 				{ --  Neovim treesitter plugin for setting the commentstring based on the cursor location in a file.
