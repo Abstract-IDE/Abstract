@@ -56,6 +56,7 @@ backup = args.backup
 update = args.update
 # -------------------------------
 
+
 # directory locations
 # -------------------------------
 nvim = attach('child', argv=["/bin/env", "nvim", "--embed", "--headless"])
@@ -70,6 +71,7 @@ CUSTOM_TOOLS_DIR = f"{NVIM_DATA_DIR}/custom_tools"
 CACHE_BUILD_PATH = f"{HOME}/.cache/build_files"
 SCRIPT_PATH = Path(__file__).parent.absolute()
 # -------------------------------
+
 
 # directories we must have
 # -------------------------------
@@ -124,6 +126,17 @@ def backup_nvim():
 
 
 # -------------------------------
+def clean():
+    if Path(NVIM_DATA_DIR+"/site/pack/packer").exists():
+        subprocess.run(["rm", "-rf", NVIM_DATA_DIR+"/site/pack/packer"])
+        print("\nREMOVED: ", NVIM_DATA_DIR+"/site/pack/packer")
+    if Path(NVIM_CONF_PATH+"/plugin").exists():
+        subprocess.run(["rm", "-rf", NVIM_CONF_PATH+"/plugin"])
+        print("\nREMOVED: ", NVIM_CONF_PATH+"/plugin")
+# -------------------------------
+
+
+# -------------------------------
 def abstract_git():
     """check if abstract exist as a git project"""
 
@@ -154,10 +167,9 @@ def need_to_clone_abstract():
 
 # -------------------------------
 def compile_nvim():
-    print("\npress CTRL+C if it's taking while \n")
+    print("\npress CTRL+C and re-run setup.py file if it's taking very long time\n (2-5 minutes would be enough) \n")
     packer_compile_cmd = ["nvim", "--headless", "-c", "autocmd User PackerComplete quitall", "-c", "PackerSync"]
     subprocess.run(packer_compile_cmd)
-
 # -------------------------------
 
 
@@ -221,11 +233,13 @@ def main():
 
     # compile configs
     try:
+        clean()
         setup_packer()
         print("\ncompiling config and plugins...")
         compile_nvim()
     except KeyboardInterrupt:
         print("\n\n")
+        print("!!!someting went wrong!!!!\n please re-run setup.py file")
 
     if delete == 1:
         print("\ncleaning config...")
@@ -240,6 +254,20 @@ def main():
             clone_repro(CUSTOM_TOOLS_DIR, repository, 'lazy-builder')
         except KeyboardInterrupt:
             print("additional tools didn't install\n")
+    else:
+        subprocess.run(["git", "pull"], cwd=lazy_builder_path)
+
+    msg = """\n\n
+    !!!WARNING!!!
+    we try our best to auto setup as much as possible.
+    you may get some errors during installation (maybe it's your network problem?)
+    so, open nvim (from your terminal ) and if nvim throws any errors,
+    it means that installaton wasn't sucessfull.
+    In that case, please re-run setup.py or
+    python <(curl -s https://raw.githubusercontent.com/Abstract-IDE/Abstract/main/setup.py)
+    """
+    print(msg)
+
 
 # -------------------------------
 
