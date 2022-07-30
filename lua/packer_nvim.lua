@@ -171,7 +171,7 @@ return packer.startup {
 						{ 'Neevash/awesome-flutter-snippets', ft='dart', commit=commits.awesome_flutter_snippets }, -- collection snippets and shortcuts for commonly used Flutter functions and classes
 					},
 				},
-				{ 'windwp/nvim-autopairs', after='nvim-cmp', commit=commits.nvim_autopairs }, -- A super powerful autopairs for Neovim. It support multiple character.
+				{ 'windwp/nvim-autopairs', event = 'InsertEnter', commit=commits.nvim_autopairs }, -- A super powerful autopairs for Neovim. It support multiple character.
 				{ 'hrsh7th/cmp-nvim-lsp', after='nvim-cmp', commit=commits.cmp_nvim_lsp }, -- nvim-cmp source for neovim builtin LSP client
 				{ 'hrsh7th/cmp-nvim-lua', after='nvim-cmp', commit=commits.cmp_nvim_lua}, -- nvim-cmp source for nvim lua
 				{ 'hrsh7th/cmp-buffer', after='nvim-cmp', commit=commits.cmp_buffer }, -- nvim-cmp source for buffer words.
