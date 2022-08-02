@@ -56,6 +56,7 @@ for _, package in pairs(installed_packages) do
 				"--extra-sep-at-table-end",
 			},
 		})
+		goto loop_continue
 	end
 	-- Python
 	if package == "black" then
@@ -64,6 +65,7 @@ for _, package in pairs(installed_packages) do
 			command = "black",
 			args = {"--quiet", "--fast", "-"},
 		})
+		goto loop_continue
 	end
 	-- Django ("htmldjango")
 	if package == "djlint" then
@@ -72,6 +74,7 @@ for _, package in pairs(installed_packages) do
 			command = "djlint",
 			args = {"--reformat", "-"},
 		})
+		goto loop_continue
 	end
 	-- "javascript", "javascriptreact", "typescript", "typescriptreact", "vue",
 	-- "css", "scss", "less", "html", "json", "yaml", "markdown", "graphql"
@@ -81,28 +84,36 @@ for _, package in pairs(installed_packages) do
 			command = "prettier",
 			args = {"--stdin-filepath", "$FILENAME"},
 		})
+		goto loop_continue
 	end
-end
+	-- C, C++, CS, Java
+	if package ==  "clang-format" then
+		load = true
+		sources[#sources+1] = formatting.clang_format.with({
+			command = "clang-format",
+			args = {
+				"-assume-filename",
+				"$FILENAME",
+				"-style",
+				"{BasedOnStyle: Microsoft, UseTab: Always}",
+			},
+			to_stdin = true,
+		})
+		goto loop_continue
+	end
 
--- C, C++, CS, Java
-if vim.fn.executable("clang-format") == 1 then
-	load = true
-	sources[#sources+1] = formatting.clang_format.with({
-		command = "clang-format",
-		args = {
-			"-assume-filename",
-			"$FILENAME",
-			"-style",
-			"{BasedOnStyle: Microsoft, UseTab: Always}",
-		},
-		to_stdin = true,
-	})
+	::loop_continue::
 end
 
 -- Rust
 if vim.fn.executable("rustfmt") == 1 then
 	load = true
 	sources[#sources + 1] = formatting.rustfmt.with({command = "rustfmt"})
+end
+-- Go
+if vim.fn.executable("gofmt") == 1 then
+	load = true
+	sources[#sources+1] = formatting.gofmt.with({})
 end
 
 -- ───────────────❰ end FORMATTING ❱──────────────── --
@@ -157,8 +168,15 @@ end
 -- ─────────────────❰ end HOVER ❱─────────────────── --
 -- ───────────────────────────────────────────────── --
 
-if load then null.setup({sources = sources}) end
 
+-- setup null-ls
+if load then
+	null.setup({
+		sources = sources
+	})
+end
+
+-- if load then null.setup({sources = sources}) end
 -- give border to null-ls window
 vim.api.nvim_create_autocmd("FileType", {
 	pattern = "null-ls-info",
