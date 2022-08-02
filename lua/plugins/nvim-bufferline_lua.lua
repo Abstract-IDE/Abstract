@@ -51,9 +51,9 @@ bufferline.setup {
 			if buf.name:match('%.md') then return vim.fn.fnamemodify(buf.name, ':t:r') end
 		end,
 
-		max_name_length = 18,
-		max_prefix_length = 15, -- prefix used when a buffer is de-duplicate
-		tab_size = 18,
+		max_name_length = 22,
+		max_prefix_length = 18, -- prefix used when a buffer is de-duplicate
+		tab_size = 22,
 
 		show_close_icon = false,
 		show_buffer_icons = true, -- disable filetype icons for buffers
@@ -108,6 +108,14 @@ bufferline.setup {
 			guibg = {highlight = "TabSelectedBG", attribute = "bg"},
 		},
 		tab = {
+			guifg = {highlight = "TabFG", attribute = "fg"},
+			guibg = {highlight = "TabBG", attribute = "bg"},
+		},
+		tab_close = {
+			guifg = {highlight = "TabFG", attribute = "fg"},
+			guibg = {highlight = "TabBG", attribute = "bg"},
+		},
+		close_button = {
 			guifg = {highlight = "TabFG", attribute = "fg"},
 			guibg = {highlight = "TabBG", attribute = "bg"},
 		},
