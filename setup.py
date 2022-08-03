@@ -177,13 +177,16 @@ def compile_nvim():
 def setup_packer():
     nvim_plugin_dir = str(f"{NVIM_DATA_DIR}/site/pack/packer/start")
     packer_dir = nvim_plugin_dir+"/packer.nvim"
+    plenary_dir = nvim_plugin_dir+"/plenary.nvim"
+    print("\nsetting up packer...")
+
+    if not Path(nvim_plugin_dir).exists():
+        Path(nvim_plugin_dir).mkdir(parents=True)
 
     if not Path(packer_dir).exists():
-        print("\nsetting up packer...")
-        if not Path(nvim_plugin_dir).exists():
-            Path(nvim_plugin_dir).mkdir(parents=True)
-            repository = "https://github.com/wbthomason/packer.nvim"
-            subprocess.run(["git", "clone", "--depth", "1", repository], cwd=nvim_plugin_dir)
+        print(packer_dir)
+        repository = "https://github.com/wbthomason/packer.nvim"
+        subprocess.run(["git", "clone", "--depth", "1", repository], cwd=nvim_plugin_dir)
 # -------------------------------
 
 

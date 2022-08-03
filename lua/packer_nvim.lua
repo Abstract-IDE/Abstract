@@ -43,7 +43,12 @@ return packer.startup {
 			open_fn = function()
 				return require('packer.util').float({border = 'single'})
 			end
-		}
+		},
+		git = {
+		    cmd = 'git', -- The base command for git operations
+		    depth = 1, -- Git clone depth
+		    clone_timeout = 600, -- Timeout, in seconds, for git clones
+		},
 	},
 
 
