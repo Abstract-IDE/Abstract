@@ -17,7 +17,6 @@ local backup_dir = vim.fn.stdpath('data').."/.cache"
 
 -- define configs
 local configs = {
-	guifont = 'DroidSansMono Nerd Font 11',
 	termguicolors = true, -- Enable GUI colors for the terminal to get truecolor
 	list = true, -- show whitespace
 	listchars = {
