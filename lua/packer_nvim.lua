@@ -118,7 +118,8 @@ return packer.startup {
 				{ -- preview native LSP's goto definition calls in floating windows.
 					'rmagatti/goto-preview',
 					commit = commits.goto_preview,
-					after = "nvim-lspconfig"
+					after = 'nvim-lspconfig',
+					keys = {'gp'},
 				},
 				{ -- Standalone UI for nvim-lsp progress
 					'j-hui/fidget.nvim',
