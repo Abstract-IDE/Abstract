@@ -3,6 +3,10 @@
 -- ───────────────────────────────────────────────── --
 --    Plugin:    packer.nvim
 --    Github:    github.com/wbthomason/packer.nvim
+
+-- A use-package inspired plugin manager for Neovim.
+-- Uses native packages, supports Luarocks dependencies,
+-- written in Lua, allows for expressive config
 -- ───────────────────────────────────────────────── --
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
@@ -27,8 +31,8 @@ if fn.empty(fn.glob(install_path)) > 0 then
 end
 
 -- safely import packer
-local ok, packer = pcall(require, "packer")
-if not ok then return end
+local import_packer, packer = pcall(require, "packer")
+if not import_packer then return end
 
 local commits = require("plugins.commits")
 
@@ -267,9 +271,6 @@ return packer.startup {
 		use { -- A minimal, stylish and customizable statusline for Neovim written in Lua
 			'feline-nvim/feline.nvim',
 			commit = commits.feline_nvim,
-			-- requires = {
-			--   'nvim-lua/lsp-status.nvim',
-			-- },
 			config = [[ require('plugins/feline_nvim') ]]
 		}
 
@@ -311,7 +312,7 @@ return packer.startup {
 
 		-- ━━━━━━━━━━━━━━━━━❰ DEVELOPMENT ❱━━━━━━━━━━━━━━━━━ --
 
-		----           for flutter/dart
+		--           for flutter/dart
 		use { -- Tools to help create flutter apps in neovim using the native lsp
 			'akinsho/flutter-tools.nvim',
 			commit = commits.flutter_tools_nvim,
