@@ -24,59 +24,40 @@ surround.setup({
 		visual = "S",
 		delete = "ds",
 		change = "cs",
+		insert = "<C-g>s",
+                -- insert_line = "<C-g>S",
+                -- normal = "ys",
+                -- normal_cur = "yss",
+                -- normal_line = "yS",
+                -- normal_cur_line = "ySS",
+                -- visual_line = "gS",
 	},
-	delimiters = {
-		pairs = {
-			["("] = { "( ", " )" },
-			[")"] = { "(", ")" },
-			["{"] = { "{ ", " }" },
-			["}"] = { "{", "}" },
-			["<"] = { "< ", " >" },
-			[">"] = { "<", ">" },
-			["["] = { "[ ", " ]" },
-			["]"] = { "[", "]" },
-			-- Define pairs based on function evaluations!
-			["i"] = function()
-				return {
-					require("nvim-surround.utils").get_input(
-						"Enter the left delimiter: "
-					),
-					require("nvim-surround.utils").get_input(
-						"Enter the right delimiter: "
-					)
-				}
-			end,
-			["f"] = function()
-				return {
-					require("nvim-surround.utils").get_input(
-						"Enter the function name: "
-					) .. "(",
-					")"
-				}
-			end,
-		},
-		separators = {
-			["'"] = { "'", "'" },
-			['"'] = { '"', '"' },
-			["`"] = { "`", "`" },
-		},
-		HTML = {
-			["t"] = "type", -- Change just the tag type
-			["T"] = "whole", -- Change the whole tag contents
-		},
-		aliases = {
-			["a"] = ">", -- Single character aliases apply everywhere
-			["b"] = ")",
-			["B"] = "}",
-			["r"] = "]",
-			-- Table aliases only apply for changes/deletions
-			["q"] = { '"', "'", "`" }, -- Any quote character
-			["s"] = { ")", "]", "}", ">", "'", '"', "`" }, -- Any surrounding delimiter
-		},
+	surrounds = {
+                ["("] = { add = { "( ", " )" }, },
+                [")"] = { add = { "(", ")" }, },
+                ["{"] = { add = { "{ ", " }" }, },
+                ["}"] = { add = { "{", "}" }, },
+                ["<"] = { add = { "< ", " >" }, },
+                [">"] = { add = { "<", ">" }, },
+                ["["] = { add = { "[ ", " ]" }, },
+                ["]"] = { add = { "[", "]" }, },
+                ["'"] = { add = { "'", "'" }, },
+                ['"'] = { add = { '"', '"' }, },
+                ["`"] = { add = { "`", "`" }, },
 	},
-	highlight_motion = { -- Highlight before inserting/changing surrounds
+        aliases = {
+                ["a"] = ">", -- Single character aliases apply everywhere
+                ["b"] = ")",
+                ["B"] = "}",
+                ["r"] = "]",
+                -- Table aliases only apply for changes/deletions
+                ["q"] = { '"', "'", "`" }, -- Any quote character
+                ["s"] = { ")", "]", "}", ">", "'", '"', "`" }, -- Any surrounding delimiter
+        },
+	highlight= { -- Highlight before inserting/changing surrounds
 		duration = 0,
-	}
+	},
+        move_cursor = "begin",
 })
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
