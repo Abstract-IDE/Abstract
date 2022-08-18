@@ -72,52 +72,52 @@ bufferline.setup {
 	},
 
 	highlights = {
-		fill = {guibg = {highlight = "BufferLineFill", attribute = "bg"}},
+		fill = {bg = {highlight = "BufferLineFill", attribute = "bg"}},
 		background = { -- current tab
-			guifg = {highlight = "BufferCurrent", attribute = "fg"},
-			guibg = {highlight = "BufferCurrent", attribute = "bg"},
+			fg = {highlight = "BufferCurrent", attribute = "fg"},
+			bg = {highlight = "BufferCurrent", attribute = "bg"},
 		},
-		separator = {guifg = {highlight = "BufferSeparator", attribute = "fg"}},
+		separator = {fg = {highlight = "BufferSeparator", attribute = "fg"}},
 		separator_selected = {
-			guifg = {highlight = "BufferSeparatorSelected", attribute = "fg"},
+			fg = {highlight = "BufferSeparatorSelected", attribute = "fg"},
 		},
 		close_button_selected = {
-			guifg = {highlight = "BufferCloseButtonSelected", attribute = "fg"},
-			guibg = {highlight = "BufferCloseButtonSelected", attribute = "bg"},
+			fg = {highlight = "BufferCloseButtonSelected", attribute = "fg"},
+			bg = {highlight = "BufferCloseButtonSelected", attribute = "bg"},
 		},
 		duplicate = {
-			guifg = {highlight = "BufferCurrentSign", attribute = "fg"},
-			guibg = {highlight = "BufferLineFill", attribute = "bg"},
+			fg = {highlight = "BufferCurrentSign", attribute = "fg"},
+			bg = {highlight = "BufferLineFill", attribute = "bg"},
 		},
 		duplicate_selected = {
-			guifg = {highlight = "BufferCurrentSign", attribute = "fg"},
+			fg = {highlight = "BufferCurrentSign", attribute = "fg"},
 		},
 		modified = {
-			guifg = {highlight = "BufferCurrentSign", attribute = "fg"},
-			guibg = {highlight = "BufferLineFill", attribute = "bg"},
+			fg = {highlight = "BufferCurrentSign", attribute = "fg"},
+			bg = {highlight = "BufferLineFill", attribute = "bg"},
 		},
 		modified_selected = {
-			guifg = {highlight = "BufferCurrentSign", attribute = "fg"},
+			fg = {highlight = "BufferCurrentSign", attribute = "fg"},
 		},
 		numbers = {
-			guibg = {highlight = "BuffNumbers", attribute = "bg"},
+			bg = {highlight = "BuffNumbers", attribute = "bg"},
 		},
 
 		tab_selected = {
-			guifg = {highlight = "TabSelectedFG", attribute = "fg"},
-			guibg = {highlight = "TabSelectedBG", attribute = "bg"},
+			fg = {highlight = "TabSelectedFG", attribute = "fg"},
+			bg = {highlight = "TabSelectedBG", attribute = "bg"},
 		},
 		tab = {
-			guifg = {highlight = "TabFG", attribute = "fg"},
-			guibg = {highlight = "TabBG", attribute = "bg"},
+			fg = {highlight = "TabFG", attribute = "fg"},
+			bg = {highlight = "TabBG", attribute = "bg"},
 		},
 		tab_close = {
-			guifg = {highlight = "TabFG", attribute = "fg"},
-			guibg = {highlight = "TabBG", attribute = "bg"},
+			fg = {highlight = "TabFG", attribute = "fg"},
+			bg = {highlight = "TabBG", attribute = "bg"},
 		},
 		close_button = {
-			guifg = {highlight = "TabFG", attribute = "fg"},
-			guibg = {highlight = "TabBG", attribute = "bg"},
+			fg = {highlight = "TabFG", attribute = "fg"},
+			bg = {highlight = "TabBG", attribute = "bg"},
 		},
 
 		-- duplicate_visible = {
