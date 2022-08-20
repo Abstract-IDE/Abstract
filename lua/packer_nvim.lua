@@ -89,8 +89,8 @@ return packer.startup {
 
 		use { -- colorscheme for (neo)vim written in lua specially made for Abstract
 			'Abstract-IDE/Abstract-cs',
-			-- commit = commits.Abstract_cs,
-			branch = 'v2',
+			commit = commits.Abstract_cs,
+			config = [[ require('plugins/Abstract_cs') ]]
 		}
 
 		use { -- A collection of common configurations for Neovim's built-in language server client

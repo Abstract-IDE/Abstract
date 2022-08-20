@@ -16,9 +16,6 @@ local opt = vim.opt
 local api = vim.api
 
 
--- apply colorscheme without throwing any errors
-pcall(vim.cmd, 'colorscheme abscs')
-
 opt.termguicolors = true -- Enable GUI colors for the terminal to get truecolor
 opt.list = true -- show whitespace
 opt.listchars = {
