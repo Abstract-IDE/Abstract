@@ -134,7 +134,7 @@ api.nvim_create_autocmd(
 )
 
 api.nvim_create_autocmd(
-	"BufEnter",
+	{"BufEnter", "FileType"},
 	{
 		desc = "don't auto comment new line",
 		pattern = "*",
