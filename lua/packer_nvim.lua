@@ -113,13 +113,15 @@ return packer.startup {
 				{ -- A pretty diagnostics, references, telescope results, quickfix and location list to help you solve all the trouble your code is causing.
 					'folke/trouble.nvim',
 					commit = commits.trouble_nvim,
-					after = "nvim-lspconfig"
+					after = "nvim-lspconfig",
+					config = [[ require('plugins/trouble_nvim') ]]
 				},
 				{ -- preview native LSP's goto definition calls in floating windows.
 					'rmagatti/goto-preview',
 					commit = commits.goto_preview,
 					after = 'nvim-lspconfig',
 					keys = {'gp'},
+					config = [[ require('plugins/goto-preview') ]]
 				},
 				{ -- Standalone UI for nvim-lsp progress
 					'j-hui/fidget.nvim',
@@ -131,8 +133,6 @@ return packer.startup {
 			config = [[
 				require('plugins/nvim-lspconfig')
 				require('plugins/null-ls_nvim')
-				require('plugins/trouble_nvim')
-				require('plugins/goto-preview')
 			]]
 		}
 
