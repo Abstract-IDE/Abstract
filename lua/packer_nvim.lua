@@ -185,6 +185,7 @@ return packer.startup {
 				{ -- A super powerful autopairs for Neovim. It support multiple character.
 					'windwp/nvim-autopairs',
 					commit=commits.nvim_autopairs,
+					after = "nvim-cmp",
 					config = [[ require('plugins/nvim-autopairs') ]]
 				},
 				{ 'hrsh7th/cmp-nvim-lsp', after='nvim-cmp', commit=commits.cmp_nvim_lsp }, -- nvim-cmp source for neovim builtin LSP client

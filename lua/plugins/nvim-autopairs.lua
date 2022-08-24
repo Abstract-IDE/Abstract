@@ -36,6 +36,7 @@ autopairs.setup({
 -- this is nvim-cmp Plugin dependent setting
 -- If you want insert `(` after select function or method item
 local cmp_autopairs = require('nvim-autopairs.completion.cmp')
+if not cmp_autopairs then return end
 
 local import_cmp, cmp = pcall(require, 'cmp')
 if not import_cmp then return end
