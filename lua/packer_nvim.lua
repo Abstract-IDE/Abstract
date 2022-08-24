@@ -142,24 +142,25 @@ return packer.startup {
 			run = function() vim.cmd([[TSUpdate]]) end,
 			requires = {
 				{ -- Treesitter playground integrated into Neovim
-					'nvim-treesitter/playground', commit=commits.playground, after='nvim-treesitter'
+					'nvim-treesitter/playground',
+					commit=commits.playground,
+					after='nvim-treesitter'
 				},
 				{ --  Use treesitter to auto close and auto rename html tag, work with html,tsx,vue,svelte,php.
 					"windwp/nvim-ts-autotag",
 					commit = commits.nvim_ts_autotag,
-					ft = {'html', 'htmldjango', 'tsx', 'jsx', 'vue', 'svelte', 'php'},
+					after = 'nvim-treesitter',
+					ft = { 'html', 'htmldjango', 'tsx', 'jsx', 'javascriptreact', 'typescriptreact', 'vue', 'svelte', 'php' },
+					config = [[ require('plugins/nvim-ts-autotag') ]]
 				},
 				{ --  Neovim treesitter plugin for setting the commentstring based on the cursor location in a file.
 					'JoosepAlviste/nvim-ts-context-commentstring',
 					commit = commits.nvim_ts_context_commentstring,
 					after = 'nvim-treesitter',
+					config = [[ require('plugins/nvim-ts-context-commentstring') ]]
 				}
 			},
-			config = [[
-				require('plugins/nvim-treesitter')
-				require('plugins/nvim-ts-autotag')
-				require('plugins/nvim-ts-context-commentstring')
-			]]
+			config = [[ require('plugins/nvim-treesitter') ]]
 		}
 
 		use { -- A completion plugin for neovim coded in Lua.
@@ -181,7 +182,11 @@ return packer.startup {
 						{ 'Neevash/awesome-flutter-snippets', ft='dart', commit=commits.awesome_flutter_snippets }, -- collection snippets and shortcuts for commonly used Flutter functions and classes
 					},
 				},
-				{ 'windwp/nvim-autopairs', commit=commits.nvim_autopairs }, -- A super powerful autopairs for Neovim. It support multiple character.
+				{ -- A super powerful autopairs for Neovim. It support multiple character.
+					'windwp/nvim-autopairs',
+					commit=commits.nvim_autopairs,
+					config = [[ require('plugins/nvim-autopairs') ]]
+				},
 				{ 'hrsh7th/cmp-nvim-lsp', after='nvim-cmp', commit=commits.cmp_nvim_lsp }, -- nvim-cmp source for neovim builtin LSP client
 				{ 'hrsh7th/cmp-nvim-lua', after='nvim-cmp', commit=commits.cmp_nvim_lua}, -- nvim-cmp source for nvim lua
 				{ 'hrsh7th/cmp-buffer', after='nvim-cmp', commit=commits.cmp_buffer }, -- nvim-cmp source for buffer words.
@@ -192,7 +197,6 @@ return packer.startup {
 			config = [[
 				require('plugins/nvim-cmp')
 				require('plugins/LuaSnip')
-				require('plugins/nvim-autopairs')
 			]]
 		}
 
