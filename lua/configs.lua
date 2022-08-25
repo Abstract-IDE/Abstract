@@ -15,6 +15,8 @@
 local opt = vim.opt
 local api = vim.api
 
+-- set theme
+pcall(require, 'plugins.Abstract_cs')
 
 opt.termguicolors = true -- Enable GUI colors for the terminal to get truecolor
 opt.list = true -- show whitespace
