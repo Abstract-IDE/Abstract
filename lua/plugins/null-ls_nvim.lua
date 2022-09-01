@@ -58,6 +58,19 @@ for _, package in pairs(installed_packages) do
 		})
 		goto loop_continue
 	end
+	if package == "stylua" then
+		load = true
+		sources[#sources+1] = formatting.stylua.with({
+			command = "stylua",
+			args = {
+				"--search-parent-directories",
+				"--stdin-filepath",
+				"$FILENAME",
+				"-",
+			},
+		})
+		goto loop_continue
+	end
 	-- Python
 	if package == "black" then
 		load = true
@@ -94,8 +107,6 @@ for _, package in pairs(installed_packages) do
 			args = {
 				"-assume-filename",
 				"$FILENAME",
-				"-style",
-				"{BasedOnStyle: Microsoft, UseTab: Always}",
 			},
 			to_stdin = true,
 		})
