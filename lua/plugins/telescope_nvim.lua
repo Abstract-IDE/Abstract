@@ -155,7 +155,7 @@ local options = { silent = true, noremap = true }
 keymap('n', "tt",   "<cmd>lua require('telescope.builtin').builtin() <CR>", options)
 
 --      --> Lists available Commands
-keymap('n', "tc",   "<cmd>lua require('telescope.builtin').help_tags() <CR>", options)
+keymap('n', "tc",   "<cmd>lua require('telescope.builtin').commands() <CR>", options)
 
 --      --> Lists available help tags and opens a new window with the relevant help info on
 keymap('n', "th",   "<cmd>lua require('telescope.builtin').help_tags() <CR>", options)
