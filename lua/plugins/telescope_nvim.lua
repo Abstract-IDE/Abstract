@@ -154,6 +154,9 @@ local options = { silent = true, noremap = true }
 --      --> Launch Telescope without any argument
 keymap('n', "tt",   "<cmd>lua require('telescope.builtin').builtin() <CR>", options)
 
+--      --> Lists available Commands
+keymap('n', "tc",   "<cmd>lua require('telescope.builtin').help_tags() <CR>", options)
+
 --      --> Lists available help tags and opens a new window with the relevant help info on
 keymap('n', "th",   "<cmd>lua require('telescope.builtin').help_tags() <CR>", options)
 
