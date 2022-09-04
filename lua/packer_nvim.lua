@@ -243,7 +243,7 @@ return packer.startup {
 		}
 
 		use { -- The fastest Neovim colorizer.
-			'norcalli/nvim-colorizer.lua',
+			'NvChad/nvim-colorizer.lua',
 			commit = commits.nvim_colorizer_lua,
 			config = [[ require('plugins/nvim-colorizer_lua') ]]
 		}
