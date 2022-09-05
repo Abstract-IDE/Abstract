@@ -167,7 +167,7 @@ def need_to_clone_abstract():
 
 # -------------------------------
 def compile_nvim():
-    print("\npress CTRL+C and re-run setup.py file if it's taking very long time\n (2-5 minutes would be enough) \n")
+    print("\nIf it's taking long time then press CTRL+C and run setup.py file again \n (2-5 minutes would be enough) \n")
     packer_compile_cmd = ["nvim", "--headless", "-c", "autocmd User PackerComplete quitall", "-c", "PackerSync"]
     subprocess.run(packer_compile_cmd)
 # -------------------------------
