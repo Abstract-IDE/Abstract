@@ -219,6 +219,7 @@ return packer.startup {
 				{'nvim-telescope/telescope-file-browser.nvim', commit=commits.telescope_file_browser_nvim}, -- File Browser extension for telescope.nvim
 				{'nvim-telescope/telescope-media-files.nvim', commit=commits.telescope_media_files_nvim}, -- Telescope extension to preview media files using Ueberzug.
 				{'nvim-telescope/telescope-ui-select.nvim', commit=commits.telescope_ui_select_nvim}, -- It sets vim.ui.select to telescope.
+				{'nvim-telescope/telescope-symbols.nvim', commit=commits.telescope_symbols_nvim, after='telescope.nvim'}, -- telescope-symbols provide its users with the ability of picking symbols and insert them at point.
 			},
 			config = [[ require('plugins/telescope_nvim') ]]
 		}

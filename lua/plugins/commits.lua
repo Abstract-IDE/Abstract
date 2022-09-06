@@ -47,6 +47,7 @@ return {
 	telescope_media_files_nvim = "",
 	telescope_nvim = "",
 	telescope_ui_select_nvim = "",
+	telescope_symbols_nvim = "",
 	trouble_nvim = "",
 	vim_floaterm = "",
 	vim_maximizer = "",
