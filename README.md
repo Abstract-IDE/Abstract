@@ -19,7 +19,7 @@
 ## Table Of Contents
 
 * [About](#about)
-* [Features](#documentaton)
+* [Documentaton](#documentaton)
 * [Project Stracture](#project-stracture)
 * [License](#license)
 * [Screenshots](#screenshots)
