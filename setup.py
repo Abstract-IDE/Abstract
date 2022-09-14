@@ -2,6 +2,7 @@
 # importing required module
 # -------------------------------
 import subprocess
+from shutil import which
 import argparse
 from pathlib import Path
 from datetime import datetime
@@ -59,7 +60,7 @@ update = args.update
 
 # directory locations
 # -------------------------------
-nvim = attach('child', argv=["/bin/env", "nvim", "--embed", "--headless"])
+nvim = attach('child', argv=[which("env"), "nvim", "--embed", "--headless"])
 
 HOME = Path.home()
 NVIM_DATA_DIR = nvim.funcs.stdpath('data')
