@@ -35,6 +35,8 @@ local formatting = null.builtins.formatting
 local sources = {}
 local load = false
 
+local api = vim.api
+local fn = vim.fn
 
 -- ───────────────────────────────────────────────── --
 -- ─────────────────❰ FORMATTING ❱────────────────── --
@@ -117,12 +119,12 @@ for _, package in pairs(installed_packages) do
 end
 
 -- Rust
-if vim.fn.executable("rustfmt") == 1 then
+if fn.executable("rustfmt") == 1 then
 	load = true
 	sources[#sources + 1] = formatting.rustfmt.with({command = "rustfmt"})
 end
 -- Go
-if vim.fn.executable("gofmt") == 1 then
+if fn.executable("gofmt") == 1 then
 	load = true
 	sources[#sources+1] = formatting.gofmt.with({})
 end
@@ -187,11 +189,12 @@ if load then
 	})
 end
 
--- if load then null.setup({sources = sources}) end
 -- give border to null-ls window
-vim.api.nvim_create_autocmd("FileType", {
+local group = api.nvim_create_augroup("AbstractNulllsAutoGroup", {clear=true})
+api.nvim_create_autocmd("FileType", {
 	pattern = "null-ls-info",
-	callback = function() vim.api.nvim_win_set_config(0, {border = "rounded"}) end,
+	group = group,
+	callback = function() api.nvim_win_set_config(0, {border = "rounded"}) end,
 })
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
