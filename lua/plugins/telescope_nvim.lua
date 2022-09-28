@@ -49,15 +49,15 @@ telescope.setup {
 		file_ignore_patterns = {
 			"__pycache__/", "__pycache__/*",
 
-			"build/",       "gradle/",  "node_modules/", "node_modules/*",
-			"smalljre_*/*", "target/",  "vendor/*","venv/",
+			"build/",       "gradle/", "node_modules/", "node_modules/*", "obj/Debug",
+			"smalljre_*/*", "target/", "vendor/*",      "bin/Debug",      "venv/",
 
-			".dart_tool/",  ".git/",   ".github/", ".gradle/",      ".idea/",        ".vscode/",
+			".dart_tool/", ".git/", ".github/", ".gradle/",".idea/", ".vscode/",
 
-			"%.sqlite3",    "%.ipynb", "%.lock",   "%.pdb",
-			"%.dll",        "%.class", "%.exe",    "%.cache", "%.pdf",  "%.dylib",
-			"%.jar",        "%.docx",  "%.met",    "%.burp",  "%.mp4",  "%.mkv", "%.rar",
-			"%.zip",        "%.7z",    "%.tar",    "%.bz2",   "%.epub", "%.flac","%.tar.gz",
+			"%.sqlite3", "%.ipynb", "%.lock", "%.pdb",   "%.so",
+			"%.dll",     "%.class", "%.exe",  "%.cache", "%.pdf",  "%.dylib",
+			"%.jar",     "%.docx",  "%.met",  "%.burp",  "%.mp4",  "%.mkv",   "%.rar",
+			"%.zip",     "%.7z",    "%.tar",  "%.bz2",   "%.epub", "%.flac",  "%.tar.gz",
 		},
 
 		file_sorter = require'telescope.sorters'.get_fuzzy_file,
