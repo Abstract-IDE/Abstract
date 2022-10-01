@@ -2,6 +2,7 @@
 # importing required module
 # -------------------------------
 import subprocess
+from shutil import which
 import argparse
 from pathlib import Path
 from datetime import datetime
@@ -13,7 +14,7 @@ except ImportError:
     # install pip if it's not installed
     try:
         import pip
-    except:
+    except ModuleNotFoundError:
         command = ["python3", "-m", "ensurepip", "--default-pip"]
         subprocess.run(command)
     command = ['pip', 'install', 'pynvim']
@@ -56,9 +57,10 @@ backup = args.backup
 update = args.update
 # -------------------------------
 
+
 # directory locations
 # -------------------------------
-nvim = attach('child', argv=["/bin/env", "nvim", "--embed", "--headless"])
+nvim = attach('child', argv=[which("env"), "nvim", "--embed", "--headless"])
 
 HOME = Path.home()
 NVIM_DATA_DIR = nvim.funcs.stdpath('data')
@@ -70,6 +72,7 @@ CUSTOM_TOOLS_DIR = f"{NVIM_DATA_DIR}/custom_tools"
 CACHE_BUILD_PATH = f"{HOME}/.cache/build_files"
 SCRIPT_PATH = Path(__file__).parent.absolute()
 # -------------------------------
+
 
 # directories we must have
 # -------------------------------
@@ -90,6 +93,7 @@ require_dir = [
 def create_require_dir(dirs):
     need_to_inform = False
     once = True
+
     for dir in dirs:
         if not Path(dir).exists():
             need_to_inform = True
@@ -123,8 +127,20 @@ def backup_nvim():
 
 
 # -------------------------------
+def clean():
+    if Path(NVIM_DATA_DIR+"/site/pack/packer").exists():
+        subprocess.run(["rm", "-rf", NVIM_DATA_DIR+"/site/pack/packer"])
+        print("\nREMOVED: ", NVIM_DATA_DIR+"/site/pack/packer")
+    if Path(NVIM_CONF_PATH+"/plugin").exists():
+        subprocess.run(["rm", "-rf", NVIM_CONF_PATH+"/plugin"])
+        print("\nREMOVED: ", NVIM_CONF_PATH+"/plugin")
+# -------------------------------
+
+
+# -------------------------------
 def abstract_git():
     """check if abstract exist as a git project"""
+
     if Path(NVIM_CONF_PATH).exists():
         if Path(f"{NVIM_CONF_PATH}/.__abstract__").is_file():
             if Path(f"{NVIM_CONF_PATH}/.git").exists():
@@ -142,6 +158,7 @@ def need_to_clone_abstract():
     if Path(f"{SCRIPT_PATH}/setup.py").is_file() and \
        Path(f"{SCRIPT_PATH}/.__abstract__").is_file():
         return False
+
     if abstract_git():
         return False
 
@@ -151,10 +168,9 @@ def need_to_clone_abstract():
 
 # -------------------------------
 def compile_nvim():
-    print("\npress CTRL+C if it's taking while \n")
+    print("\nIf it's taking long time then press CTRL+C and run setup.py file again \n (2-5 minutes would be enough) \n")
     packer_compile_cmd = ["nvim", "--headless", "-c", "autocmd User PackerComplete quitall", "-c", "PackerSync"]
     subprocess.run(packer_compile_cmd)
-
 # -------------------------------
 
 
@@ -162,19 +178,22 @@ def compile_nvim():
 def setup_packer():
     nvim_plugin_dir = str(f"{NVIM_DATA_DIR}/site/pack/packer/start")
     packer_dir = nvim_plugin_dir+"/packer.nvim"
+    plenary_dir = nvim_plugin_dir+"/plenary.nvim"
+    print("\nsetting up packer...")
+
+    if not Path(nvim_plugin_dir).exists():
+        Path(nvim_plugin_dir).mkdir(parents=True)
+
     if not Path(packer_dir).exists():
-        print("\nsetting up packer...")
-        if not Path(nvim_plugin_dir).exists():
-            Path(nvim_plugin_dir).mkdir(parents=True)
-            repository = "https://github.com/wbthomason/packer.nvim"
-            subprocess.run(["git", "clone", "--depth", "1", repository], cwd=nvim_plugin_dir)
+        print(packer_dir)
+        repository = "https://github.com/wbthomason/packer.nvim"
+        subprocess.run(["git", "clone", "--depth", "1", repository], cwd=nvim_plugin_dir)
 # -------------------------------
 
 
 # -------------------------------
 def remove_no_require():
-    subprocess.run(["rm", "-rf", ".git*", "LICENSE", "README.md", "setup.py", ".__*"],
-                   cwd=NVIM_CONF_PATH)
+    subprocess.run(["rm", "-rf", ".git*", "LICENSE", "README.md", "setup.py", ".__*"], cwd=NVIM_CONF_PATH)
     print("\nREMOVED: .git ,LICENSE ,README.md ,setup.py ,.__abstract__")
 # -------------------------------
 
@@ -204,28 +223,27 @@ def main():
         else:
             # prevent copying or removing if setup.up is running from ~/.config/nvim/
             if str(SCRIPT_PATH) != str(NVIM_CONF_PATH):
-
-                if Path(f"{SCRIPT_PATH}/setup.py").is_file() and \
-                Path(f"{SCRIPT_PATH}/.__abstract__").is_file():
-
+                if Path(f"{SCRIPT_PATH}/setup.py").is_file() and Path(f"{SCRIPT_PATH}/.__abstract__").is_file():
                     # remove ~/.config/nvim/ to prevent depth parent copy(eg: ~/.config/nvim/nvim)
                     subprocess.run(["rm", "-rf", NVIM_CONF_PATH])
-
                     print("\ncopying config...")
                     subprocess.run(["cp", "-rf", SCRIPT_PATH, NVIM_CONF_PATH])
+
                 else:
                     update_abstract()
+
             else:
                 update_abstract()
 
     # compile configs
     try:
+        clean()
         setup_packer()
         print("\ncompiling config and plugins...")
-        subprocess.run(["git", "checkout", "release-0.7"], cwd=NVIM_CONF_PATH)
         compile_nvim()
     except KeyboardInterrupt:
         print("\n\n")
+        print("!!!someting went wrong!!!!\n please re-run setup.py file")
 
     if delete == 1:
         print("\ncleaning config...")
@@ -240,8 +258,23 @@ def main():
             clone_repro(CUSTOM_TOOLS_DIR, repository, 'lazy-builder')
         except KeyboardInterrupt:
             print("additional tools didn't install\n")
+    else:
+        subprocess.run(["git", "pull"], cwd=lazy_builder_path)
+
+    msg = """\n\n
+    !!!WARNING!!!
+    we try our best to auto setup as much as possible.
+    you may get some errors during installation (maybe it's your network problem?)
+    so, open nvim (from your terminal ) and if nvim throws any errors,
+    it means that installaton wasn't sucessfull.
+    In that case, please re-run setup.py or
+    python <(curl -s https://raw.githubusercontent.com/Abstract-IDE/Abstract/main/setup.py)
+    """
+    print(msg)
+
 
 # -------------------------------
+
 
 if __name__ == '__main__':
     main()

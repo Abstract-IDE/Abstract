@@ -14,10 +14,11 @@
 local lspconfig_imported, lspconfig = pcall(require, 'lspconfig')
 if not lspconfig_imported then return end
 
-local imported_lspinstaller, lspinstaller = pcall(require, 'nvim-lsp-installer')
-if not imported_lspinstaller then return end
+local imported_mason, mason = pcall(require, 'mason')
+if not imported_mason then return end
 
 local lsp = vim.lsp
+local api = vim.api
 local handlers = lsp.handlers
 -- ───────────────────────────────────────────────── --
 
@@ -31,13 +32,14 @@ local handlers = lsp.handlers
 -- ───────────────────────────────────────────────── --
 local on_attach = function(client, bufnr)
 
-	local function buf_set_keymap(...) vim.api.nvim_buf_set_keymap(bufnr, ...) end
-	local function buf_set_option(...) vim.api.nvim_buf_set_option(bufnr, ...) end
+	local function buf_set_keymap(...) api.nvim_buf_set_keymap(bufnr, ...) end
+	local function buf_set_option(...) api.nvim_buf_set_option(bufnr, ...) end
 
 	---------------------
 	-- Avoiding LSP formatting conflicts
 	-- ref: https://github.com/jose-elias-alvarez/null-ls.nvim/wiki/Avoiding-LSP-formatting-conflicts
 	-- 2nd red: https://github.com/neovim/nvim-lspconfig/issues/1891#issuecomment-1157964108
+	-- nevim 0.7.x
 	client.resolved_capabilities.document_formatting = false
 	client.resolved_capabilities.document_range_formatting = false
 	--------------------------
@@ -64,14 +66,14 @@ local on_attach = function(client, bufnr)
 	buf_set_keymap('n', 'K',        '<Cmd>lua vim.lsp.buf.hover()<CR>', options)
 	-- using 'filipdutescu/renamer.nvim' for rename
 	-- buf_set_keymap('n', '<space>rn',	'<cmd>lua vim.lsp.buf.rename()<CR>', opts)
-	buf_set_keymap('n', '<Space>r',	'<cmd>Telescope lsp_references<CR>', options)
+	buf_set_keymap('n', '<Space>r', '<cmd>Telescope lsp_references<CR>', options)
 	buf_set_keymap("n", "<Space>f", '<cmd>lua vim.lsp.buf.formatting_sync()<CR>', options)
 
 	buf_set_keymap('n', '<Space>a', '<cmd>lua vim.lsp.buf.code_action()<CR>',       options)
 	buf_set_keymap('x', '<Space>a', '<cmd>lua vim.lsp.buf.range_code_action()<CR>', options)
 
-	-- buf_set_keymap('n', '<leader>wa',    '<cmd>lua vim.lsp.buf.add_workleader_folder()<CR>',          opts)
-	-- buf_set_keymap('n', '<leader>wr',    '<cmd>lua vim.lsp.buf.remove_workleader_folder()<CR>',       opts)
+	-- buf_set_keymap('n', '<leader>wa',   '<cmd>lua vim.lsp.buf.add_workleader_folder()<CR>',          opts)
+	-- buf_set_keymap('n', '<leader>wr',   '<cmd>lua vim.lsp.buf.remove_workleader_folder()<CR>',       opts)
 	-- buf_set_keymap('n', '<leader>wl',   '<cmd>lua print(vim.inspect(vim.lsp.buf.list_workleader_folders()))<CR>', opts)
 end
 
@@ -123,15 +125,15 @@ local function setup_lsp_config()
 
 	-- set LSP diagnostic symbols/signs
 	-- ─────────────────────────────────────────────────--
-	vim.api.nvim_command [[ sign define DiagnosticSignError text= texthl=DiagnosticSignError linehl= numhl= ]]
-	vim.api.nvim_command [[ sign define DiagnosticSignWarn  text= texthl=DiagnosticSignWarn  linehl= numhl= ]]
-	vim.api.nvim_command [[ sign define DiagnosticSignInfo  text= texthl=DiagnosticSignInfo  linehl= numhl= ]]
-	vim.api.nvim_command [[ sign define DiagnosticSignHint  text= texthl=DiagnosticSignHint  linehl= numhl= ]]
+	api.nvim_command [[ sign define DiagnosticSignError text= texthl=DiagnosticSignError linehl= numhl= ]]
+	api.nvim_command [[ sign define DiagnosticSignWarn  text= texthl=DiagnosticSignWarn  linehl= numhl= ]]
+	api.nvim_command [[ sign define DiagnosticSignInfo  text= texthl=DiagnosticSignInfo  linehl= numhl= ]]
+	api.nvim_command [[ sign define DiagnosticSignHint  text= texthl=DiagnosticSignHint  linehl= numhl= ]]
 
-	vim.api.nvim_command [[ hi DiagnosticUnderlineError cterm=underline gui=underline guisp=#840000 ]]
-	vim.api.nvim_command [[ hi DiagnosticUnderlineHint cterm=underline  gui=underline guisp=#07454b ]]
-	vim.api.nvim_command [[ hi DiagnosticUnderlineWarn cterm=underline  gui=underline guisp=#2f2905 ]]
-	vim.api.nvim_command [[ hi DiagnosticUnderlineInfo cterm=underline  gui=underline guisp=#265478 ]]
+	api.nvim_command [[ hi DiagnosticUnderlineError cterm=underline gui=underline guisp=#840000 ]]
+	api.nvim_command [[ hi DiagnosticUnderlineHint cterm=underline  gui=underline guisp=#07454b ]]
+	api.nvim_command [[ hi DiagnosticUnderlineWarn cterm=underline  gui=underline guisp=#2f2905 ]]
+	api.nvim_command [[ hi DiagnosticUnderlineInfo cterm=underline  gui=underline guisp=#265478 ]]
 
 	-- Auto-format files prior to saving them
 	-- vim.api.nvim_command[[autocmd BufWritePre <buffer> lua vim.lsp.buf.formatting_sync(nil, 1000)]]
@@ -149,86 +151,101 @@ end
 -- ───────────────────────────────────────────────── --
 -- setup LSPs
 -- ───────────────────────────────────────────────── --
-local function setup_lsp(on_attach)
+local function setup_lsp(mason_lspconfig)
 
-	local installed_servers = lspinstaller.get_installed_servers()
+	local tbl_deep_extend = vim.tbl_deep_extend
 	local capabilities = lsp.protocol.make_client_capabilities()
 	local lsp_options = {
 		on_attach = on_attach,
 		flags = {
 			debounce_text_changes = 150,
 		},
-		capabilities = require('cmp_nvim_lsp').update_capabilities(capabilities),
+		capabilities = capabilities
 	}
+	local import_cmp_lsp, cmp_lsp = pcall(require, 'cmp_nvim_lsp')
+	if import_cmp_lsp then
+		lsp_options.capabilities = (cmp_lsp).update_capabilities(capabilities)
+	end
 
 	-- for Flutter and Dart
-	-- don't put this on loop to set it because dart LSP installed and maintained by akinsho/flutter-tools.nvim
+	-- don't put this on setup_handlers to set it because dart LSP is installed and maintained by akinsho/flutter-tools.nvim
 	lspconfig["dartls"].setup(lsp_options)
 
-	-- don't setup servers if atleast one server is installed, or it will throw an error
-	if #installed_servers == 0 then return end
+	mason_lspconfig.setup_handlers({
 
-	for _, server in ipairs(installed_servers) do
-		local server_options = {}
+		function (server_name)
+			require("lspconfig")[server_name].setup(lsp_options)
+		end,
 
-		-- for lua
-		if server.name == "sumneko_lua" then
-			server_options.settings = {
-				Lua = {
-					diagnostics = {
-						-- Get the language server to recognize the 'vim', 'use' global
-						globals = {'vim', 'use', 'require'},
-					},
-					workspace = {
-						-- Make the server aware of Neovim runtime files
-						library = vim.api.nvim_get_runtime_file("", true),
-					},
-					-- Do not send telemetry data containing a randomized but unique identifier
-					telemetry = {enable = false},
-				},
-			}
-		end
-
-		-- for clangd (c/c++)
-		-- [https://github.com/jose-elias-alvarez/null-ls.nvim/issues/428]
-		if server.name == "clangd" then
-			capabilities.offsetEncoding = { "utf-16" }
-			server_options.capabilities = capabilities
-		end
-
-		-- for html
-		if server.name == "html" then
-			server_options.filetypes = {"html", "htmldjango"}
-		end
-
-		-- for css / scss / sass
-		if server.name == "cssls" then
-
-			--[==[
-				Neovim does not currently include built-in snippets.
-				`vscode-css-language-server` only provides completions when snippet support is enabled.
-				To enable completion, install a snippet plugin and add the following override to your
-				language client capabilities during setup. Enable (broadcasting) snippet capability for completion
-				https://github.com/neovim/nvim-lspconfig/blob/master/lua/lspconfig/server_configurations/cssls.lua
-			--]==]
-			capabilities.textDocument.completion.completionItem.snippetSupport = true
-			server_options.capabilities = capabilities
-		end
-
-		lspconfig[server.name].setup(vim.tbl_deep_extend('force', lsp_options, server_options))
-	end
+		["clangd"] = function ()
+			lspconfig.clangd.setup(
+				tbl_deep_extend(
+					"force", lsp_options,
+					{ capabilities = { offsetEncoding = { "utf-16" } } }
+				)
+			)
+		end,
+		["html"] = function ()
+			lspconfig.html.setup(
+				tbl_deep_extend(
+					"force", lsp_options,
+					{ filetypes = {"html", "htmldjango"} }
+				)
+			)
+		end,
+		["cssls"] = function ()
+			lspconfig.cssls.setup(
+				tbl_deep_extend(
+					"force", lsp_options,
+					{
+						capabilities = {
+							textDocument = { completion= { completionItem = { snippetSupport = true } } }
+						},
+					}
+				)
+			)
+		end,
+		["sumneko_lua"] = function ()
+			lspconfig.sumneko_lua.setup(
+				tbl_deep_extend(
+					"force", lsp_options,
+					{
+						settings = {
+							Lua = {
+								diagnostics = {
+									-- Get the language server to recognize the 'vim', 'use' global
+									globals = {'vim', 'use', 'require'},
+								},
+								workspace = {
+									-- Make the server aware of Neovim runtime files
+									library = api.nvim_get_runtime_file("", true),
+								},
+								-- Do not send telemetry data containing a randomized but unique identifier
+								telemetry = {enable = false},
+							},
+						}
+					}
+				)
+			)
+		end,
+	})
 end
 
+-- make sure `lspconfig` is not loaded after `mason-lspconfig`.
+-- Also, make sure not to set up any servers via `lspconfig` _before_ calling `mason-lspconfig`'s setup function.
 
--- NOTE: always call require("lspconfig") after require("nvim-lsp-installer").setup {}, this is the way
+
+	-- require("mason-lspconfig").setup_handlers({
+local import_mlspconfig, mason_lspconfig = pcall(require, "mason-lspconfig")
+if not import_mlspconfig then return end
 
 -- import nvim-lsp-installer configs
-local imported_lspinstaller_config, lspinstaller_config = pcall(require, "plugins.nvim-lsp-installer")
-if not imported_lspinstaller_config then return end
+local import_mconfig, mconfig = pcall(require, "plugins.mason_nvim")
+if not import_mconfig then return end
 
-lspinstaller.setup(lspinstaller_config.setup) -- setup lsp-installer
+mason.setup(mconfig.setup) -- setup mason
 setup_lsp_config() -- setup lsp configs (mainly UI)
-setup_lsp(on_attach) -- setup lsp (like pyright, ccls ...)
+setup_lsp(mason_lspconfig) -- setup lsp (like pyright, ccls ...)
 
 -- ───────────────────────────────────────────────── --
 -- end LSP setup

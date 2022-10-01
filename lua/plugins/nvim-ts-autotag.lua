@@ -14,14 +14,17 @@
 -- ━━━━━━━━━━━━━━━━━━━❰ configs ❱━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
-require('nvim-ts-autotag').setup({
+local import_tag, autotag = pcall(require, "nvim-ts-autotag")
+if not import_tag then return end
+
+autotag.setup({
 
 	autotag = {
 		enable = true,
 	},
 
 	filetypes = {
-		'html',
+		'html', 'htmldjango',
 		'javascript', 'javascriptreact', 'jsx',
 		'typescript', 'typescriptreact', 'tsx',
 		'rescript',
@@ -34,8 +37,8 @@ require('nvim-ts-autotag').setup({
 	},
 
 	skip_tags = {
-	'area', 'base', 'br', 'col', 'command', 'embed', 'hr', 'img', 'slot',
-	'input', 'keygen', 'link', 'meta', 'param', 'source', 'track', 'wbr', 'menuitem'
+		'area', 'base', 'br', 'col', 'command', 'embed', 'hr', 'img', 'slot',
+		'input', 'keygen', 'link', 'meta', 'param', 'source', 'track', 'wbr', 'menuitem'
 	}
 })
 

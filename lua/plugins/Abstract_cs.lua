@@ -1,8 +1,8 @@
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 -- ───────────────────────────────────────────────── --
---   Plugin:    nvim-web-devicons
---   Github:    github.com/kyazdani42/nvim-web-devicons
+--    Plugin:    Abstract-cs
+--    Github:    github.com/Abstract-IDE/Abstract-cs
 -- ───────────────────────────────────────────────── --
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
@@ -14,11 +14,12 @@
 -- ━━━━━━━━━━━━━━━━━━━❰ configs ❱━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
-local import_icons, icons = pcall(require, "nvim-web-devicons")
-if not import_icons then return end
+-- apply colorscheme without throwing any errors
+local apply_cs, _ = pcall(vim.cmd, 'colorscheme abscs')
+if not apply_cs then return end
 
--- Get all icons
-icons.get_icons()
+-- theme name
+vim.g.abscs_theme_name = 'aqua'
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━❰ end configs ❱━━━━━━━━━━━━━━━━━ --

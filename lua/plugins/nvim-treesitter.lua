@@ -18,26 +18,19 @@
 local treesitter_imported_ok, treesitter =  pcall(require, 'nvim-treesitter.configs')
 if not treesitter_imported_ok then return end
 
+
+local import_parsers, parsers = pcall(require, 'nvim-treesitter.parsers')
+if import_parsers then
+	local parsername = parsers.filetype_to_parsername
+	parsername.htmldjango = 'html' -- enable html parser in htmldjango file
+	parsername.zsh = 'bash' -- enable bash parser in zsh file
+end
+
+
 treesitter.setup {
 
 	-- ensure_installed  = "maintained", -- one of "all", "maintained" (parsers with maintainers), or a list of languages
 	-- ignore_install    = { "javascript" }, -- List of parsers to ignore installing
-
-	autotag = {
-		enable = true,
-		filetypes = {
-			"html" , "xml",
-			'html',
-			'javascript', 'javascriptreact', 'jsx',
-			'typescript', 'typescriptreact', 'tsx',
-			'rescript',
-			'svelte',
-			'vue',
-			'php',
-			'markdown',
-			'glimmer','handlebars','hbs'
-		},
-	},
 
 	highlight = {
 		enable = true, -- {"c", "cpp", "dart", "python", "javascript"}, enable = true (false will disable the whole extension)

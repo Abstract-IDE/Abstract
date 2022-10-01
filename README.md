@@ -19,13 +19,8 @@
 ## Table Of Contents
 
 * [About](#about)
-* [Features](#features)
-* [Getting Started](#getting-started)
-  * [Prerequisites](#prerequisites)
-  * [Installation](#installation)
-* [Usage](#usage)
-  * [Stracture](#stracture-of-abstract)
-* [Mappings](#mappings)
+* [Documentaton](#documentaton)
+* [Project Stracture](#project-stracture)
 * [License](#license)
 * [Screenshots](#screenshots)
 * [To-do](#to-do)
@@ -37,64 +32,13 @@ this is stable branch for neovim v0.7 <br><br>
 
 Abstract, The NeoVim configuration to achieve the power of Modern IDE
 
-![screenshot_welcome](https://raw.githubusercontent.com/shaeinst/media/main/images/github-repositories/abstract/abstract-welcom.png)
+![2022-07-25_20-56](https://user-images.githubusercontent.com/41078534/180812465-8e65807c-a25e-4bc6-8abd-38d32538259e.png)
 
 
 
-## Features
+## Documentaton
+more about Abstract and installation can be found on [DOCS](https://abstract-ide.github.io/site/docs/getting-started/installation/abstract)
 
-- ```Project based config loading``` ( you can define configs in ```.__nvim__.lua``` file in the root of your working project so that you don't have to change config everytime you work on new/seperate project )
-- ```Your own custom configs and Mappings``` (if you don't like Abstract's default config/mapping, you can change/override it on [override_defalut.lua](https://github.com/Abstract-IDE/Abstract/blob/main/lua/customs/override_defalut.lua) OR ```~/.__nvim__.lua``` file )
-- ```Separate config file for each plugins``` each plugin has their own config file which is defined in lua/plugins directory
-- ```Easily Disable plugin``` Abstract's using [packer](https://github.com/wbthomason/packer.nvim) as plugin manager. conmmenting out ```config``` option from plugin options in [packer config file](https://github.com/Abstract-IDE/Abstract/blob/main/lua/plugins/packer_nvim.lua) will disable that plugin
-- ```Easy Installation``` install Abstract with single command
-
-
-
-## Getting Started
-
-Abstract can be installed by just runing a script.
-
-
-#### Prerequisites
-
-  * neovim v0.7.2
-
-
-#### Installation
-
-single command to install Abstract
-```bash
-python <(curl -s https://raw.githubusercontent.com/Abstract-IDE/Abstract/release-0.7/setup.py)
-```
-or if you want to install it by cloning
-```bash
-$ git clone https://github.com/Abstract-IDE/Abstract
-$ cd Abstract
-$ git checkout release-0.7
-$ python setup.py # if you get any error, please re-run it
-```
-pass ```--delete 1``` as an argument if you don't want to keep ```.git```, ```README.md```, ```LICENSE``` and ```setup.py``` file.
-Example:
-```bash
-python setup.py --delete 1
-```
-
-NOTE1:
-it could take some time depending on you connection (it's going to install plugins and some LSs).<br>
-So, be patient and follow the output throw by setup.py script<br><br>
-NOTE2:
-only some LSs are going to be installed. for more, install with [LspInstall](https://github.com/williamboman/nvim-lsp-installer) <br>
-for example: to install C/C++'s LS ``` :LspInstall clangd ```
-<br><br>
-
-
-
-## Usage
-
-every one has their own favourite configs and keybindings. Abstract try its best to provide likable configs and mapping.
-<br>
-so in case you don't like to use mapping or configs by Abstract, you can change it in [override_defalut.lua](https://github.com/Abstract-IDE/Abstract/blob/main/lua/customs/override_defalut.lua) file. <br>
 
 
 ### Project Stracture
@@ -119,27 +63,6 @@ so in case you don't like to use mapping or configs by Abstract, you can change 
 ```
 
 
-### Mappings
-
-you can change ```Leader key``` in [init.lua](https://github.com/Abstract-IDE/Abstract/blob/main/init.lua) file
-
-| Keys                | Functions                                                              |
-| --------------------|:---------------------------------------------------------------------- |
-| ```;```             | leader key                                                             |
-| ```tm```            | show all mappings (it will show mapping in telescope)                  |
-| ```<C-p>```         | Find files from current file's project                                 |
-| ```<C-f>```         | show all files from current working directory                          |
-| ```tt```            | Launch Telescope without any argument                                  |
-| ```<Leader>q```     | close buffer                                                           |
-| ```<C-s>```         | save file                                                              |
-| ```<C-h>```         | scroll window horizontally (left)                                      |
-| ```<C-l>```         | scroll window horizontally (right)                                     |
-| ```??```            | clear Search Results                                                   |
-| ```<M-q>```         | (M=Alt) close all other windows but leave current buffers    open.     |
-| ```K```             | move selected line(s) up                                               |
-| ```J```             | move selected line(s) down                                             |
-
-
 
 ## License
 
@@ -161,25 +84,11 @@ Distributed under the MIT License.
 
 ## To-Do
 
-- add installer(setup.py) support for Windows OS
-- write a decent documentation
+- add installer(setup.py) support for Windows and Mac os
 
 
 
 ## Known Bugs
 
 - there is no known bugs yet. Please open the issue if you find one.
-
-
-
-## Thanks to
-
-- [Neovim](https://github.com/neovim/) -- for awesome EDITOR
-- [shaankhan](https://readme.shaankhan.dev/) -- for readme
-- [Neovim-Subreddit](https://www.reddit.com/r/neovim/) -- for awesome supporting community
-- [LunarVim](https://github.com/LunarVim/LunarVim) -- for some reference
-- [Manytools.org](https://manytools.org/hacker-tools/ascii-banner) -- for ascii-banner
-- Plugin Authors -- without you, neovim is incomplete
-- and YOU
-<br>
 

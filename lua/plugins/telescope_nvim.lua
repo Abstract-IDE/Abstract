@@ -49,15 +49,15 @@ telescope.setup {
 		file_ignore_patterns = {
 			"__pycache__/", "__pycache__/*",
 
-			"build/",       "gradle/",  "node_modules/", "node_modules/*",
-			"smalljre_*/*", "target/",  "vendor/*",
+			"build/",       "gradle/", "node_modules/", "node_modules/*", "obj/Debug",
+			"smalljre_*/*", "target/", "vendor/*",      "bin/Debug",      "venv/",
 
-			".dart_tool/",  ".git/",   ".github/", ".gradle/",      ".idea/",        ".vscode/",
+			".dart_tool/", ".git/", ".github/", ".gradle/",".idea/", ".vscode/",
 
-			"%.sqlite3",    "%.ipynb", "%.lock",   "%.pdb",
-			"%.dll",        "%.class", "%.exe",    "%.cache", "%.pdf",  "%.dylib",
-			"%.jar",        "%.docx",  "%.met",    "%.burp",  "%.mp4",  "%.mkv", "%.rar",
-			"%.zip",        "%.7z",    "%.tar",    "%.bz2",   "%.epub", "%.flac","%.tar.gz",
+			"%.sqlite3", "%.ipynb", "%.lock", "%.pdb",   "%.so",
+			"%.dll",     "%.class", "%.exe",  "%.cache", "%.pdf",  "%.dylib",
+			"%.jar",     "%.docx",  "%.met",  "%.burp",  "%.mp4",  "%.mkv",   "%.rar",
+			"%.zip",     "%.7z",    "%.tar",  "%.bz2",   "%.epub", "%.flac",  "%.tar.gz",
 		},
 
 		file_sorter = require'telescope.sorters'.get_fuzzy_file,
@@ -154,6 +154,9 @@ local options = { silent = true, noremap = true }
 --      --> Launch Telescope without any argument
 keymap('n', "tt",   "<cmd>lua require('telescope.builtin').builtin() <CR>", options)
 
+--      --> Lists available Commands
+keymap('n', "tc",   "<cmd>lua require('telescope.builtin').commands() <CR>", options)
+
 --      --> Lists available help tags and opens a new window with the relevant help info on
 keymap('n', "th",   "<cmd>lua require('telescope.builtin').help_tags() <CR>", options)
 
@@ -179,6 +182,9 @@ keymap('n', "tp",    ":Telescope find_files <cr>", options)
 -- show all files from current working directory
 keymap('n', "<C-f>", "<cmd>lua require('telescope.builtin').find_files( { cwd = vim.fn.expand('%:p:h') }) <CR>", options)
 keymap('n', "tf",    "<cmd>lua require('telescope.builtin').find_files( { cwd = vim.fn.expand('%:p:h') }) <CR>", options)
+
+--       --> show symbols (@nvim-telescope/telescope-symbols.nvim)
+keymap('n', "ts", "<cmd>lua require('telescope.builtin').symbols{ sources = {'emoji', 'kaomoji', 'gitmoji'} } <CR>", options)
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━❰ end Mappings ❱━━━━━━━━━━━━━━━━ --

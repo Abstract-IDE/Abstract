@@ -6,14 +6,6 @@
   "contributes": {
     "snippets": [
       {
-        "language": "c",
-        "path": "c.json"
-      },
-      {
-        "language": "cpp",
-        "path": "cpp.json"
-      },
-      {
         "language": "lua",
         "path": "lua.json"
       }

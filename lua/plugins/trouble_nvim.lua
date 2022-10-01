@@ -14,7 +14,10 @@
 -- ━━━━━━━━━━━━━━━━━━━❰ configs ❱━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
-require("trouble").setup {
+local import_trouble, trouble = pcall(require, "trouble")
+if not import_trouble then return end
+
+trouble.setup {
 	position = "bottom", -- position of the list can be: bottom, top, left, right
 	height = 7, -- height of the trouble list when position is top or bottom
 	width = 50, -- width of the list when position is left or right

@@ -34,8 +34,10 @@ bufferline.setup {
 		-- NOTE: this plugin is designed with this icon in mind,
 		-- and so changing this is NOT recommended, this is intended
 		-- as an escape hatch for people who cannot bear it for whatever reason
-		indicator_icon = '▎',
-		-- indicator_icon      = '',
+		indicator = {
+			style = 'icon',
+			icon = '▎',
+		},
 		buffer_close_icon = '',
 		modified_icon = '●',
 		close_icon = '',
@@ -51,9 +53,9 @@ bufferline.setup {
 			if buf.name:match('%.md') then return vim.fn.fnamemodify(buf.name, ':t:r') end
 		end,
 
-		max_name_length = 18,
-		max_prefix_length = 15, -- prefix used when a buffer is de-duplicate
-		tab_size = 18,
+		max_name_length = 22,
+		max_prefix_length = 18, -- prefix used when a buffer is de-duplicate
+		tab_size = 22,
 
 		show_close_icon = false,
 		show_buffer_icons = true, -- disable filetype icons for buffers
@@ -72,44 +74,52 @@ bufferline.setup {
 	},
 
 	highlights = {
-		fill = {guibg = {highlight = "BufferLineFill", attribute = "bg"}},
+		fill = {bg = {highlight = "BufferLineFill", attribute = "bg"}},
 		background = { -- current tab
-			guifg = {highlight = "BufferCurrent", attribute = "fg"},
-			guibg = {highlight = "BufferCurrent", attribute = "bg"},
+			fg = {highlight = "BufferCurrent", attribute = "fg"},
+			bg = {highlight = "BufferCurrent", attribute = "bg"},
 		},
-		separator = {guifg = {highlight = "BufferSeparator", attribute = "fg"}},
+		separator = {fg = {highlight = "BufferSeparator", attribute = "fg"}},
 		separator_selected = {
-			guifg = {highlight = "BufferSeparatorSelected", attribute = "fg"},
+			fg = {highlight = "BufferSeparatorSelected", attribute = "fg"},
 		},
 		close_button_selected = {
-			guifg = {highlight = "BufferCloseButtonSelected", attribute = "fg"},
-			guibg = {highlight = "BufferCloseButtonSelected", attribute = "bg"},
+			fg = {highlight = "BufferCloseButtonSelected", attribute = "fg"},
+			bg = {highlight = "BufferCloseButtonSelected", attribute = "bg"},
 		},
 		duplicate = {
-			guifg = {highlight = "BufferCurrentSign", attribute = "fg"},
-			guibg = {highlight = "BufferLineFill", attribute = "bg"},
+			fg = {highlight = "BufferCurrentSign", attribute = "fg"},
+			bg = {highlight = "BufferLineFill", attribute = "bg"},
 		},
 		duplicate_selected = {
-			guifg = {highlight = "BufferCurrentSign", attribute = "fg"},
+			fg = {highlight = "BufferCurrentSign", attribute = "fg"},
 		},
 		modified = {
-			guifg = {highlight = "BufferCurrentSign", attribute = "fg"},
-			guibg = {highlight = "BufferLineFill", attribute = "bg"},
+			fg = {highlight = "BufferCurrentSign", attribute = "fg"},
+			bg = {highlight = "BufferLineFill", attribute = "bg"},
 		},
 		modified_selected = {
-			guifg = {highlight = "BufferCurrentSign", attribute = "fg"},
+			fg = {highlight = "BufferCurrentSign", attribute = "fg"},
 		},
 		numbers = {
-			guibg = {highlight = "BuffNumbers", attribute = "bg"},
+			bg = {highlight = "BuffNumbers", attribute = "bg"},
 		},
 
 		tab_selected = {
-			guifg = {highlight = "TabSelectedFG", attribute = "fg"},
-			guibg = {highlight = "TabSelectedBG", attribute = "bg"},
+			fg = {highlight = "TabSelectedFG", attribute = "fg"},
+			bg = {highlight = "TabSelectedBG", attribute = "bg"},
 		},
 		tab = {
-			guifg = {highlight = "TabFG", attribute = "fg"},
-			guibg = {highlight = "TabBG", attribute = "bg"},
+			fg = {highlight = "TabFG", attribute = "fg"},
+			bg = {highlight = "TabBG", attribute = "bg"},
+		},
+		tab_close = {
+			fg = {highlight = "TabFG", attribute = "fg"},
+			bg = {highlight = "TabBG", attribute = "bg"},
+		},
+		close_button = {
+			fg = {highlight = "TabFG", attribute = "fg"},
+			bg = {highlight = "TabBG", attribute = "bg"},
 		},
 
 		-- duplicate_visible = {
