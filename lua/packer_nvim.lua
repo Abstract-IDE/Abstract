@@ -82,11 +82,6 @@ return packer.startup {
 			commit = commits.impatient_nvim,
 		}
 
-		use { -- Easily speed up your neovim startup time!. A faster version of filetype.vim
-			'nathom/filetype.nvim',
-			commit = commits.filetype_nvim,
-		}
-
 		use { -- colorscheme for (neo)vim written in lua specially made for Abstract
 			'Abstract-IDE/Abstract-cs',
 			commit = commits.Abstract_cs,
