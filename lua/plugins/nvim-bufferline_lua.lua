@@ -35,8 +35,8 @@ bufferline.setup {
 		-- and so changing this is NOT recommended, this is intended
 		-- as an escape hatch for people who cannot bear it for whatever reason
 		indicator = {
-			style = 'icon',
-			icon = '▎',
+			icon = '▎', -- this should be omitted if indicator style is not 'icon'
+			style = 'underline', -- 'icon' | 'underline' | 'none',
 		},
 		buffer_close_icon = '',
 		modified_icon = '●',
@@ -74,52 +74,50 @@ bufferline.setup {
 	},
 
 	highlights = {
-		fill = {bg = {highlight = "BufferLineFill", attribute = "bg"}},
+		fill       = {bg={highlight="BufferLineFill", attribute="bg"}},
 		background = { -- current tab
-			fg = {highlight = "BufferCurrent", attribute = "fg"},
-			bg = {highlight = "BufferCurrent", attribute = "bg"},
+			fg={highlight="BufferCurrent", attribute="fg"},
+			bg={highlight="BufferCurrent", attribute="bg"},
 		},
-		separator = {fg = {highlight = "BufferSeparator", attribute = "fg"}},
-		separator_selected = {
-			fg = {highlight = "BufferSeparatorSelected", attribute = "fg"},
+		buffer_selected = {
+			fg={highlight="fg",             attribute="fg"},
+			bg={highlight="BufferSelected", attribute="bg"},
+			italic = false
 		},
 		close_button_selected = {
-			fg = {highlight = "BufferCloseButtonSelected", attribute = "fg"},
-			bg = {highlight = "BufferCloseButtonSelected", attribute = "bg"},
+			fg={highlight="BufferCloseButtonSelected", attribute="fg"},
+			bg={highlight="BufferCloseButtonSelected", attribute="bg"},
 		},
 		duplicate = {
-			fg = {highlight = "BufferCurrentSign", attribute = "fg"},
-			bg = {highlight = "BufferLineFill", attribute = "bg"},
+			fg={highlight="BufferCurrentSign", attribute="fg"},
+			bg={highlight="BufferLineFill", attribute="bg"},
 		},
-		duplicate_selected = {
-			fg = {highlight = "BufferCurrentSign", attribute = "fg"},
-		},
+		duplicate_selected  = { fg={highlight="BufferCurrentSign", attribute="fg"}, },
+		indicator_selected  = { bg={highlight="BufferIndicatorSelected", attribute="bg"}, },
 		modified = {
-			fg = {highlight = "BufferCurrentSign", attribute = "fg"},
-			bg = {highlight = "BufferLineFill", attribute = "bg"},
+			fg={highlight="BufferCurrentSign", attribute="fg"},
+			bg={highlight="BufferLineFill", attribute="bg"},
 		},
-		modified_selected = {
-			fg = {highlight = "BufferCurrentSign", attribute = "fg"},
-		},
-		numbers = {
-			bg = {highlight = "BuffNumbers", attribute = "bg"},
-		},
-
-		tab_selected = {
-			fg = {highlight = "TabSelectedFG", attribute = "fg"},
-			bg = {highlight = "TabSelectedBG", attribute = "bg"},
+		modified_selected = { fg={highlight="BufferCurrentSign", attribute="fg"}, },
+		numbers           = { bg={highlight="BuffNumbers", attribute="bg"}, },
+		numbers_selected  = { bg={highlight="BuffNumbers", attribute="bg"}, italic = false, },
+		separator         = { fg={highlight="BufferSeparator", attribute="fg"}},
+		separator_selected= { fg={highlight="BufferSeparatorSelected", attribute="fg"}, },
+		tab_selected      = {
+			fg={highlight="TabSelectedFG", attribute="fg"},
+			bg={highlight="TabSelectedBG", attribute="bg"},
 		},
 		tab = {
-			fg = {highlight = "TabFG", attribute = "fg"},
-			bg = {highlight = "TabBG", attribute = "bg"},
+			fg={highlight="TabFG", attribute="fg"},
+			bg={highlight="TabBG", attribute="bg"},
 		},
 		tab_close = {
-			fg = {highlight = "TabFG", attribute = "fg"},
-			bg = {highlight = "TabBG", attribute = "bg"},
+			fg={highlight="TabFG", attribute="fg"},
+			bg={highlight="TabBG", attribute="bg"},
 		},
 		close_button = {
-			fg = {highlight = "TabFG", attribute = "fg"},
-			bg = {highlight = "TabBG", attribute = "bg"},
+			fg={highlight="TabFG", attribute="fg"},
+			bg={highlight="TabBG", attribute="bg"},
 		},
 
 		-- duplicate_visible = {
