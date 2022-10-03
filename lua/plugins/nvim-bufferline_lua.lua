@@ -101,8 +101,6 @@ bufferline.setup {
 		modified_selected = { fg={highlight="BufferCurrentSign", attribute="fg"}, },
 		numbers           = { bg={highlight="BuffNumbers", attribute="bg"}, },
 		numbers_selected  = { bg={highlight="BuffNumbers", attribute="bg"}, italic = false, },
-		separator         = { fg={highlight="BufferSeparator", attribute="fg"}},
-		separator_selected= { fg={highlight="BufferSeparatorSelected", attribute="fg"}, },
 		tab_selected      = {
 			fg={highlight="TabSelectedFG", attribute="fg"},
 			bg={highlight="TabSelectedBG", attribute="bg"},
