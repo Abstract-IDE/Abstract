@@ -32,6 +32,14 @@ local handlers = lsp.handlers
 -- ───────────────────────────────────────────────── --
 local on_attach = function(client, bufnr)
 
+	-- lsp support on winbar
+	local import_navic, navic = pcall(require, "nvim-navic")
+	if import_navic then
+		if client.server_capabilities.documentSymbolProvider then
+			navic.attach(client, bufnr)
+		end
+	end
+
 	local function buf_set_keymap(...) api.nvim_buf_set_keymap(bufnr, ...) end
 	local function buf_set_option(...) api.nvim_buf_set_option(bufnr, ...) end
 
@@ -39,7 +47,7 @@ local on_attach = function(client, bufnr)
 	-- Avoiding LSP formatting conflicts
 	-- ref: https://github.com/jose-elias-alvarez/null-ls.nvim/wiki/Avoiding-LSP-formatting-conflicts
 	-- 2nd red: https://github.com/neovim/nvim-lspconfig/issues/1891#issuecomment-1157964108
-	-- nevim 0.8
+	-- neovim 0.8
 	client.server_capabilities.documentFormattingProvider = false
 	client.server_capabilities.documentRangeFormattingProvider = false
 	--------------------------
@@ -67,7 +75,7 @@ local on_attach = function(client, bufnr)
 	-- using 'filipdutescu/renamer.nvim' for rename
 	-- buf_set_keymap('n', '<space>rn',	'<cmd>lua vim.lsp.buf.rename()<CR>', opts)
 	buf_set_keymap('n', '<Space>r', '<cmd>Telescope lsp_references<CR>', options)
-	buf_set_keymap("n", "<Space>f", '<cmd>lua vim.lsp.buf.formatting_sync()<CR>', options)
+	buf_set_keymap("n", "<Space>f", '<cmd>lua vim.lsp.buf.format()<CR>', options)
 
 	buf_set_keymap('n', '<Space>a', '<cmd>lua vim.lsp.buf.code_action()<CR>',       options)
 	buf_set_keymap('x', '<Space>a', '<cmd>lua vim.lsp.buf.range_code_action()<CR>', options)
