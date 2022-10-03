@@ -140,8 +140,8 @@ highlight("FileIcon",   "#0000FF", "#FFFFFF")
 
 
 function status_line()
-
 	local exclude_filetype = {
+		-- this block of code is inspired from: https://github.com/cseickel/dotfiles/blob/main/config/nvim/lua/status.lua#L40
 		["NvimTree"] = true,
 		["Outline"] = true,
 		["TelescopePrompt"] = true,
