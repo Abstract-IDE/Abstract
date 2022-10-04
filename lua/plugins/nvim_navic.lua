@@ -103,7 +103,7 @@ end
 local function filetype_exclude(filetype)
 	-- disable winbar in these filetypes
 	local filetype_to_exclude = {
-		-- "",
+		"",
 		"alpha",
 		"dap-repl",
 		"dap-terminal",
@@ -122,6 +122,7 @@ local function filetype_exclude(filetype)
 		"Markdown",
 		"neo-tree",
 		"neogitstatus",
+		"notify",
 		"NvimTree",
 		"Outline",
 		"packer",
