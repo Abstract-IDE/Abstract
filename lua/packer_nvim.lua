@@ -123,6 +123,12 @@ return packer.startup {
 					event = 'BufRead',
 					config = [[ require('plugins/fidget_nivm') ]]
 				},
+				use {
+					'SmiteshP/nvim-navic',
+					after = 'nvim-lspconfig',
+					event = 'BufRead',
+					config = [[ require('plugins/nvim_navic') ]]
+				},
 			},
 			config = [[
 				require('plugins/nvim-lspconfig')
