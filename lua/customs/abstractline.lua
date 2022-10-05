@@ -1,17 +1,93 @@
 
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
+-- ───────────────────────────────────────────────── --
 -- infinite statusline on the earth and they all sucks.
+-- by @Abstract
+-- ───────────────────────────────────────────────── --
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
+
+
+
+
+
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
+-- ━━━━━━━━━━━━━━━━━━❰ functions ❱━━━━━━━━━━━━━━━━━━ --
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
 local api = vim.api
 local bo  = vim.bo
 local cmd = vim.cmd
 local fn  = vim.fn
 
+local foreground_color = "#b7b7b7"
+local background_color = "#072b2c"
+local global_color     = "#141414"
+
+
+local function init_highlight()
+	vim.api.nvim_set_hl(0, "Abstractline",           {fg=foreground_color, bg=background_color})
+	vim.api.nvim_set_hl(0, "AbstractlineFilename",   {fg=foreground_color, bg=background_color, italic=true})
+	vim.api.nvim_set_hl(0, "AbstractlineFilesize",   {fg=foreground_color, bg=global_color, bold=false})
+	vim.api.nvim_set_hl(0, "AbstractlineGit",        {fg="#b44200",        bg=global_color, bold=true})
+	vim.api.nvim_set_hl(0, "AbstractlineGitAdded",   {fg="#60a040",        bg=global_color, bold=true})
+	vim.api.nvim_set_hl(0, "AbstractlineGitChanged", {fg="#f68b01",        bg=global_color, bold=true})
+	vim.api.nvim_set_hl(0, "AbstractlineGitRemoved", {fg="#d10000",        bg=global_color, bold=true})
+	vim.api.nvim_set_hl(0, "AbstractlineSearch",     {fg="#e1e120",        bg=global_color})
+	vim.api.nvim_set_hl(0, "AbstractlineSplitter",   {fg=background_color, bg=global_color})
+	vim.api.nvim_set_hl(0, "abstractlineLsprovider", {fg=foreground_color, bg=global_color, bold=false})
+	vim.api.nvim_set_hl(0, "abstractlineLsprovidername",{fg="#60a040",    bg=global_color, bold=true, italic=true})
+
+	vim.api.nvim_set_hl(0, "AbstractlineLSPDiagError",{fg="#cc1e1e", bg=global_color, bold=false})
+	vim.api.nvim_set_hl(0, "AbstractlineLSPDiagWarn", {fg="#7d7d00", bg=global_color, bold=false})
+	vim.api.nvim_set_hl(0, "AbstractlineLSPDiagHint", {fg="#3d33c3", bg=global_color, bold=false})
+	vim.api.nvim_set_hl(0, "AbstractlineLSPDiagInfo", {fg="#ac3900", bg=global_color, bold=false})
+end
+
+
+local function splitter(icon)
+	return "%#AbstractlineSplitter#" ..  icon .. "%*"
+end
+
 
 local function vim_mode()
 	-- get mode (normal/insert/visual/command)
+	local mode_color
 	local mode = api.nvim_exec('echo mode()', true)
-	if mode == "" then return " C " end
-	return " " .. string.upper(mode) .. " "
+	if mode == "" then
+		mode =  "C"
+		mode_color = "#ffaa00"
+		vim.api.nvim_set_hl(0, "AbstractlineMode", {fg=mode_color, bg=global_color, bold=true})
+	elseif mode == "n" then
+		mode_color = "#60a040"
+		vim.api.nvim_set_hl(0, "AbstractlineMode", {fg=mode_color, bg=global_color, bold=true})
+	elseif mode == "i" then
+		mode_color = "#ff0000"
+		vim.api.nvim_set_hl(0, "AbstractlineMode", {fg=mode_color, bg=global_color, bold=true})
+	elseif mode == "v" then
+		mode_color = "#428cbd"
+		vim.api.nvim_set_hl(0, "AbstractlineMode", {fg=mode_color, bg=global_color, bold=true})
+	else
+		mode_color = "#f12bff"
+		vim.api.nvim_set_hl(0, "AbstractlineMode", {fg=mode_color, bg=global_color, bold=true})
+	end
+	mode = string.upper(mode)
+	return " " .. "%#AbstractlineMode#".. mode .. "%*" .. " "
+end
+
+
+local function get_filetype_icon()
+	local has_devicons, devicons = pcall(require, 'nvim-web-devicons')
+	if not has_devicons then
+		return false
+	end
+
+	local file_name, file_ext = fn.expand('%:t'), fn.expand('%:e')
+
+    local icon, icon_color = devicons.get_icon_color(file_name, file_ext, { default = true })
+	return  {
+		icon = icon,
+		icon_color = icon_color
+	}
 end
 
 
@@ -27,69 +103,91 @@ local function file_info ()
 
 	local filetype = bo.filetype
 	if filetype == "alpha" then
-		return ""
+		file = filetype
+		filetype = ""
 	end
-	if filetype ==  "" then
-		return file .. " "
+	if filetype ~=  "" then
+		filetype = "%#Abstractline#" .. "[" .. filetype .. "]" .. "%*"
 	end
 
-	filetype = "[" .. filetype .. "]"
+	local fileicon = get_filetype_icon()
+	if fileicon then
+		local icon = fileicon.icon
+		local icon_color = fileicon.icon_color
+		vim.api.nvim_set_hl(0, "AbstractlineFilenameIcon", {fg=icon_color, bg=background_color})
+		file = "%#AbstractlineFilenameIcon#" .. " " .. icon ..  " " .. "%*" .. "%#AbstractlineFilename#" .. file .. "%*"
+	end
 
-	return file .. filetype .. " "
+	return file .. filetype
 end
 
 
 local function git_status()
-	-- https://github.com/echasnovski/mini.nvim/blob/793d40f807b3c0f959f19d15cc2fe814dc16938b/lua/mini/statusline.lua#L305
-	local head = vim.b.gitsigns_head or '-'
-	local signs = (vim.b.gitsigns_status or '')
-	local icon = ''
-
-	if signs == '' then
-		if head == '-' or head == '' then return '' end
-		return string.format(' %s %s ', icon, head)
+	local head = vim.b.gitsigns_head or ''
+	if head == '' then
+		return ''
 	end
-	return string.format(' %s %s %s ', icon, head, signs)
+    local git_signs = vim.b.gitsigns_status_dict
+	local icon = " "
+	local sign_added = ""
+	local sign_changed = ""
+	local sign_removed = ""
+
+    if git_signs then
+		local sa = git_signs["added"] or 0
+		local sr = git_signs["removed"] or 0
+		local sc = git_signs["changed"] or 0
+
+		if sa > 0 then
+			sign_added   = "%#AbstractlineGitAdded#" .. "+" .. tostring(sa) .. "%*"
+		end
+		if sc > 0 then
+			sign_changed = "%#AbstractlineGitChanged#" .. "~" .. tostring(sc) .. "%*"
+		end
+		if sr > 0 then
+			sign_removed = "%#AbstractlineGitRemoved#" .. "-" .. tostring(sr) .. "%*"
+		end
+    end
+	local signs = sign_added .. sign_changed .. sign_removed
+	local result = "%#AbstractlineGit#" .. icon .. head .. "%*"
+	if signs ~= '' then
+		result = result .. "" .. signs
+	end
+	return " " .. result
 end
 
 
 local function get_filesize()
 	-- https://github.com/echasnovski/mini.nvim/blob/793d40f807b3c0f959f19d15cc2fe814dc16938b/lua/mini/statusline.lua#L553
 	local size = fn.getfsize(fn.getreg('%'))
+	local result
 	if size < 1024 then
-		return string.format('%dB ', size)
+		result =  string.format('%dB ', size)
 	elseif size < 1048576 then
-		return string.format('%.2fK ', size / 1024)
+		result = string.format('%.2fK ', size / 1024)
 	else
-		return string.format('%.2fM ', size / 1048576)
+		result =  string.format('%.2fM ', size / 1048576)
 	end
-end
-
-
-local function get_filetype_icon()
-	-- Have this `require()` here to not depend on plugin initialization order
-	local has_devicons, devicons = pcall(require, 'nvim-web-devicons')
-	if not has_devicons then return ' ' end
-	local file_name, file_ext = fn.expand('%:t'), fn.expand('%:e')
-	return devicons.get_icon(file_name, file_ext, {default = true}) .. " "
+	return " " .. "%#AbstractlineFilesize#" .. result .. "%*"
 end
 
 
 local function search_info()
 	-- thanks: https://github.com/nvim-lualine/lualine.nvim/issues/186#issuecomment-1170637440
+	local final = ""
 	local hlsearch = api.nvim_get_vvar("hlsearch")
 	if hlsearch == nil then goto empty end
 	if hlsearch == 1 then
-		local result = fn.searchcount({ maxcount = 999, timeout = 1000 })
+		result = fn.searchcount({ maxcount = 999, timeout = 1000 })
 		local total = result.total
 		if total == nil then goto empty end
 		if total > 0 then
 			local search_string = fn.getreg("/")
-			return string.format("%s %d/%d", search_string, result.current, total)
+			final = string.format("%s %d/%d", search_string, result.current, total)
 		end
 	end
 	::empty::
-	return ""
+	return "%#AbstractlineSearch#" .. final .. "%*" .. " "
 end
 
 
@@ -97,46 +195,85 @@ local function line_info()
 	local loc = api.nvim_buf_line_count(0) -- total lines of code in current file
 	local line_col = fn.col(".")
     local curr_line_num = api.nvim_win_get_cursor(0)[1]
-	if curr_line_num == nil then return end
-
-	local loc_percentage = function ()
-		local result = math.ceil((100*curr_line_num)/loc)
-		return "(" .. result .. "%%" .. ")"
+	if curr_line_num == nil then
+		return
 	end
-	return "  " .. curr_line_num .. ":" .. line_col .. " - " .. loc .. loc_percentage()
+
+	local loc_percentage =  math.ceil((100*curr_line_num)/loc)
+	return  string.format("  %2d:%-2d- %d(%2d%%%%)",curr_line_num, line_col, loc, loc_percentage)
 end
 
 
--- local function lsp_provider()
--- 	local msg = ''
--- 	local buf_ft = api.nvim_buf_get_option(0, 'filetype')
--- 	local clients = vim.lsp.get_active_clients()
--- 	if next(clients) == nil then return msg .. " " end
--- 	for _, client in ipairs(clients) do
--- 		local filetypes = client.config.filetypes
--- 		if filetypes and fn.index(filetypes, buf_ft) ~= -1 then
--- 			return "LSP[" .. client.name .. "] "
--- 		end
--- 	end
--- 	return msg
--- end
+local function lsp_diagnostics_count()
+	local diagnostic = vim.diagnostic
 
--- local function lsp_loading() return require('lsp-status').status() end
--------------------------------------------------------
+	local error= diagnostic.severity.ERROR
+	local warn = diagnostic.severity.WARN
+	local info = diagnostic.severity.INFO
+	local hint = diagnostic.severity.HINT
 
+	local count_error = vim.tbl_count(diagnostic.get(0, error and { severity = error }))
+	local count_warn  = vim.tbl_count(diagnostic.get(0, warn and { severity = warn }))
+	local count_info  = vim.tbl_count(diagnostic.get(0, info and { severity = info }))
+	local count_hint  = vim.tbl_count(diagnostic.get(0, hint and { severity = hint }))
 
--------------------------------------------------------
-local function highlight(group, fg, bg)
-    -- api.nvim_set_hl(0, group, { fg=f_g, bg=b_g })
-	cmd("highlight " .. group .. " guifg=" .. fg .. " guibg=" .. bg)
+	return {
+		count_error = count_error,
+		count_warn = count_warn,
+		count_info = count_info,
+		count_hint = count_hint
+	}
 end
 
-highlight("StatusLeft", "#000000", "#FFFFFF")
-highlight("StatusMid",  "#FFFFFF", "#141414")
-highlight("StatusRight","#ff00ff", "#0f0fff")
-highlight("ModeInsert", "#FFFFFF", "#000000")
-highlight("FileIcon",   "#0000FF", "#FFFFFF")
--------------------------------------------------------
+
+local function lsp_provider()
+	local msg = ''
+	local buf_ft = api.nvim_buf_get_option(0, 'filetype')
+	local clients = vim.lsp.get_active_clients()
+	if next(clients) == nil then
+		return msg
+	end
+
+	local lsp_diag = lsp_diagnostics_count()
+	local count_error = lsp_diag.count_error
+	local count_warn = lsp_diag.count_warn
+	local count_info = lsp_diag.count_info
+	local count_hint = lsp_diag.count_hint
+	local  sign_added, sign_changed, sign_removed, sign_hint = "", "", "", ""
+
+	if count_error > 0 then
+		sign_added   = "%#AbstractlineLSPDiagError#" .. "  " .. tostring(count_error) .. "%*"
+	end
+	if count_warn > 0 then
+		sign_changed = "%#AbstractlineLSPDiagWarn#" .. "  " .. tostring(count_warn) .. "%*"
+	end
+	if count_info > 0 then
+		sign_removed = "%#AbstractlineLSPDiagInfo#" .. "  " .. tostring(count_info) .. "%*"
+	end
+	if count_hint > 0 then
+		sign_hint = "%#AbstractlineLSPDiagHint#" .. "  " .. tostring(count_hint) .. "%*"
+	end
+
+	for _, client in ipairs(clients) do
+		local filetypes = client.config.filetypes
+		if filetypes and vim.fn.index(filetypes, buf_ft) ~= -1 then
+			if client.name ~= "null-ls" then
+				local sign_count = sign_added .. sign_changed .. sign_removed .. sign_hint
+				local msg1 = sign_count .. " " .. "%#abstractlineLsprovider#" .. "LSP[" .. "%*"
+				local msg2 = "%#abstractlineLsprovider#" .. "]" .. "%*"
+				msg = msg1 .. "%#abstractlineLsprovidername#" .. client.name .. "%*" .. msg2
+				goto final
+			end
+		end
+	end
+
+	::final::
+	return msg
+end
+
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
+-- ━━━━━━━━━━━━━━━━❰ end functions ❱━━━━━━━━━━━━━━━━ --
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
 
 function status_line()
@@ -160,153 +297,38 @@ function status_line()
 		return "%f"
 	end
 
-
 	return table.concat {
-		---------------------------
-		--         LEFT          --
-		---------------------------
+		-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
+		-- ━━━━━━━━━━━━━━━━❰ LEFT ❱━━━━━━━━━━━━━━━━ --
 		vim_mode(),
-		get_filetype_icon(),
+		splitter(""),
 		file_info(),
+		splitter(""),
 		get_filesize(),
 		git_status(),
-		---------------------------
+		-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
 
-		---------------------------
+		-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
+		-- ━━━━━━━━━━━━━━━❰ MIDDLE ❱━━━━━━━━━━━━━━━ --
 		--        MIDDLE         --
-		---------------------------
 		"%=",
-		-- lsp_provider(),
-		-- lsp_loading(),
-		-- "%{&ff}",		-- file format
-		-- "%y",			-- file type
-		---------------------------
+		lsp_provider(),
+		-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
 
-		---------------------------
-		--         RIGHT         --
-		---------------------------
+		-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
+		-- ━━━━━━━━━━━━━━━━❰ RIGHT ❱━━━━━━━━━━━━━━━ --
 		"%=",
 		search_info(),
+		"%#Abstractline#",
 		line_info(),
-		---------------------------
+		"%*",
+		-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 	}
 end
 
 
+init_highlight()
 vim.o.statusline = "%!luaeval('status_line()')"
-
-
--- function SpellToggle()
---     if vim.opt.spell:get() then
---         vim.opt_local.spell = false
---         vim.opt_local.spelllang = "en"
---     else
---         vim.opt_local.spell = true
---         vim.opt_local.spelllang = {"en_us", "de"}
---     end
--- end
-
--- -- statusline
--- local git_branch = function()
---     if vim.g.loaded_fugitive then
---         local branch = fn.FugitiveHead()
---         if branch ~= '' then return string.upper(" " .. branch) end
---     end
---     return ''
--- end
-
--- local file_path = function()
---     local buf_name = api.nvim_buf_get_name(0)
---     if buf_name == "" then return "[No Name]" end
---     local home = vim.env.HOME
---     local is_term = false
---     local file_dir = ""
-
---     if buf_name:sub(1, 5):find("term") ~= nil then
---         file_dir = vim.env.PWD
---         is_term = true
---     else
---         file_dir = fn.expand("%:p:h")
---     end
-
---     if file_dir:find(home, 0, true) ~= nil then
---         file_dir = file_dir:gsub(home, "~", 1)
---     end
-
---     if api.nvim_win_get_width(0) <= 80 then
---         file_dir = fn.pathshorten(file_dir)
---     end
-
---     if is_term then
---         return file_dir
---     else
---         return string.format("%s/%s", file_dir, fn.expand("%:t"))
---     end
--- end
-
--- local word_count = function()
---     if fn.wordcount().visual_words ~= nil then
---         return fn.wordcount().visual_words
---     else
---         return fn.wordcount().words
---     end
--- end
-
--- local modes = setmetatable({
---     ['n'] = {'NORMAL', 'N'},
---     ['no'] = {'N·OPERATOR', 'N·P'},
---     ['v'] = {'VISUAL', 'V'},
---     ['V'] = {'V·LINE', 'V·L'},
---     [''] = {'V·BLOCK', 'V·B'},
---     [''] = {'V·BLOCK', 'V·B'},
---     ['s'] = {'SELECT', 'S'},
---     ['S'] = {'S·LINE', 'S·L'},
---     [''] = {'S·BLOCK', 'S·B'},
---     ['i'] = {'INSERT', 'I'},
---     ['ic'] = {'INSERT', 'I'},
---     ['R'] = {'REPLACE', 'R'},
---     ['Rv'] = {'V·REPLACE', 'V·R'},
---     ['c'] = {'COMMAND', 'C'},
---     ['cv'] = {'VIM·EX', 'V·E'},
---     ['ce'] = {'EX', 'E'},
---     ['r'] = {'PROMPT', 'P'},
---     ['rm'] = {'MORE', 'M'},
---     ['r?'] = {'CONFIRM', 'C'},
---     ['!'] = {'SHELL', 'S'},
---     ['t'] = {'TERMINAL', 'T'}
--- }, {
---     __index = function()
---         return {'UNKNOWN', 'U'} -- handle edge cases
---     end
--- })
-
--- local get_current_mode = function()
---     local current_mode = api.nvim_get_mode().mode
---     if api.nvim_win_get_width(0) <= 80 then
---         return string.format('%s ', modes[current_mode][2])
---     else
---         return string.format('%s ', modes[current_mode][1])
---     end
--- end
-
--- ---@diagnostic disable-next-line: lowercase-global
--- function status_line()
---     return table.concat {
---         get_current_mode(), -- get current mode
---         "%{toupper(&spelllang)}", -- display language and if spell is on
---         git_branch(), -- branch name
---         " %<", -- spacing
---         file_path(), -- smart full path filename
---         "%h%m%r%w", -- help flag, modified, readonly, and preview
---         "%=", -- right align
---         "%{get(b:,'gitsigns_status','')}[", -- gitsigns
---         word_count(), -- word count
---         "][%-3.(%l|%c]", -- line number, column number
---         "[%{strlen(&ft)?&ft[0].&ft[1:]:'None'}]" -- file type
---     }
--- end
-
--- vim.opt.statusline = "%!v:lua.status_line()"
 
