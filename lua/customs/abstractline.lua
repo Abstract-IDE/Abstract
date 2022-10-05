@@ -29,18 +29,18 @@ local function init_highlight()
 	vim.api.nvim_set_hl(0, "AbstractlineFilename",   {fg=foreground_color, bg=background_color, italic=true})
 	vim.api.nvim_set_hl(0, "AbstractlineFilesize",   {fg=foreground_color, bg=global_color, bold=false})
 	vim.api.nvim_set_hl(0, "AbstractlineGit",        {fg="#b44200",        bg=global_color, bold=true})
-	vim.api.nvim_set_hl(0, "AbstractlineGitAdded",   {fg="#60a040",        bg=global_color, bold=true})
-	vim.api.nvim_set_hl(0, "AbstractlineGitChanged", {fg="#f68b01",        bg=global_color, bold=true})
+	vim.api.nvim_set_hl(0, "AbstractlineGitAdded",   {fg="#4c7f33",        bg=global_color, bold=true})
+	vim.api.nvim_set_hl(0, "AbstractlineGitChanged", {fg="#985401",        bg=global_color, bold=true})
 	vim.api.nvim_set_hl(0, "AbstractlineGitRemoved", {fg="#d10000",        bg=global_color, bold=true})
-	vim.api.nvim_set_hl(0, "AbstractlineSearch",     {fg="#e1e120",        bg=global_color})
+	vim.api.nvim_set_hl(0, "AbstractlineSearch",     {fg="#abab18",        bg=global_color})
 	vim.api.nvim_set_hl(0, "AbstractlineSplitter",   {fg=background_color, bg=global_color})
 	vim.api.nvim_set_hl(0, "abstractlineLsprovider", {fg=foreground_color, bg=global_color, bold=false})
-	vim.api.nvim_set_hl(0, "abstractlineLsprovidername",{fg="#60a040",    bg=global_color, bold=true, italic=true})
+	vim.api.nvim_set_hl(0, "abstractlineLsprovidername",{fg="#4c7f33",     bg=global_color})
 
-	vim.api.nvim_set_hl(0, "AbstractlineLSPDiagError",{fg="#cc1e1e", bg=global_color, bold=false})
-	vim.api.nvim_set_hl(0, "AbstractlineLSPDiagWarn", {fg="#7d7d00", bg=global_color, bold=false})
-	vim.api.nvim_set_hl(0, "AbstractlineLSPDiagHint", {fg="#3d33c3", bg=global_color, bold=false})
-	vim.api.nvim_set_hl(0, "AbstractlineLSPDiagInfo", {fg="#ac3900", bg=global_color, bold=false})
+	vim.api.nvim_set_hl(0, "AbstractlineLSPDiagError",{fg="#a81818", bg=global_color, bold=false})
+	vim.api.nvim_set_hl(0, "AbstractlineLSPDiagWarn", {fg="#707000", bg=global_color, bold=false})
+	vim.api.nvim_set_hl(0, "AbstractlineLSPDiagHint", {fg="#312a9e", bg=global_color, bold=false})
+	vim.api.nvim_set_hl(0, "AbstractlineLSPDiagInfo", {fg="#812900", bg=global_color, bold=false})
 end
 
 
@@ -106,16 +106,14 @@ local function file_info ()
 		file = filetype
 		filetype = ""
 	end
-	if filetype ~=  "" then
-		filetype = "%#Abstractline#" .. "[" .. filetype .. "]" .. "%*"
-	end
 
 	local fileicon = get_filetype_icon()
 	if fileicon then
-		local icon = fileicon.icon
+		local icon = "%#AbstractlineFilenameIcon#" .. fileicon.icon .. "%*"
 		local icon_color = fileicon.icon_color
 		vim.api.nvim_set_hl(0, "AbstractlineFilenameIcon", {fg=icon_color, bg=background_color})
-		file = "%#AbstractlineFilenameIcon#" .. " " .. icon ..  " " .. "%*" .. "%#AbstractlineFilename#" .. file .. "%*"
+		filetype = "%#Abstractline#" .. "[" .. "%*".. icon .. "%#Abstractline#" .. " " .. filetype .. "] " .. "%*"
+		file =  "%#AbstractlineFilename#" .. " " .. file .. "%*"
 	end
 
 	return file .. filetype
@@ -161,7 +159,9 @@ local function get_filesize()
 	-- https://github.com/echasnovski/mini.nvim/blob/793d40f807b3c0f959f19d15cc2fe814dc16938b/lua/mini/statusline.lua#L553
 	local size = fn.getfsize(fn.getreg('%'))
 	local result
-	if size < 1024 then
+	if size < 1 then
+		result =  string.format('%dB ', 0)
+	elseif size < 1024 then
 		result =  string.format('%dB ', size)
 	elseif size < 1048576 then
 		result = string.format('%.2fK ', size / 1024)
