@@ -275,12 +275,6 @@ return packer.startup {
 			config = [[ require('plugins/nvim-tree_lua') ]]
 		}
 
-		use { -- A minimal, stylish and customizable statusline for Neovim written in Lua
-			'feline-nvim/feline.nvim',
-			commit = commits.feline_nvim,
-			config = [[ require('plugins/feline_nvim') ]]
-		}
-
 		use { -- fast and highly customizable greeter for neovim.
 			"goolord/alpha-nvim",
 			commit = commits.alpha_nvim,
