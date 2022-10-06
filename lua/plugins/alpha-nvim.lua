@@ -20,42 +20,30 @@ if not alpha_ok then return end
 local dashboard_ok, dashboard = pcall(require, "alpha.themes.dashboard")
 if not dashboard_ok then return end
 
-local datetime_ok, datetime = pcall(os.date, "%I:%M:%p 🕔 %d-%m-%Y")
-local version_ok, nvim_version = pcall(os.capture, "nvim --version | awk 'NR == 1'")
-
 
 local function footer()
-	if version_ok and datetime_ok then
-		return nvim_version .. ' | ' .. datetime
-	elseif datetime_ok then
+	local datetime_ok, datetime = pcall(os.date, " %I:%M:%p (%d-%m-%Y)")
+	local version_ok, nvim_version = pcall(os.capture, "nvim --version | awk 'NR == 1'")
+	if datetime_ok then
+		if version_ok then
+			return  nvim_version .. ' | ' .. datetime
+		end
 		return datetime
-	else return ""
 	end
+	return ""
 end
 
+
 -- Set header
--- dashboard.section.header.val = {
--- 	"                                                                  ",
--- 	" █████╗ ██████╗ ███████╗████████╗██████╗  █████╗  ██████╗████████╗",
--- 	"██╔══██╗██╔══██╗██╔════╝╚══██╔══╝██╔══██╗██╔══██╗██╔════╝╚══██╔══╝",
--- 	"███████║██████╔╝███████╗   ██║   ██████╔╝███████║██║        ██║   ",
--- 	"██╔══██║██╔══██╗╚════██║   ██║   ██╔══██╗██╔══██║██║        ██║   ",
--- 	"██║  ██║██████╔╝███████║   ██║   ██║  ██║██║  ██║╚██████╗   ██║   ",
--- 	"╚═╝  ╚═╝╚═════╝ ╚══════╝   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝   ╚═╝   ",
--- 	"                                                                  ",
--- }
-
 dashboard.section.header.val = {
-
-"   █████████   █████              █████                                  █████   ",
-"  ███░░░░░███ ░░███              ░░███                                  ░░███    ",
-" ░███    ░███  ░███████   █████  ███████   ████████   ██████    ██████  ███████  ",
-" ░███████████  ░███░░███ ███░░  ░░░███░   ░░███░░███ ░░░░░███  ███░░███░░░███░   ",
-" ░███░░░░░███  ░███ ░███░░█████   ░███     ░███ ░░░   ███████ ░███ ░░░   ░███    ",
-" ░███    ░███  ░███ ░███ ░░░░███  ░███ ███ ░███      ███░░███ ░███  ███  ░███ ███",
-" █████   █████ ████████  ██████   ░░█████  █████    ░░████████░░██████   ░░█████ ",
-"░░░░░   ░░░░░ ░░░░░░░░  ░░░░░░     ░░░░░  ░░░░░      ░░░░░░░░  ░░░░░░     ░░░░░  ",
+	"┃█████     ",
+	"┃██ ██    ",
+	"┃██  ██   ",
+	"┃██ ████████",
+	"┃██    ██ ",
+	"┃██     ██",
 }
+
 
 -- Set menu
 local options = {}
@@ -67,13 +55,12 @@ update_cmd = update_cmd .. "nvim --headless -c 'autocmd User PackerComplete quit
 update_cmd = update_cmd .. "echo updated && "
 update_cmd = update_cmd .. " <CR><CR>"
 dashboard.section.buttons.val = {
-	dashboard.button("n", "  > New file", ":ene <BAR> startinsert <CR>", options),
-	dashboard.button("r", "  > Recent", ":Telescope oldfiles<CR>", options),
-	dashboard.button("<C-S>", "S  > Sessions", ":SessionManager load_session<CR>", options),
-	dashboard.button("f", "  > Find file", ":Telescope find_files<CR>", options),
-	dashboard.button("s", "  > Settings", ":e ~/.config/nvim/init.lua <CR>", options),
-	dashboard.button("u", "  > Update Plugins", update_cmd, options),
-	dashboard.button("q", "  > Quit NVIM", ":qa<CR>", options),
+	dashboard.button("n", "  New file", ":ene <BAR> startinsert <CR>", options),
+	dashboard.button("r", "  Recent", ":Telescope oldfiles<CR>", options),
+	dashboard.button("s", "s  Sessions", ":SessionManager load_session<CR>", options),
+	dashboard.button("f", "🔎 Find file", ":Telescope find_files<CR>", options),
+	dashboard.button("u", "🔨 Update Plugins", update_cmd, options),
+	dashboard.button("q", "  Quit NVIM", ":qa<CR>", options),
 }
 
 dashboard.section.footer.val = footer()
