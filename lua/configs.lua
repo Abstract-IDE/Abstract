@@ -64,7 +64,8 @@ opt.smartcase = true
 opt.scrolloff = 1 -- when scrolling, keep cursor 1 lines away from screen border
 opt.sidescrolloff = 2 -- keep 30 columns visible left and right of the cursor at all times
 opt.backspace = 'indent,start,eol' -- make backspace behave like normal again
--- opt.mouse = "a" -- turn on mouse interaction
+opt.mouse = "a" -- turn on mouse interaction
+opt.mousescroll = 'ver:3,hor:2' -- vertical and horizontal scroll speed
 opt.updatetime = 500 -- CursorHold interval
 
 opt.softtabstop = 4
