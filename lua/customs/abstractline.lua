@@ -23,24 +23,42 @@ local foreground_color = "#b7b7b7"
 local background_color = "#072b2c"
 local global_color     = "#141414"
 
+local exclude_filetype = {
+	-- this block of code is inspired from: https://github.com/cseickel/dotfiles/blob/main/config/nvim/lua/status.lua#L40
+	["NvimTree"] = true,
+	["Outline"] = true,
+	["TelescopePrompt"] = true,
+	["Trouble"] = true,
+	["alpha"] = true,
+	["dashboard"] = true,
+	["lir"] = true,
+	["neo-tree"] = true,
+	["neogitstatus"] = true,
+	["packer"] = true,
+	["spectre_panel"] = true,
+	["startify"] = true,
+	["toggleterm"] = true,
+}
+
 
 local function init_highlight()
 	vim.api.nvim_set_hl(0, "Abstractline",           {fg=foreground_color, bg=background_color})
+	vim.api.nvim_set_hl(0, "AbstractlineFilemodify", {fg="#ff0000",        bg=background_color})
 	vim.api.nvim_set_hl(0, "AbstractlineFilename",   {fg=foreground_color, bg=background_color, italic=true})
-	vim.api.nvim_set_hl(0, "AbstractlineFilesize",   {fg=foreground_color, bg=global_color, bold=false})
+	vim.api.nvim_set_hl(0, "AbstractlineFilesize",   {fg=foreground_color, bg=global_color})
 	vim.api.nvim_set_hl(0, "AbstractlineGit",        {fg="#b44200",        bg=global_color, bold=true})
 	vim.api.nvim_set_hl(0, "AbstractlineGitAdded",   {fg="#4c7f33",        bg=global_color, bold=true})
 	vim.api.nvim_set_hl(0, "AbstractlineGitChanged", {fg="#985401",        bg=global_color, bold=true})
 	vim.api.nvim_set_hl(0, "AbstractlineGitRemoved", {fg="#d10000",        bg=global_color, bold=true})
 	vim.api.nvim_set_hl(0, "AbstractlineSearch",     {fg="#abab18",        bg=global_color})
 	vim.api.nvim_set_hl(0, "AbstractlineSplitter",   {fg=background_color, bg=global_color})
-	vim.api.nvim_set_hl(0, "abstractlineLsprovider", {fg=foreground_color, bg=global_color, bold=false})
-	vim.api.nvim_set_hl(0, "abstractlineLsprovidername",{fg="#4c7f33",     bg=global_color})
+	vim.api.nvim_set_hl(0, "abstractlineLsprovider", {fg=foreground_color, bg=global_color})
+	vim.api.nvim_set_hl(0, "abstractlineLsprovidername",{fg="#51A0CF",     bg=global_color})
 
-	vim.api.nvim_set_hl(0, "AbstractlineLSPDiagError",{fg="#a81818", bg=global_color, bold=false})
-	vim.api.nvim_set_hl(0, "AbstractlineLSPDiagWarn", {fg="#707000", bg=global_color, bold=false})
-	vim.api.nvim_set_hl(0, "AbstractlineLSPDiagHint", {fg="#312a9e", bg=global_color, bold=false})
-	vim.api.nvim_set_hl(0, "AbstractlineLSPDiagInfo", {fg="#812900", bg=global_color, bold=false})
+	vim.api.nvim_set_hl(0, "AbstractlineLSPDiagError",{fg="#a81818", bg=global_color})
+	vim.api.nvim_set_hl(0, "AbstractlineLSPDiagWarn", {fg="#5d5d00", bg=global_color})
+	vim.api.nvim_set_hl(0, "AbstractlineLSPDiagHint", {fg="#336481", bg=global_color})
+	vim.api.nvim_set_hl(0, "AbstractlineLSPDiagInfo", {fg="#812900", bg=global_color})
 end
 
 
@@ -99,7 +117,7 @@ local function file_info ()
 
     local file_name = api.nvim_buf_get_name(0)
 	local file = fn.pathshorten(fn.fnamemodify(file_name, ':~:.'))
-	file = readonly_flag .. file .. " " .. modified_flag
+	file = readonly_flag .. file .. " " ..  "%#AbstractlineFilemodify#" .. modified_flag .. "%*"
 
 	local filetype = bo.filetype
 	if filetype == "alpha" then
@@ -109,10 +127,9 @@ local function file_info ()
 
 	local fileicon = get_filetype_icon()
 	if fileicon then
-		local icon = "%#AbstractlineFilenameIcon#" .. fileicon.icon .. "%*"
-		local icon_color = fileicon.icon_color
-		vim.api.nvim_set_hl(0, "AbstractlineFilenameIcon", {fg=icon_color, bg=background_color})
-		filetype = "%#Abstractline#" .. "[" .. "%*".. icon .. "%#Abstractline#" .. " " .. filetype .. "] " .. "%*"
+		vim.api.nvim_set_hl(0, "AbstractlineFilenameIcon", {fg=fileicon.icon_color, bg=background_color})
+		local icon_filetype = "%#AbstractlineFilenameIcon#" .. fileicon.icon .. " " .. filetype .. "%*"
+		filetype = "%#Abstractline#" .. "[" ..  "%*".. icon_filetype .. "%#Abstractline#" .. "] " .. "%*"
 		file =  "%#AbstractlineFilename#" .. " " .. file .. "%*"
 	end
 
@@ -277,22 +294,7 @@ end
 
 
 function status_line()
-	local exclude_filetype = {
-		-- this block of code is inspired from: https://github.com/cseickel/dotfiles/blob/main/config/nvim/lua/status.lua#L40
-		["NvimTree"] = true,
-		["Outline"] = true,
-		["TelescopePrompt"] = true,
-		["Trouble"] = true,
-		["alpha"] = true,
-		["dashboard"] = true,
-		["lir"] = true,
-		["neo-tree"] = true,
-		["neogitstatus"] = true,
-		["packer"] = true,
-		["spectre_panel"] = true,
-		["startify"] = true,
-		["toggleterm"] = true,
-	}
+
 	if exclude_filetype[vim.bo.filetype] then
 		return "%f"
 	end
