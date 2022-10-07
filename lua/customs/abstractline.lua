@@ -50,10 +50,11 @@ local function init_highlight()
 	vim.api.nvim_set_hl(0, "AbstractlineGitAdded",   {fg="#4c7f33",        bg=global_color, bold=true})
 	vim.api.nvim_set_hl(0, "AbstractlineGitChanged", {fg="#985401",        bg=global_color, bold=true})
 	vim.api.nvim_set_hl(0, "AbstractlineGitRemoved", {fg="#d10000",        bg=global_color, bold=true})
+	vim.api.nvim_set_hl(0, "AbstractlineLsprovider", {fg=foreground_color, bg=global_color})
+	vim.api.nvim_set_hl(0, "AbstractlineLsprovidername",{fg="#51A0CF",     bg=global_color})
+	vim.api.nvim_set_hl(0, "AbstractlinePsedostring",{fg="#060606", bg="#060606"})
 	vim.api.nvim_set_hl(0, "AbstractlineSearch",     {fg="#abab18",        bg=global_color})
 	vim.api.nvim_set_hl(0, "AbstractlineSplitter",   {fg=background_color, bg=global_color})
-	vim.api.nvim_set_hl(0, "abstractlineLsprovider", {fg=foreground_color, bg=global_color})
-	vim.api.nvim_set_hl(0, "abstractlineLsprovidername",{fg="#51A0CF",     bg=global_color})
 
 	vim.api.nvim_set_hl(0, "AbstractlineLSPDiagError",{fg="#a81818", bg=global_color})
 	vim.api.nvim_set_hl(0, "AbstractlineLSPDiagWarn", {fg="#5d5d00", bg=global_color})
@@ -294,8 +295,16 @@ end
 
 
 function status_line()
-
-	if exclude_filetype[vim.bo.filetype] then
+	local filetype = bo.filetype
+	if exclude_filetype[filetype] then
+		-- a hack to make statusline line invisiable on alpha
+		if filetype == "alpha" then
+			local c = "----------"
+			for _ = 1, 5 do
+				c = c .. c
+			end
+			return "%#AbstractlinePsedostring#" .. c .. "%*"
+		end
 		return "%f"
 	end
 
