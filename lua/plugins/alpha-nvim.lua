@@ -20,6 +20,11 @@ if not alpha_ok then return end
 local dashboard_ok, dashboard = pcall(require, "alpha.themes.dashboard")
 if not dashboard_ok then return end
 
+-- set highlights
+vim.api.nvim_set_hl(0, "AlphaDashboard", {fg="#1D918B"})
+dashboard.section.header.opts.hl = 'AlphaDashboard'
+dashboard.section.footer.opts.hl = 'AlphaDashboard'
+
 
 local function footer()
 	local datetime_ok, datetime = pcall(os.date, " %I:%M:%p (%d-%m-%Y)")
