@@ -20,7 +20,7 @@ if not import_navic then return end
 
 navic.setup({
 	highlight = true,
-	separator = " > ",
+	separator = " ",
 	depth_limit = 0,
 	depth_limit_indicator = "..",
 
@@ -185,7 +185,8 @@ local function winbar()
 				goto continue_winbar
 			end
 			if not (navic_location == "" or navic_location == nil ) then
-				winbar_data =  "%#NavicSeparator#"..">" .. "%*" .. " " .. navic_location
+				-- winbar_data =  "%#NavicSeparator#"..">" .. "%*" .. " " .. navic_location
+				winbar_data = navic_location
 			else
 				goto continue_winbar
 			end
