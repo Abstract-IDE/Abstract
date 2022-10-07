@@ -120,6 +120,7 @@ local function filetype_exclude(filetype)
 		"lab",
 		"lir",
 		"Markdown",
+		"mason",
 		"neo-tree",
 		"neogitstatus",
 		"notify",
