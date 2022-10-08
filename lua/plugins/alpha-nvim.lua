@@ -28,14 +28,12 @@ dashboard.section.footer.opts.hl = 'AlphaDashboard'
 
 local function footer()
 	local datetime_ok, datetime = pcall(os.date, " %I:%M:%p (%d-%m-%Y)")
-	local version_ok, nvim_version = pcall(os.capture, "nvim --version | awk 'NR == 1'")
-	if datetime_ok then
-		if version_ok then
-			return  nvim_version .. ' | ' .. datetime
-		end
-		return datetime
+	local version = vim.version()
+	local nvim_verion = string.format("v%d.%d.%d ", version.major, version.minor, version.patch )
+	if not datetime_ok then
+		return nvim_verion
 	end
-	return ""
+	return  nvim_verion  .. " | " .. datetime
 end
 
 
