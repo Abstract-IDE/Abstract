@@ -123,12 +123,18 @@ return packer.startup {
 					event = 'BufRead',
 					config = [[ require('plugins/fidget_nivm') ]]
 				},
-				use {
+				use { --  Simple winbar/statusline plugin that shows your current code context
 					'SmiteshP/nvim-navic',
 					after = 'nvim-lspconfig',
 					event = 'BufRead',
 					config = [[ require('plugins/nvim_navic') ]]
 				},
+				use { --  LSP signature hint as you type
+					'ray-x/lsp_signature.nvim',
+					after = 'nvim-lspconfig',
+					event = 'BufRead',
+					config = [[ require('plugins/lsp_signature_nvim') ]]
+				}
 			},
 			config = [[
 				require('plugins/nvim-lspconfig')
@@ -192,7 +198,6 @@ return packer.startup {
 				{ 'hrsh7th/cmp-nvim-lua', after='nvim-cmp', commit=commits.cmp_nvim_lua}, -- nvim-cmp source for nvim lua
 				{ 'hrsh7th/cmp-buffer', after='nvim-cmp', commit=commits.cmp_buffer }, -- nvim-cmp source for buffer words.
 				{ 'hrsh7th/cmp-path', after='nvim-cmp', commit=commits.cmp_path}, -- nvim-cmp source for filesystem paths.
-				{ 'hrsh7th/cmp-nvim-lsp-signature-help', after='nvim-cmp', commit=commits.cmp_nvim_lsp_signature_help}, -- nvim-cmp source for displaying function signatures with the current parameter emphasized:
 				{ 'saadparwaiz1/cmp_luasnip', after='nvim-cmp', commit=commits.cmp_luasnip}, -- luasnip completion source for nvim-cmp
 			},
 			config = [[
