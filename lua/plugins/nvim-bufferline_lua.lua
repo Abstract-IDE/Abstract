@@ -98,7 +98,10 @@ bufferline.setup {
 			fg={highlight="BufferCurrentSign", attribute="fg"},
 			bg={highlight="BufferLineFill", attribute="bg"},
 		},
-		modified_selected = { fg={highlight="BufferCurrentSign", attribute="fg"}, },
+		modified_selected = {
+			fg={highlight="BufferCurrentSign", attribute="fg"},
+			bg={highlight="BufferLineFill", attribute="bg"},
+		},
 		numbers           = { bg={highlight="BuffNumbers", attribute="bg"}, },
 		numbers_selected  = { bg={highlight="BuffNumbers", attribute="bg"}, italic = false, },
 		tab_selected      = {
