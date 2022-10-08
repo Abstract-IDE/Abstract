@@ -102,7 +102,7 @@ local function setup_lsp_config()
 	-- ───────────────────────────────────────────────── --
 	vim.diagnostic.config({
 		float = {
-			border = "rounded",
+			border = "single",
 			focusable = true,
 			style = "minimal",
 			source = "always",
@@ -125,8 +125,8 @@ local function setup_lsp_config()
 		}
 	)
 
-	handlers["textDocument/hover"] = lsp.with(handlers.hover, {border = "rounded"})
-	handlers["textDocument/signatureHelp"] = lsp.with(handlers.signature_help, {border = "rounded"})
+	handlers["textDocument/hover"] = lsp.with(handlers.hover, {border = "single"})
+	handlers["textDocument/signatureHelp"] = lsp.with(handlers.signature_help, {border = "single"})
 
 	-- show diagnostic on float window(like auto complete)
 	-- vim.api.nvim_command [[ autocmd CursorHold  *.lua,*.sh,*.bash,*.dart,*.py,*.cpp,*.c,js lua vim.lsp.diagnostic.show_line_diagnostics() ]]
