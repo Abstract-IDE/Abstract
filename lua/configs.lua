@@ -169,7 +169,7 @@ api.nvim_create_autocmd(
 local init_color_fg = vim.api.nvim_get_hl_by_name("CursorLineNr", true).foreground
 local init_color_bg = vim.api.nvim_get_hl_by_name("CursorLineNr", true).background
 api.nvim_create_autocmd(
-	'ModeChanged',
+	{ 'ModeChanged', "FileType" },
 	{
 		desc = "change cursor color on mode change",
 		group = group,
