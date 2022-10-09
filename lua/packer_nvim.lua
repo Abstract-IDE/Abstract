@@ -324,6 +324,7 @@ return packer.startup {
 		use { -- Tools to help create flutter apps in neovim using the native lsp
 			'akinsho/flutter-tools.nvim',
 			commit = commits.flutter_tools_nvim,
+			after = "nvim-lspconfig",
 			ft = {'dart'},
 			requires = {
 				{
