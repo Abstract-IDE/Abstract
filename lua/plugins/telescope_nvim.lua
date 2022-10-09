@@ -15,8 +15,8 @@
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
 -- safely import telescope
-local telescope_imported_ok, telescope = pcall(require, 'telescope')
-if not telescope_imported_ok then return end
+local import_telescope, telescope = pcall(require, 'telescope')
+if not import_telescope then return end
 
 telescope.setup {
 
@@ -132,10 +132,10 @@ telescope.setup {
 }
 -- To get telescope-extension loaded and working with telescope,
 -- you need to call load_extension, somewhere after setup function:
-require('telescope').load_extension('fzf')
-require("telescope").load_extension('file_browser')
-require('telescope').load_extension('media_files')
-require("telescope").load_extension("ui-select")
+telescope.load_extension('fzf')
+telescope.load_extension('file_browser')
+telescope.load_extension('media_files')
+telescope.load_extension("ui-select")
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━❰ end configs ❱━━━━━━━━━━━━━━━━━ --

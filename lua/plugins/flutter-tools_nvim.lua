@@ -14,8 +14,11 @@
 -- ━━━━━━━━━━━━━━━━━━━❰ configs ❱━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
--- override the default configs
-require("flutter-tools").setup {
+local import_flutter, flutter = pcall(require, 'flutter-tools')
+if not import_flutter then return end
+
+
+flutter.setup {
 
 	ui = {
 		-- the border type to use for all floating windows, the same options/formats
@@ -47,9 +50,12 @@ require("flutter-tools").setup {
 	},
 }
 
--- Telescope Integration
---      In order to set this up, you can explicitly load the extension.
-require("telescope").load_extension("flutter")
+--- Telescope Integration
+---      In order to set this up, you can explicitly load the extension.
+local import_telescope, telescope = pcall(require, 'telescope')
+if import_telescope then
+	telescope.load_extension("flutter")
+end
 
 --   --> Highlights/Colors
 --                   Widget guides
