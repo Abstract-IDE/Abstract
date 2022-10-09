@@ -125,12 +125,14 @@ return packer.startup {
 				},
 				use { --  Simple winbar/statusline plugin that shows your current code context
 					'SmiteshP/nvim-navic',
+					commit = commits.nvim_navic,
 					after = 'nvim-lspconfig',
 					event = 'BufRead',
 					config = [[ require('plugins/nvim_navic') ]]
 				},
 				use { --  LSP signature hint as you type
 					'ray-x/lsp_signature.nvim',
+					commit = commits.lsp_signature_nvim,
 					after = 'nvim-lspconfig',
 					event = 'BufRead',
 					config = [[ require('plugins/lsp_signature_nvim') ]]
