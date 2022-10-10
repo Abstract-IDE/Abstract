@@ -60,6 +60,8 @@ local function init_highlight()
 	vim.api.nvim_set_hl(0, "AbstractlineLSPDiagWarn", {fg="#5d5d00", bg=global_color})
 	vim.api.nvim_set_hl(0, "AbstractlineLSPDiagHint", {fg="#336481", bg=global_color})
 	vim.api.nvim_set_hl(0, "AbstractlineLSPDiagInfo", {fg="#812900", bg=global_color})
+
+	vim.api.nvim_set_hl(0, "AbstractlineVirtualEnv",  {fg="#b44200", bg=global_color, bold=true})
 end
 
 
@@ -138,6 +140,19 @@ local function file_info ()
 end
 
 
+local function virtualenv_status()
+	local _, name_with_path = pcall(os.getenv, 'VIRTUAL_ENV')
+	if name_with_path == nil then
+		return ""
+	end
+	local venv = {};
+	for match in (name_with_path .. "/"):gmatch("(.-)" .. "/") do
+		table.insert(venv, match);
+	end
+	return "%#AbstractlineVirtualEnv#" .. "" .. venv[#venv] .. "%*"
+end
+
+
 local function git_status()
 	local head = vim.b.gitsigns_head or ''
 	if head == '' then
@@ -196,7 +211,7 @@ local function search_info()
 	local hlsearch = api.nvim_get_vvar("hlsearch")
 	if hlsearch == nil then goto empty end
 	if hlsearch == 1 then
-		result = fn.searchcount({ maxcount = 999, timeout = 1000 })
+		local result = fn.searchcount({ maxcount = 999, timeout = 1000 })
 		local total = result.total
 		if total == nil then goto empty end
 		if total > 0 then
@@ -316,6 +331,7 @@ function status_line()
 		file_info(),
 		splitter(""),
 		get_filesize(),
+		virtualenv_status(),
 		git_status(),
 		-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
