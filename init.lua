@@ -29,7 +29,7 @@ require('customs/override_defalut') -- always put this config(override_defalut) 
 
 -- load/source PLUGINS CONFIGS
 -- loading plugins and its configs are managed in seperate config file, ~/.config/nvim/lua/plugins/packer_nvim.lua
--- NOTE: laways load plugins at last
+-- NOTE: always load plugins at last 
 require('packer_nvim')
 
 -- ━━━━━━━━━━━━━━━━━❰ end of Load ❱━━━━━━━━━━━━━━━━━ --
