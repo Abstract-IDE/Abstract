@@ -79,13 +79,16 @@ local function vim_mode()
 		mode_color = "#ffaa00"
 		vim.api.nvim_set_hl(0, "AbstractlineMode", {fg=mode_color, bg=global_color, bold=true})
 	elseif mode == "n" then
-		mode_color = "#60a040"
+		mode_color = "#178c94"
 		vim.api.nvim_set_hl(0, "AbstractlineMode", {fg=mode_color, bg=global_color, bold=true})
 	elseif mode == "i" then
-		mode_color = "#ff0000"
+		mode_color = "#fd4848"
 		vim.api.nvim_set_hl(0, "AbstractlineMode", {fg=mode_color, bg=global_color, bold=true})
 	elseif mode == "v" then
-		mode_color = "#428cbd"
+		mode_color = "#d1d1d1"
+		vim.api.nvim_set_hl(0, "AbstractlineMode", {fg=mode_color, bg=global_color, bold=true})
+	elseif mode == "R" then
+		mode_color = "#fd4848"
 		vim.api.nvim_set_hl(0, "AbstractlineMode", {fg=mode_color, bg=global_color, bold=true})
 	else
 		mode_color = "#f12bff"

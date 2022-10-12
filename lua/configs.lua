@@ -176,7 +176,7 @@ api.nvim_create_autocmd(
 		callback = function()
 			local mode = vim.api.nvim_get_mode().mode
 			if mode == "i" then
-				api.nvim_set_hl(0, "CursorLineNr", {fg="#000000", bg="#c87255", bold=true})
+				api.nvim_set_hl(0, "CursorLineNr", {fg="#000000", bg="#ac3131", bold=true})
 			elseif mode == "v" or mode == "V" or mode == "" then
 				api.nvim_set_hl(0, "CursorLineNr", {fg="#000000", bg="#d1d1d1", bold=true})
 			else
