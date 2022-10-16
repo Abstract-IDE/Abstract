@@ -61,7 +61,7 @@ bufferline.setup {
 		show_buffer_icons = true, -- disable filetype icons for buffers
 		show_buffer_close_icons = false,
 		show_tab_indicators = true,
-		enforce_regular_tabs = true, -- if set true, tabs will be prevented from extending beyond the tab size and all tabs will be the same length
+		enforce_regular_tabs = false, -- if set true, tabs will be prevented from extending beyond the tab size and all tabs will be the same length
 
 		view = "multiwindow",
 		-- can also be a table containing 2 custom separators
@@ -89,11 +89,14 @@ bufferline.setup {
 			bg={highlight="BufferCloseButtonSelected", attribute="bg"},
 		},
 		duplicate = {
-			fg={highlight="BufferCurrentSign", attribute="fg"},
-			bg={highlight="BufferLineFill", attribute="bg"},
+			fg={highlight="fg", attribute="fg"},
+			bg={highlight="BufferCurrent",     attribute="bg"},
 		},
-		duplicate_selected  = { fg={highlight="BufferCurrentSign", attribute="fg"}, },
-		indicator_selected  = { bg={highlight="BufferIndicatorSelected", attribute="bg"}, },
+		duplicate_selected  = {
+			fg={highlight="fg", attribute="fg"},
+			bg={highlight="BufferCurrent",     attribute="bg"},
+		},
+		indicator_selected  = { bg={highlight="BufferSelected", attribute="bg"}, },
 		modified = {
 			fg={highlight="BufferCurrentSign", attribute="fg"},
 			bg={highlight="BufferLineFill", attribute="bg"},
