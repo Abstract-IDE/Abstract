@@ -3,6 +3,7 @@ return {
 	Abstract_cs = "",
 	alpha_nvim = "",
 	awesome_flutter_snippets = "",
+	bracey_vim = "",
 	Comment_nvim = "",
 	cmp_buffer = "",
 	cmp_luasnip = "",

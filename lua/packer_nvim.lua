@@ -320,7 +320,15 @@ return packer.startup {
 
 		-- ━━━━━━━━━━━━━━━━━❰ DEVELOPMENT ❱━━━━━━━━━━━━━━━━━ --
 
-		--           for flutter/dart
+		--          [ WEB ]
+		use { --  live edit html, css, and javascript in vim
+			 'turbio/bracey.vim',
+			commit = commits.bracey_vim,
+			 run =  'npm install --prefix server',
+			 ft = {'html', 'css', 'javascript'}
+		}
+
+		--          [ flutter | dart ]
 		use { -- Tools to help create flutter apps in neovim using the native lsp
 			'akinsho/flutter-tools.nvim',
 			commit = commits.flutter_tools_nvim,
