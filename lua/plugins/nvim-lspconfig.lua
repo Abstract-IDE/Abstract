@@ -172,7 +172,7 @@ local function setup_lsp(mason_lspconfig)
 	}
 	local import_cmp_lsp, cmp_lsp = pcall(require, 'cmp_nvim_lsp')
 	if import_cmp_lsp then
-		lsp_options.capabilities = (cmp_lsp).update_capabilities(capabilities)
+		lsp_options.capabilities = (cmp_lsp).default_capabilities(capabilities)
 	end
 
 	-- for Flutter and Dart
