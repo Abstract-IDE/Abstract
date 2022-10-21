@@ -176,11 +176,6 @@ return packer.startup {
 			commit = commits.nvim_cmp,
 			event = 'InsertEnter',
 			requires = {
-				{ -- vscode-like pictograms for neovim lsp completion items Topics
-					'onsails/lspkind-nvim',
-					after = "nvim-cmp",
-					commit = commits.lspkind_nvim,
-				},
 				{ -- Snippet Engine for Neovim written in Lua.
 					'L3MON4D3/LuaSnip',
 					commit = commits.LuaSnip,

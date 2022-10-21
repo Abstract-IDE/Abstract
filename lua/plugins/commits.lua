@@ -23,7 +23,6 @@ return {
 	hop_nvim = "",
 	impatient_nvim = "",
 	indent_blankline_nvim = "",
-	lspkind_nvim = "",
 	lsp_signature_nvim = "",
 	LuaSnip = "",
 	mason_lspconfig_nvim = "",

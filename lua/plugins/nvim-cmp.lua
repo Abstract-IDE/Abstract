@@ -49,30 +49,57 @@ cmp.setup({
 
 	formatting = {
 
+		fields = {"kind", "abbr", "menu"},
+
 		format = function(entry, vim_item)
-			-- fancy icons and a name of kind
-			local import_lspkind, lspkind = pcall(require, "lspkind")
-			if import_lspkind then
-				vim_item.kind = lspkind.presets.default[vim_item.kind]
-			end
+			local kind_icons = {
+				Text = "",
+				Method = "",
+				Function = "",
+				Constructor = "",
+				Field = "", -- 
+				Variable = "",
+				Class = '', -- ﴯ
+				Interface = "",
+				Module = "",
+				Property = "ﰠ",
+				Unit = "",
+				Value = "",
+				Enum = "",
+				Keyword = "",
+				Snippet = "",
+				Color = "",
+				File = "",
+				Reference = "",
+				Folder = "",
+				EnumMember = "",
+				Constant = "",
+				Struct = "",
+				Event = "",
+				Operator = '', -- 
+				TypeParameter = '  ',
+			}
+
+			vim_item.kind = (kind_icons[vim_item.kind] or '') .. " "
+			-- vim_item.kind = string.format('%s %s', kind_icons[vim_item.kind], vim_item.kind) -- show icons with the name of the item kind
 
 			-- limit completion width
-			local ELLIPSIS_CHAR = '…'
 			local MAX_LABEL_WIDTH = 35
 			local label = vim_item.abbr
 			local truncated_label = vim.fn.strcharpart(label, 0, MAX_LABEL_WIDTH)
 			if truncated_label ~= label then
-				vim_item.abbr = truncated_label .. ELLIPSIS_CHAR
+				vim_item.abbr = truncated_label .. '…'
 			end
 
 			-- set a name for each source
 			vim_item.menu = ({
-				buffer = "[Buff]",
+				buffer = "[Buffer]",
 				nvim_lsp = "[LSP]",
-				luasnip = "[LuaSnip]",
+				luasnip = "[Snippet]",
 				nvim_lua = "[Lua]",
-				latex_symbols = "[Latex]",
+				latex_symbols = "[LaTeX]",
 			})[entry.source.name]
+
 			return vim_item
 		end,
 	},
