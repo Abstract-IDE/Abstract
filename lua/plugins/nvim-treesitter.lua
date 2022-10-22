@@ -32,6 +32,11 @@ treesitter.setup {
 	-- ensure_installed  = "maintained", -- one of "all", "maintained" (parsers with maintainers), or a list of languages
 	-- ignore_install    = { "javascript" }, -- List of parsers to ignore installing
 
+	-- Indentation based on treesitter for the = operator. NOTE: This is an experimental feature.
+	indent = {
+		enable = true
+	},
+
 	highlight = {
 		enable = true, -- {"c", "cpp", "dart", "python", "javascript"}, enable = true (false will disable the whole extension)
 		-- disable lighlight if file is too long
