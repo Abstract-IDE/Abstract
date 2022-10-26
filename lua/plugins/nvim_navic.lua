@@ -173,7 +173,12 @@ local function winbar()
 				icon = " "
 			end
 			set_highlight("NavicFileIcon", icon_color, "#080808")
-			file = " " .. "%#NavicFileIcon#" .. icon .. "%*" .. " " .. "%#NavicFileName#" .. filename .. "%*" .. " "
+			file = " " .. "%#NavicFileIcon#" .. icon .. "%*" .. " " .. "%#NavicFileName#" .. filename .. "%*"
+		end
+
+		-- show modified flag/icon if file is being modified and not saved
+		if vim.bo.modified  then
+			file = file .. "%#NavicFileName#" .. "" .. "%*"
 		end
 		winbar_data = file
 
@@ -187,7 +192,7 @@ local function winbar()
 			end
 			if not (navic_location == "" or navic_location == nil ) then
 				-- winbar_data =  "%#NavicSeparator#"..">" .. "%*" .. " " .. navic_location
-				winbar_data = navic_location
+				winbar_data = " " .. navic_location
 			else
 				goto continue_winbar
 			end
