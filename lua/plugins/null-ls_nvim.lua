@@ -209,7 +209,7 @@ api.nvim_create_autocmd("FileType", {
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
 local keymap = vim.api.nvim_set_keymap
-keymap('n', '<Space>f', '<ESC>:lua vim.lsp.buf.format()<CR>', {noremap = true, silent = true})
+keymap('n', '<Space>f', '<ESC>:lua vim.lsp.buf.format({ timeout_ms = 2000 })<CR>', {noremap = true, silent = true})
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━❰ end Mappings ❱━━━━━━━━━━━━━━━━ --

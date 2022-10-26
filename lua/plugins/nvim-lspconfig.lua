@@ -75,7 +75,7 @@ local on_attach = function(client, bufnr)
 	-- using 'filipdutescu/renamer.nvim' for rename
 	-- buf_set_keymap('n', '<space>rn',	'<cmd>lua vim.lsp.buf.rename()<CR>', opts)
 	buf_set_keymap('n', '<Space>r', '<cmd>Telescope lsp_references<CR>', options)
-	buf_set_keymap("n", "<Space>f", '<cmd>lua vim.lsp.buf.format()<CR>', options)
+	buf_set_keymap("n", "<Space>f", '<cmd>lua vim.lsp.buf.format({ timeout_ms = 2000 })<CR>', options)
 
 	buf_set_keymap('n', '<Space>a', '<cmd>lua vim.lsp.buf.code_action()<CR>',       options)
 	buf_set_keymap('x', '<Space>a', '<cmd>lua vim.lsp.buf.range_code_action()<CR>', options)
