@@ -146,15 +146,15 @@ api.nvim_create_autocmd(
 	}
 )
 
-api.nvim_create_autocmd(
-	"VimResized",
-	{
-		desc = "auto resize splited windows",
-		pattern = "*",
-		group = group,
-		command = "tabdo wincmd =",
-	}
-)
+-- api.nvim_create_autocmd(
+-- 	"VimResized",
+-- 	{
+-- 		desc = "auto resize splited windows",
+-- 		pattern = "*",
+-- 		group = group,
+-- 		command = "tabdo wincmd =",
+-- 	}
+-- )
 
 api.nvim_create_autocmd(
 	"BufWinEnter",
