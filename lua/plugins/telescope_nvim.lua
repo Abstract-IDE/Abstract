@@ -66,7 +66,7 @@ telescope.setup {
 		grep_previewer = require'telescope.previewers'.vim_buffer_vimgrep.new,
 		qflist_previewer = require'telescope.previewers'.vim_buffer_qflist.new,
 
-		prompt_prefix = "🔎︎ ",
+		prompt_prefix = "🔎 ",
 		selection_caret = "➤ ",
 		entry_prefix = "  ",
 		winblend = 0,
