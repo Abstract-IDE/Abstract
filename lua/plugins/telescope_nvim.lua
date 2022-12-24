@@ -172,9 +172,9 @@ keymap('n', "tw", "<cmd>lua require('telescope.builtin').current_buffer_fuzzy_fi
 keymap('n', "tg", "<cmd>lua require('telescope.builtin').live_grep() <CR>", options)
 
 --       --> Find Files
--- NOTE1: to get project root's directory, extra plugin (github.com/ygm2/rooter.nvim) is used.
--- any config related to project root is in seperate config file (lua/plugin_confs/rooter_nvim.lua)
--- to change settings related to working directory, refer to rooter_nvim.lua config file
+-- NOTE1: to get project root's directory, https://github.com/Abstract-IDE/penvim plugin is used.
+-- any config related to project root is in seperate config file (lua/plugin_confs/penvim.lua)
+-- to change settings related to working directory, refer to penvim.lua config file
 
 -- Find files from current file's project
 keymap('n', "<C-p>", ":Telescope find_files <cr>", options)
