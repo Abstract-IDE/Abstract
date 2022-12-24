@@ -46,7 +46,6 @@ return {
 	penvim = "",
 	playground = "",
 	plenary_nvim = "",
-	popup_nvim = "",
 	renamer_nvim = "",
 	scope_nvim = "",
 	telescope_file_browser_nvim = "",

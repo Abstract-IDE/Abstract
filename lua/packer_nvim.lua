@@ -217,7 +217,6 @@ return packer.startup {
 			event = {'CmdlineEnter', 'CursorHold'},
 			keys = { "t", "<C>", "<C-f>", "<C-p>" },
 			requires = {
-				{'nvim-lua/popup.nvim', commit=commits.popup_nvim},
 				{'nvim-telescope/telescope-fzf-native.nvim', commit=commits.telescope_fzf_native_nvim, run = 'make'}, -- FZF sorter for telescope written in c
 				{'nvim-telescope/telescope-file-browser.nvim', commit=commits.telescope_file_browser_nvim}, -- File Browser extension for telescope.nvim
 				{'nvim-telescope/telescope-media-files.nvim', commit=commits.telescope_media_files_nvim}, -- Telescope extension to preview media files using Ueberzug.
