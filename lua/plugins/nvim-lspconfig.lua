@@ -227,6 +227,8 @@ local function setup_lsp(mason_lspconfig)
 								workspace = {
 									-- Make the server aware of Neovim runtime files
 									library = api.nvim_get_runtime_file("", true),
+									--  don't ask about working environment on every startup
+									checkThirdParty = false,
 								},
 								-- Do not send telemetry data containing a randomized but unique identifier
 								telemetry = {enable = false},
