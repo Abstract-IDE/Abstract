@@ -213,8 +213,8 @@ local function setup_lsp(mason_lspconfig)
 				)
 			)
 		end,
-		["sumneko_lua"] = function ()
-			lspconfig.sumneko_lua.setup(
+		["lua_ls"] = function ()
+			lspconfig.lua_ls.setup(
 				tbl_deep_extend(
 					"force", lsp_options,
 					{
