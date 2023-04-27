@@ -19,12 +19,9 @@ local treesitter_imported_ok, treesitter =  pcall(require, 'nvim-treesitter.conf
 if not treesitter_imported_ok then return end
 
 
-local import_parsers, parsers = pcall(require, 'nvim-treesitter.parsers')
-if import_parsers then
-	local parsername = parsers.filetype_to_parsername
-	parsername.htmldjango = 'html' -- enable html parser in htmldjango file
-	parsername.zsh = 'bash' -- enable bash parser in zsh file
-end
+local register = vim.treesitter.language.register
+register('html', 'htmldjango') -- enable html parser in htmldjango file
+register('bash', 'zsh') -- enable bash parser in zsh file
 
 
 treesitter.setup {
