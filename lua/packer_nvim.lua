@@ -94,6 +94,7 @@ return packer.startup {
 			requires = {
 				{ -- Companion plugin for nvim-lspconfig that allows you to seamlessly install LSP servers locally (inside :echo stdpath("data")).
 					'williamboman/mason.nvim',
+					run = ":MasonUpdate", -- :MasonUpdate updates registry contents
 					commit = commits.mason_nvim,
 					requires = {
 						{ 'williamboman/mason-lspconfig.nvim', commit=commits.mason_lspconfig_nvim }, -- Extension to mason.nvim that makes it easier to use lspconfig with mason.nvim
