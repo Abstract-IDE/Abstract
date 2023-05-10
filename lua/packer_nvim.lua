@@ -302,11 +302,6 @@ return packer.startup {
 			config = [[ require('plugins/renamer_nvim') ]]
 		}
 
-		use { -- EditorConfig plugin for Neovim
-			'gpanders/editorconfig.nvim',
-			commit = commits.editorconfig_nvim,
-		}
-
 		use { --  Neovim motions on speed!
 			'phaazon/hop.nvim',
 			commit = commits.hop_nvim,
