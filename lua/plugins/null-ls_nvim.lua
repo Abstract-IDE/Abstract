@@ -114,15 +114,18 @@ for _, package in pairs(installed_packages) do
 		})
 		goto loop_continue
 	end
+	-- Rust
+	if package ==  "rustfmt" then
+		load = true
+		sources[#sources + 1] = formatting.rustfmt.with({
+			command = "rustfmt"
+		})
+		goto loop_continue
+	end
 
 	::loop_continue::
 end
 
--- Rust
-if fn.executable("rustfmt") == 1 then
-	load = true
-	sources[#sources + 1] = formatting.rustfmt.with({command = "rustfmt"})
-end
 -- Go
 if fn.executable("gofmt") == 1 then
 	load = true
