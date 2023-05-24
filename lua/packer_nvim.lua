@@ -271,10 +271,15 @@ return packer.startup {
 			config = [[ require('plugins/nvim-bufferline_lua') ]]
 		}
 
-		use { -- A File Explorer For Neovim Written In Lua
-			'kyazdani42/nvim-tree.lua',
-			commit = commits.nvim_tree_lua,
-			config = [[ require('plugins/nvim-tree_lua') ]]
+		use { -- Neovim plugin to manage the file system and other tree like structures.
+			'nvim-neo-tree/neo-tree.nvim',
+			branch = "v2.x",
+			requires = {
+				{ -- UI Component Library for Neovim.
+					"MunifTanjim/nui.nvim"
+				}
+			},
+			config = [[ require('plugins/neo-tree_nvim') ]]
 		}
 
 		use { -- fast and highly customizable greeter for neovim.

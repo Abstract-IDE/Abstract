@@ -69,7 +69,8 @@ bufferline.setup {
 		separator_style = {"", ""}, -- options "slant" | "thick" | "thin" | { 'any', 'any' },
 		offsets = {
 			-- options function , text_" "h always_show_bufferline = false
-			{filetype = "NvimTree", text = "Explorer", text_align = "left"},
+			{filetype = "NvimTree", text = "EXPLORER", text_align = "center"},
+			{filetype = "neo-tree", text = "EXPLORER", text_align = "center"},
 		},
 	},
 
