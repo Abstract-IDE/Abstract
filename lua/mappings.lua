@@ -3,15 +3,12 @@
 -- ━━━━━━━━━━━━━❰ Plugin-Independent Mapping ❱━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 --[===[
-        this config file contains the mapping that don't depends
-        on any plugin. mappings for plugins-dependent are in
-        lua/plugin" directory. each plugin has it's own config file
+	This config file contains the mappings that don't depend on any plugin.
+	Mappings for plugin-dependent actions are in the "lua/plugin" directory. Each plugin has its own config file.
 
-        To see the current mapping for |<Leader>| type :echo mapleader.
-        If it reports an undefined variable it means the leader key is
-        set to the "default of '\'.
-        i defined leader on very start of init.lua file so that every
-        keymap would work
+	To see the current mapping for |<Leader>|, type :echo mapleader.
+	If it reports an undefined variable, it means the leader key is set to the "default of '\'.
+	I have defined the leader at the very start of the init.lua file so that every keymap will work.
 --]===]
 
 
@@ -97,8 +94,8 @@ keymap('v', 'J', ":m '>+1<CR>gv=gv", options)
 keymap('v', 'K', ":m '<-2<CR>gv=gv", options)
 
 -- smart deletion, dd
--- It solves the issue, where you want to delete empty line, but dd will override you last yank.
--- Code above will check if u are deleting empty line, if so - use black hole register.
+-- It solves the issue, where you want to delete empty line, but dd will override your last yank.
+-- Code below will check if u are deleting empty line, if so - use black hole register.
 -- [src: https://www.reddit.com/r/neovim/comments/w0jzzv/comment/igfjx5y/?utm_source=share&utm_medium=web2x&context=3]
 local function smart_dd()
 	if vim.api.nvim_get_current_line():match("^%s*$") then

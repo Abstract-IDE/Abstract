@@ -245,7 +245,6 @@ end
 -- Also, make sure not to set up any servers via `lspconfig` _before_ calling `mason-lspconfig`'s setup function.
 
 
-	-- require("mason-lspconfig").setup_handlers({
 local import_mlspconfig, mason_lspconfig = pcall(require, "mason-lspconfig")
 if not import_mlspconfig then return end
 
