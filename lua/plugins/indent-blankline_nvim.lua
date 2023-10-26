@@ -21,49 +21,35 @@
 		:set buftype
 --]===]
 
-local indent_imported_ok, indent = pcall(require, "indent_blankline")
-if not indent_imported_ok then return end
+local ibl_import, ibl = pcall(require, "ibl")
+if not ibl_import then return end
 
-indent.setup {
+ibl.setup {
 
-	show_end_of_line = true,
-	space_char_blankline = " ",
-	show_current_context = true,
-	show_current_context_start = true,
-	show_trailing_blankline_indent = false,
-	use_treesitter = true,
-
-	char_list = {'│'}, -- {'|', '¦', '┆', '┊'},
-    -- context_char = '┃' -- pecifies the character to be used for the current context indent line
-    -- context_patterns = {'class, function', 'method', '^if'},
-
-	filetype_exclude = {
-		'help',
-		'startify',
-		'alpha',
-		'dashboard',
-		'packer',
-		'neogitstatus',
-		'NvimTree',
-		'lsp-installer',
-		"",
+	debounce = 100,
+	indent = {
+		char = "▎", -- | ¦ ┆ ┊ ║ ▎
+		smart_indent_cap = true,
+		priority = 2,
+		highlight = {
+			"IndentBlanklineIndent1", "IndentBlanklineIndent2", "IndentBlanklineIndent3", "IndentBlanklineIndent4",
+			"IndentBlanklineIndent5", "IndentBlanklineIndent6", "IndentBlanklineIndent7", "IndentBlanklineIndent8",
+		},
 	},
-
-	buftype_exclude = {
-		'terminal',
-		'nofile',
+	whitespace = {
+		highlight = { "Whitespace", "NonText" },
+		remove_blankline_trail = true,
 	},
-
-	char_highlight_list = {
-		"IndentBlanklineIndent1",
-		"IndentBlanklineIndent2",
-		"IndentBlanklineIndent3",
-		"IndentBlanklineIndent4",
-		"IndentBlanklineIndent5",
-		"IndentBlanklineIndent6",
-		"IndentBlanklineIndent7",
-		"IndentBlanklineIndent8",
-    },
+	scope = {
+		enabled = true,
+	},
+	exclude = {
+		filetypes = {
+			"rust", "lspinfo", "packer", "checkhealth", "help", "man", "gitcommit", "TelescopePrompt",
+			"TelescopeResults", 'startify', 'alpha', 'dashboard', 'neogitstatus', 'NvimTree', '',
+		},
+		buftypes = { "terminal",'nofile', },
+	}
 }
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --

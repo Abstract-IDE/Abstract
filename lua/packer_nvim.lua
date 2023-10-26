@@ -255,6 +255,8 @@ return packer.startup {
 		use { --  Indent guides for Neovim
 			'lukas-reineke/indent-blankline.nvim',
 			commit = commits.indent_blankline_nvim,
+			main = "ibl",
+			opts = {},
 			config = [[ require('plugins/indent-blankline_nvim') ]]
 		}
 
