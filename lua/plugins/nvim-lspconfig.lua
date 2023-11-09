@@ -238,6 +238,25 @@ local function setup_lsp(mason_lspconfig)
 				)
 			)
 		end,
+		["rust_analyzer"] = function ()
+			lspconfig.rust_analyzer.setup(
+				tbl_deep_extend(
+					"force", lsp_options,
+					{
+						settings = {
+							["rust-analyzer"] = {
+								diagnostics = {
+									enable = true;
+								},
+								checkOnSave = {
+									enable = true;
+								}
+							}
+						}
+					}
+				)
+			)
+		end,
 	})
 end
 
