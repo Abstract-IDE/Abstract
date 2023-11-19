@@ -25,9 +25,11 @@ register('bash', 'zsh') -- enable bash parser in zsh file
 
 
 treesitter.setup {
-
-	-- ensure_installed  = "maintained", -- one of "all", "maintained" (parsers with maintainers), or a list of languages
-	-- ignore_install    = { "javascript" }, -- List of parsers to ignore installing
+	modules = {}, -- this option is not mentioned in doc. i am providing it to hide warning emmiting when editing this config
+	ensure_installed  = {}, -- A list of parser names, or "all" (the five listed parsers should always be installed)
+	sync_install = false, -- Install parsers synchronously (only applied to `ensure_installed`)
+	auto_install = false, -- Automatically install missing parsers when entering buffer. Recommendation: set to false if you don't have `tree-sitter` CLI installed locally
+	ignore_install    = {}, -- List of parsers to ignore installing (or "all")
 
 	-- Indentation based on treesitter for the = operator. NOTE: This is an experimental feature.
 	indent = {
