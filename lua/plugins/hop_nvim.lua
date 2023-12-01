@@ -36,7 +36,7 @@ hop.setup {
 local keymap  = vim.api.nvim_set_keymap
 local options = {noremap = true, silent = true}
 
-keymap( 'n', 'F', "<cmd>lua require'hop'.hint_words()<cr>", options)
+keymap( 'n', 'f', "<cmd>lua require'hop'.hint_words()<cr>", options)
 
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
