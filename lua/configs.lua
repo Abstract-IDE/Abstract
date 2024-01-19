@@ -12,11 +12,16 @@
     :end of NOTE
 --]]
 
+
+-- Enables the experimental Lua module loader:
+--    • overrides loadfile
+--    • adds the lua loader using the byte-compilation cache
+--    • adds the libs loader
+--    • removes the default Neovim loader
+vim.loader.enable()
+
 local opt = vim.opt
 local api = vim.api
-
--- set theme
-pcall(require, 'plugins.Abstract_cs')
 
 opt.termguicolors = true -- Enable GUI colors for the terminal to get truecolor
 opt.list = true -- show whitespace
