@@ -24,14 +24,15 @@ require('plugins/impatient_nvim')   -- impatient needs to be setup before any ot
 
 require('configs')                  -- plugin independent configs
 require('mappings')                 -- plugin independent mappings
-require('customs/abstractline')     -- status line
 require('customs/override_defalut') -- always put this config(override_defalut) at last because it's use to overide the any already defined config
 
 -- load/source PLUGINS CONFIGS
 -- loading plugins and its configs are managed in seperate config file, ~/.config/nvim/lua/plugins/packer_nvim.lua
--- NOTE: always load plugins at last
+-- NOTE: always load plugins at last (if possible)
 require('lazy_nvim')
 
+require('customs/abstractline')     -- status line
+require('customs/cursor_line')      -- custom cursor line dynamic color
 -- ━━━━━━━━━━━━━━━━━❰ end of Load ❱━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
