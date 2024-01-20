@@ -275,7 +275,7 @@ local function lsp_provider()
 	local count_warn = lsp_diag.count_warn
 	local count_info = lsp_diag.count_info
 	local count_hint = lsp_diag.count_hint
-	local  sign_added, sign_changed, sign_removed, sign_hint = "", "", "", ""
+	local sign_added, sign_changed, sign_removed, sign_hint = "", "", "", ""
 
 	if count_error > 0 then
 		sign_added   = "%#AbstractlineLSPDiagError#" .. "  " .. tostring(count_error) .. "%*"
@@ -287,7 +287,7 @@ local function lsp_provider()
 		sign_removed = "%#AbstractlineLSPDiagInfo#" .. "  " .. tostring(count_info) .. "%*"
 	end
 	if count_hint > 0 then
-		sign_hint = "%#AbstractlineLSPDiagHint#" .. "  " .. tostring(count_hint) .. "%*"
+		sign_hint = "%#AbstractlineLSPDiagHint#" .. " 󰌵" .. tostring(count_hint) .. "%*"
 	end
 
 	for _, client in ipairs(clients) do

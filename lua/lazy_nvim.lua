@@ -335,7 +335,7 @@ local plugins = {
 
 	{ -- Find, Filter, Preview, Pick. All lua, all the time.
 		'nvim-telescope/telescope.nvim',
-		event = {'CmdlineEnter', 'CursorHold'},
+		cmd = { "Telescope" },
 		keys = { "t", "<C>", "<C-f>", "<C-p>" },
 		dependencies = {
 			{'nvim-telescope/telescope-fzf-native.nvim', build = 'make'}, -- FZF sorter for telescope written in c
@@ -394,11 +394,9 @@ local plugins = {
 	{ -- Neovim plugin to manage the file system and other tree like structures.
 		'nvim-neo-tree/neo-tree.nvim',
 		keys=";",
-		branch = "v2.x", -- !WARN: update it to v3.x
+		branch = "v3.x",
 		dependencies = {
-			{ -- UI Component Library for Neovim.
-				"MunifTanjim/nui.nvim"
-			}
+			{ "MunifTanjim/nui.nvim" } -- UI Component Library for Neovim.
 		},
 		config = function () require('plugins/neo-tree_nvim') end
 	},
