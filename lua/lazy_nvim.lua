@@ -229,12 +229,14 @@ local plugins = {
 
 	{ -- A collection of common configurations for Neovim's built-in language server client
 		'neovim/nvim-lspconfig',
+		event = { "BufRead" },
 		dependencies = {
 			{ -- Companion plugin for nvim-lspconfig that allows you to seamlessly install LSP servers locally (inside :echo stdpath("data")).
 				'williamboman/mason.nvim',
+				event = { "BufRead" },
 				dependencies = {
 					{ 'williamboman/mason-lspconfig.nvim', event = 'BufRead' }, -- Extension to mason.nvim that makes it easier to use lspconfig with mason.nvim
-					{ 'nvimtools/none-ls.nvim', event = { "BufRead", "BufNewFile" } }, -- Use Neovim as a language server to inject LSP diagnostics, code actions, and more via Lua.
+					{ 'nvimtools/none-ls.nvim', event = { "BufRead" } }, -- Use Neovim as a language server to inject LSP diagnostics, code actions, and more via Lua.
 				},
 			},
 			{ -- A pretty diagnostics, references, telescope results, quickfix and location list to help you solve all the trouble your code is causing.
@@ -301,7 +303,7 @@ local plugins = {
 				event = 'InsertEnter',
 				dependencies = {
 					{ 'rafamadriz/friendly-snippets', event = 'InsertEnter' }, -- Snippets collection for a set of different programming languages for faster development.
-					{ 'Neevash/awesome-flutter-snippets', ft='dart', event = 'InsertEnter' }, -- collection snippets and shortcuts for commonly used Flutter functions and classes
+					{ 'Neevash/awesome-flutter-snippets', ft='dart' }, -- collection snippets and shortcuts for commonly used Flutter functions and classes
 				},
 			},
 			{ -- A super powerful autopairs for Neovim. It support multiple character.
