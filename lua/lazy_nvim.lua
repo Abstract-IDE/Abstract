@@ -229,19 +229,23 @@ local plugins = {
 
 	{ -- A collection of common configurations for Neovim's built-in language server client
 		'neovim/nvim-lspconfig',
-		event = { "BufRead" },
+		event = { 'BufReadPre', 'BufNewFile' },
 		dependencies = {
 			{ -- Companion plugin for nvim-lspconfig that allows you to seamlessly install LSP servers locally (inside :echo stdpath("data")).
 				'williamboman/mason.nvim',
-				event = { "BufRead" },
 				dependencies = {
-					{ 'williamboman/mason-lspconfig.nvim', event = 'BufRead' }, -- Extension to mason.nvim that makes it easier to use lspconfig with mason.nvim
-					{ 'nvimtools/none-ls.nvim', event = { "BufRead" } }, -- Use Neovim as a language server to inject LSP diagnostics, code actions, and more via Lua.
+					{ 'williamboman/mason-lspconfig.nvim', event = { 'BufReadPre', 'BufNewFile' } }, -- Extension to mason.nvim that makes it easier to use lspconfig with mason.nvim
 				},
 			},
+			{ -- Use Neovim as a language server to inject LSP diagnostics, code actions, and more via Lua.
+				'nvimtools/none-ls.nvim',
+				event = { 'BufReadPre', 'BufNewFile' },
+				config = function () require('plugins/none-ls_nvim') end
+			},
+
 			{ -- A pretty diagnostics, references, telescope results, quickfix and location list to help you solve all the trouble your code is causing.
 				'folke/trouble.nvim',
-				event = 'BufRead',
+				event = { 'BufReadPre', 'BufNewFile' },
 				config = function () require('plugins/trouble_nvim') end
 			},
 			{ -- preview native LSP's goto definition calls in floating windows.
@@ -251,30 +255,28 @@ local plugins = {
 			},
 			{ -- Standalone UI for nvim-lsp progress
 				'j-hui/fidget.nvim',
-				event = 'BufRead',
+				event = { 'BufReadPre', 'BufNewFile' },
 				config = function () require('plugins/fidget_nivm') end
 			},
 			{ --  Simple winbar/statusline plugin that shows your current code context
 				'SmiteshP/nvim-navic',
-				event = 'BufRead',
+				event = { 'BufReadPre', 'BufNewFile' },
 				config = function () require('plugins/nvim_navic') end
 			},
 			{ --  LSP signature hint as you type
 				'ray-x/lsp_signature.nvim',
-				event = 'BufRead',
+				event = { 'BufReadPre', 'BufNewFile' },
 				config = function () require('plugins/lsp_signature_nvim') end
 			}
 		},
-		config = function ()
-			require('plugins/nvim-lspconfig')
-			require('plugins/none-ls_nvim')
-		end
+		init = function () require('plugins/mason_nvim') end,
+		config = function () require('plugins/nvim-lspconfig') end
 	},
 
 	{ -- Nvim Treesitter configurations and abstraction layer
 		'nvim-treesitter/nvim-treesitter',
 		build = ":TSUpdate",
-		event = 'BufRead',
+		event = { 'BufReadPre', 'BufNewFile' },
 		dependencies = {
 			{ -- Treesitter playground integrated into Neovim
 				'nvim-treesitter/playground',
@@ -358,33 +360,33 @@ local plugins = {
 
 	{ -- Smart and powerful comment plugin for neovim. Supports commentstring, dot repeat, left-right/up-down motions, hooks, and more
 		'numToStr/Comment.nvim',
-		keys = { "cc", "gc", "gb" },
+		keys = { "cc", "gc", "gb", {"cc", mode="v"}, {"gc", mode="v"}, {"gb", mode="v"} },
 		config = function () require('plugins/Comment_nvim') end
 	},
 
 	{ -- The fastest Neovim colorizer.
 		'NvChad/nvim-colorizer.lua',
-		event = 'BufRead',
+		event = { 'BufReadPre', 'BufNewFile' },
 		config = function () require('plugins/nvim-colorizer_lua') end
 	},
 
 	{ -- Indent guides for Neovim
 		'lukas-reineke/indent-blankline.nvim',
 		main = "ibl",
-		event = "BufWinEnter",
+		event = { 'BufReadPre', 'BufNewFile' },
 		opts = {},
 		config = function () require('plugins/indent-blankline_nvim') end
 	},
 
 	{ -- Git signs written in pure lua
 		'lewis6991/gitsigns.nvim',
-		event = "BufWinEnter",
+		event = { 'BufReadPre', 'BufNewFile' },
 		config = function () require('plugins/gitsigns_nvim') end
 	},
 
 	{ -- A snazzy bufferline for Neovim
 		'akinsho/nvim-bufferline.lua',
-		event = "BufWinEnter",
+		event = { 'BufReadPre', 'BufNewFile' },
 		config = function () require('plugins/nvim-bufferline_lua') end
 	},
 
@@ -406,7 +408,7 @@ local plugins = {
 
 	{ --  smart indent and project detector with project based config loader
 		'Abstract-IDE/penvim',
-		event = "BufWinEnter",
+		event = "VimEnter",
 		config = function () require('plugins/penvim') end
 	},
 

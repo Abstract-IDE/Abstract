@@ -14,9 +14,6 @@
 local _lspconfig, lspconfig = pcall(require, 'lspconfig')
 if not _lspconfig then return end
 
-local _mason, mason = pcall(require, 'mason')
-if not _mason then return end
-
 local lsp = vim.lsp
 local api = vim.api
 local fn = vim.fn
@@ -251,14 +248,9 @@ end
 -- Also, make sure not to set up any servers via `lspconfig` _before_ calling `mason-lspconfig`'s setup function.
 
 
-local import_mlspconfig, mason_lspconfig = pcall(require, "mason-lspconfig")
-if not import_mlspconfig then return end
+local _mlspconfig, mason_lspconfig = pcall(require, "mason-lspconfig")
+if not _mlspconfig then return end
 
--- import nvim-lsp-installer configs
-local import_mconfig, mconfig = pcall(require, "plugins.mason_nvim")
-if not import_mconfig then return end
-
-mason.setup(mconfig.setup) -- setup mason
 setup_lsp_config() -- setup lsp configs (mainly UI)
 setup_lsp(mason_lspconfig) -- setup lsp (like pyright, ccls ...)
 

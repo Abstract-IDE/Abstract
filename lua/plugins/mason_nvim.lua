@@ -1,5 +1,4 @@
 
-
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 -- ───────────────────────────────────────────────── --
 --   Plugin:    mason.nvim
@@ -10,14 +9,14 @@
 
 
 
-
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━━━❰ configs ❱━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
-local M = {}
+local _mason, mason = pcall(require, "mason")
+if not _mason then return end
 
-M.setup = {
+mason.setup({
 
 	ui = {
 		-- The border to use for the UI window. Accepts same border values as |nvim_open_win()|.
@@ -81,9 +80,7 @@ M.setup = {
 		-- 3. The asset name (e.g. "rust-analyzer-v0.3.0-x86_64-unknown-linux-gnu.tar.gz")
 		download_url_template = "https://github.com/%s/releases/download/%s/%s",
 	},
-}
-
-return M
+})
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━❰ end configs ❱━━━━━━━━━━━━━━━━━ --
