@@ -21,8 +21,8 @@
 		:set buftype
 --]===]
 
-local ibl_import, ibl = pcall(require, "ibl")
-if not ibl_import then return end
+local _ibl, ibl = pcall(require, "ibl")
+if not _ibl then return end
 
 ibl.setup {
 
@@ -33,8 +33,8 @@ ibl.setup {
 		smart_indent_cap = true,
 		priority = 2,
 		highlight = {
-			"IndentBlanklineIndent1", "IndentBlanklineIndent2", "IndentBlanklineIndent3", "IndentBlanklineIndent4",
-			"IndentBlanklineIndent5", "IndentBlanklineIndent6", "IndentBlanklineIndent7", "IndentBlanklineIndent8",
+			"IblIndent1", "IblIndent2", "IblIndent3", "IblIndent4",
+			"IblIndent5", "IblIndent6", "IblIndent7", "IblIndent8",
 		},
 	},
 	whitespace = {
