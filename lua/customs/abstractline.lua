@@ -317,8 +317,8 @@ function status_line()
 	if exclude_filetype[filetype] then
 		-- a hack to make statusline line invisiable on alpha
 		if filetype == "alpha" then
-			local c = "----------"
-			for _ = 1, 5 do
+			local c = "--------------------------------------"
+			for _ = 1, 4 do
 				c = c .. c
 			end
 			return "%#AbstractlinePsedostring#" .. c .. "%*"

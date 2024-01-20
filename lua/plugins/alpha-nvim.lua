@@ -14,11 +14,11 @@
 -- ━━━━━━━━━━━━━━━━━━━❰ configs ❱━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
-local alpha_ok, alpha = pcall(require, "alpha")
-if not alpha_ok then return end
+local _alpha, alpha = pcall(require, "alpha")
+if not _alpha then return end
 
-local dashboard_ok, dashboard = pcall(require, "alpha.themes.dashboard")
-if not dashboard_ok then return end
+local _dashboard, dashboard = pcall(require, "alpha.themes.dashboard")
+if not _dashboard then return end
 
 -- set highlights
 vim.api.nvim_set_hl(0, "AlphaDashboard", {fg="#1D918B"})
