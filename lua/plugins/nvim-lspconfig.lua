@@ -11,11 +11,11 @@
 
 
 -- ───────────────────────────────────────────────── --
-local lspconfig_imported, lspconfig = pcall(require, 'lspconfig')
-if not lspconfig_imported then return end
+local _lspconfig, lspconfig = pcall(require, 'lspconfig')
+if not _lspconfig then return end
 
-local imported_mason, mason = pcall(require, 'mason')
-if not imported_mason then return end
+local _mason, mason = pcall(require, 'mason')
+if not _mason then return end
 
 local lsp = vim.lsp
 local api = vim.api
@@ -133,26 +133,13 @@ local function setup_lsp_config()
 
 	-- set LSP diagnostic symbols/signs
 	-- ─────────────────────────────────────────────────--
-	fn.sign_define("DiagnosticSignError", { text = " ", texthl = "DiagnosticSignError" })
-	fn.sign_define("DiagnosticSignWarn", { text = " ", texthl = "DiagnosticSignWarn" })
-	fn.sign_define("DiagnosticSignInfo", { text = " ", texthl = "DiagnosticSignInfo" })
+	fn.sign_define("DiagnosticSignError", { text = "●", texthl = "DiagnosticSignError" })
+	fn.sign_define("DiagnosticSignWarn", { text = "●", texthl = "DiagnosticSignWarn" })
+	fn.sign_define("DiagnosticSignInfo", { text = "●", texthl = "DiagnosticSignInfo" })
 	fn.sign_define("DiagnosticSignHint", { text = "󰌵", texthl = "DiagnosticSignHint" })
-
-	api.nvim_command [[ hi DiagnosticUnderlineError cterm=underline gui=underline guisp=#840000 ]]
-	api.nvim_command [[ hi DiagnosticUnderlineHint cterm=underline  gui=underline guisp=#07454b ]]
-	api.nvim_command [[ hi DiagnosticUnderlineWarn cterm=underline  gui=underline guisp=#2f2905 ]]
-	api.nvim_command [[ hi DiagnosticUnderlineInfo cterm=underline  gui=underline guisp=#265478 ]]
 
 	-- Auto-format files prior to saving them
 	-- vim.api.nvim_command[[autocmd BufWritePre <buffer> lua vim.lsp.buf.formatting_sync(nil, 1000)]]
-
-	--[[
-	" to change colors, it's better to define in color scheme
-	" highlight LspDiagnosticsUnderlineError         guifg=#EB4917 gui=undercurl
-	" highlight LspDiagnosticsUnderlineWarning       guifg=#EBA217 gui=undercurl
-	" highlight LspDiagnosticsUnderlineInformation   guifg=#17D6EB gui=undercurl
-	" highlight LspDiagnosticsUnderlineHint          guifg=#17EB7A gui=undercurl
-	--]]
 end
 
 

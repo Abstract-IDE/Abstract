@@ -1,5 +1,5 @@
 {
-  "Abstract-cs": { "branch": "main", "commit": "517279165d3b8829e3359b7bf6f74da7d3527936" },
+  "Abstract-cs": { "branch": "main", "commit": "c3664c1d6d939c381baee185299c6326257f91e8" },
   "Comment.nvim": { "branch": "master", "commit": "0236521ea582747b58869cb72f70ccfa967d2e89" },
   "LuaSnip": { "branch": "master", "commit": "2dbef19461198630b3d7c39f414d09fb07d1fdd2" },
   "alpha-nvim": { "branch": "main", "commit": "4b36c1ca9ea475bdc006896657cf1ccc486aeffa" },
