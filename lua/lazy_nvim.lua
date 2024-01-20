@@ -28,9 +28,7 @@ vim.opt.rtp:prepend(install_path)
 
 -- safely import packer
 local _lazy, lazy = pcall(require, "lazy")
-if not _lazy then
-	return
-end
+if not _lazy then return end
 
 -- lazy.nvim Configurations
 local opts = {
@@ -51,7 +49,7 @@ local opts = {
 		-- defaults for the `Lazy log` command
 		-- log = { "-10" }, -- show the last 10 commits
 		log = { "-8" }, -- show commits from the last 3 days
-		timeout = 120, -- kill processes that take more than 2 minutes
+		timeout = 300, -- kill processes that take more than 5 minutes
 		url_format = "https://github.com/%s.git",
 		-- lazy.nvim requires git >=2.19.0. If you really want to use lazy with an older version,
 		-- then set the below to false. This should work, but is NOT supported and will
@@ -98,12 +96,7 @@ local opts = {
 			source = " ",
 			start = "",
 			task = "✔ ",
-			list = {
-				"●",
-				"➜",
-				"★",
-				"‒",
-			},
+			list = { "●", "➜", "★", "‒" },
 		},
 		-- leave nil, to automatically select a browser depending on your OS.
 		-- If you want to use a specific browser, you can define it here
@@ -270,8 +263,10 @@ local plugins = {
 				config = function () require('plugins/lsp_signature_nvim') end
 			}
 		},
-		init = function () require('plugins/nvim-lspconfig') end,
-		config = function () require('plugins/none-ls_nvim') end
+		config = function ()
+			require('plugins/nvim-lspconfig')
+			require('plugins/none-ls_nvim')
+		end
 	},
 
 	{ -- Nvim Treesitter configurations and abstraction layer
@@ -282,12 +277,12 @@ local plugins = {
 			{ -- Treesitter playground integrated into Neovim
 				'nvim-treesitter/playground',
 			},
-			{ --  Use treesitter to auto close and auto rename html tag, work with html,tsx,vue,svelte,php.
+			{ -- Use treesitter to auto close and auto rename html tag, work with html,tsx,vue,svelte,php.
 				"windwp/nvim-ts-autotag",
 				ft = { 'html', 'htmldjango', 'tsx', 'jsx', 'javascriptreact', 'typescriptreact', 'vue', 'svelte', 'php' },
 				config = function () require('plugins/nvim-ts-autotag') end
 			},
-			{ --  Neovim treesitter plugin for setting the commentstring based on the cursor location in a file.
+			{ -- Neovim treesitter plugin for setting the commentstring based on the cursor location in a file.
 				'JoosepAlviste/nvim-ts-context-commentstring',
 				config = function () require('plugins/nvim-ts-context-commentstring') end
 			}
@@ -326,7 +321,7 @@ local plugins = {
 		end
 	},
 
-	{ --  Add/change/delete surrounding delimiter pairs with ease.
+	{ -- Add/change/delete surrounding delimiter pairs with ease.
 		'kylechui/nvim-surround',
 		event = 'InsertEnter',
 		keys = {'c'},
@@ -371,7 +366,7 @@ local plugins = {
 		config = function () require('plugins/nvim-colorizer_lua') end
 	},
 
-	{ --  Indent guides for Neovim
+	{ -- Indent guides for Neovim
 		'lukas-reineke/indent-blankline.nvim',
 		main = "ibl",
 		event = "BufWinEnter",

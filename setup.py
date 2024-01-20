@@ -71,6 +71,10 @@ CACHE = f"{NVIM_DATA_DIR}/.cache"
 CUSTOM_TOOLS_DIR = f"{NVIM_DATA_DIR}/custom_tools"
 CACHE_BUILD_PATH = f"{HOME}/.cache/build_files"
 SCRIPT_PATH = Path(__file__).parent.absolute()
+
+LAZY_ROOT_PATH = NVIM_DATA_DIR+"/lazy"
+LAZY_DIR = LAZY_ROOT_PATH+"/lazy.nvim"
+
 # -------------------------------
 
 
@@ -128,12 +132,9 @@ def backup_nvim():
 
 # -------------------------------
 def clean():
-    if Path(NVIM_DATA_DIR+"/site/pack/packer").exists():
-        subprocess.run(["rm", "-rf", NVIM_DATA_DIR+"/site/pack/packer"])
-        print("\nREMOVED: ", NVIM_DATA_DIR+"/site/pack/packer")
-    if Path(NVIM_CONF_PATH+"/plugin").exists():
-        subprocess.run(["rm", "-rf", NVIM_CONF_PATH+"/plugin"])
-        print("\nREMOVED: ", NVIM_CONF_PATH+"/plugin")
+    if Path(LAZY_ROOT_PATH).exists():
+        subprocess.run(["rm", "-rf", LAZY_ROOT_PATH])
+        print("\nREMOVED: ", LAZY_ROOT_PATH)
 # -------------------------------
 
 
@@ -168,25 +169,24 @@ def need_to_clone_abstract():
 
 # -------------------------------
 def compile_nvim():
+    print("\ncompiling config and plugins...")
     print("\nIf it's taking long time then press CTRL+C and run setup.py file again \n (2-5 minutes would be enough) \n")
-    packer_compile_cmd = ["nvim", "--headless", "-c", "autocmd User PackerComplete quitall", "-c", "PackerSync"]
-    subprocess.run(packer_compile_cmd)
+    lazy_compile_cmd = ["nvim", "--headless", "-c", "autocmd User LazySync quitall", "-c", "Lazy sync"]
+    subprocess.run(lazy_compile_cmd)
 # -------------------------------
 
 
 # -------------------------------
-def setup_packer():
-    nvim_plugin_dir = str(f"{NVIM_DATA_DIR}/site/pack/packer/start")
-    packer_dir = nvim_plugin_dir+"/packer.nvim"
-    print("\nsetting up packer...")
+def setup_lazy():
+    print("\nsetting up lazy plugin manager...")
 
-    if not Path(nvim_plugin_dir).exists():
-        Path(nvim_plugin_dir).mkdir(parents=True)
+    if not Path(LAZY_ROOT_PATH).exists():
+        Path(LAZY_ROOT_PATH).mkdir(parents=True)
 
-    if not Path(packer_dir).exists():
-        print(packer_dir)
-        repository = "https://github.com/wbthomason/packer.nvim"
-        subprocess.run(["git", "clone", "--depth", "1", repository], cwd=nvim_plugin_dir)
+    if not Path(LAZY_DIR).exists():
+        print(LAZY_DIR)
+        repository = "https://github.com/folke/lazy.nvim"
+        subprocess.run(["git", "clone", "--depth", "1", repository], cwd=LAZY_ROOT_PATH)
 # -------------------------------
 
 
@@ -237,8 +237,7 @@ def main():
     # compile configs
     try:
         clean()
-        setup_packer()
-        print("\ncompiling config and plugins...")
+        setup_lazy()
         compile_nvim()
     except KeyboardInterrupt:
         print("\n\n")

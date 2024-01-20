@@ -75,7 +75,7 @@ bufferline.setup {
 	},
 
 	highlights = {
-		fill       = {bg={highlight="BufferLineFill", attribute="bg"}},
+		fill = {bg={highlight="BufferLineFill", attribute="bg"}},
 		background = { -- current tab
 			fg={highlight="BufferCurrent", attribute="fg"},
 			bg={highlight="BufferCurrent", attribute="bg"},

@@ -132,6 +132,7 @@ local function filetype_exclude(filetype)
 		"TelescopePrompt",
 		"toggleterm",
 		"Trouble",
+		"lazy",
 	}
 	if vim.tbl_contains(filetype_to_exclude, filetype) then
 		return true
