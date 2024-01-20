@@ -241,7 +241,7 @@ local plugins = {
 				'williamboman/mason.nvim',
 				dependencies = {
 					{ 'williamboman/mason-lspconfig.nvim', event = 'BufRead' }, -- Extension to mason.nvim that makes it easier to use lspconfig with mason.nvim
-					{ 'jose-elias-alvarez/null-ls.nvim', event = 'BufRead' }, -- Use Neovim as a language server to inject LSP diagnostics, code actions, and more via Lua.
+					{ 'nvimtools/none-ls.nvim', event = { "BufRead", "BufNewFile" } }, -- Use Neovim as a language server to inject LSP diagnostics, code actions, and more via Lua.
 				},
 			},
 			{ -- A pretty diagnostics, references, telescope results, quickfix and location list to help you solve all the trouble your code is causing.
@@ -271,7 +271,7 @@ local plugins = {
 			}
 		},
 		init = function () require('plugins/nvim-lspconfig') end,
-		config = function () require('plugins/null-ls_nvim') end
+		config = function () require('plugins/none-ls_nvim') end
 	},
 
 	{ -- Nvim Treesitter configurations and abstraction layer
