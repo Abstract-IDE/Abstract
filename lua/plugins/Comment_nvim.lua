@@ -18,6 +18,9 @@
 local comment_imported_ok, comment = pcall(require, 'Comment')
 if not comment_imported_ok then return end
 
+local _ctx_commentstring, ctx_commentstring = pcall(require, "plugins.nvim-ts-context-commentstring")
+if not _ctx_commentstring then return end
+
 comment.setup({
 	---Add a space b/w comment and the line
 	---@type boolean
@@ -36,8 +39,8 @@ comment.setup({
 
 	---Pre-hook, called before commenting the line
 	---@type function|nil
-	-- NOTE: Already implemented with JoosepAlviste/nvim-ts-context-commentstring
-	-- pre_hook = nil,
+	-- NOTE: implemented with JoosepAlviste/nvim-ts-context-commentstring
+	pre_hook = ctx_commentstring.pre_hook,
 
 	---Post-hook, called after commenting is done
 	---@type function|nil

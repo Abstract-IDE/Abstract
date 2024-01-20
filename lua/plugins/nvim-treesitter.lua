@@ -15,8 +15,8 @@
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
 -- safely import tree-sitter
-local treesitter_imported_ok, treesitter =  pcall(require, 'nvim-treesitter.configs')
-if not treesitter_imported_ok then return end
+local _treesitter, treesitter =  pcall(require, 'nvim-treesitter.configs')
+if not _treesitter then return end
 
 
 local register = vim.treesitter.language.register
