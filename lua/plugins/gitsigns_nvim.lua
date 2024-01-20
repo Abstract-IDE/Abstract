@@ -9,15 +9,14 @@
 
 
 
-
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━━━❰ configs ❱━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
-local import_gitsigns, gitsigns = pcall(require, "gitsigns")
-if not import_gitsigns then return end
+local _gitsigns, gitsigns = pcall(require, "gitsigns")
+if not _gitsigns then return end
 
-require('gitsigns').setup {
+gitsigns.setup {
 	signs = {
 		add = {
 			hl = 'GitSignsAdd',
@@ -48,6 +47,12 @@ require('gitsigns').setup {
 			text = '~',
 			numhl = 'GitSignsChangeNr',
 			linehl = 'GitSignsChangeLn',
+		},
+		untracked = {
+			hl = 'GitSignsUntracked',
+			text = '┆',
+			numhl = 'GitSignsUntrackedNr',
+			linehl = 'GitSignsUntrackedLn',
 		},
 	},
 	signcolumn = true, -- Toggle with `:Gitsigns toggle_signs`

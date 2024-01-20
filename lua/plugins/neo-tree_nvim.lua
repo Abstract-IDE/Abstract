@@ -17,7 +17,6 @@ local _ntree, neo_tree = pcall(require, "neo-tree")
 if not _ntree then return end
 
 vim.api.nvim_set_keymap("n", "<leader>f", ":Neotree toggle<CR>", { noremap = true, silent = true })
--- vim.cmd([[nnoremap \ :Neotree reveal<cr>]])
 
 local mappings = {
 
