@@ -17,8 +17,8 @@
 -- https://github.com/nvimtools/none-ls.nvim/blob/main/doc/BUILTINS.md
 
 -- safley import null-ls
-local imported_null, null = pcall(require, "null-ls")
-if not imported_null then return end
+local _null, null = pcall(require, "null-ls")
+if not _null then return end
 
 -- Packages(LSP, Formatter, Linter, DAP) are installed and managed by 'williamboman/mason.nvim'
 local _packages, packages = pcall(require, "mason-registry")

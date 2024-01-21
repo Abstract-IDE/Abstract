@@ -16,8 +16,8 @@
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
 -- bootstrap lazy.nvim
-local root_path = vim.fn.stdpath("data") .. "/lazy"
-local install_path = root_path .. "/lazy.nvim"
+local root_dir = vim.fn.stdpath("data") .. "/lazy"
+local install_path = root_dir .. "/lazy.nvim"
 if not vim.loop.fs_stat(install_path) then
 	vim.fn.system({
 		"git", "clone", "--filter=blob:none", "https://github.com/folke/lazy.nvim.git", "--branch=stable",
@@ -32,7 +32,7 @@ if not _lazy then return end
 
 -- lazy.nvim Configurations
 local opts = {
-	root = root_path, -- directory where plugins will be installed
+	root = root_dir, -- directory where plugins will be installed
 	defaults = {
 		lazy = true, -- should plugins be lazy-loaded?
 		version = nil,
@@ -43,7 +43,7 @@ local opts = {
 	},
 	-- leave nil when passing the spec as the first argument to setup()
 	spec = nil, ---@type LazySpec
-	lockfile = vim.fn.stdpath("config") .. "/.lazy-lock.json", -- lockfile generated after running update.
+	lockfile = root_dir .. "/lazy-lock.json", -- lockfile generated after running update.
 	concurrency = jit.os:find("Windows") and (vim.loop.available_parallelism() * 2) or nil, ---@type number limit the maximum amount of concurrent tasks
 	git = {
 		-- defaults for the `Lazy log` command
