@@ -1,19 +1,20 @@
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 -- ───────────────────────────────────────────────── --
---    Plugin:    lazy.nvim
---    Github:    https://github.com/folke/lazy.nvim
+--[[
 
--- lazy.nvim is a modern plugin manager for Neovim.
+	We are using Lazy.vim to manage our plugins.
+	The configurations for each plugin are stored in their respective separate files
+	located in the "plugins/" directory, and these configurations are loaded by Lazy.nvim.
+
+	Repo: https://github.com/folke/lazy.nvim
+
+--]]
 -- ───────────────────────────────────────────────── --
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
 
 
-
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
--- ━━━━━━━━━━━━━━━━━━━❰ configs ❱━━━━━━━━━━━━━━━━━━━ --
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
 -- bootstrap lazy.nvim
 local root_dir = vim.fn.stdpath("data") .. "/lazy"
@@ -30,6 +31,10 @@ vim.opt.rtp:prepend(install_path)
 local _lazy, lazy = pcall(require, "lazy")
 if not _lazy then return end
 
+
+
+
+-- ───────────────────────────────────────────────── --
 -- Plugins Configurations
 local plugins = {
 
@@ -286,7 +291,12 @@ local plugins = {
 	-- ━━━━━━━━━━━━━━❰ end of DEVELOPMENT ❱━━━━━━━━━━━━━ --
 
 }
+-- ───────────────────────────────────────────────── --
 
+
+
+
+-- ───────────────────────────────────────────────── --
 -- lazy.nvim Configurations
 local opts = {
 	root = root_dir, -- directory where plugins will be installed
@@ -324,7 +334,7 @@ local opts = {
 		-- install missing plugins on startup. This doesn't increase startup time.
 		missing = true,
 		-- try to load one of these colorschemes when starting an installation during startup
-		colorscheme = { "habamax" },
+		colorscheme = { "abscs", "default" },
 	},
 	ui = {
 		-- a number <1 is a percentage., >1 is a fixed size
@@ -454,10 +464,7 @@ local opts = {
 		require = false,
 	},
 }
+-- ───────────────────────────────────────────────── --
 
 lazy.setup(plugins, opts)
-
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
--- ━━━━━━━━━━━━━━━━━❰ end configs ❱━━━━━━━━━━━━━━━━━ --
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
