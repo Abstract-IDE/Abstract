@@ -9,13 +9,12 @@
 
 
 
-
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━━━❰ configs ❱━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
-local imported_hop, hop = pcall(require, "hop")
-if not imported_hop then return end
+local _hop, hop = pcall(require, "hop")
+if not _hop then return end
 
 hop.setup {
 	keys = 'qwertyuiopasdfghjklzxcvbnm',

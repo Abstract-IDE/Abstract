@@ -325,7 +325,7 @@ local plugins = {
 
 	{ -- Find, Filter, Preview, Pick. All lua, all the time.
 		'nvim-telescope/telescope.nvim',
-		cmd = { "Telescope" },
+		cmd = { "Telescope", "Mason" },
 		keys = { "t", "<C-f>", "<C-p>" },
 		dependencies = {
 			{'nvim-telescope/telescope-fzf-native.nvim', build = 'make'}, -- FZF sorter for telescope written in c
