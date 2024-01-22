@@ -423,6 +423,13 @@ local plugins = {
 		config = function () require('plugins/hop_nvim') end
 	},
 
+	{ --  Neovim file explorer: edit your filesystem like a buffer
+		'stevearc/oil.nvim',
+		keys = { "-" },
+		opts = {},
+		config = function () require('plugins/oil_nvim') end
+	},
+
 	-- ━━━━━━━━━━━━━━━━━❰ DEVELOPMENT ❱━━━━━━━━━━━━━━━━━ --
 
 	--          [ WEB ]
