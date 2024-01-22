@@ -15,8 +15,8 @@
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
 -- safely import telescope
-local import_telescope, telescope = pcall(require, 'telescope')
-if not import_telescope then return end
+local _telescope, telescope = pcall(require, 'telescope')
+if not _telescope then return end
 
 telescope.setup {
 
@@ -107,11 +107,7 @@ telescope.setup {
 			find_cmd = "fd" -- find command (defaults to `fd`)
 		},
 
-		file_browser = {
-			theme = "ivy",
-			-- disables netrw and use telescope-file-browser in its place
-			hijack_netrw = true,
-		},
+		file_browser = require'plugins.telescope-file-browser_nvim'.file_browser,
 
 		["ui-select"] = {
 			require("telescope.themes").get_dropdown {
