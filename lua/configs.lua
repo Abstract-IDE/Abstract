@@ -59,7 +59,7 @@ opt.showmatch = true -- show the matching part of the pair for [] {} and ()
 
 opt.cursorline = true -- highlight current line
 opt.number = true -- show line numbers
-opt.relativenumber = false -- show relative line number
+opt.relativenumber = true -- show relative line number
 
 opt.incsearch = true -- incremental search
 opt.hlsearch = true -- highlighted search results
