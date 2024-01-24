@@ -68,18 +68,6 @@ local plugins = {
 		'neovim/nvim-lspconfig',
 		event = { 'BufReadPre', 'BufNewFile', 'InsertEnter' },
 		dependencies = {
-			{ -- Companion plugin for nvim-lspconfig that allows you to seamlessly install LSP servers locally (inside :echo stdpath("data")).
-				'williamboman/mason.nvim',
-				cmd = "Mason",
-				dependencies = {
-					{ 'williamboman/mason-lspconfig.nvim' }, -- Extension to mason.nvim that makes it easier to use lspconfig with mason.nvim
-					{ -- Use Neovim as a language server to inject LSP diagnostics, code actions, and more via Lua.
-						'nvimtools/none-ls.nvim',
-						config = function () require('plugins/none-ls_nvim') end
-					},
-				},
-				config = function () require('plugins/mason_nvim') end
-			},
 			{ -- A pretty diagnostics, references, telescope results, quickfix and location list to help you solve all the trouble your code is causing.
 				'folke/trouble.nvim',
 				config = function () require('plugins/trouble_nvim') end
@@ -104,10 +92,23 @@ local plugins = {
 		config = function () require('plugins/nvim-lspconfig') end
 	},
 
+	{ -- Companion plugin for nvim-lspconfig that allows you to seamlessly install LSP servers locally (inside :echo stdpath("data")).
+		'williamboman/mason.nvim',
+		cmd = "Mason",
+		dependencies = {
+			{ 'williamboman/mason-lspconfig.nvim' }, -- Extension to mason.nvim that makes it easier to use lspconfig with mason.nvim
+			{ -- Use Neovim as a language server to inject LSP diagnostics, code actions, and more via Lua.
+				'nvimtools/none-ls.nvim',
+				config = function () require('plugins/none-ls_nvim') end
+			},
+		},
+		config = function () require('plugins/mason_nvim') end
+	},
+
 	{ -- Nvim Treesitter configurations and abstraction layer
 		'nvim-treesitter/nvim-treesitter',
 		build = ":TSUpdate",
-		event = { 'BufReadPre', 'BufNewFile', 'InsertEnter' },
+		event = { 'BufReadPost', 'BufNewFile' },
 		dependencies = {
 			{ -- Treesitter playground integrated into Neovim
 				'nvim-treesitter/playground',
@@ -201,7 +202,7 @@ local plugins = {
 	{ -- Indent guides for Neovim
 		'lukas-reineke/indent-blankline.nvim',
 		main = "ibl",
-		event = { 'BufReadPre', 'BufNewFile' },
+		event = { 'BufReadPost', 'BufNewFile' },
 		opts = {},
 		config = function () require('plugins/indent-blankline_nvim') end
 	},
