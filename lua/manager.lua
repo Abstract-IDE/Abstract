@@ -214,10 +214,10 @@ local plugins = {
 		config = function () require('plugins/gitsigns_nvim') end
 	},
 
-	{ -- A snazzy bufferline for Neovim
-		'akinsho/nvim-bufferline.lua',
+	{ -- A declarative, highly configurable, and neovim style tabline plugin. Use your nvim tabs as a workspace multiplexer!
+		'nanozuki/tabby.nvim',
 		event = { 'BufReadPre', 'BufNewFile' },
-		config = function () require('plugins/nvim-bufferline_lua') end
+		config = function () require('plugins/tabby') end
 	},
 
 	{ -- Neovim plugin to manage the file system and other tree like structures.

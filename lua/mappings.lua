@@ -18,19 +18,19 @@ local options = {noremap = true, silent = true}
 local silent  = {silent = true}
 
 
--- TODO: fiqure out to implement <leader>q to quit only one buffer or one window at a time
--- Close buffer
-cmd([[ autocmd BufEnter * nmap <silent> <buffer> <leader>q :bd<CR> ]])
+-- -- TODO: fiqure out to implement <leader>q to quit only one buffer or one window at a time
+-- -- Close buffer
+-- cmd([[ autocmd BufEnter * nmap <silent> <buffer> <leader>q :bd<CR> ]])
 
-vim.api.nvim_create_autocmd(
-	"FileType",
-	{
-		pattern = {
-			"man", "help", "lspinfo", "null-ls-info", "lsp-installer"
-		},
-		command = "nnoremap <silent> <buffer> <leader>q :close<CR>",
-	}
-)
+-- vim.api.nvim_create_autocmd(
+-- 	"FileType",
+-- 	{
+-- 		pattern = {
+-- 			"man", "help", "lspinfo", "null-ls-info", "lsp-installer"
+-- 		},
+-- 		command = "nnoremap <silent> <buffer> <leader>q :close<CR>",
+-- 	}
+-- )
 
 
 -- map ctl+z to nothing so that it don't suspend terminal
