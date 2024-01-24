@@ -1,17 +1,14 @@
-
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
--- ───────────────────────────────────────────────── --
 --[[
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+─────────────────────────────────────────────────
+We are using Lazy.vim to manage our plugins.
+The configurations for each plugin are stored in their respective separate files
+located in the "plugins/" directory, and these configurations are loaded by Lazy.nvim.
 
-	We are using Lazy.vim to manage our plugins.
-	The configurations for each plugin are stored in their respective separate files
-	located in the "plugins/" directory, and these configurations are loaded by Lazy.nvim.
-
-	Repo: https://github.com/folke/lazy.nvim
-
+Repo: https://github.com/folke/lazy.nvim
+─────────────────────────────────────────────────
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 --]]
--- ───────────────────────────────────────────────── --
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
 
 
@@ -21,41 +18,48 @@ local root_dir = vim.fn.stdpath("data") .. "/lazy"
 local install_path = root_dir .. "/lazy.nvim"
 if not vim.loop.fs_stat(install_path) then
 	vim.fn.system({
-		"git", "clone", "--filter=blob:none", "https://github.com/folke/lazy.nvim.git", "--branch=stable",
-		install_path
+		"git",
+		"clone",
+		"--filter=blob:none",
+		"https://github.com/folke/lazy.nvim.git",
+		"--branch=stable",
+		install_path,
 	})
 end
 vim.opt.rtp:prepend(install_path)
 
 -- safely import packer
 local _lazy, lazy = pcall(require, "lazy")
-if not _lazy then return end
-
-
-
+if not _lazy then
+	return
+end
 
 -- ───────────────────────────────────────────────── --
 -- Plugins Configurations
 local plugins = {
 
 	-- the colorscheme should be available when starting Neovim
-	{   -- colorscheme for (neo)vim written in lua specially made for Abstract
-		'Abstract-IDE/Abstract-cs',
+	{              -- colorscheme for (neo)vim written in lua specially made for Abstract
+		"Abstract-IDE/Abstract-cs",
 		lazy = false, -- make sure we load this during startup if it is your main colorscheme
 		priority = 1000, -- make sure to load this before all the other start plugins
-		config = function() require('plugins/Abstract-cs') end,
+		config = function()
+			require("plugins/Abstract-cs")
+		end,
 	},
 
 	{ -- All the lua functions I don't want to write twice.
-		'nvim-lua/plenary.nvim',
+		"nvim-lua/plenary.nvim",
 	},
 
 	{ -- lua `fork` of vim-web-devicons for neovim
-		'kyazdani42/nvim-web-devicons',
-		config = function () require('plugins/nvim-web-devicons') end
+		"kyazdani42/nvim-web-devicons",
+		config = function()
+			require("plugins/nvim-web-devicons")
+		end,
 	},
 
-	{ --  A plugin for profiling Vim and Neovim startup time.
+	{                  --  A plugin for profiling Vim and Neovim startup time.
 		"dstein64/vim-startuptime",
 		cmd = "StartupTime", -- lazy-load on a command
 		-- init is called during startup. Configuration for vim plugins typically should be set in an init function
@@ -65,238 +69,298 @@ local plugins = {
 	},
 
 	{ -- A collection of common configurations for Neovim's built-in language server client
-		'neovim/nvim-lspconfig',
-		event = { 'BufReadPre', 'BufNewFile', 'InsertEnter' },
+		"neovim/nvim-lspconfig",
+		event = { "BufReadPre", "BufNewFile", "InsertEnter" },
 		dependencies = {
 			{ -- A pretty diagnostics, references, telescope results, quickfix and location list to help you solve all the trouble your code is causing.
-				'folke/trouble.nvim',
-				config = function () require('plugins/trouble_nvim') end
+				"folke/trouble.nvim",
+				config = function()
+					require("plugins/trouble_nvim")
+				end,
 			},
 			{ -- preview native LSP's goto definition calls in floating windows.
-				'rmagatti/goto-preview',
-				config = function () require('plugins/goto-preview') end
+				"rmagatti/goto-preview",
+				config = function()
+					require("plugins/goto-preview")
+				end,
 			},
 			{ -- Standalone UI for nvim-lsp progress
-				'j-hui/fidget.nvim',
-				config = function () require('plugins/fidget_nivm') end
+				"j-hui/fidget.nvim",
+				config = function()
+					require("plugins/fidget_nivm")
+				end,
 			},
 			{ --  Simple winbar/statusline plugin that shows your current code context
-				'SmiteshP/nvim-navic',
-				config = function () require('plugins/nvim_navic') end
+				"SmiteshP/nvim-navic",
+				config = function()
+					require("plugins/nvim_navic")
+				end,
 			},
 			{ --  LSP signature hint as you type
-				'ray-x/lsp_signature.nvim',
-				config = function () require('plugins/lsp_signature_nvim') end
-			}
+				"ray-x/lsp_signature.nvim",
+				config = function()
+					require("plugins/lsp_signature_nvim")
+				end,
+			},
 		},
-		config = function () require('plugins/nvim-lspconfig') end
+		config = function()
+			require("plugins/nvim-lspconfig")
+		end,
 	},
 
 	{ -- Companion plugin for nvim-lspconfig that allows you to seamlessly install LSP servers locally (inside :echo stdpath("data")).
-		'williamboman/mason.nvim',
+		"williamboman/mason.nvim",
 		cmd = "Mason",
 		dependencies = {
-			{ 'williamboman/mason-lspconfig.nvim' }, -- Extension to mason.nvim that makes it easier to use lspconfig with mason.nvim
-			{ -- Use Neovim as a language server to inject LSP diagnostics, code actions, and more via Lua.
-				'nvimtools/none-ls.nvim',
-				config = function () require('plugins/none-ls_nvim') end
+			{ "williamboman/mason-lspconfig.nvim" }, -- Extension to mason.nvim that makes it easier to use lspconfig with mason.nvim
+			{                               -- Use Neovim as a language server to inject LSP diagnostics, code actions, and more via Lua.
+				"nvimtools/none-ls.nvim",
+				config = function()
+					require("plugins/none-ls_nvim")
+				end,
 			},
 		},
-		config = function () require('plugins/mason_nvim') end
+		config = function()
+			require("plugins/mason_nvim")
+		end,
 	},
 
 	{ -- Nvim Treesitter configurations and abstraction layer
-		'nvim-treesitter/nvim-treesitter',
+		"nvim-treesitter/nvim-treesitter",
 		build = ":TSUpdate",
-		event = { 'BufReadPost', 'BufNewFile' },
+		event = { "BufReadPost", "BufNewFile" },
 		dependencies = {
 			{ -- Treesitter playground integrated into Neovim
-				'nvim-treesitter/playground',
+				"nvim-treesitter/playground",
 			},
 			{ -- Use treesitter to auto close and auto rename html tag, work with html,tsx,vue,svelte,php.
 				"windwp/nvim-ts-autotag",
-				event = 'InsertEnter',
-				config = function () require('plugins/nvim-ts-autotag') end
+				event = "InsertEnter",
+				config = function()
+					require("plugins/nvim-ts-autotag")
+				end,
 			},
 			{ -- Neovim treesitter plugin for setting the commentstring based on the cursor location in a file.
-				'JoosepAlviste/nvim-ts-context-commentstring',
-				keys = { "cc", "gc", "gb", {"cc", mode="v"}, {"gc", mode="v"}, {"gb", mode="v"} },
-				config = function () require('plugins/nvim-ts-context-commentstring') end
-			}
+				"JoosepAlviste/nvim-ts-context-commentstring",
+				keys = { "cc", "gc", "gb", { "cc", mode = "v" }, { "gc", mode = "v" }, { "gb", mode = "v" } },
+				config = function()
+					require("plugins/nvim-ts-context-commentstring")
+				end,
+			},
 		},
-		config = function () require('plugins/nvim-treesitter') end
+		config = function()
+			require("plugins/nvim-treesitter")
+		end,
 	},
 
 	{ -- A completion plugin for neovim coded in Lua.
-		'hrsh7th/nvim-cmp',
-		event = 'InsertEnter',
+		"hrsh7th/nvim-cmp",
+		event = "InsertEnter",
 		-- these dependencies will only be loaded when cmp loads
 		-- dependencies are always lazy-loaded unless specified otherwise
 		dependencies = {
 			{ -- Snippet Engine for Neovim written in Lua.
-				'L3MON4D3/LuaSnip',
+				"L3MON4D3/LuaSnip",
 				dependencies = {
-					{ 'rafamadriz/friendly-snippets' }, -- Snippets collection for a set of different programming languages for faster development.
-					{ 'Neevash/awesome-flutter-snippets', ft='dart' }, -- collection snippets and shortcuts for commonly used Flutter functions and classes
+					{ "rafamadriz/friendly-snippets" },   -- Snippets collection for a set of different programming languages for faster development.
+					{ "Neevash/awesome-flutter-snippets", ft = "dart" }, -- collection snippets and shortcuts for commonly used Flutter functions and classes
 				},
-				config = function() require('plugins/LuaSnip') end
+				config = function()
+					require("plugins/LuaSnip")
+				end,
 			},
 			{ -- A super powerful autopairs for Neovim. It support multiple character.
-				'windwp/nvim-autopairs',
-				config = function() require('plugins/nvim-autopairs') end
+				"windwp/nvim-autopairs",
+				config = function()
+					require("plugins/nvim-autopairs")
+				end,
 			},
-			{ 'hrsh7th/cmp-nvim-lsp' }, -- nvim-cmp source for neovim builtin LSP client
-			{ 'hrsh7th/cmp-nvim-lua' }, -- nvim-cmp source for nvim lua
-			{ 'hrsh7th/cmp-buffer' }, -- nvim-cmp source for buffer words.
-			{ 'hrsh7th/cmp-path' }, -- nvim-cmp source for filesystem paths.
-			{ 'saadparwaiz1/cmp_luasnip' }, -- luasnip completion source for nvim-cmp
-			{ 'ray-x/cmp-treesitter' }, -- nvim-cmp source for treesitter nodes.
+			{ "hrsh7th/cmp-nvim-lsp" }, -- nvim-cmp source for neovim builtin LSP client
+			{ "hrsh7th/cmp-nvim-lua" }, -- nvim-cmp source for nvim lua
+			{ "hrsh7th/cmp-buffer" }, -- nvim-cmp source for buffer words.
+			{ "hrsh7th/cmp-path" }, -- nvim-cmp source for filesystem paths.
+			{ "saadparwaiz1/cmp_luasnip" }, -- luasnip completion source for nvim-cmp
+			{ "ray-x/cmp-treesitter" }, -- nvim-cmp source for treesitter nodes.
 		},
-		config = function() require('plugins/nvim-cmp') end
+		config = function()
+			require("plugins/nvim-cmp")
+		end,
 	},
 
 	{ -- Add/change/delete surrounding delimiter pairs with ease.
-		'kylechui/nvim-surround',
-		event = { 'BufReadPre', 'BufNewFile', 'InsertEnter' },
-		keys = {'c'},
-		config = function () require('plugins/nvim-surround') end
+		"kylechui/nvim-surround",
+		event = { "BufReadPre", "BufNewFile", "InsertEnter" },
+		keys = { "c" },
+		config = function()
+			require("plugins/nvim-surround")
+		end,
 	},
 
 	{ -- Find, Filter, Preview, Pick. All lua, all the time.
-		'nvim-telescope/telescope.nvim',
+		"nvim-telescope/telescope.nvim",
 		cmd = { "Telescope", "Mason" },
 		keys = { "t", "<C-f>", "<C-p>" },
 		dependencies = {
-			{'nvim-telescope/telescope-fzf-native.nvim', build = 'make'}, -- FZF sorter for telescope written in c
-			{'nvim-telescope/telescope-file-browser.nvim'}, -- File Browser extension for telescope.nvim
-			{'nvim-telescope/telescope-media-files.nvim'}, -- Telescope extension to preview media files using Ueberzug.
-			{'nvim-telescope/telescope-ui-select.nvim'}, -- It sets vim.ui.select to telescope.
-			{'nvim-telescope/telescope-symbols.nvim'}, -- telescope-symbols provide its users with the ability of picking symbols and insert them at point.
+			{ "nvim-telescope/telescope-fzf-native.nvim",  build = "make" }, -- FZF sorter for telescope written in c
+			{ "nvim-telescope/telescope-file-browser.nvim" },      -- File Browser extension for telescope.nvim
+			{ "nvim-telescope/telescope-media-files.nvim" },       -- Telescope extension to preview media files using Ueberzug.
+			{ "nvim-telescope/telescope-ui-select.nvim" },         -- It sets vim.ui.select to telescope.
+			{ "nvim-telescope/telescope-symbols.nvim" },           -- telescope-symbols provide its users with the ability of picking symbols and insert them at point.
 		},
-		config = function () require('plugins/telescope_nvim') end
+		config = function()
+			require("plugins/telescope_nvim")
+		end,
 	},
 
 	{ -- Use (neo)vim terminal in the floating/popup window.
-		'voldikss/vim-floaterm',
+		"voldikss/vim-floaterm",
 		keys = { "t", "<C-t>" },
-		config = function () require('plugins/vim-floaterm') end
+		config = function()
+			require("plugins/vim-floaterm")
+		end,
 	},
 
 	{ -- Maximizes and restores the current window in Vim
-		'szw/vim-maximizer',
+		"szw/vim-maximizer",
 		keys = { "<leader>" },
-		config = function () require('plugins/vim-maximizer') end
+		config = function()
+			require("plugins/vim-maximizer")
+		end,
 	},
 
 	{ -- Smart and powerful comment plugin for neovim. Supports commentstring, dot repeat, left-right/up-down motions, hooks, and more
-		'numToStr/Comment.nvim',
-		keys = { "cc", "gc", "gb", {"cc", mode="v"}, {"gc", mode="v"}, {"gb", mode="v"} },
-		config = function () require('plugins/Comment_nvim') end
+		"numToStr/Comment.nvim",
+		keys = { "cc", "gc", "gb", { "cc", mode = "v" }, { "gc", mode = "v" }, { "gb", mode = "v" } },
+		config = function()
+			require("plugins/Comment_nvim")
+		end,
 	},
 
 	{ -- The fastest Neovim colorizer.
-		'NvChad/nvim-colorizer.lua',
-		event = { 'BufReadPre', 'BufNewFile', 'InsertEnter' },
-		config = function () require('plugins/nvim-colorizer_lua') end
+		"NvChad/nvim-colorizer.lua",
+		event = { "BufReadPre", "BufNewFile", "InsertEnter" },
+		config = function()
+			require("plugins/nvim-colorizer_lua")
+		end,
 	},
 
 	{ -- Indent guides for Neovim
-		'lukas-reineke/indent-blankline.nvim',
+		"lukas-reineke/indent-blankline.nvim",
 		main = "ibl",
-		event = { 'BufReadPost', 'BufNewFile' },
+		event = { "BufReadPost", "BufNewFile" },
 		opts = {},
-		config = function () require('plugins/indent-blankline_nvim') end
+		config = function()
+			require("plugins/indent-blankline_nvim")
+		end,
 	},
 
 	{ -- Git signs written in pure lua
-		'lewis6991/gitsigns.nvim',
-		event = { 'BufReadPre', 'BufNewFile', 'InsertEnter' },
-		config = function () require('plugins/gitsigns_nvim') end
+		"lewis6991/gitsigns.nvim",
+		event = { "BufReadPre", "BufNewFile", "InsertEnter" },
+		config = function()
+			require("plugins/gitsigns_nvim")
+		end,
 	},
 
 	{ -- A declarative, highly configurable, and neovim style tabline plugin. Use your nvim tabs as a workspace multiplexer!
-		'nanozuki/tabby.nvim',
-		event = { 'BufReadPre', 'BufNewFile' },
-		config = function () require('plugins/tabby') end
+		"nanozuki/tabby.nvim",
+		event = { "BufReadPre", "BufNewFile" },
+		config = function()
+			require("plugins/tabby")
+		end,
 	},
 
 	{ -- Neovim plugin to manage the file system and other tree like structures.
-		'nvim-neo-tree/neo-tree.nvim',
-		keys={"<leader>"},
+		"nvim-neo-tree/neo-tree.nvim",
+		keys = { "<leader>" },
 		branch = "v3.x",
 		dependencies = {
-			{ "MunifTanjim/nui.nvim" } -- UI Component Library for Neovim.
+			{ "MunifTanjim/nui.nvim" }, -- UI Component Library for Neovim.
 		},
-		config = function () require('plugins/neo-tree_nvim') end
+		config = function()
+			require("plugins/neo-tree_nvim")
+		end,
 	},
 
 	{ -- fast and highly customizable greeter for neovim.
 		"goolord/alpha-nvim",
 		event = "VimEnter",
-		config = function () require('plugins/alpha-nvim') end
+		config = function()
+			require("plugins/alpha-nvim")
+		end,
 	},
 
 	{ --  smart indent and project detector with project based config loader
-		'Abstract-IDE/penvim',
+		"Abstract-IDE/penvim",
 		event = "VimEnter",
-		config = function () require('plugins/penvim') end
+		config = function()
+			require("plugins/penvim")
+		end,
 	},
 
 	{ --  A simple wrapper around :mksession
-		'Shatur/neovim-session-manager',
+		"Shatur/neovim-session-manager",
 		event = "BufWinEnter",
 		cmd = { "SessionManager" },
-		config = function () require('plugins/neovim-session-manager') end
+		config = function()
+			require("plugins/neovim-session-manager")
+		end,
 	},
 
 	{ -- VS Code-like renaming UI for Neovim, writen in Lua.
-		'filipdutescu/renamer.nvim',
-		branch = 'master',
+		"filipdutescu/renamer.nvim",
+		branch = "master",
 		keys = { "<Space>R" },
-		config = function () require('plugins/renamer_nvim') end
+		config = function()
+			require("plugins/renamer_nvim")
+		end,
 	},
 
 	{ --  Neovim motions on speed!
-		'phaazon/hop.nvim',
+		"phaazon/hop.nvim",
 		keys = { "f" },
-		config = function () require('plugins/hop_nvim') end
+		config = function()
+			require("plugins/hop_nvim")
+		end,
 	},
 
 	{ --  Neovim file explorer: edit your filesystem like a buffer
-		'stevearc/oil.nvim',
+		"stevearc/oil.nvim",
 		keys = { "-" },
 		opts = {},
-		config = function () require('plugins/oil_nvim') end
+		config = function()
+			require("plugins/oil_nvim")
+		end,
 	},
 
 	-- ━━━━━━━━━━━━━━━━━❰ DEVELOPMENT ❱━━━━━━━━━━━━━━━━━ --
 
 	--          [ WEB ]
 	{ --  live edit html, css, and javascript in vim
-		'turbio/bracey.vim',
-		build = 'npm install --prefix server',
-		ft = {'html', 'css', 'javascript'}
+		"turbio/bracey.vim",
+		build = "npm install --prefix server",
+		ft = { "html", "css", "javascript" },
 	},
 
 	--          [ flutter | dart ]
 	{ -- Tools to help create flutter apps in neovim using the native lsp
-		'akinsho/flutter-tools.nvim',
-		ft = {'dart'},
+		"akinsho/flutter-tools.nvim",
+		ft = { "dart" },
 		dependencies = {
 			{
-				'dart-lang/dart-vim-plugin', -- Syntax highlighting for Dart in Vim
-				config = function () require('plugins/dart-vim-plugin') end
-			}
+				"dart-lang/dart-vim-plugin", -- Syntax highlighting for Dart in Vim
+				config = function()
+					require("plugins/dart-vim-plugin")
+				end,
+			},
 		},
-		config = function () require('plugins/flutter-tools_nvim') end
-	}
+		config = function()
+			require("plugins/flutter-tools_nvim")
+		end,
+	},
 	-- ━━━━━━━━━━━━━━❰ end of DEVELOPMENT ❱━━━━━━━━━━━━━ --
-
 }
 -- ───────────────────────────────────────────────── --
-
-
-
 
 -- ───────────────────────────────────────────────── --
 -- lazy.nvim Configurations
@@ -408,7 +472,7 @@ local opts = {
 		-- automatically check for plugin updates
 		enabled = false,
 		concurrency = nil, ---@type number? set to 1 to check for updates very slowly
-		notify = true, -- get a notification when new updates are found
+		notify = true,  -- get a notification when new updates are found
 		frequency = 3600, -- check for updates every hour
 		check_pinned = false, -- check for pinned packages that can't be updated
 	},
@@ -425,7 +489,7 @@ local opts = {
 		rtp = {
 			reset = true, -- reset the runtime path to $VIMRUNTIME and your config directory
 			---@type string[]
-			paths = {}, -- add any custom paths here that you want to includes in the rtp
+			paths = {},  -- add any custom paths here that you want to includes in the rtp
 			---@type string[] list any plugins you want to disable here
 			disabled_plugins = {
 				-- "gzip",
@@ -469,4 +533,3 @@ local opts = {
 -- ───────────────────────────────────────────────── --
 
 lazy.setup(plugins, opts)
-

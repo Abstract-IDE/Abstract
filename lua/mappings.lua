@@ -1,26 +1,25 @@
+--[[
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+─────────────────────────────────────────────────
+Plugin-Independent Mappings
 
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
--- ━━━━━━━━━━━━━❰ Plugin-Independent Mapping ❱━━━━━━━━━━━━━ --
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
---[===[
-	This config file contains the mappings that don't depend on any plugin.
-	Mappings for plugin-dependent actions are in the "lua/plugin" directory. Each plugin has its own config file.
+This config file contains the mappings that don't depend on any plugin.
+Mappings for plugin-dependent actions are in the "lua/plugin" directory. Each plugin has its own config file.
 
-	To see the current mapping for |<Leader>|, type :echo mapleader.
-	If it reports an undefined variable, it means the leader key is set to the "default of '\'.
-	I have defined the leader at the very start of the init.lua file so that every keymap will work.
---]===]
+To see the current mapping for |<Leader>|, type :echo mapleader.
+If it reports an undefined variable, it means the leader key is set to the "default of '\'.
+I have defined the leader at the very start of the init.lua file so that every keymap will work.
+─────────────────────────────────────────────────
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+--]]
 
-
-local keymap  = vim.api.nvim_set_keymap
-local cmd     = vim.cmd
-local options = {noremap = true, silent = true}
-local silent  = {silent = true}
-
+local keymap = vim.api.nvim_set_keymap
+local options = { noremap = true, silent = true }
+local silent = { silent = true }
 
 -- -- TODO: fiqure out to implement <leader>q to quit only one buffer or one window at a time
 -- -- Close buffer
--- cmd([[ autocmd BufEnter * nmap <silent> <buffer> <leader>q :bd<CR> ]])
+-- vim.cmd([[ autocmd BufEnter * nmap <silent> <buffer> <leader>q :bd<CR> ]])
 
 -- vim.api.nvim_create_autocmd(
 -- 	"FileType",
@@ -32,69 +31,56 @@ local silent  = {silent = true}
 -- 	}
 -- )
 
-
 -- map ctl+z to nothing so that it don't suspend terminal
-vim.api.nvim_create_autocmd(
-	"BufEnter",
-	{
-		pattern = "*",
-		command = "nnoremap <c-z> <nop>"
-	}
-)
+vim.api.nvim_create_autocmd("BufEnter", { pattern = "*", command = "nnoremap <c-z> <nop>" })
 
 -- keymap('n', '<Leader>q',':q <CR>',      options)
 -- write/save when the buffer has been modified.
-keymap('i', '<C-s>', '<ESC>ma<ESC>:update <CR>`a', options)
-keymap('n', '<C-s>', '<ESC>ma<ESC>:update <CR>`a', options)
+keymap("i", "<C-s>", "<ESC>ma<ESC>:update <CR>`a", options)
+keymap("n", "<C-s>", "<ESC>ma<ESC>:update <CR>`a", options)
 
 -- scroll window up/down
-keymap('i', '<C-e>', '<ESC><C-e>', silent)
-keymap('i', '<C-y>', '<ESC><C-y>', silent)
+keymap("i", "<C-e>", "<ESC><C-e>", silent)
+keymap("i", "<C-y>", "<ESC><C-y>", silent)
 
 -- scroll window horizontally (scroll-horizontal)
 -- < reference: https://unix.stackexchange.com/questions/110251/how-to-put-current-line-at-top-center-bottom-of-screen-in-vim
-keymap('n', '<C-h>', 'zh', silent) -- left
-keymap('n', '<C-l>', 'zl', silent) -- right
+keymap("n", "<C-h>", "zh", silent) -- left
+keymap("n", "<C-l>", "zl", silent) -- right
 
 -- number line enable
-keymap('n', '<leader>n', ':set rnu! <CR>', silent)
+keymap("n", "<leader>n", ":set rnu! <CR>", silent)
 
 -- clear Search Results
-keymap('n', '??', ':noh <CR>', silent)
+keymap("n", "??", ":noh <CR>", silent)
 
---[[
-    on[ly] close all other windows but leave all buffers open.
---]]
-keymap('n', '<M-q>', ':only<CR>', silent)
+-- on[ly] close all other windows but leave all buffers open.
+keymap("n", "<M-q>", ":only<CR>", silent)
 
---			Resize splits more quickly
--- ────────────────────────────────────────────────────
+--	Resize splits more quickly
 -- resize up and down
-keymap('n', ';k', ':resize +3 <CR>', options)
-keymap('n', ';j', ':resize -3 <CR>', options)
+keymap("n", ";k", ":resize +3 <CR>", options)
+keymap("n", ";j", ":resize -3 <CR>", options)
 -- resize right and left
-keymap('n', ';l', ':vertical resize +3 <CR>', options)
-keymap('n', ';h', ':vertical resize -3 <CR>', options)
--- ────────────────────────────────────────────────────
+keymap("n", ";l", ":vertical resize +3 <CR>", options)
+keymap("n", ";h", ":vertical resize -3 <CR>", options)
 
---[[
-      easier moving of code blocks
-      Try to go into visual mode (v), thenselect several lines of code
-      here and then press ``>`` several times.
---]]
-keymap('v', '<', '<gv', options)
-keymap('v', '>', '>gv', options)
+-- easier moving of code blocks
+-- Try to go into visual mode (v), thenselect several lines of code
+-- here and then press ``>`` several times.
+keymap("v", "<", "<gv", options)
+keymap("v", ">", ">gv", options)
 
 -- going back to normal mode which works even in vim's terminal
 -- you will need this if you use floaterm to escape terminal
-keymap('t', '<Esc>', '<c-\\><c-n>', options)
+keymap("t", "<Esc>", "<c-\\><c-n>", options)
 
 -- move selected line(s) up or down
-keymap('v', 'J', ":m '>+1<CR>gv=gv", options)
-keymap('v', 'K', ":m '<-2<CR>gv=gv", options)
+keymap("v", "J", ":m '>+1<CR>gv=gv", options)
+keymap("v", "K", ":m '<-2<CR>gv=gv", options)
 
 -- delete a word backward in insert mode with Ctrl+Backspace
-keymap('i', '<C-BS>', '<C-w>', { noremap = true })
+keymap("i", "<C-BS>", "<C-w>", { noremap = true })
 
 -- smart deletion, dd
 -- It solves the issue, where you want to delete empty line, but dd will override your last yank.
@@ -102,16 +88,13 @@ keymap('i', '<C-BS>', '<C-w>', { noremap = true })
 -- [src: https://www.reddit.com/r/neovim/comments/w0jzzv/comment/igfjx5y/?utm_source=share&utm_medium=web2x&context=3]
 local function smart_dd()
 	if vim.api.nvim_get_current_line():match("^%s*$") then
-		return "\"_dd"
-	else return "dd" end
+		return '"_dd'
+	else
+		return "dd"
+	end
 end
 vim.keymap.set("n", "dd", smart_dd, { noremap = true, expr = true })
 
 -- In visual mode ('x'), pressing 'p' replaces the selected text with the content
 -- of the default register, effectively pasting the last deleted or yanked text.
-keymap('x', 'p', [[<Cmd>silent! normal! "_dP<CR>]], options)
-
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
--- ━━━━━━━━━━━━━━━❰ end of Plugin Mapping ❱━━━━━━━━━━━━━━━━ --
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
-
+keymap("x", "p", [[<Cmd>silent! normal! "_dP<CR>]], options)
