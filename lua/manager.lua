@@ -150,6 +150,7 @@ local plugins = {
 			{ 'hrsh7th/cmp-buffer' }, -- nvim-cmp source for buffer words.
 			{ 'hrsh7th/cmp-path' }, -- nvim-cmp source for filesystem paths.
 			{ 'saadparwaiz1/cmp_luasnip' }, -- luasnip completion source for nvim-cmp
+			{ 'ray-x/cmp-treesitter' }, -- nvim-cmp source for treesitter nodes.
 		},
 		config = function() require('plugins/nvim-cmp') end
 	},

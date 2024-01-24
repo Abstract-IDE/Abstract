@@ -9,7 +9,6 @@
 
 
 
-
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━━━❰ configs ❱━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
@@ -17,11 +16,9 @@
 -- Set completeopt to have a better completion experience
 vim.o.completeopt = 'menuone,noselect'
 
-local import_cmp, cmp = pcall(require, 'cmp')
-if not import_cmp then return end
-
-local import_luasnip, luasnip = pcall(require, 'luasnip')
-if not import_luasnip then return end
+local _cmp, cmp = pcall(require, 'cmp')
+local _luasnip, luasnip = pcall(require, 'luasnip')
+if not _cmp or not _luasnip then return end
 
 
 cmp.setup({
@@ -53,31 +50,31 @@ cmp.setup({
 
 		format = function(entry, vim_item)
 			local kind_icons = {
-				Text = "",
-				Method = "",
-				Function = "",
-				Constructor = "",
+				Text = "", -- 
+				Method = "", --  
+				Function = "⅀", --  
+				Constructor = "", -- 
 				Field = "", -- 
-				Variable = "",
+				Variable = "", -- 
 				Class = '', -- ﴯ
-				Interface = "",
-				Module = "",
-				Property = "ﰠ",
-				Unit = "",
-				Value = "",
-				Enum = "",
-				Keyword = "",
-				Snippet = "",
-				Color = "",
-				File = "",
-				Reference = "",
-				Folder = "",
-				EnumMember = "",
-				Constant = "",
-				Struct = "",
-				Event = "",
+				Interface = "", -- 
+				Module = "", --  
+				Property = "", -- ﰠ
+				Unit = "", -- 
+				Value = "", -- 
+				Enum = "", -- 
+				Keyword = "", -- 
+				Snippet = "", -- 
+				Color = "", -- 
+				File = "", -- 
+				Reference = "", -- 
+				Folder = "", --   
+				EnumMember = "", -- 
+				Constant = "π", --  
+				Struct = "", -- 
+				Event = "", -- 
 				Operator = '', -- 
-				TypeParameter = '  ',
+				TypeParameter = ' ',
 			}
 
 			vim_item.kind = (kind_icons[vim_item.kind] or '') .. " "
@@ -93,11 +90,13 @@ cmp.setup({
 
 			-- set a name for each source
 			vim_item.menu = ({
-				buffer = "[Buffer]",
 				nvim_lsp = "[LSP]",
-				luasnip = "[Snippet]",
-				nvim_lua = "[Lua]",
-				latex_symbols = "[LaTeX]",
+				path = "[PTH]",
+				buffer = "[BUF]",
+				luasnip = "[SNP]",
+				nvim_lua = "[LUA]",
+				treesitter = "[🌲T]",
+				latex_symbols = "[LTX]",
 			})[entry.source.name]
 
 			return vim_item
@@ -111,6 +110,7 @@ cmp.setup({
 		{name = 'path'},
 		{name = 'luasnip'},
 		{name = 'buffer', keyword_length = 1},
+		{name = 'treesitter'},
 		-- {name = 'calc'},
 	},
 
