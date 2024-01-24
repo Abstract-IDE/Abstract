@@ -101,11 +101,10 @@ local opt = {
 -- setup tabby
 tabby.set(view, opt)
 
--- Mappings
+-- Mappings (:h tab)
 local options = { noremap = true, silent = true }
 local keymap = vim.api.nvim_set_keymap
 
-keymap("n", "<leader>t", ":$tabnew<CR>", options)
 keymap("n", "<leader>q", ":tabclose<CR>", options)
 keymap("n", "<leader>Q", ":tabonly<CR>", options)
 -- navigate to previous/next tab
