@@ -107,6 +107,10 @@ local function smart_dd()
 end
 vim.keymap.set("n", "dd", smart_dd, { noremap = true, expr = true })
 
+-- In visual mode ('x'), pressing 'p' replaces the selected text with the content
+-- of the default register, effectively pasting the last deleted or yanked text.
+keymap('x', 'p', [[<Cmd>silent! normal! "_dP<CR>]], options)
+
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━❰ end of Plugin Mapping ❱━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --

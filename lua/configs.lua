@@ -96,6 +96,8 @@ opt.lazyredraw = true -- faster scrolling
 opt.wildignore = vim.opt.wildignore + '*.o,*.rej,*.so' -- patterns to ignore during file-navigation
 opt.completeopt = 'menuone,noselect,noinsert' -- completion options
 
+opt.showmode = false -- If in Insert, Replace or Visual mode put a message on the last line.
+
 -- -- configs
 -- if vim.api.nvim_call_function('has', {'nvim-0.8'}) == 1 then
 -- 	vim.opt.cmdheight = 0 -- command height

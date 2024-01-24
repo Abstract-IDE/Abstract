@@ -16,13 +16,12 @@
 
 -- https://github.com/nvimtools/none-ls.nvim/blob/main/doc/BUILTINS.md
 
--- safley import null-ls
+-- safley imports
 local _null, null = pcall(require, "null-ls")
-if not _null then return end
-
 -- Packages(LSP, Formatter, Linter, DAP) are installed and managed by 'williamboman/mason.nvim'
 local _packages, packages = pcall(require, "mason-registry")
-if not _packages then return end
+if not _null or not _packages then return end
+
 -- get all installed Packages
 local installed_packages = packages.get_installed_package_names()
 
@@ -187,9 +186,7 @@ end
 
 -- setup null-ls
 if load then
-	null.setup({
-		sources = sources
-	})
+	null.setup({ debug=false, sources=sources })
 end
 
 -- give border to null-ls window

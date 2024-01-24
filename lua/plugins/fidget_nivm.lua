@@ -9,13 +9,12 @@
 
 
 
-
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━━━❰ configs ❱━━━━━━━━━━━━━━━━━━━ --
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
-local imported_fidget, fidget = pcall(require, "fidget")
-if not imported_fidget then return end
+local _fidget, fidget = pcall(require, "fidget")
+if not _fidget then return end
 
 fidget.setup({
     -- Options related to LSP progress subsystem
