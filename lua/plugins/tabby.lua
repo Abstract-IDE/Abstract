@@ -23,6 +23,12 @@ vim.opt.sessionoptions = "curdir,folds,globals,help,tabpages,terminal,winsize"
 -- At default, neovim only display tabline when there are at least two tab pages. If you want always display tabline:
 vim.o.showtabline = 1
 
+local tab = function()
+	local tabs = tostring(#vim.api.nvim_list_tabpages())
+	local tabpage = tostring(vim.api.nvim_tabpage_get_number(0))
+	return tabpage .. "/" .. tabs
+end
+
 -- By default, Tabby counts all windows, resulting in the same name being repeatedly displayed.
 -- This function addresses the issue by merging the duplicates.
 local function wins_in_tab(line, theme)
@@ -66,6 +72,7 @@ local theme = {
 local view = function(line)
 	return {
 		{
+			{ tab(), hl = theme.head },
 			{ "", hl = theme.tab },
 			line.sep(" ", theme.head, theme.tab),
 		},
@@ -74,12 +81,14 @@ local view = function(line)
 			return {
 				-- line.sep(" ", hl, theme.fill),
 				-- tab.is_current() and " " or "󰆣 ",
-				" " .. tab.number(),
+				-- " " .. tab.number(),
+				" ",
 				tab.name(),
+				" ",
 				-- tab.close_btn(" "),
-				line.sep(" ", hl, theme.tab),
+				-- line.sep(" ", hl, theme.tab),
 				hl = hl,
-				margin = " ",
+				-- margin = " ",
 			}
 		end),
 		line.spacer(),
