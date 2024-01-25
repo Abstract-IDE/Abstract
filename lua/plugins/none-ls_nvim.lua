@@ -1,22 +1,20 @@
+--[[
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+─────────────────────────────────────────────────
+Plugin: none-ls.nvim
+Github: https://github.com/nvimtools/none-ls.nvim
 
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
--- ───────────────────────────────────────────────── --
---   Plugin:    none-ls.nvim
---   Github:    github.com/nvimtools/none-ls.nvim
--- ───────────────────────────────────────────────── --
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
+ null-ls.nvim reloaded / Use Neovim as a language server
+ to inject LSP diagnostics, code actions, and more via Lua.
+─────────────────────────────────────────────────
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+--]]
 
 
 
-
-
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
--- ━━━━━━━━━━━━━━━━━━━❰ configs ❱━━━━━━━━━━━━━━━━━━━ --
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
 -- https://github.com/nvimtools/none-ls.nvim/blob/main/doc/BUILTINS.md
 
--- safley imports
 local _null, null = pcall(require, "null-ls")
 -- Packages(LSP, Formatter, Linter, DAP) are installed and managed by 'williamboman/mason.nvim'
 local _packages, packages = pcall(require, "mason-registry")
@@ -34,9 +32,6 @@ local formatting = null.builtins.formatting
 local sources = {}
 local load = false
 
-local api = vim.api
-local fn = vim.fn
-
 -- ───────────────────────────────────────────────── --
 -- ─────────────────❰ FORMATTING ❱────────────────── --
 -- https://github.com/nvimtools/none-ls.nvim/tree/main/lua/null-ls/builtins/formatting
@@ -45,7 +40,7 @@ for _, package in pairs(installed_packages) do
 	-- Lua
 	if package == "luaformatter" then
 		load = true
-		sources[#sources+1] = formatting.lua_format.with({
+		sources[#sources + 1] = formatting.lua_format.with({
 			command = "lua-format",
 			args = {
 				"--indent-width",
@@ -61,7 +56,7 @@ for _, package in pairs(installed_packages) do
 	end
 	if package == "stylua" then
 		load = true
-		sources[#sources+1] = formatting.stylua.with({
+		sources[#sources + 1] = formatting.stylua.with({
 			command = "stylua",
 			args = {
 				"--search-parent-directories",
@@ -75,9 +70,9 @@ for _, package in pairs(installed_packages) do
 	-- Python
 	if package == "black" then
 		load = true
-		sources[#sources+1] = formatting.black.with({
+		sources[#sources + 1] = formatting.black.with({
 			command = "black",
-			args = {"--quiet", "--fast", "-"},
+			args = { "--quiet", "--fast", "-" },
 		})
 		goto loop_continue
 	end
@@ -86,7 +81,7 @@ for _, package in pairs(installed_packages) do
 		load = true
 		sources[#sources + 1] = formatting.djlint.with({
 			command = "djlint",
-			args = {"--reformat", "-"},
+			args = { "--reformat", "-" },
 		})
 		goto loop_continue
 	end
@@ -94,16 +89,16 @@ for _, package in pairs(installed_packages) do
 	-- "css", "scss", "less", "html", "json", "yaml", "markdown", "graphql"
 	if package == "prettier" then
 		load = true
-		sources[#sources+1] = formatting.prettier.with({
+		sources[#sources + 1] = formatting.prettier.with({
 			command = "prettier",
-			args = {"--stdin-filepath", "$FILENAME"},
+			args = { "--stdin-filepath", "$FILENAME" },
 		})
 		goto loop_continue
 	end
 	-- C, C++, CS, Java
-	if package ==  "clang-format" then
+	if package == "clang-format" then
 		load = true
-		sources[#sources+1] = formatting.clang_format.with({
+		sources[#sources + 1] = formatting.clang_format.with({
 			command = "clang-format",
 			args = {
 				"-assume-filename",
@@ -114,10 +109,10 @@ for _, package in pairs(installed_packages) do
 		goto loop_continue
 	end
 	-- Rust
-	if package ==  "rustfmt" then
+	if package == "rustfmt" then
 		load = true
 		sources[#sources + 1] = formatting.rustfmt.with({
-			command = "rustfmt"
+			command = "rustfmt",
 		})
 		goto loop_continue
 	end
@@ -126,14 +121,12 @@ for _, package in pairs(installed_packages) do
 end
 
 -- Go
-if fn.executable("gofmt") == 1 then
+if vim.fn.executable("gofmt") == 1 then
 	load = true
-	sources[#sources+1] = formatting.gofmt.with({})
+	sources[#sources + 1] = formatting.gofmt.with({})
 end
-
 -- ───────────────❰ end FORMATTING ❱──────────────── --
 -- ───────────────────────────────────────────────── --
-
 
 -- ───────────────────────────────────────────────── --
 -- ─────────────────❰ CODEACTION ❱────────────────── --
@@ -151,10 +144,8 @@ if vim.fn.executable("clang-format") == 1 then
 	})
 end
 ---]===]
-
 -- ───────────────❰ end CODEACTION ❱──────────────── --
 -- ───────────────────────────────────────────────── --
-
 
 -- ───────────────────────────────────────────────── --
 -- ─────────────────❰ DIAGNOSTICS ❱───────────────── --
@@ -170,7 +161,6 @@ end
 -- ───────────────❰ end DIAGNOSTICS ❱─────────────── --
 -- ───────────────────────────────────────────────── --
 
-
 -- ───────────────────────────────────────────────── --
 -- ─────────────────❰ COMPLETION ❱────────────────── --
 -- https://github.com/nvimtools/none-ls.nvim/tree/main/lua/null-ls/builtins/completion
@@ -183,35 +173,10 @@ end
 -- ─────────────────❰ end HOVER ❱─────────────────── --
 -- ───────────────────────────────────────────────── --
 
-
 -- setup null-ls
 if load then
-	null.setup({ debug=false, sources=sources })
+	null.setup({ debug = false, sources = sources })
 end
 
--- give border to null-ls window
-local group = api.nvim_create_augroup("AbstractNulllsAutoGroup", {clear=true})
-api.nvim_create_autocmd("FileType", {
-	pattern = "null-ls-info",
-	group = group,
-	callback = function() api.nvim_win_set_config(0, {border = "rounded"}) end,
-})
-
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
--- ━━━━━━━━━━━━━━━━━❰ end configs ❱━━━━━━━━━━━━━━━━━ --
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
-
-
-
-
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
--- ━━━━━━━━━━━━━━━━━━━❰ Mappings ❱━━━━━━━━━━━━━━━━━━ --
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
-
 local keymap = vim.api.nvim_set_keymap
-keymap('n', '<Space>f', '<ESC>:lua vim.lsp.buf.format({ timeout_ms = 2000 })<CR>', {noremap = true, silent = true})
-
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
--- ━━━━━━━━━━━━━━━━━❰ end Mappings ❱━━━━━━━━━━━━━━━━ --
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
-
+keymap("n", "<Space>f", "<ESC>:lua vim.lsp.buf.format({ timeout_ms = 2000 })<CR>", { noremap = true, silent = true })

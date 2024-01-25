@@ -50,3 +50,12 @@ vim.api.nvim_create_autocmd("BufWinEnter", {
 	group = group,
 	command = "let @/ = ''",
 })
+
+vim.api.nvim_create_autocmd("FileType", {
+	desc = "Give border to required windows",
+	pattern = { "null-ls-info", "lspinfo" },
+	group = group,
+	callback = function()
+		vim.api.nvim_win_set_config(0, { border = "rounded" })
+	end,
+})
