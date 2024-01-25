@@ -1,37 +1,29 @@
+--[[
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+─────────────────────────────────────────────────
+Plugin: nvim-lspconfig
+Github: https://github.com/neovim/nvim-lspconfig
 
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
--- ───────────────────────────────────────────────── --
---   Plugin:    nvim-lspconfig
---   Github:    github.com/neovim/nvim-lspconfig
--- ───────────────────────────────────────────────── --
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
+Quickstart configs for Nvim LSP
+─────────────────────────────────────────────────
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+--]]
 
 
 
 
--- ───────────────────────────────────────────────── --
 local _lspconfig, lspconfig = pcall(require, "lspconfig")
 local _mlspconfig, mason_lspconfig = pcall(require, "mason-lspconfig")
-if not _lspconfig or not _mlspconfig then return end
-
-local lsp = vim.lsp
-local api = vim.api
-local fn = vim.fn
-local handlers = vim.lsp.handlers
--- ───────────────────────────────────────────────── --
-
-
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
--- ━━━━━━━━━━━━━━━━━━━❰ Mappings ❱━━━━━━━━━━━━━━━━━━ --
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
+if not _lspconfig or not _mlspconfig then
+	return
+end
 
 local function mappings(bufnr)
-
 	local buf_set_keymap = function(...)
-		api.nvim_buf_set_keymap(bufnr, ...)
+		vim.api.nvim_buf_set_keymap(bufnr, ...)
 	end
 	local buf_set_option = function(...)
-		api.nvim_buf_set_option(bufnr, ...)
+		vim.api.nvim_buf_set_option(bufnr, ...)
 	end
 	local options = { noremap = true, silent = true }
 
@@ -39,7 +31,6 @@ local function mappings(bufnr)
 	buf_set_option("omnifunc", "v:lua.vim.lsp.omnifunc")
 
 	-- See `:help vim.lsp.*` for documentation on any of the below functions
-	-- ───────────────────────────────────────────────── --
 	buf_set_keymap("n", "<Space>e", "<cmd>lua vim.diagnostic.open_float()<CR>", options)
 	buf_set_keymap("n", "<Space>n", "<cmd>lua vim.diagnostic.goto_next()<CR>", options)
 	buf_set_keymap("n", "<Space>b", "<cmd>lua vim.diagnostic.goto_prev()<CR>", options)
@@ -64,20 +55,10 @@ local function mappings(bufnr)
 	-- buf_set_keymap('n', '<leader>wl',   '<cmd>lua print(vim.inspect(vim.lsp.buf.list_workleader_folders()))<CR>', opts)
 end
 
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
--- ━━━━━━━━━━━━━━━━━❰ end Mappings ❱━━━━━━━━━━━━━━━━ --
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
-
-
-
-
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
--- ━━━━━━━━━━━━━━━━━━━❰ configs ❱━━━━━━━━━━━━━━━━━━━ --
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
-
 local function setup_lsp_config()
+	local handlers = vim.lsp.handlers
+
 	-- options for lsp diagnostic
-	-- ───────────────────────────────────────────────── --
 	vim.diagnostic.config({
 		float = {
 			border = "single",
@@ -89,7 +70,7 @@ local function setup_lsp_config()
 		},
 	})
 
-	handlers["textDocument/publishDiagnostics"] = lsp.with(lsp.diagnostic.on_publish_diagnostics, {
+	handlers["textDocument/publishDiagnostics"] = vim.lsp.with(vim.lsp.diagnostic.on_publish_diagnostics, {
 		underline = true,
 		signs = true,
 		update_in_insert = true,
@@ -99,24 +80,21 @@ local function setup_lsp_config()
 			-- severity_limit='Error'  -- Only show virtual text on error
 		},
 	})
-
-	handlers["textDocument/hover"] = lsp.with(handlers.hover, { border = "rounded" })
-	handlers["textDocument/signatureHelp"] = lsp.with(handlers.signature_help, { border = "single" })
+	handlers["textDocument/hover"] = vim.lsp.with(handlers.hover, { border = "rounded" })
+	handlers["textDocument/signatureHelp"] = vim.lsp.with(handlers.signature_help, { border = "single" })
 
 	-- show diagnostic on float window(like auto complete)
 	-- vim.api.nvim_command [[ autocmd CursorHold  *.lua,*.sh,*.bash,*.dart,*.py,*.cpp,*.c,js lua vim.lsp.diagnostic.show_line_diagnostics() ]]
 
 	-- set LSP diagnostic symbols/signs
-	-- ─────────────────────────────────────────────────--
-	fn.sign_define("DiagnosticSignError", { text = "●", texthl = "DiagnosticSignError" })
-	fn.sign_define("DiagnosticSignWarn", { text = "●", texthl = "DiagnosticSignWarn" })
-	fn.sign_define("DiagnosticSignInfo", { text = "●", texthl = "DiagnosticSignInfo" })
-	fn.sign_define("DiagnosticSignHint", { text = "󰌵", texthl = "DiagnosticSignHint" })
+	vim.fn.sign_define("DiagnosticSignError", { text = "●", texthl = "DiagnosticSignError" })
+	vim.fn.sign_define("DiagnosticSignWarn", { text = "●", texthl = "DiagnosticSignWarn" })
+	vim.fn.sign_define("DiagnosticSignInfo", { text = "●", texthl = "DiagnosticSignInfo" })
+	vim.fn.sign_define("DiagnosticSignHint", { text = "󰌵", texthl = "DiagnosticSignHint" })
 
 	-- Auto-format files prior to saving them
 	-- vim.api.nvim_command[[autocmd BufWritePre <buffer> lua vim.lsp.buf.formatting_sync(nil, 1000)]]
 end
-
 
 local lsp_options = {
 
@@ -142,7 +120,7 @@ local lsp_options = {
 		-- client.server_capabilities.documentRangeFormattingProvider = false
 		--------------------------
 
-		-- enable Mappings
+		-- Enable Mappings
 		mappings(bufnr)
 	end,
 
@@ -153,15 +131,15 @@ local lsp_options = {
 		_capabilities.textDocument.completion.completionItem.snippetSupport = true
 
 		local _cmp_lsp, cmp_lsp = pcall(require, "cmp_nvim_lsp")
-		if not _cmp_lsp then return _capabilities end
+		if not _cmp_lsp then
+			return _capabilities
+		end
 
 		return vim.tbl_deep_extend("force", _capabilities, cmp_lsp.default_capabilities())
 	end)(),
 }
 
-
 local function setup_lsp()
-
 	local tbl_deep_extend = vim.tbl_deep_extend
 
 	-- for Flutter and Dart
@@ -199,7 +177,7 @@ local function setup_lsp()
 						},
 						workspace = {
 							-- Make the server aware of Neovim runtime files
-							library = api.nvim_get_runtime_file("", true),
+							library = vim.api.nvim_get_runtime_file("", true),
 							--  don't ask about working environment on every startup
 							checkThirdParty = false,
 						},
@@ -213,8 +191,18 @@ local function setup_lsp()
 			lspconfig.rust_analyzer.setup(tbl_deep_extend("force", lsp_options, {
 				settings = {
 					["rust-analyzer"] = {
-						diagnostics = { enable = true, },
-						checkOnSave = { enable = true, },
+						diagnostics = { enable = true },
+						checkOnSave = { enable = true },
+					},
+				},
+			}))
+		end,
+		["jsonls"] = function()
+			lspconfig.jsonls.setup(tbl_deep_extend("force", lsp_options, {
+				settings = {
+					json = {
+						schemas = require("schemastore").json.schemas(),
+						validate = { enable = true },
 					},
 				},
 			}))
@@ -225,9 +213,4 @@ end
 -- make sure `lspconfig` is not loaded after `mason-lspconfig`.
 -- Also, make sure not to set up any servers via `lspconfig` _before_ calling `mason-lspconfig`'s setup function.
 setup_lsp_config() -- setup lsp configs (mainly UI)
-setup_lsp() -- setup lsp (like pyright, ccls ...)
-
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
--- ━━━━━━━━━━━━━━━━━❰ end configs ❱━━━━━━━━━━━━━━━━━ --
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
-
+setup_lsp()        -- setup lsp (like pyright, ccls ...)

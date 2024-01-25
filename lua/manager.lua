@@ -92,6 +92,7 @@ local plugins = {
 				"ray-x/lsp_signature.nvim",
 				config = function() require("plugins/lsp_signature_nvim") end
 			},
+			{ "b0o/schemastore.nvim" }  -- A Neovim Lua plugin providing access to the SchemaStore catalog.
 		},
 		config = function() require("plugins/nvim-lspconfig") end
 	},
