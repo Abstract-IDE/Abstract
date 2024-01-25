@@ -43,9 +43,7 @@ local plugins = {
 		"Abstract-IDE/Abstract-cs",
 		lazy = false, -- make sure we load this during startup if it is your main colorscheme
 		priority = 1000, -- make sure to load this before all the other start plugins
-		config = function()
-			require("plugins/Abstract-cs")
-		end,
+		config = function() require("plugins/Abstract-cs") end
 	},
 
 	{ -- All the lua functions I don't want to write twice.
@@ -54,18 +52,14 @@ local plugins = {
 
 	{ -- lua `fork` of vim-web-devicons for neovim
 		"kyazdani42/nvim-web-devicons",
-		config = function()
-			require("plugins/nvim-web-devicons")
-		end,
+		config = function() require("plugins/nvim-web-devicons") end
 	},
 
 	{                  --  A plugin for profiling Vim and Neovim startup time.
 		"dstein64/vim-startuptime",
 		cmd = "StartupTime", -- lazy-load on a command
 		-- init is called during startup. Configuration for vim plugins typically should be set in an init function
-		init = function()
-			vim.g.startuptime_tries = 10
-		end,
+		init = function() vim.g.startuptime_tries = 10 end
 	},
 
 	{ -- A collection of common configurations for Neovim's built-in language server client
@@ -74,38 +68,26 @@ local plugins = {
 		dependencies = {
 			{ -- A pretty diagnostics, references, telescope results, quickfix and location list to help you solve all the trouble your code is causing.
 				"folke/trouble.nvim",
-				config = function()
-					require("plugins/trouble_nvim")
-				end,
+				config = function() require("plugins/trouble_nvim") end
 			},
 			{ -- preview native LSP's goto definition calls in floating windows.
 				"rmagatti/goto-preview",
-				config = function()
-					require("plugins/goto-preview")
-				end,
+				config = function() require("plugins/goto-preview") end
 			},
 			{ -- Standalone UI for nvim-lsp progress
 				"j-hui/fidget.nvim",
-				config = function()
-					require("plugins/fidget_nivm")
-				end,
+				config = function() require("plugins/fidget_nivm") end
 			},
 			{ --  Simple winbar/statusline plugin that shows your current code context
 				"SmiteshP/nvim-navic",
-				config = function()
-					require("plugins/nvim_navic")
-				end,
+				config = function() require("plugins/nvim_navic") end
 			},
 			{ --  LSP signature hint as you type
 				"ray-x/lsp_signature.nvim",
-				config = function()
-					require("plugins/lsp_signature_nvim")
-				end,
+				config = function() require("plugins/lsp_signature_nvim") end
 			},
 		},
-		config = function()
-			require("plugins/nvim-lspconfig")
-		end,
+		config = function() require("plugins/nvim-lspconfig") end
 	},
 
 	{ -- Companion plugin for nvim-lspconfig that allows you to seamlessly install LSP servers locally (inside :echo stdpath("data")).
@@ -115,14 +97,10 @@ local plugins = {
 			{ "williamboman/mason-lspconfig.nvim" }, -- Extension to mason.nvim that makes it easier to use lspconfig with mason.nvim
 			{                               -- Use Neovim as a language server to inject LSP diagnostics, code actions, and more via Lua.
 				"nvimtools/none-ls.nvim",
-				config = function()
-					require("plugins/none-ls_nvim")
-				end,
+				config = function() require("plugins/none-ls_nvim") end
 			},
 		},
-		config = function()
-			require("plugins/mason_nvim")
-		end,
+		config = function() require("plugins/mason_nvim") end
 	},
 
 	{ -- Nvim Treesitter configurations and abstraction layer
@@ -136,21 +114,15 @@ local plugins = {
 			{ -- Use treesitter to auto close and auto rename html tag, work with html,tsx,vue,svelte,php.
 				"windwp/nvim-ts-autotag",
 				event = "InsertEnter",
-				config = function()
-					require("plugins/nvim-ts-autotag")
-				end,
+				config = function() require("plugins/nvim-ts-autotag") end
 			},
 			{ -- Neovim treesitter plugin for setting the commentstring based on the cursor location in a file.
 				"JoosepAlviste/nvim-ts-context-commentstring",
 				keys = { "cc", "gc", "gb", { "cc", mode = "v" }, { "gc", mode = "v" }, { "gb", mode = "v" } },
-				config = function()
-					require("plugins/nvim-ts-context-commentstring")
-				end,
+				config = function() require("plugins/nvim-ts-context-commentstring") end
 			},
 		},
-		config = function()
-			require("plugins/nvim-treesitter")
-		end,
+		config = function() require("plugins/nvim-treesitter") end
 	},
 
 	{ -- A completion plugin for neovim coded in Lua.
@@ -165,15 +137,15 @@ local plugins = {
 					{ "rafamadriz/friendly-snippets" },   -- Snippets collection for a set of different programming languages for faster development.
 					{ "Neevash/awesome-flutter-snippets", ft = "dart" }, -- collection snippets and shortcuts for commonly used Flutter functions and classes
 				},
-				config = function()
-					require("plugins/LuaSnip")
-				end,
+				config = function() require("plugins/LuaSnip") end
 			},
 			{ -- A super powerful autopairs for Neovim. It support multiple character.
 				"windwp/nvim-autopairs",
-				config = function()
-					require("plugins/nvim-autopairs")
-				end,
+				config = function() require("plugins/nvim-autopairs") end
+			},
+			{ -- Simple yet convenient Neovim plugin for tabbing in and out of brackets, parentheses, quotes, and more.
+				"kawre/neotab.nvim",
+				config = function() require("plugins/neotab") end
 			},
 			{ "hrsh7th/cmp-nvim-lsp" }, -- nvim-cmp source for neovim builtin LSP client
 			{ "hrsh7th/cmp-nvim-lua" }, -- nvim-cmp source for nvim lua
@@ -182,18 +154,14 @@ local plugins = {
 			{ "saadparwaiz1/cmp_luasnip" }, -- luasnip completion source for nvim-cmp
 			{ "ray-x/cmp-treesitter" }, -- nvim-cmp source for treesitter nodes.
 		},
-		config = function()
-			require("plugins/nvim-cmp")
-		end,
+		config = function() require("plugins/nvim-cmp") end
 	},
 
 	{ -- Add/change/delete surrounding delimiter pairs with ease.
 		"kylechui/nvim-surround",
 		event = { "BufReadPre", "BufNewFile", "InsertEnter" },
 		keys = { "c" },
-		config = function()
-			require("plugins/nvim-surround")
-		end,
+		config = function() require("plugins/nvim-surround") end
 	},
 
 	{ -- Find, Filter, Preview, Pick. All lua, all the time.
@@ -207,41 +175,31 @@ local plugins = {
 			{ "nvim-telescope/telescope-ui-select.nvim" },         -- It sets vim.ui.select to telescope.
 			{ "nvim-telescope/telescope-symbols.nvim" },           -- telescope-symbols provide its users with the ability of picking symbols and insert them at point.
 		},
-		config = function()
-			require("plugins/telescope_nvim")
-		end,
+		config = function() require("plugins/telescope_nvim") end
 	},
 
 	{ -- Use (neo)vim terminal in the floating/popup window.
 		"voldikss/vim-floaterm",
 		keys = { "t", "<C-t>" },
-		config = function()
-			require("plugins/vim-floaterm")
-		end,
+		config = function() require("plugins/vim-floaterm") end
 	},
 
 	{ -- Maximizes and restores the current window in Vim
 		"szw/vim-maximizer",
 		keys = { "<leader>" },
-		config = function()
-			require("plugins/vim-maximizer")
-		end,
+		config = function() require("plugins/vim-maximizer") end
 	},
 
 	{ -- Smart and powerful comment plugin for neovim. Supports commentstring, dot repeat, left-right/up-down motions, hooks, and more
 		"numToStr/Comment.nvim",
 		keys = { "cc", "gc", "gb", { "cc", mode = "v" }, { "gc", mode = "v" }, { "gb", mode = "v" } },
-		config = function()
-			require("plugins/Comment_nvim")
-		end,
+		config = function() require("plugins/Comment_nvim") end
 	},
 
 	{ -- The fastest Neovim colorizer.
 		"NvChad/nvim-colorizer.lua",
 		event = { "BufReadPre", "BufNewFile", "InsertEnter" },
-		config = function()
-			require("plugins/nvim-colorizer_lua")
-		end,
+		config = function() require("plugins/nvim-colorizer_lua") end
 	},
 
 	{ -- Indent guides for Neovim
@@ -249,25 +207,19 @@ local plugins = {
 		main = "ibl",
 		event = { "BufReadPost", "BufNewFile" },
 		opts = {},
-		config = function()
-			require("plugins/indent-blankline_nvim")
-		end,
+		config = function() require("plugins/indent-blankline_nvim") end
 	},
 
 	{ -- Git signs written in pure lua
 		"lewis6991/gitsigns.nvim",
 		event = { "BufReadPre", "BufNewFile", "InsertEnter" },
-		config = function()
-			require("plugins/gitsigns_nvim")
-		end,
+		config = function() require("plugins/gitsigns_nvim") end
 	},
 
 	{ -- A declarative, highly configurable, and neovim style tabline plugin. Use your nvim tabs as a workspace multiplexer!
 		"nanozuki/tabby.nvim",
 		event = { "BufReadPre", "BufNewFile" },
-		config = function()
-			require("plugins/tabby")
-		end,
+		config = function() require("plugins/tabby") end
 	},
 
 	{ -- Neovim plugin to manage the file system and other tree like structures.
@@ -277,60 +229,46 @@ local plugins = {
 		dependencies = {
 			{ "MunifTanjim/nui.nvim" }, -- UI Component Library for Neovim.
 		},
-		config = function()
-			require("plugins/neo-tree_nvim")
-		end,
+		config = function() require("plugins/neo-tree_nvim") end
 	},
 
 	{ -- fast and highly customizable greeter for neovim.
 		"goolord/alpha-nvim",
 		event = "VimEnter",
-		config = function()
-			require("plugins/alpha-nvim")
-		end,
+		config = function() require("plugins/alpha-nvim") end
 	},
 
 	{ --  smart indent and project detector with project based config loader
 		"Abstract-IDE/penvim",
 		event = "VimEnter",
-		config = function()
-			require("plugins/penvim")
-		end,
+		config = function() require("plugins/penvim") end
 	},
 
 	{ --  A simple wrapper around :mksession
 		"Shatur/neovim-session-manager",
 		event = "BufWinEnter",
 		cmd = { "SessionManager" },
-		config = function()
-			require("plugins/neovim-session-manager")
-		end,
+		config = function() require("plugins/neovim-session-manager") end
 	},
 
 	{ -- VS Code-like renaming UI for Neovim, writen in Lua.
 		"filipdutescu/renamer.nvim",
 		branch = "master",
 		keys = { "<Space>R" },
-		config = function()
-			require("plugins/renamer_nvim")
-		end,
+		config = function() require("plugins/renamer_nvim") end
 	},
 
 	{ --  Neovim motions on speed!
 		"phaazon/hop.nvim",
 		keys = { "f" },
-		config = function()
-			require("plugins/hop_nvim")
-		end,
+		config = function() require("plugins/hop_nvim") end
 	},
 
 	{ --  Neovim file explorer: edit your filesystem like a buffer
 		"stevearc/oil.nvim",
 		keys = { "-" },
 		opts = {},
-		config = function()
-			require("plugins/oil_nvim")
-		end,
+		config = function() require("plugins/oil_nvim") end
 	},
 
 	-- ━━━━━━━━━━━━━━━━━❰ DEVELOPMENT ❱━━━━━━━━━━━━━━━━━ --
@@ -349,14 +287,10 @@ local plugins = {
 		dependencies = {
 			{
 				"dart-lang/dart-vim-plugin", -- Syntax highlighting for Dart in Vim
-				config = function()
-					require("plugins/dart-vim-plugin")
-				end,
+				config = function() require("plugins/dart-vim-plugin") end
 			},
 		},
-		config = function()
-			require("plugins/flutter-tools_nvim")
-		end,
+		config = function() require("plugins/flutter-tools_nvim") end
 	},
 	-- ━━━━━━━━━━━━━━❰ end of DEVELOPMENT ❱━━━━━━━━━━━━━ --
 }

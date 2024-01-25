@@ -1,25 +1,27 @@
+--[[
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+─────────────────────────────────────────────────
+Plugin: nvim-cmp
+Github: https://github.com/hrsh7th/nvim-cmp/
 
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
--- ───────────────────────────────────────────────── --
---   Plugin:    nvim-cmp
---   Github:    github.com/hrsh7th/nvim-cmp
--- ───────────────────────────────────────────────── --
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
+A completion engine plugin for neovim written in Lua.
+Completion sources are installed from external repositories and "sourced".
+─────────────────────────────────────────────────
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+--]]
 
 
 
-
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
--- ━━━━━━━━━━━━━━━━━━━❰ configs ❱━━━━━━━━━━━━━━━━━━━ --
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
 -- Set completeopt to have a better completion experience
-vim.o.completeopt = 'menuone,noselect'
+vim.o.completeopt = "menuone,noselect"
 
-local _cmp, cmp = pcall(require, 'cmp')
-local _luasnip, luasnip = pcall(require, 'luasnip')
-if not _cmp or not _luasnip then return end
-
+local _cmp, cmp = pcall(require, "cmp")
+local _luasnip, luasnip = pcall(require, "luasnip")
+local _neotab, neotab = pcall(require, "neotab")
+if not _cmp or not _luasnip then
+	return
+end
 
 cmp.setup({
 
@@ -41,12 +43,14 @@ cmp.setup({
 	},
 
 	snippet = {
-		expand = function(args) luasnip.lsp_expand(args.body) end,
+		expand = function(args)
+			luasnip.lsp_expand(args.body)
+		end,
 	},
 
 	formatting = {
 
-		fields = {"kind", "abbr", "menu"},
+		fields = { "kind", "abbr", "menu" },
 
 		format = function(entry, vim_item)
 			local kind_icons = {
@@ -56,7 +60,7 @@ cmp.setup({
 				Constructor = "", -- 
 				Field = "", -- 
 				Variable = "", -- 
-				Class = '', -- ﴯ
+				Class = "", -- ﴯ
 				Interface = "", -- 
 				Module = "", --  
 				Property = "", -- ﰠ
@@ -73,11 +77,11 @@ cmp.setup({
 				Constant = "π", --  
 				Struct = "", -- 
 				Event = "", -- 
-				Operator = '', -- 
-				TypeParameter = ' ',
+				Operator = "", -- 
+				TypeParameter = " ",
 			}
 
-			vim_item.kind = (kind_icons[vim_item.kind] or '') .. " "
+			vim_item.kind = (kind_icons[vim_item.kind] or "") .. " "
 			-- vim_item.kind = string.format('%s %s', kind_icons[vim_item.kind], vim_item.kind) -- show icons with the name of the item kind
 
 			-- limit completion width
@@ -85,7 +89,7 @@ cmp.setup({
 			local label = vim_item.abbr
 			local truncated_label = vim.fn.strcharpart(label, 0, MAX_LABEL_WIDTH)
 			if truncated_label ~= label then
-				vim_item.abbr = truncated_label .. '…'
+				vim_item.abbr = truncated_label .. "…"
 			end
 
 			-- set a name for each source
@@ -104,58 +108,35 @@ cmp.setup({
 	},
 
 	sources = {
-		{name = 'nvim_lsp'},
+		{ name = "nvim_lsp" },
 		-- {name = 'nvim_lsp_signature_help' }, -- using ray-x/lsp_signature.nvim instead
-		{name = 'nvim_lua'},
-		{name = 'path'},
-		{name = 'luasnip'},
-		{name = 'buffer', keyword_length = 1},
-		{name = 'treesitter'},
+		{ name = "nvim_lua" },
+		{ name = "path" },
+		{ name = "luasnip" },
+		{ name = "buffer",    keyword_length = 1 },
+		{ name = "treesitter" },
 		-- {name = 'calc'},
 	},
 
 	window = {
 		documentation = {
-			border = {"┌", "─", "┐", "│", "┘", "─", "└", "│"},
+			border = { "┌", "─", "┐", "│", "┘", "─", "└", "│" },
 		},
 		completion = {
-			border = {"┌", "─", "┐", "│", "┘", "─", "└", "│"},
-		}
+			border = { "┌", "─", "┐", "│", "┘", "─", "└", "│" },
+		},
 	},
 
 	experimental = {
 		-- ghost_text = true,
 	},
 
-})
-
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
--- ━━━━━━━━━━━━━━━━━❰ end configs ❱━━━━━━━━━━━━━━━━━ --
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
-
-
-
-
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
--- ━━━━━━━━━━━━━━━━━━━❰ Mappings ❱━━━━━━━━━━━━━━━━━━ --
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
-
--- -- Require function for tab to work with LUA-SNIP
--- local has_words_before = function()
---     local line, col = unpack(vim.api.nvim_win_get_cursor(0))
---     return col ~= 0 and
--- 	vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]
--- 		:sub(col, col)
--- 		:match("%s") == nil
--- end
-
-cmp.setup({
 	mapping = {
-		['<C-Space>'] = cmp.mapping.complete({}),
-		['<C-e>'] = cmp.mapping.close(),
-		['<C-u>'] = cmp.mapping.scroll_docs(-4),
-		['<C-d>'] = cmp.mapping.scroll_docs(4),
-		['<CR>'] = cmp.mapping.confirm({
+		["<C-Space>"] = cmp.mapping.complete({}),
+		["<C-e>"] = cmp.mapping.close(),
+		["<C-u>"] = cmp.mapping.scroll_docs(-4),
+		["<C-d>"] = cmp.mapping.scroll_docs(4),
+		["<CR>"] = cmp.mapping.confirm({
 			behavior = cmp.ConfirmBehavior.Replace,
 			select = false,
 		}),
@@ -169,9 +150,12 @@ cmp.setup({
 				-- elseif has_words_before() then
 				--     cmp.complete()
 			else
-				fallback()
+				if _neotab then
+					neotab.tabout()
+				end
+				-- fallback()
 			end
-		end, {"i", "s"}),
+		end, { "i", "s" }),
 
 		["<S-Tab>"] = cmp.mapping(function(fallback)
 			if cmp.visible() then
@@ -181,12 +165,6 @@ cmp.setup({
 			else
 				fallback()
 			end
-		end, {"i", "s"}),
-
+		end, { "i", "s" }),
 	},
 })
-
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
--- ━━━━━━━━━━━━━━━━━❰ end Mappings ❱━━━━━━━━━━━━━━━━ --
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
-
