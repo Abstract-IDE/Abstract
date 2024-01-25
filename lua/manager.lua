@@ -78,9 +78,15 @@ local plugins = {
 				"j-hui/fidget.nvim",
 				config = function() require("plugins/fidget_nivm") end
 			},
-			{ --  Simple winbar/statusline plugin that shows your current code context
-				"SmiteshP/nvim-navic",
-				config = function() require("plugins/nvim_navic") end
+			{ -- Neovim Winbar: Elevating Awesome. Simple, Dynamic, Navic-Powered.
+				"Abstract-IDE/abstract-winbar",
+				dependencies = {
+					{ -- Simple winbar/statusline plugin that shows your current code context
+						"SmiteshP/nvim-navic",
+						config = function () require("plugins/nvim-navic") end
+					}
+				},
+				config = function () require("plugins/abstract-winbar") end
 			},
 			{ --  LSP signature hint as you type
 				"ray-x/lsp_signature.nvim",
