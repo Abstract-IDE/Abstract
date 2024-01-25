@@ -16,5 +16,5 @@ local _winbar, winbar = pcall(require, "abstract-winbar")
 if not _winbar then return end
 
 winbar.setup({
-	exclude_filetypes = {},
+	-- exclude_filetypes = {},
 })

@@ -100,7 +100,7 @@ local function setup_lsp_config()
 		},
 	})
 
-	handlers["textDocument/hover"] = lsp.with(handlers.hover, { border = "single" })
+	handlers["textDocument/hover"] = lsp.with(handlers.hover, { border = "rounded" })
 	handlers["textDocument/signatureHelp"] = lsp.with(handlers.signature_help, { border = "single" })
 
 	-- show diagnostic on float window(like auto complete)
