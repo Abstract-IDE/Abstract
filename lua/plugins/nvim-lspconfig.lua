@@ -207,6 +207,23 @@ local function setup_lsp()
 				},
 			}))
 		end,
+
+		["yamlls"] = function()
+			lspconfig.yamlls.setup(tbl_deep_extend("force", lsp_options, {
+				settings = {
+					yaml = {
+						schemaStore = {
+							-- You must disable built-in schemaStore support if you want to use
+							-- this plugin and its advanced options like `ignore`.
+							enable = false,
+							-- Avoid TypeError: Cannot read properties of undefined (reading 'length')
+							url = "",
+						},
+						schemas = require("schemastore").yaml.schemas(),
+					},
+				},
+			}))
+		end,
 	})
 end
 
