@@ -276,7 +276,7 @@ local plugins = {
 		"stevearc/oil.nvim",
 		keys = { "-" },
 		opts = {},
-		config = function() require("plugins/oil_nvim") end
+		config = function() require("plugins/oil") end
 	},
 
 	-- ━━━━━━━━━━━━━━━━━❰ DEVELOPMENT ❱━━━━━━━━━━━━━━━━━ --
