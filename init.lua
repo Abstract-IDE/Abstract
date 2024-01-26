@@ -19,5 +19,4 @@ require("customs/override_defalut") -- Always put this config (override_default)
 -- NOTE: always load plugins at last (if possible)
 require("manager")
 
-require("customs/abstractline") -- status line
 require("customs/cursor_line")  -- custom cursor line dynamic color

@@ -279,6 +279,12 @@ local plugins = {
 		config = function() require("plugins/oil") end
 	},
 
+	{ -- statusline for Abstract
+		"Abstract-IDE/abstract-line",
+		event = "VimEnter",
+		config = function() require("plugins/abstract-line") end,
+	},
+
 	-- ━━━━━━━━━━━━━━━━━❰ DEVELOPMENT ❱━━━━━━━━━━━━━━━━━ --
 
 	--          [ WEB ]
