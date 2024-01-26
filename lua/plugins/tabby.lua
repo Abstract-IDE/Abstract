@@ -10,11 +10,10 @@ Use your nvim tabs as a workspace multiplexer!
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 --]]
 
-
-
-
 local _tabby, tabby = pcall(require, "tabby.tabline")
-if not _tabby then return end
+if not _tabby then
+	return
+end
 
 -- Save and restore in session
 -- You can save and restore tab layout and tab names in session, by adding word tabpages(for layout)
@@ -73,7 +72,6 @@ local view = function(line)
 	return {
 		{
 			{ tab(), hl = theme.head },
-			{ "", hl = theme.tab },
 			line.sep(" ", theme.head, theme.tab),
 		},
 		line.tabs().foreach(function(tab)
@@ -91,6 +89,7 @@ local view = function(line)
 				-- margin = " ",
 			}
 		end),
+		line.sep(" ", theme.head, theme.tab),
 		line.spacer(),
 		wins_in_tab(line, theme),
 		-- {
