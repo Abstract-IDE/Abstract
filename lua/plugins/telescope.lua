@@ -60,7 +60,7 @@ telescope.setup({
 		color_devicons = true,
 		use_less = true,
 		set_env = { ["COLORTERM"] = "truecolor" }, -- default = nil,
-		path_display = { "truncate" }, -- How file paths are displayed ()
+		path_display = { "truncate" },       -- How file paths are displayed ()
 
 		preview = {
 			msg_bg_fillchar = " ",
@@ -76,7 +76,18 @@ telescope.setup({
 		-- Developer configurations: Not meant for general override
 		buffer_previewer_maker = require("telescope.previewers").buffer_previewer_maker,
 	},
-
+	pickers = {
+		buffers = {
+			mappings = {
+				i = {
+					["<c-d>"] = "delete_buffer",
+				},
+				n = {
+					dd = "delete_buffer",
+				}
+			}
+		}
+	},
 	extensions = {
 		["ui-select"] = require("plugins.telescope-ui-select").opts,
 		file_browser = require("plugins.telescope-file-browser").opts,
@@ -129,6 +140,6 @@ keymap("n", "tg", "<cmd>lua require('telescope.builtin').live_grep() <CR>", opts
 -- Find files from current file's project
 keymap("n", "<C-p>", ":Telescope find_files <cr>", opts)
 -- Show all files from current working directory
-keymap( "n", "<C-f>", "<cmd>lua require('telescope.builtin').find_files( { cwd = vim.fn.expand('%:p:h') }) <CR>", opts)
+keymap("n", "<C-f>", "<cmd>lua require('telescope.builtin').find_files( { cwd = vim.fn.expand('%:p:h') }) <CR>", opts)
 -- Show symbols (@nvim-telescope/telescope-symbols.nvim)
-keymap( "n", "ts", "<cmd>lua require('telescope.builtin').symbols{ sources = {'emoji', 'kaomoji', 'gitmoji'} } <CR>", opts)
+keymap("n", "ts", "<cmd>lua require('telescope.builtin').symbols{ sources = {'emoji', 'kaomoji', 'gitmoji'} } <CR>", opts)
