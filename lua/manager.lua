@@ -181,8 +181,9 @@ local plugins = {
 			{ "nvim-telescope/telescope-media-files.nvim" },       -- Telescope extension to preview media files using Ueberzug.
 			{ "nvim-telescope/telescope-ui-select.nvim" },         -- It sets vim.ui.select to telescope.
 			{ "nvim-telescope/telescope-symbols.nvim" },           -- telescope-symbols provide its users with the ability of picking symbols and insert them at point.
+			{ "nvim-telescope/telescope-project.nvim" },           -- An extension for telescope.nvim that allows you to switch between projects.
 		},
-		config = function() require("plugins/telescope_nvim") end
+		config = function() require("plugins/telescope") end
 	},
 
 	{ -- Use (neo)vim terminal in the floating/popup window.

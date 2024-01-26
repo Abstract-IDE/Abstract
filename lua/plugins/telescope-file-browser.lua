@@ -1,22 +1,16 @@
+--[[
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+─────────────────────────────────────────────────
+Plugin: telescope-file-browser.nvim
+Github: https://github.com/nvim-telescope/telescope-file-browser.nvim
 
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
--- ───────────────────────────────────────────────── --
---   PluginName:  telescope.nvim
---   Github:      https://github.com/nvim-telescope/telescope-file-browser.nvim
---   Description: File Browser extension for telescope.nvim
--- ───────────────────────────────────────────────── --
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
-
-
-
-
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
--- ━━━━━━━━━━━━━━━━━━━❰ configs ❱━━━━━━━━━━━━━━━━━━━ --
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
-
-local actions = require("telescope._extensions.file_browser.actions")
+File Browser extension for telescope.nvim
+─────────────────────────────────────────────────
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+--]]
 
 local M = {}
+local actions = require("telescope._extensions.file_browser.actions")
 
 M.opts = {
 	theme = "ivy",
@@ -82,7 +76,3 @@ M.opts = {
 }
 
 return M
-
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
--- ━━━━━━━━━━━━━━━━━❰ end configs ❱━━━━━━━━━━━━━━━━━ --
--- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
