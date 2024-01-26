@@ -285,6 +285,12 @@ local plugins = {
 		config = function() require("plugins/abstract-line") end,
 	},
 
+	{ -- statusline for Abstract
+		"Abstract-IDE/abstract-cursor",
+		event = { "BufReadPre", "BufNewFile" },
+		config = function() require("plugins/abstract-cursor") end,
+	},
+
 	-- ━━━━━━━━━━━━━━━━━❰ DEVELOPMENT ❱━━━━━━━━━━━━━━━━━ --
 
 	--          [ WEB ]

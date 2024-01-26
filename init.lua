@@ -18,5 +18,3 @@ require("customs/override_defalut") -- Always put this config (override_default)
 -- loading plugins and its configs are managed by lazy.nvim
 -- NOTE: always load plugins at last (if possible)
 require("manager")
-
-require("customs/cursor_line")  -- custom cursor line dynamic color
