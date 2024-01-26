@@ -45,7 +45,7 @@ local function wins_in_tab(line, theme)
 
 			local icon = " " .. win.file_icon() .. " "
 			-- local icon = is_same_buff and "  " or "  "
-			local hl = is_same_buff and theme.win or theme.current_win
+			local hl = is_same_buff and theme.current_win or theme.win
 
 			return {
 				line.sep("", theme.win, theme.fill),
