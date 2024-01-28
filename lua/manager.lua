@@ -291,6 +291,11 @@ local plugins = {
 		config = function() require("plugins/abstract-cursor") end,
 	},
 
+	{
+		"Abstract-IDE/abstract-autocmds",
+		lazy = false,
+		config = function () require("plugins/abstract-autocmds") end
+	},
 	-- ━━━━━━━━━━━━━━━━━❰ DEVELOPMENT ❱━━━━━━━━━━━━━━━━━ --
 
 	--          [ WEB ]

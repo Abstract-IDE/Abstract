@@ -10,7 +10,6 @@ vim.g.maplocalleader = "|"
 
 -- Load/Source Configs
 require("configs")                  -- configs  (plugin independent)
-require("autocmds")                 -- autocmds (plugin independent)
 require("mappings")                 -- mappings (plugin independent)
 require("customs/override_defalut") -- Always put this config (override_default) at last because it's used to override any previously defined config
 

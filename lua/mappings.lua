@@ -31,14 +31,6 @@ local silent = { silent = true }
 -- 	}
 -- )
 
--- map ctl+z to nothing so that it don't suspend terminal
-vim.api.nvim_create_autocmd("BufEnter", { pattern = "*", command = "nnoremap <c-z> <nop>" })
-
--- keymap('n', '<Leader>q',':q <CR>',      options)
--- write/save when the buffer has been modified.
-keymap("i", "<C-s>", "<ESC>ma<ESC>:update <CR>`a", options)
-keymap("n", "<C-s>", "<ESC>ma<ESC>:update <CR>`a", options)
-
 -- scroll window up/down
 keymap("i", "<C-e>", "<ESC><C-e>", silent)
 keymap("i", "<C-y>", "<ESC><C-y>", silent)
@@ -65,36 +57,3 @@ keymap("n", ";j", ":resize -3 <CR>", options)
 keymap("n", ";l", ":vertical resize +3 <CR>", options)
 keymap("n", ";h", ":vertical resize -3 <CR>", options)
 
--- easier moving of code blocks
--- Try to go into visual mode (v), thenselect several lines of code
--- here and then press ``>`` several times.
-keymap("v", "<", "<gv", options)
-keymap("v", ">", ">gv", options)
-
--- going back to normal mode which works even in vim's terminal
--- you will need this if you use floaterm to escape terminal
-keymap("t", "<Esc>", "<c-\\><c-n>", options)
-
--- move selected line(s) up or down
-keymap("v", "J", ":m '>+1<CR>gv=gv", options)
-keymap("v", "K", ":m '<-2<CR>gv=gv", options)
-
--- delete a word backward in insert mode with Ctrl+Backspace
-keymap("i", "<C-BS>", "<C-w>", { noremap = true })
-
--- smart deletion, dd
--- It solves the issue, where you want to delete empty line, but dd will override your last yank.
--- Code below will check if u are deleting empty line, if so - use black hole register.
--- [src: https://www.reddit.com/r/neovim/comments/w0jzzv/comment/igfjx5y/?utm_source=share&utm_medium=web2x&context=3]
-local function smart_dd()
-	if vim.api.nvim_get_current_line():match("^%s*$") then
-		return '"_dd'
-	else
-		return "dd"
-	end
-end
-vim.keymap.set("n", "dd", smart_dd, { noremap = true, expr = true })
-
--- In visual mode ('x'), pressing 'p' replaces the selected text with the content
--- of the default register, effectively pasting the last deleted or yanked text.
-keymap("x", "p", [[<Cmd>silent! normal! "_dP<CR>]], options)
