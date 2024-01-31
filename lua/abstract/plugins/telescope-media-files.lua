@@ -10,7 +10,7 @@ Github: https://github.com/nvim-telescope/telescope-media-files.nvim
 --]]
 
 return {
-	"telescope-media-files.nvim",
+	"nvim-telescope/telescope-media-files.nvim",
 	lazy = true,
 	dependencies = { "nvim-telescope/telescope.nvim" },
 	config = function()

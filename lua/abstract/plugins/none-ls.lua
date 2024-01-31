@@ -10,7 +10,6 @@ Github: https://github.com/nvimtools/none-ls.nvim
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 --]]
 
-
 return { -- Use Neovim as a language server to inject LSP diagnostics, code actions, and more via Lua.
 	"nvimtools/none-ls.nvim",
 	dependencies = { "williamboman/mason-lspconfig.nvim" },
@@ -177,11 +176,5 @@ return { -- Use Neovim as a language server to inject LSP diagnostics, code acti
 		if load then
 			null.setup({ debug = false, sources = sources })
 		end
-
-		require("which-key").register({
-			["<Space>"] = {
-				f = { "<cmd>lua vim.lsp.buf.format({ timeout_ms = 2000 })<CR>", "Format code", noremap = true, silent = true }
-			},
-		})
 	end,
 }

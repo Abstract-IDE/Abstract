@@ -1,7 +1,7 @@
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 -- ───────────────────────────────────────────────── --
 --   Plugin:    nvim-web-devicons
---   Github:    github.com/kyazdani42/nvim-web-devicons
+--   Github:    github.com/nvim-tree/nvim-web-devicons
 -- ───────────────────────────────────────────────── --
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ --
 
@@ -15,7 +15,7 @@
 
 
 return {
-	"kyazdani42/nvim-web-devicons",
+	"nvim-tree/nvim-web-devicons",
 	config = function()
 		require("nvim-web-devicons").get_icons()
 	end,
