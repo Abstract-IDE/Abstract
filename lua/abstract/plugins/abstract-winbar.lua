@@ -9,14 +9,17 @@ Neovim Winbar: Elevating Awesome. Simple, Dynamic, Navic-Powered.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 --]]
 
-
-
-return {
+local spec = {
 	"Abstract-IDE/abstract-winbar",
-
-	config = function()
-		require("abstract-winbar").setup({
-			-- exclude_filetypes = {},
-		})
-	end
+	dependencies = {
+		"SmiteshP/nvim-navic", -- Simple winbar/statusline plugin that shows your current code context
+	},
 }
+
+spec.config = function()
+	require("abstract-winbar").setup({
+		-- exclude_filetypes = {},
+	})
+end
+
+return spec

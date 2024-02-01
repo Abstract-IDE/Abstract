@@ -1,55 +1,40 @@
 --[[
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ─────────────────────────────────────────────────
-Plugin:    abstract-cursor
-Github:    https://github.com/Abstract-IDE/abstract-cursor
+Plugin:    penvim
+Github:    https://github.com/Abstract-IDE/penvim
 
-dynamic cursor
+ project's root directory and documents indentation detector with project based config loader
 ─────────────────────────────────────────────────
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 --]]
 
 local spec = {
-	"Abstract-IDE/abstract-cursor",
+	"Abstract-IDE/penvim",
 }
 
 spec.config = function()
-	require("abstract-cursor").setup({
-		Visual = {
+	require("penvim").setup({
+
+		project_env = {
 			enable = true,
-			colors = {},
+			config_name = ".__nvim__.lua",
 		},
 
-		CursorLine = {
+		rooter = {
 			enable = true,
-			colors = {},
+			patterns = { ".__nvim__.lua" },
 		},
 
-		CursorLineNr = {
+		indentor = {
 			enable = true,
-			colors = {
-				i = {
-					fg = "#000000",
-					bg = "#ac3131",
-					bold = true,
-				},
-				v = {
-					fg = "#000000",
-					bg = "#d1d1d1",
-					bold = true,
-				},
-				V = {
-					fg = "#000000",
-					bg = "#d1d1d1",
-					bold = true,
-				},
-				["^V"] = {
-					fg = "#000000",
-					bg = "#d1d1d1",
-					bold = true,
-				},
-			},
+			indent_length = 4,
+			indent_type = "auto", -- auto|tab|space
 		},
+
+		-- langs = {
+		-- 	enable = true,
+		-- }
 	})
 end
 
