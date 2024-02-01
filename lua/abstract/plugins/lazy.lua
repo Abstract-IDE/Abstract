@@ -1,26 +1,7 @@
 local M = {}
 
--- local plugins = {
--- 	"alpha-nvim",
--- 	"Abstract-cs",
--- 	-- ─────────────────────────────────────────────────
--- 	-- CORE:
--- 	-- ─────────────────────────────────────────────────
--- 	"abstract-autocmds",
--- 	"nvim-web-devicons",
--- 	-- "nvim-cmp",
--- 	-- "nvim-lspconfig",
--- 	-- "mason",
--- 	-- "none-ls",
--- 	-- "indent-blankline",
--- 	-- "Comment",
--- 	-- "nvim-ts-context-commentstring",
--- 	"gitsigns",
--- }
-
 local NVIM_DATA_DIR = vim.fn.stdpath("data")
--- WARN: only for dev
-local ABSTRACT_DIR = "/home/lazy/codeDNA/dev/Projects/neovim/Abstract"
+local ABSTRACT_DIR = "/home/lazy/codeDNA/dev/Projects/neovim/Abstract" -- WARN!: only for development
 -- local ABSTRACT_DIR = NVIM_DATA_DIR .. "/Abstract"
 
 M.opts = {

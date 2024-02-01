@@ -10,17 +10,9 @@ Use your nvim tabs as a workspace multiplexer!
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 --]]
 
-local _tabby, tabby = pcall(require, "tabby.tabline")
-if not _tabby then
-	return
-end
-
--- Save and restore in session
--- You can save and restore tab layout and tab names in session, by adding word tabpages(for layout)
--- and globals(for tab names) to vim.opt.sessionoptions. This is a valid sessionoptions:
-vim.opt.sessionoptions = "curdir,folds,globals,help,tabpages,terminal,winsize"
--- At default, neovim only display tabline when there are at least two tab pages. If you want always display tabline:
-vim.o.showtabline = 1
+local spec = {
+	"nanozuki/tabby.nvim",
+}
 
 local tab = function()
 	local tabs = tostring(#vim.api.nvim_list_tabpages())
@@ -106,18 +98,29 @@ local opt = {
 	},
 }
 
--- setup tabby
-tabby.set(view, opt)
+spec.config = function()
+	-- Save and restore in session
+	-- You can save and restore tab layout and tab names in session, by adding word tabpages(for layout)
+	-- and globals(for tab names) to vim.opt.sessionoptions. This is a valid sessionoptions:
+	vim.opt.sessionoptions = "curdir,folds,globals,help,tabpages,terminal,winsize"
+	-- At default, neovim only display tabline when there are at least two tab pages. If you want always display tabline:
+	vim.o.showtabline = 1
 
--- Mappings (:h tab)
-local options = { noremap = true, silent = true }
-local keymap = vim.api.nvim_set_keymap
+	-- setup tabby
+	require("tabby.tabline").set(view, opt)
 
-keymap("n", "<leader>q", ":tabclose<CR>", options)
-keymap("n", "<leader>Q", ":tabonly<CR>", options)
--- navigate to previous/next tab
-keymap("n", "\\", ":tabn<CR>", options)
-keymap("n", "|", ":tabp<CR>", options)
--- move current tab to previous/next position
-keymap("n", "<leader>,", ":-tabmove<CR>", options)
-keymap("n", "<leader>.", ":+tabmove<CR>", options)
+	-- Mappings (:h tab)
+	local options = { noremap = true, silent = true }
+	local keymap = vim.api.nvim_set_keymap
+
+	keymap("n", "<leader>q", ":tabclose<CR>", options)
+	keymap("n", "<leader>Q", ":tabonly<CR>", options)
+	-- navigate to previous/next tab
+	keymap("n", "\\", ":tabn<CR>", options)
+	keymap("n", "|", ":tabp<CR>", options)
+	-- move current tab to previous/next position
+	keymap("n", "<leader>,", ":-tabmove<CR>", options)
+	keymap("n", "<leader>.", ":+tabmove<CR>", options)
+end
+
+return spec
