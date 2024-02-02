@@ -118,7 +118,7 @@ spec.config = function()
 					buffer = "[BUF]",
 					luasnip = "[SNP]",
 					nvim_lua = "[LUA]",
-					treesitter = "[🌲T]",
+					treesitter = "[🌲S]",
 					latex_symbols = "[LTX]",
 				})[entry.source.name]
 
