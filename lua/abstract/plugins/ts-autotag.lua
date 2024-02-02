@@ -11,14 +11,13 @@ Github:    github.com/windwp/nvim-ts-autotag
 
 local spec = {
 	"windwp/nvim-ts-autotag",
-	event = "InsertEnter",
 	dependencies = {
 		"nvim-treesitter/nvim-treesitter",
 	},
 }
 
 spec.config = function()
-	require("nvim-ts-autotag").setup({})
+	require("nvim-ts-autotag").setup()
 end
 
 return spec
