@@ -35,39 +35,34 @@ Workspace mappings (insert mode):
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 --]]
 
-return {
-	"nvim-telescope/telescope-project.nvim",
-	lazy = true,
-	dependencies = { "nvim-telescope/telescope.nvim" },
-	config = function()
-		local setkeymap = vim.api.nvim_set_keymap
-		local opts = { noremap = true, silent = true }
+local M = {}
 
-		-- The projects picker:
-		setkeymap("n", "tp", ":lua require'telescope'.extensions.project.project{}<CR>", opts)
+local setkeymap = vim.api.nvim_set_keymap
+local opts = { noremap = true, silent = true }
+-- The projects picker:
+setkeymap("n", "tp", ":lua require'telescope'.extensions.project.project{}<CR>", opts)
 
-		return {
-			hidden_files = false, -- Show hidden files in selected project
-			theme = "dropdown",
-			order_by = "asc", -- Order projects by asc, desc, recent
-			search_by = "title", -- Telescope finder search by field (title/path) string or table (default: title). Can also be a table {"title", "path"} to search by both title and path
-			sync_with_nvim_tree = false,
-			-- cd_scope = { "tab", "window" }, -- 	Array of cd scopes: tab, window, global table (default: {"tab", "window"})
-			-- base_dirs = { -- Array of project base directory configurations
-			-- 	"~/dev/src",
-			-- 	{ "~/dev/src2" },
-			-- 	{ "~/dev/src3",        max_depth = 4 },
-			-- 	{ path = "~/dev/src4" },
-			-- 	{ path = "~/dev/src5", max_depth = 2 },
-			-- },
-			-- default for on_project_selected = find project files
-			-- on_project_selected = function(prompt_bufnr)
-			-- 	-- Do anything you want in here. For example:
-			-- 	local project_actions = require("telescope._extensions.project.actions")
-			-- 	project_actions.change_working_directory(prompt_bufnr, false)
-			-- 	require("harpoon.ui").nav_file(1)
-			-- end,
-		}
-	end
-
+M.config = {
+	hidden_files = false, -- Show hidden files in selected project
+	theme = "dropdown",
+	order_by = "asc", -- Order projects by asc, desc, recent
+	search_by = "title", -- Telescope finder search by field (title/path) string or table (default: title). Can also be a table {"title", "path"} to search by both title and path
+	sync_with_nvim_tree = false,
+	-- cd_scope = { "tab", "window" }, -- 	Array of cd scopes: tab, window, global table (default: {"tab", "window"})
+	-- base_dirs = { -- Array of project base directory configurations
+	-- 	"~/dev/src",
+	-- 	{ "~/dev/src2" },
+	-- 	{ "~/dev/src3",        max_depth = 4 },
+	-- 	{ path = "~/dev/src4" },
+	-- 	{ path = "~/dev/src5", max_depth = 2 },
+	-- },
+	-- default for on_project_selected = find project files
+	-- on_project_selected = function(prompt_bufnr)
+	-- 	-- Do anything you want in here. For example:
+	-- 	local project_actions = require("telescope._extensions.project.actions")
+	-- 	project_actions.change_working_directory(prompt_bufnr, false)
+	-- 	require("harpoon.ui").nav_file(1)
+	-- end,
 }
+
+return M
