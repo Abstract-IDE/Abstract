@@ -22,16 +22,25 @@ local spec = {
 		{ "hrsh7th/cmp-path" }, -- nvim-cmp source for filesystem paths.
 		{ "saadparwaiz1/cmp_luasnip" }, -- luasnip completion source for nvim-cmp
 		{ "ray-x/cmp-treesitter" }, -- nvim-cmp source for treesitter nodes.
+		{ "hrsh7th/cmp-cmdline" }, -- nvim-cmp source for vim's cmdline.
 	},
 }
 
 spec.config = function()
-	-- Set completeopt to have a better completion experience
-	vim.o.completeopt = "menuone,noselect"
-
 	local cmp = require("cmp")
 	local luasnip = require("luasnip")
 	local neotab = require("neotab")
+
+	-- Completions for / search based on current buffer:
+	-- cmp.setup.cmdline("/", { mapping = cmp.mapping.preset.cmdline(), sources = { { name = "buffer" } } })
+	-- Completions for command mode:
+	cmp.setup.cmdline(":", {
+		mapping = cmp.mapping.preset.cmdline(),
+		sources = cmp.config.sources(
+			{ { name = "path" } },
+			{ { name = "cmdline", option = { ignore_cmds = { "Man", "!" } } } }
+		),
+	})
 
 	cmp.setup({
 
@@ -49,7 +58,7 @@ spec.config = function()
 		-- end,
 
 		completion = {
-			-- completeopt = 'menu,menuone,noinsert',
+			completeopt = "menu,menuone,noselect,noinsert", -- Set completeopt to have a better completion experience
 		},
 
 		snippet = {
@@ -148,10 +157,7 @@ spec.config = function()
 			["<C-e>"] = cmp.mapping.close(),
 			["<C-u>"] = cmp.mapping.scroll_docs(-4),
 			["<C-d>"] = cmp.mapping.scroll_docs(4),
-			["<CR>"] = cmp.mapping.confirm({
-				behavior = cmp.ConfirmBehavior.Replace,
-				select = false,
-			}),
+			["<CR>"] = cmp.mapping.confirm({ behavior = cmp.ConfirmBehavior.Replace, select = false }),
 
 			["<Tab>"] = cmp.mapping(function(fallback)
 				if cmp.visible() then
