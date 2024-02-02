@@ -41,6 +41,7 @@ spec.config = function()
 		smart_visual_paste = true,
 		dont_suspend_with_cz = true,
 		smart_save_in_insert_mode = true,
+		scroll_from_center = true,
 	})
 end
 

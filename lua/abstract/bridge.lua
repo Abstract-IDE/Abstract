@@ -1,9 +1,5 @@
 local M = {}
 
-local function neovim()
-	require("abstract.neovim.vimopt")
-end
-
 local function mapping()
 	local maps = require("abstract.configs.mapping")
 	require("which-key").register(maps)
@@ -29,9 +25,12 @@ local function lazy()
 end
 
 function M.setup()
-	neovim()
+	-- set Abstract's default config
+	require("abstract.configs.vimopt")
+	-- Override Abstract's default with user config
+	dofile(vim.fn.stdpath("config") .. "/init.lua")
 	lazy()
-	mapping()
+	-- mapping()
 end
 
 return M
