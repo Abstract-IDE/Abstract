@@ -11,12 +11,12 @@ Snippet Engine for Neovim written in Lua.
 
 local spec = {
 	"L3MON4D3/LuaSnip",
-	lazy = true,
 	version = "v2.*", -- follow latest release.
 	build = "make install_jsregexp", -- install jsregexp (optional!).
+	lazy = true,
 	dependencies = {
 		{ "rafamadriz/friendly-snippets" }, -- Snippets collection for a set of different programming languages for faster development.
-		{ "Neevash/awesome-flutter-snippets", lazy = true, ft = "dart" }, -- collection snippets and shortcuts for commonly used Flutter functions and classes
+		{ "Neevash/awesome-flutter-snippets", ft = "dart" }, -- collection snippets and shortcuts for commonly used Flutter functions and classes
 	},
 }
 

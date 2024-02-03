@@ -10,6 +10,8 @@ location list to help you solve all the trouble your code is causing.
 
 local spec = {
 	"folke/trouble.nvim",
+	lazy = true,
+	event = { "User AbstractLSPLoaded" },
 	dependencies = { "nvim-tree/nvim-web-devicons" },
 }
 

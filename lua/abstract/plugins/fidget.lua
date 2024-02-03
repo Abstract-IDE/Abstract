@@ -9,6 +9,8 @@ Github:    https://github.com/j-hui/fidget.nvim
 
 local spec = {
 	"j-hui/fidget.nvim",
+	lazy = true,
+	event = { "BufRead" },
 }
 
 spec.config = function()
@@ -117,7 +119,7 @@ spec.config = function()
 
 		-- Options related to logging
 		logger = {
-			level = vim.log.levels.OFF,  -- vim.log.levels.WARN, Minimum logging level
+			level = vim.log.levels.OFF, -- vim.log.levels.WARN, Minimum logging level
 			float_precision = 0.01, -- Limit the number of decimals displayed for floats
 			-- Where Fidget writes its logs to
 			path = string.format("%s/fidget.nvim.log", vim.fn.stdpath("cache")),

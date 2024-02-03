@@ -11,6 +11,8 @@ Neovim Winbar: Elevating Awesome. Simple, Dynamic, Navic-Powered.
 
 local spec = {
 	"Abstract-IDE/abstract-winbar",
+	lazy = true,
+	event = { "BufRead" },
 	dependencies = {
 		"SmiteshP/nvim-navic", -- Simple winbar/statusline plugin that shows your current code context
 	},

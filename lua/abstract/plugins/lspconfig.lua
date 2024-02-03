@@ -118,6 +118,7 @@ local lsp_options = {
 
 		-- Enable Mappings
 		mappings(bufnr)
+vim.api.nvim_command('doautocmd User AbstractLSPLoaded')
 	end,
 
 	capabilities = (function()

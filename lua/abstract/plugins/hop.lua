@@ -14,7 +14,7 @@ anywhere in a document with as few keystrokes as possible
 local spec = {
 	"smoka7/hop.nvim",
 	version = "*",
-	opts = {},
+	keys = { "f" },
 }
 
 spec.config = function()

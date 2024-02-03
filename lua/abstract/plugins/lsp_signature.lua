@@ -12,7 +12,8 @@
 
 local spec = {
 	"ray-x/lsp_signature.nvim",
-	event = "VeryLazy",
+	lazy = true,
+	event = { "User AbstractLSPLoaded" },
 	opts = {},
 }
 
