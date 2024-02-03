@@ -114,8 +114,8 @@ spec.config = function()
 				-- set a name for each source
 				vim_item.menu = ({
 					nvim_lsp = "[LSP]",
-					path = "[PTH]",
-					buffer = "[BUF]",
+					path = "[DIR]",
+					buffer = "[TXT]",
 					luasnip = "[SNP]",
 					nvim_lua = "[LUA]",
 					treesitter = "[🌲S]",
