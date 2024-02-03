@@ -11,44 +11,42 @@ local spec = {
 	"Abstract-IDE/abstract-cursor",
 }
 
-spec.config = function()
-	require("abstract-cursor").setup({
-		Visual = {
-			enable = true,
-			colors = {},
-		},
+spec.opts = {
+	Visual = {
+		enable = true,
+		colors = {},
+	},
 
-		CursorLine = {
-			enable = true,
-			colors = {},
-		},
+	CursorLine = {
+		enable = true,
+		colors = {},
+	},
 
-		CursorLineNr = {
-			enable = true,
-			colors = {
-				i = {
-					fg = "#000000",
-					bg = "#ac3131",
-					bold = true,
-				},
-				v = {
-					fg = "#000000",
-					bg = "#d1d1d1",
-					bold = true,
-				},
-				V = {
-					fg = "#000000",
-					bg = "#d1d1d1",
-					bold = true,
-				},
-				["^V"] = {
-					fg = "#000000",
-					bg = "#d1d1d1",
-					bold = true,
-				},
+	CursorLineNr = {
+		enable = true,
+		colors = {
+			i = {
+				fg = "#000000",
+				bg = "#ac3131",
+				bold = true,
+			},
+			v = {
+				fg = "#000000",
+				bg = "#d1d1d1",
+				bold = true,
+			},
+			V = {
+				fg = "#000000",
+				bg = "#d1d1d1",
+				bold = true,
+			},
+			["^V"] = {
+				fg = "#000000",
+				bg = "#d1d1d1",
+				bold = true,
 			},
 		},
-	})
-end
+	},
+}
 
 return spec

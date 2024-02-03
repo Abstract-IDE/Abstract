@@ -1,13 +1,11 @@
---[[
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-─────────────────────────────────────────────────
-Plugin: fidget.nvim
-Github: https://github.com/j-hui/fidget.nvim
+--[[━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+────────────────────────────────────────────────
+Plugin:    fidget.nvim
+Github:    https://github.com/j-hui/fidget.nvim
 
 💫 Extensible UI for Neovim notifications and LSP progress messages.
-─────────────────────────────────────────────────
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
---]]
+────────────────────────────────────────────────
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━]]
 
 local spec = {
 	"j-hui/fidget.nvim",
@@ -88,8 +86,7 @@ spec.config = function()
 				stack_upwards = false, -- Display notification items from bottom to top
 				icon_separator = " ", -- Separator between group name and icon
 				group_separator = "---", -- Separator between notification groups
-				-- Highlight group used for group separator
-				group_separator_hl = "Comment",
+				group_separator_hl = "Comment", -- Highlight group used for group separator
 				-- How to render notification messages
 				render_message = function(msg, cnt)
 					return cnt == 1 and msg or string.format("(%dx) %s", cnt, msg)
@@ -104,10 +101,10 @@ spec.config = function()
 				zindex = 45, -- Stacking priority of the notification window
 				max_width = 0, -- Maximum width of the notification window
 				max_height = 0, -- Maximum height of the notification window
-				x_padding = 1, -- Padding from right edge of window boundary
-				y_padding = 1, -- Padding from bottom edge of window boundary
+				x_padding = 0, -- Padding from right edge of window boundary
+				y_padding = 0, -- Padding from bottom edge of window boundary
 				align = "bottom", --  top|bottom, How to align the notification window
-				relative = "editor", -- What the notification window position is relative to
+				relative = "editor", -- editor|win, What the notification window position is relative to
 			},
 		},
 
@@ -120,13 +117,12 @@ spec.config = function()
 
 		-- Options related to logging
 		logger = {
-			level = vim.log.levels.WARN, -- Minimum logging level
+			level = vim.log.levels.OFF,  -- vim.log.levels.WARN, Minimum logging level
 			float_precision = 0.01, -- Limit the number of decimals displayed for floats
 			-- Where Fidget writes its logs to
 			path = string.format("%s/fidget.nvim.log", vim.fn.stdpath("cache")),
 		},
-	}
-)
+	})
 end
 
 return spec

@@ -1,5 +1,12 @@
 -- Plugin independent Configs
 
+-- Enables the experimental Lua module loader:
+--    • overrides loadfile
+--    • adds the lua loader using the byte-compilation cache
+--    • adds the libs loader
+--    • removes the default Neovim loader
+vim.loader.enable()
+
 -- To see the current mapping for |<Leader>|, type :echo mapleader.
 -- If it reports an undefined variable, it means the leader key is set to the "default of '\'.
 -- I have defined the leader at the very start of the init.lua file so that every keymap will work.
