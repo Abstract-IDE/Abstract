@@ -21,6 +21,7 @@ spec.config = function()
 		sync_install = false, -- Install parsers synchronously (only applied to `ensure_installed`)
 		auto_install = false, -- Automatically install missing parsers when entering buffer. Recommendation: set to false if you don't have `tree-sitter` CLI installed locally
 		ignore_install = {}, -- List of parsers to ignore installing (or "all")
+		parser_install_dir = vim.fn.stdpath("data") .. "/treesitter", -- Remember to run vim.opt.runtimepath:append("/some/path/to/store/parsers")!
 
 		-- Indentation based on treesitter for the = operator. NOTE: This is an experimental feature.
 		indent = {

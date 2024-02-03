@@ -10,8 +10,8 @@ M.opts = {
 	spec = nil, ---@type LazySpec
 	lockfile = NVIM_DATA_DIR .. "/lazy/lazy-lock.json", -- lockfile generated after running update.
 	git = {
-		log = { "-3" },                              -- show commits from the last 3 days
-		timeout = 300,                               -- kill processes that take more than 5 minutes
+		log = { "-3" }, -- show commits from the last 3 days
+		timeout = 300, -- kill processes that take more than 5 minutes
 	},
 	dev = {
 		-- directory where you store your local plugin projects
@@ -29,7 +29,7 @@ M.opts = {
 	ui = {
 		-- a number <1 is a percentage., >1 is a fixed size
 		size = { width = 0.8, height = 0.8 },
-		wrap = true,  -- wrap the lines in the ui
+		wrap = true, -- wrap the lines in the ui
 		border = "rounded", -- The border to use for the UI window. Accepts same border values as |nvim_open_win()|.
 		title_pos = "center", ---@type "center" | "left" | "right"
 		throttle = 20, -- how frequently should the ui process render events
@@ -38,7 +38,7 @@ M.opts = {
 		-- automatically check for plugin updates
 		enabled = false,
 		concurrency = nil, ---@type number? set to 1 to check for updates very slowly
-		notify = true,  -- get a notification when new updates are found
+		notify = true, -- get a notification when new updates are found
 		frequency = 3600, -- check for updates every hour
 		check_pinned = false, -- check for pinned packages that can't be updated
 	},
@@ -51,6 +51,7 @@ M.opts = {
 			---@type string[]
 			paths = {
 				ABSTRACT_DIR,
+				NVIM_DATA_DIR .. "/treesitter",
 			},
 			---@type string[] list any plugins you want to disable here
 			disabled_plugins = { "tutor" }, -- "gzip", "matchit", "matchparen", "netrwPlugin", "tarPlugin", "tohtml", "zipPlugin",
