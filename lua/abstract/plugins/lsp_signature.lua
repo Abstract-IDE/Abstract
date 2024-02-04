@@ -1,19 +1,15 @@
---[[
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-─────────────────────────────────────────────────
---   Plugin:    lsp_signature.nvim
---   Github:    github.com/ray-x/lsp_signature.nvim
+--[[━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+────────────────────────────────────────────────
+Plugin:    lsp_signature.nvim
+Github:    https://github.com/ray-x/lsp_signature.nvim
 
--- Simple winbar/statusline plugin that shows
--- your current code context
-─────────────────────────────────────────────────
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
---]]
+Show function signature when you type
+────────────────────────────────────────────────
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━]]
 
 local spec = {
 	"ray-x/lsp_signature.nvim",
-	lazy = true,
-	event = { "User AbstractLSPLoaded" },
+	event = { "BufRead", "BufNewFile" },
 	opts = {},
 }
 
@@ -51,7 +47,7 @@ spec.config = function(_, opts)
 		hint_scheme = "String",
 		hi_parameter = "LspSignatureActiveParameter", -- how your parameter will be highlight
 		handler_opts = {
-			border = "single", -- double, rounded, single, shadow, none
+			border = "rounded", -- double, rounded, single, shadow, none
 		},
 
 		always_trigger = false, -- sometime show signature on new line or in middle of parameter can be confusing, set it to false for #58

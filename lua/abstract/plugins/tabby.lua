@@ -106,21 +106,8 @@ spec.config = function()
 	-- At default, neovim only display tabline when there are at least two tab pages. If you want always display tabline:
 	vim.o.showtabline = 1
 
-	-- setup tabby
+	require("abstract.utils.map").set_plugin("nanozuki/tabby.nvim")
 	require("tabby.tabline").set(view, opt)
-
-	-- Mappings (:h tab)
-	local options = { noremap = true, silent = true }
-	local keymap = vim.api.nvim_set_keymap
-
-	keymap("n", "<leader>q", ":tabclose<CR>", options)
-	keymap("n", "<leader>Q", ":tabonly<CR>", options)
-	-- navigate to previous/next tab
-	keymap("n", "\\", ":tabn<CR>", options)
-	keymap("n", "|", ":tabp<CR>", options)
-	-- move current tab to previous/next position
-	keymap("n", "<leader>,", ":-tabmove<CR>", options)
-	keymap("n", "<leader>.", ":+tabmove<CR>", options)
 end
 
 return spec

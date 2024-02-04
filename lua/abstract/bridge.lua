@@ -1,10 +1,5 @@
 local M = {}
 
-local function mapping()
-	local maps = require("abstract.configs.mapping")
-	require("which-key").register(maps)
-end
-
 local function lazy()
 	-- bootstrap lazy.nvim
 	local opts = require("abstract.plugins.lazy").opts
@@ -30,7 +25,6 @@ function M.setup()
 	-- Override Abstract's default with user config
 	dofile(vim.fn.stdpath("config") .. "/init.lua")
 	lazy()
-	-- mapping()
 end
 
 return M

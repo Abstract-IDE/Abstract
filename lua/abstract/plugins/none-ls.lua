@@ -1,14 +1,12 @@
---[[
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-─────────────────────────────────────────────────
-Plugin: none-ls.nvim
-Github: https://github.com/nvimtools/none-ls.nvim
+--[[━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+────────────────────────────────────────────────
+Plugin:    none-ls.nvim
+Github:    https://github.com/nvimtools/none-ls.nvim
 
  null-ls.nvim reloaded / Use Neovim as a language server
  to inject LSP diagnostics, code actions, and more via Lua.
-─────────────────────────────────────────────────
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
---]]
+────────────────────────────────────────────────
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━]]
 
 local spec = {
 	"nvimtools/none-ls.nvim",

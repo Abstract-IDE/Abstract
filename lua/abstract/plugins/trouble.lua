@@ -62,11 +62,7 @@ spec.config = function()
 			next = "j", -- next item
 		},
 	})
-
-	local keymap = vim.api.nvim_set_keymap
-	local opts = { silent = true, noremap = true }
-
-	keymap("n", "<Space>t", "<cmd>TroubleToggle<cr>", opts)
+	require("abstract.utils.map").set_plugin("folke/trouble.nvim")
 end
 
 return spec

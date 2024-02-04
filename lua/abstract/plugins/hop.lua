@@ -24,24 +24,7 @@ spec.config = function()
 		jump_on_sole_occurrence = false,
 	})
 
-	local keymap = vim.api.nvim_set_keymap
-	local options = { noremap = true, silent = true }
-
-	keymap("n", "f", "<cmd>lua require'hop'.hint_words()<cr>", options)
-
-	-- local directions = require("hop.hint").HintDirection
-	-- vim.keymap.set("", "f", function()
-	-- 	hop.hint_char1({ direction = directions.AFTER_CURSOR, current_line_only = true })
-	-- end, { remap = true })
-	-- vim.keymap.set("", "F", function()
-	-- 	hop.hint_char1({ direction = directions.BEFORE_CURSOR, current_line_only = true })
-	-- end, { remap = true })
-	-- vim.keymap.set("", "t", function()
-	-- 	hop.hint_char1({ direction = directions.AFTER_CURSOR, current_line_only = true, hint_offset = -1 })
-	-- end, { remap = true })
-	-- vim.keymap.set("", "T", function()
-	-- 	hop.hint_char1({ direction = directions.BEFORE_CURSOR, current_line_only = true, hint_offset = 1 })
-	-- end, { remap = true })
+	require("abstract.utils.map").set_plugin("smoka7/hop.nvim")
 end
 
 return spec

@@ -16,7 +16,6 @@ local spec = {
 
 spec.config = function()
 	local mappings_utils = require("renamer.mappings.utils")
-
 	require("renamer").setup({
 		-- The popup title, shown if `border` is true
 		title = "Rename",
@@ -41,7 +40,6 @@ spec.config = function()
 		-- Custom handler to be run after successfully renaming the word. Receives
 		-- the LSP 'textDocument/rename' raw response as its parameter.
 		handler = nil,
-
 		-- mappings for renamer popup window
 		mappings = {
 			["<c-i>"] = mappings_utils.set_cursor_to_start,
@@ -53,12 +51,7 @@ spec.config = function()
 			["<c-r>"] = mappings_utils.redo,
 		},
 	})
-
-	-- to rename
-	local options = { noremap = true, silent = true }
-	local keymap = vim.api.nvim_set_keymap
-	keymap("n", "<Space>R", '<cmd>lua require("renamer").rename()<cr>', options)
-	keymap("v", "<Space>R", '<cmd>lua require("renamer").rename()<cr>', options)
+	require("abstract.utils.map").set_plugin("filipdutescu/renamer.nvim")
 end
 
 return spec

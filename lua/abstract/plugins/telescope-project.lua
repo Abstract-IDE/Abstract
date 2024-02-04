@@ -37,11 +37,6 @@ Workspace mappings (insert mode):
 
 local M = {}
 
-local setkeymap = vim.api.nvim_set_keymap
-local opts = { noremap = true, silent = true }
--- The projects picker:
-setkeymap("n", "tp", ":lua require'telescope'.extensions.project.project{}<CR>", opts)
-
 M.config = {
 	hidden_files = false, -- Show hidden files in selected project
 	theme = "dropdown",

@@ -21,10 +21,8 @@ local spec = {
 }
 
 spec.config = function()
-	vim.api.nvim_set_keymap("n", "<leader>f", ":Neotree toggle<CR>", { noremap = true, silent = true })
-
+	require("abstract.utils.map").set_plugin("nvim-neo-tree/neo-tree.nvim")
 	require("neo-tree").setup({
-
 		close_if_last_window = false, -- Close Neo-tree if it is the last window left in the tab
 		popup_border_style = "rounded",
 		enable_git_status = true,

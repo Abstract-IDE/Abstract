@@ -9,7 +9,6 @@ dynamic cursor
 
 local spec = {
 	"Abstract-IDE/abstract-cursor",
-	lazy = true,
 	event = { "BufRead" },
 }
 

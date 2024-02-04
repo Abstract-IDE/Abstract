@@ -28,7 +28,7 @@ locally (inside :echo stdpath("data")).
 
 local spec = {
 	"williamboman/mason.nvim",
-	event = { "BufReadPre", "BufNewFile", "InsertEnter" },
+	event = { "BufRead", "BufNewFile", "InsertEnter" },
 }
 
 local mason = function()
@@ -55,6 +55,7 @@ local mason = function()
 end
 
 spec.config = function()
+	require("abstract.utils.usercmds").lsp_loaded()
 	mason()
 	require("abstract.plugins.mason-lspconfig").config()
 	require("abstract.plugins.none-ls").config()

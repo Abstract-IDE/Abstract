@@ -16,14 +16,16 @@ local spec = {
 	dependencies = {
 		"nvim-lua/plenary.nvim",
 		"nvim-telescope/telescope-file-browser.nvim",
-		"nvim-telescope/telescope-fzf-native.nvim",
 		"nvim-telescope/telescope-media-files.nvim",
 		"nvim-telescope/telescope-project.nvim",
 		"nvim-telescope/telescope-ui-select.nvim",
+		{ "nvim-telescope/telescope-fzf-native.nvim", build = "make" },
 	},
 }
 
 spec.config = function()
+	require("abstract.utils.map").set_plugin("nvim-telescope/telescope.nvim")
+
 	local telescope = require("telescope")
 	telescope.setup({
 		defaults = {
@@ -117,39 +119,6 @@ spec.config = function()
 	telescope.load_extension("media_files")
 	telescope.load_extension("ui-select")
 	telescope.load_extension("project")
-
-	-- Mappings
-	local keymap = vim.api.nvim_set_keymap
-	local opts = { silent = true, noremap = true }
-
-	-- Launch Telescope without any argument
-	keymap("n", "tt", "<cmd>lua require('telescope.builtin').builtin() <CR>", opts)
-	-- Lists available Commands
-	keymap("n", "tc", "<cmd>lua require('telescope.builtin').commands() <CR>", opts)
-	-- Lists available help tags and opens a new window with the relevant help info on
-	keymap("n", "th", "<cmd>lua require('telescope.builtin').help_tags() <CR>", opts)
-	-- Show all availabe MAPPING
-	keymap("n", "tm", "<cmd>lua require('telescope.builtin').keymaps() <CR>", opts)
-	-- Show buffers/opened files
-	keymap("n", "<C-b>", "<cmd>lua require('telescope.builtin').buffers() <CR>", opts)
-	-- Show and grep current buffer
-	keymap("n", "tw", "<cmd>lua require('telescope.builtin').current_buffer_fuzzy_find() <CR>", opts)
-	keymap("n", "tg", "<cmd>lua require('telescope.builtin').live_grep() <CR>", opts)
-
-	--       --> Find Files
-	-- NOTE1: to get project root's directory, https://github.com/Abstract-IDE/penvim plugin is used.
-	-- any config related to project root is in seperate config file (lua/plugin_confs/penvim.lua)
-	-- to change settings related to working directory, refer to penvim.lua config file
-
-	-- Find files from current file's project
-	keymap("n", "<C-p>", ":Telescope find_files <cr>", opts)
-	-- Show all files from current working directory
-	keymap(
-		"n",
-		"<C-f>",
-		"<cmd>lua require('telescope.builtin').find_files( { cwd = vim.fn.expand('%:p:h') }) <CR>",
-		opts
-	)
 end
 
 return spec

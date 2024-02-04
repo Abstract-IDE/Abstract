@@ -1,13 +1,11 @@
---[[
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-─────────────────────────────────────────────────
-Plugin: mason-lspconfig.nvim
-Github: https://github.com/williamboman/mason-lspconfig.nvim
+--[[━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+────────────────────────────────────────────────
+Plugin:    mason-lspconfig.nvim
+Github:    https://github.com/williamboman/mason-lspconfig.nvim
 
 Extension to mason.nvim that makes it easier to use lspconfig with mason.nvim.
-─────────────────────────────────────────────────
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
---]]
+────────────────────────────────────────────────
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━]]
 
 local spec = {
 	"williamboman/mason-lspconfig.nvim",
