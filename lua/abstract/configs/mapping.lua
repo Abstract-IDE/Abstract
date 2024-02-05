@@ -19,12 +19,12 @@ plugin["nvim-telescope/telescope.nvim"] = {
 
 plugin["neovim/nvim-lspconfig"] = {
 	["<Space>e"] = { "<cmd>lua vim.diagnostic.open_float()<CR>", "Show diagnostics" },
-	["<Space>n"] = { "<cmd>lua vim.diagnostic.goto_next()<CR>", "Move to the next diagnostic" },
-	["<Space>b"] = { "<cmd>lua vim.diagnostic.goto_prev()<CR>", "Move to the previous diagnostic" },
+	["<Space>n"] = { "<cmd>lua vim.diagnostic.goto_next()<CR>", "Move to next diagnostic" },
+	["<Space>b"] = { "<cmd>lua vim.diagnostic.goto_prev()<CR>", "Move to previous diagnostic" },
 	["<Space>d"] = { "<Cmd>lua vim.lsp.buf.definition()<CR>", "Jumps to definition" },
-	["<Space>D"] = { "<Cmd>lua vim.lsp.buf.declaration()<CR>", "Jumps to the declaration" },
-	["<Space>T"] = { "<cmd>lua vim.lsp.buf.type_definition()<CR>", "Jumps to the type definition" },
-	["<Space>i"] = { "<cmd>lua vim.lsp.buf.implementation()<CR>", "Lists all the symbol implementations" },
+	["<Space>D"] = { "<Cmd>lua vim.lsp.buf.declaration()<CR>", "Jumps to declaration" },
+	["<Space>T"] = { "<cmd>lua vim.lsp.buf.type_definition()<CR>", "Jumps to type definition" },
+	["<Space>i"] = { "<cmd>lua vim.lsp.buf.implementation()<CR>", "Lists all symbol implementations" },
 	["<Space>s"] = { "<cmd>lua vim.lsp.buf.signature_help()<CR>", "Show symbol signature information" },
 	["<Space>h"] = { "<Cmd>lua vim.lsp.buf.hover()<CR>", "Show symbol hover information" },
 	["K"] = { "<Cmd>lua vim.lsp.buf.hover()<CR>", "Show symbol hover information" },
@@ -79,6 +79,11 @@ plugin["smoka7/hop.nvim"] = {
 	-- vim.keymap.set("", "T", function()
 	-- 	hop.hint_char1({ direction = directions.BEFORE_CURSOR, current_line_only = true, hint_offset = 1 })
 	-- end, { remap = true })
+}
+
+plugin["Shatur/neovim-session-manager"] = {
+	["<leader>ss"] = { ":SessionManager load_session<CR>", "Load sessions" },
+	["<leader>sd"] = { ":SessionManager delete_session<CR>", "Delete sessions" },
 }
 
 M.plugin = plugin

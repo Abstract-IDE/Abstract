@@ -4,6 +4,9 @@ Plugin:    mason-lspconfig.nvim
 Github:    https://github.com/williamboman/mason-lspconfig.nvim
 
 Extension to mason.nvim that makes it easier to use lspconfig with mason.nvim.
+
+Resources:
+https://github.com/neovim/nvim-lspconfig/blob/master/doc/server_configurations.md
 ────────────────────────────────────────────────
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━]]
 
@@ -16,77 +19,36 @@ local spec = {
 }
 
 local function mason_lspconfig(lsp_options)
-	local tbl_deep_extend = vim.tbl_deep_extend
 	local lspconfig = require("lspconfig")
 
-	-- for Flutter and Dart
-	-- don't put this on setup_handlers to set it because dart LSP is installed and maintained by akinsho/flutter-tools.nvim
+	local function set_lspconfig(server, options)
+		-- ~/.config/nvim/lua/override/server_configs.lua
+		local user_server_cofigs = require("override.server_configs")[server]
+		if user_server_cofigs then
+			lsp_options = vim.tbl_deep_extend("force", lsp_options, options, user_server_cofigs)
+		else
+			lsp_options = vim.tbl_deep_extend("force", lsp_options, options)
+		end
+		lspconfig[server].setup(lsp_options)
+	end
+
+	-- dart LSP is installed and maintained by akinsho/flutter-tools.nvim
 	lspconfig["dartls"].setup(lsp_options)
 
-	require("mason-lspconfig").setup_handlers({
-
+	return {
 		function(server_name)
-			lspconfig[server_name].setup(lsp_options)
-		end,
-
-		["clangd"] = function()
-			lspconfig.clangd.setup(
-				tbl_deep_extend("force", lsp_options, { capabilities = { offsetEncoding = { "utf-16" } } })
-			)
+			set_lspconfig(server_name, {})
 		end,
 		["html"] = function()
-			lspconfig.html.setup(tbl_deep_extend("force", lsp_options, { filetypes = { "html", "htmldjango" } }))
-		end,
-		["cssls"] = function()
-			lspconfig.cssls.setup(tbl_deep_extend("force", lsp_options, {
-				capabilities = {
-					textDocument = { completion = { completionItem = { snippetSupport = true } } },
-				},
-			}))
-		end,
-		-- ["lua_ls"] = function()
-		-- 	lspconfig.lua_ls.setup(tbl_deep_extend("force", lsp_options, {
-		-- 		settings = {
-		-- 			Lua = {
-		-- 				diagnostics = {
-		-- 					-- Get the language server to recognize the 'vim', 'use' global
-		-- 					globals = { "vim", "use", "require" },
-		-- 				},
-		-- 				workspace = {
-		-- 					-- Make the server aware of Neovim runtime files
-		-- 					library = vim.api.nvim_get_runtime_file("", true),
-		-- 					--  don't ask about working environment on every startup
-		-- 					checkThirdParty = false,
-		-- 				},
-		-- 				-- Do not send telemetry data containing a randomized but unique identifier
-		-- 				telemetry = { enable = false },
-		-- 			},
-		-- 		},
-		-- 	}))
-		-- end,
-		["rust_analyzer"] = function()
-			lspconfig.rust_analyzer.setup(tbl_deep_extend("force", lsp_options, {
-				settings = {
-					["rust-analyzer"] = {
-						diagnostics = { enable = true },
-						checkOnSave = { enable = true },
-					},
-				},
-			}))
+			set_lspconfig("html", { filetypes = { "html", "htmldjango" } })
 		end,
 		["jsonls"] = function()
-			lspconfig.jsonls.setup(tbl_deep_extend("force", lsp_options, {
-				settings = {
-					json = {
-						schemas = require("schemastore").json.schemas(),
-						validate = { enable = true },
-					},
-				},
-			}))
+			set_lspconfig("jsonls", {
+				settings = { json = { schemas = require("schemastore").json.schemas(), validate = { enable = true } } },
+			})
 		end,
-
 		["yamlls"] = function()
-			lspconfig.yamlls.setup(tbl_deep_extend("force", lsp_options, {
+			set_lspconfig("yamlls", {
 				settings = {
 					yaml = {
 						schemaStore = {
@@ -99,14 +61,33 @@ local function mason_lspconfig(lsp_options)
 						schemas = require("schemastore").yaml.schemas(),
 					},
 				},
-			}))
+			})
 		end,
-	})
+	}
 end
 
 spec.config = function()
 	local lsp_options = require("abstract.plugins.lspconfig").config()
-	mason_lspconfig(lsp_options)
+	require("mason-lspconfig").setup({
+		-- A list of servers to automatically install if they're not already installed. Example: { "rust_analyzer@nightly", "lua_ls" }
+		-- This setting has no relation with the `automatic_installation` setting.
+		---@type string[]
+		ensure_installed = {},
+
+		-- Whether servers that are set up (via lspconfig) should be automatically installed if they're not already installed.
+		-- This setting has no relation with the `ensure_installed` setting.
+		-- Can either be:
+		--   - false: Servers are not automatically installed.
+		--   - true: All servers set up via lspconfig are automatically installed.
+		--   - { exclude: string[] }: All servers set up via lspconfig, except the ones provided in the list, are automatically installed.
+		--       Example: automatic_installation = { exclude = { "rust_analyzer", "solargraph" } }
+		---@type boolean
+		automatic_installation = false,
+
+		-- See `:h mason-lspconfig.setup_handlers()`
+		---@type table<string, fun(server_name: string)>?
+		handlers = mason_lspconfig(lsp_options),
+	})
 end
 
 return spec
