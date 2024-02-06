@@ -107,13 +107,15 @@ spec.config = function()
 		},
 		pickers = {
 			buffers = {
+				sort_lastused = true,
+				previewer = true,
 				mappings = {
 					i = {
 						["<c-d>"] = "delete_buffer",
 						-- ["<c-d>"] = actions.delete_buffer + actions.move_to_top,
 					},
 					n = {
-						dd = "delete_buffer",
+						["dd"] = "delete_buffer",
 					},
 				},
 			},

@@ -22,6 +22,8 @@ local function lazy()
 end
 
 function M.setup()
+	-- call abstract autocmds
+	require("abstract.configs.autocmd")
 	-- set Abstract's default config
 	require("abstract.configs.vimopt")
 	-- Override Abstract's default with user config
