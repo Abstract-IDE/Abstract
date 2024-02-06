@@ -124,11 +124,11 @@ spec.config = function()
 			},
 		},
 		extensions = {
-			["ui-select"] = require("abstract.plugins.telescope-ui-select").config,
-			file_browser = require("abstract.plugins.telescope-file-browser").config,
-			project = require("abstract.plugins.telescope-project").config,
-			fzf = require("abstract.plugins.telescope-fzf-native").config,
-			media_files = require("abstract.plugins.telescope-media-files").config,
+			["ui-select"] = require("abstract.plugins.extension.telescope-ui-select").config,
+			file_browser = require("abstract.plugins.extension.telescope-file-browser").config,
+			project = require("abstract.plugins.extension.telescope-project").config,
+			fzf = require("abstract.plugins.extension.telescope-fzf-native").config,
+			media_files = require("abstract.plugins.extension.telescope-media-files").config,
 		},
 	})
 

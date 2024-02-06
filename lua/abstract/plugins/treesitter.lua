@@ -13,6 +13,9 @@ local spec = {
 	"nvim-treesitter/nvim-treesitter",
 	build = ":TSUpdate",
 	event = { "BufRead" },
+	dependencies = {
+		"nvim-treesitter/nvim-treesitter-textobjects", -- Syntax aware text-objects, select, move, swap, and peek support.
+	},
 }
 
 spec.config = function()
@@ -21,6 +24,9 @@ spec.config = function()
 	register("bash", "zsh") -- enable bash parser in zsh file
 
 	require("nvim-treesitter.configs").setup({
+		-- Extensions
+		textobjects = require("abstract.plugins.extension.treesitter-textobjects").textobjects,
+
 		modules = {}, -- this option is not mentioned in doc. i am providing it to hide warning emmiting when editing this config
 		ensure_installed = { "c", "lua", "vim", "vimdoc", "query" }, -- A list of parser names, or "all" (the five listed parsers should always be installed)
 		sync_install = false, -- Install parsers synchronously (only applied to `ensure_installed`)
@@ -36,9 +42,9 @@ spec.config = function()
 		highlight = {
 			enable = true, -- {"c", "cpp", "dart", "python", "javascript"}, enable = true (false will disable the whole extension)
 			-- disable lighlight if file is too long
-			disable = function() -- Disable in large C++ buffers
-				-- disable highlight if file has > 6000 LOC
-				return vim.api.nvim_buf_line_count(0) > 6000
+			disable = function()
+				-- disable highlight if file has > 10000 LOC
+				return vim.api.nvim_buf_line_count(0) > 10000
 				-- return lang == "cpp" and vim.api.nvim_buf_line_count(bufnr) > 50000
 			end,
 			-- disable = { "c", "rust" },  -- list of language that will be disabled
