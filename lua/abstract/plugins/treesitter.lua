@@ -15,6 +15,7 @@ local spec = {
 	event = { "BufRead" },
 	dependencies = {
 		"nvim-treesitter/nvim-treesitter-textobjects", -- Syntax aware text-objects, select, move, swap, and peek support.
+		"nvim-treesitter/nvim-treesitter-refactor", -- Refactor modules for nvim-treesitter
 	},
 }
 
@@ -26,6 +27,7 @@ spec.config = function()
 	require("nvim-treesitter.configs").setup({
 		-- Extensions
 		textobjects = require("abstract.plugins.extension.treesitter-textobjects").textobjects,
+		refactor = require("abstract.plugins.extension.treesitter-refactor").refactor,
 
 		modules = {}, -- this option is not mentioned in doc. i am providing it to hide warning emmiting when editing this config
 		ensure_installed = { "c", "lua", "vim", "vimdoc", "query" }, -- A list of parser names, or "all" (the five listed parsers should always be installed)
