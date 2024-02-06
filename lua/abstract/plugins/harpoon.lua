@@ -11,6 +11,7 @@ Getting you where you want with the fewest keystrokes.
 
 local spec = {
 	"ThePrimeagen/harpoon",
+	lazy = true,
 	branch = "harpoon2",
 	dependencies = {
 		"nvim-lua/plenary.nvim",

@@ -11,6 +11,7 @@ is centered around modularity, allowing for easy customization.
 
 local spec = {
 	"nvim-telescope/telescope.nvim",
+	lazy = true,
 	cmd = { "Telescope" },
 	keys = { "t", "<C-f>", "<C-p>" },
 	dependencies = {
@@ -27,6 +28,9 @@ spec.config = function()
 	require("abstract.utils.map").set_plugin("nvim-telescope/telescope.nvim")
 
 	local telescope = require("telescope")
+	local actions = require("telescope.actions")
+	local action_layout = require("telescope.actions.layout")
+
 	telescope.setup({
 		defaults = {
 			-- stylua: ignore
@@ -80,6 +84,7 @@ spec.config = function()
 			preview = {
 				msg_bg_fillchar = " ",
 				treesitter = false,
+				filesize_limit = 10, -- MB
 			},
 
 			live_grep = {
@@ -87,7 +92,16 @@ spec.config = function()
 					treesitter = false,
 				},
 			},
-
+			mappings = {
+				n = {
+					["<M-p>"] = action_layout.toggle_preview,
+				},
+				i = {
+					["<M-p>"] = action_layout.toggle_preview,
+					["<C-s>"] = actions.cycle_previewers_next,
+					["<C-a>"] = actions.cycle_previewers_prev,
+				},
+			},
 			-- Developer configurations: Not meant for general override
 			buffer_previewer_maker = require("telescope.previewers").buffer_previewer_maker,
 		},
@@ -96,11 +110,15 @@ spec.config = function()
 				mappings = {
 					i = {
 						["<c-d>"] = "delete_buffer",
+						-- ["<c-d>"] = actions.delete_buffer + actions.move_to_top,
 					},
 					n = {
 						dd = "delete_buffer",
 					},
 				},
+			},
+			find_files = {
+				-- find_command = { "fd", "--type", "f", "--strip-cwd-prefix" },
 			},
 		},
 		extensions = {
