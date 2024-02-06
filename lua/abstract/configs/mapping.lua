@@ -40,6 +40,10 @@ plugin["neovim/nvim-lspconfig"] = {
 	-- ["<leader>wl"] = { "<cmd>lua print(vim.inspect(vim.lsp.buf.list_workspace_folders()))<CR>", "" },
 }
 
+plugin["ThePrimeagen/harpoon"] = {
+	["<leader>p"] = { "<cmd>lua HarpoonTelescope(Harpoon:list())<cr>", "Open harpoon window" },
+}
+
 plugin["folke/trouble.nvim"] = {
 	["<Space>t"] = { "<cmd>TroubleToggle<cr>", "Trouble(toggle)" },
 }
