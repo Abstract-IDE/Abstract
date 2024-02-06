@@ -12,6 +12,8 @@ VS Code-like renaming UI for Neovim, writen in Lua.
 local spec = {
 	"filipdutescu/renamer.nvim",
 	branch = "master",
+	lazy = true,
+	event = { "User AbstractLSPLoaded" },
 }
 
 spec.config = function()

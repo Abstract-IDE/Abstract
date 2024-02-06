@@ -39,6 +39,10 @@ local function mason_lspconfig(lsp_options)
 		function(server_name)
 			set_lspconfig(server_name, {})
 		end,
+		["rust_analyzer"] = function()
+			-- Rust LSP is maintained by https://github.com/mrcjkb/rustaceanvim
+			vim.g.rustaceanvim = { server = lsp_options }
+		end,
 		["html"] = function()
 			set_lspconfig("html", { filetypes = { "html", "htmldjango" } })
 		end,
