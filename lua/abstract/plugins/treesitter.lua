@@ -29,6 +29,16 @@ spec.config = function()
 		textobjects = require("abstract.plugins.extension.treesitter-textobjects").textobjects,
 		refactor = require("abstract.plugins.extension.treesitter-refactor").refactor,
 
+		-- i think using treesitter-textobjects would be batter
+		-- incremental_selection = {
+		-- 	enable = true,
+		-- 	keymaps = {
+		-- 		init_selection = "i<CR>",
+		-- 		scope_incremental = "<CR>",
+		-- 		node_incremental = "<TAB>",
+		-- 		node_decremental = "<S-TAB>",
+		-- 	},
+		-- },
 		modules = {}, -- this option is not mentioned in doc. i am providing it to hide warning emmiting when editing this config
 		ensure_installed = { "c", "lua", "vim", "vimdoc", "query" }, -- A list of parser names, or "all" (the five listed parsers should always be installed)
 		sync_install = false, -- Install parsers synchronously (only applied to `ensure_installed`)

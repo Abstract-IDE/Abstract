@@ -49,7 +49,7 @@ M.textobjects = {
 		-- * query_string: eg '@function.inner'
 		-- * selection_mode: eg 'v'
 		-- and should return true of false
-		include_surrounding_whitespace = true,
+		include_surrounding_whitespace = false,
 	},
 	-- Text objects: swap
 	-- to swap the node under the cursor with the next or previous one, like function parameters or arguments.
