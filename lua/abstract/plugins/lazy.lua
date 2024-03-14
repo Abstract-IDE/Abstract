@@ -1,7 +1,7 @@
 local M = {}
 
 local NVIM_DATA_DIR = vim.fn.stdpath("data")
-local ABSTRACT_DIR = "/home/lazy/codeDNA/dev/Projects/neovim/Abstract" -- WARN!: only for development
+local ABSTRACT_DIR = "/home/shaeins7/codeDNA/dev/Projects/neovim/Abstract" -- WARN!: only for development
 -- local ABSTRACT_DIR = NVIM_DATA_DIR .. "/Abstract"
 
 M.opts = {
