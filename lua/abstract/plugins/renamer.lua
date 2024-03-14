@@ -14,7 +14,7 @@ local spec = {
 	branch = "master",
 	lazy = true,
 	event = { "User AbstractLSPLoaded" },
-	requires = { {'nvim-lua/plenary.nvim'} }
+	dependencies = { {'nvim-lua/plenary.nvim'} }
 }
 
 spec.config = function()
