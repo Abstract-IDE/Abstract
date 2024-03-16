@@ -43,6 +43,11 @@ local function mason_lspconfig(lsp_options)
 			-- Rust LSP is maintained by https://github.com/mrcjkb/rustaceanvim
 			vim.g.rustaceanvim = { server = lsp_options }
 		end,
+		["tsserver"] = function()
+			-- Typescript LSP is maintained by https://github.com/pmizio/typescript-tools.nvim
+			vim.list_extend(lsp_options, require("abstract.plugins.typescript-tools").settings)
+			require("typescript-tools").setup(lsp_options)
+		end,
 		["html"] = function()
 			set_lspconfig("html", { filetypes = { "html", "htmldjango" } })
 		end,

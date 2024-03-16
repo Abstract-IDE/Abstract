@@ -37,6 +37,7 @@ return {
 	"trouble",
 	"ts-autotag",
 	"ts-context-commentstring",
+	"typescript-tools",
 	"web-devicons",
 	"which-key",
 }
