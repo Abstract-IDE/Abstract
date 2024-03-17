@@ -1,6 +1,12 @@
 local M = {}
 local plugin = {}
 
+M.builtin = {
+	-- navigate to previous/next buffer
+	["\\"] = { ":bnext<CR>", "Goto next buffer" },
+	["|"] = { ":bprevious<CR>", "Goto previous buffer" },
+}
+
 plugin["nvim-telescope/telescope.nvim"] = {
 	-- Find files from current file's project
 	["<C-p>"] = { "<cmd>Telescope find_files<cr>", "Find File (project dir)" },
@@ -19,14 +25,14 @@ plugin["nvim-telescope/telescope.nvim"] = {
 
 plugin["neovim/nvim-lspconfig"] = {
 	["<Space>e"] = { "<cmd>lua vim.diagnostic.open_float()<CR>", "Show diagnostics" },
-	["<Space>n"] = { "<cmd>lua vim.diagnostic.goto_next()<CR>", "Move to next diagnostic" },
-	["<Space>b"] = { "<cmd>lua vim.diagnostic.goto_prev()<CR>", "Move to previous diagnostic" },
+	-- ["<Space>n"] = { "<cmd>lua vim.diagnostic.goto_next()<CR>", "Move to next diagnostic" },
+	-- ["<Space>b"] = { "<cmd>lua vim.diagnostic.goto_prev()<CR>", "Move to previous diagnostic" },
 	["<Space>d"] = { "<Cmd>lua vim.lsp.buf.definition()<CR>", "Jumps to definition" },
 	["<Space>D"] = { "<Cmd>lua vim.lsp.buf.declaration()<CR>", "Jumps to declaration" },
 	["<Space>T"] = { "<cmd>lua vim.lsp.buf.type_definition()<CR>", "Jumps to type definition" },
 	["<Space>i"] = { "<cmd>lua vim.lsp.buf.implementation()<CR>", "Lists all symbol implementations" },
 	["<Space>s"] = { "<cmd>lua vim.lsp.buf.signature_help()<CR>", "Show symbol signature information" },
-	["<Space>h"] = { "<Cmd>lua vim.lsp.buf.hover()<CR>", "Show symbol hover information" },
+	-- ["<Space>h"] = { "<Cmd>lua vim.lsp.buf.hover()<CR>", "Show symbol hover information" },
 	["K"] = { "<Cmd>lua vim.lsp.buf.hover()<CR>", "Show symbol hover information" },
 	-- using 'filipdutescu/renamer.nvim' for rename instead
 	-- ["<Space>rn"] = { "<cmd>lua vim.lsp.buf.rename()<CR>", "" },
@@ -41,7 +47,23 @@ plugin["neovim/nvim-lspconfig"] = {
 }
 
 plugin["ThePrimeagen/harpoon"] = {
-	["<leader>p"] = { "<cmd>lua HarpoonTelescope(Harpoon:list())<cr>", "Open harpoon window" },
+	["<Space>h"] = {
+		{
+			["h"] = { "<cmd>lua HarpoonTelescope()<cr>", "Open harpoon window" },
+			["a"] = { "<cmd>lua Harpoon_List:append()<cr>", "Add current buffer to harpoon" },
+			["r"] = { "<cmd>lua Harpoon_List:remove()<cr>", "Remove current buffer from harpoon" },
+			["p"] = { "<cmd>lua Harpoon_List:prev()<cr>", "Goto previous in harpoon list" },
+			["n"] = { "<cmd>lua Harpoon_List:next()<cr>", "Goto next in harpoon list" },
+		},
+		"Harpoon",
+	},
+	["<C-h>"] = { "<cmd>lua HarpoonTelescope()<cr>", "Open harpoon window" },
+	["<C-[>"] = { "<cmd>lua Harpoon_List:prev()<cr>", "Goto previous in harpoon list" },
+	["<C-]>"] = { "<cmd>lua Harpoon_List:next()<cr>", "Goto next in harpoon list" },
+	["<Space>1"] = { "<cmd>lua Harpoon_List:select(1)<cr>", "Goto 1st file in harpoon" },
+	["<Space>2"] = { "<cmd>lua Harpoon_List:select(2)<cr>", "Goto 2nd file in harpoon" },
+	["<Space>3"] = { "<cmd>lua Harpoon_List:select(3)<cr>", "Goto 3rd file in harpoon" },
+	["<Space>4"] = { "<cmd>lua Harpoon_List:select(4)<cr>", "Goto 4th file in harpoon" },
 }
 
 plugin["folke/trouble.nvim"] = {
@@ -57,8 +79,8 @@ plugin["nanozuki/tabby.nvim"] = {
 	["<leader>q"] = { ":tabclose<CR>", "Close current tab" },
 	["<leader>Q"] = { ":tabonly<CR>", "Close all other tab" },
 	-- navigate to previous/next tab
-	["\\"] = { ":tabn<CR>", "Go to next tab" },
-	["|"] = { ":tabp<CR>", "Go to previous tab" },
+	["<C-.>"] = { ":tabn<CR>", "Go to next tab" },
+	["<C-,>"] = { ":tabp<CR>", "Go to previous tab" },
 	-- move current tab to previous/next position
 	["<leader>,"] = { ":-tabmove<CR>", "Move tab to next position" },
 	["<leader>."] = { ":+tabmove<CR>", "Move tab to previous position" },

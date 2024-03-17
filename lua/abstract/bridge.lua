@@ -30,6 +30,7 @@ function M.setup()
 	dofile(vim.fn.stdpath("config") .. "/init.lua")
 	lazy()
 	-- Override Abstract's plugin mappings with user-defined ones
+	require("abstract.utils.map").set_map(require("abstract.configs.mapping").builtin)
 	require("abstract.utils.map").set_map(require("override.mapping"))
 end
 
