@@ -15,7 +15,7 @@ return {
 	"flutter-tools",
 	"gitsigns",
 	"goto-preview",
-	"harpoon",
+	"grapple",
 	"hop",
 	"indent-blankline",
 	"lsp_signature",
