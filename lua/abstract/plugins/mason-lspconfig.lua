@@ -32,9 +32,6 @@ local function mason_lspconfig(lsp_options)
 		lspconfig[server].setup(lsp_options)
 	end
 
-	-- dart LSP is installed and maintained by akinsho/flutter-tools.nvim
-	lspconfig["dartls"].setup(lsp_options)
-
 	return {
 		function(server_name)
 			set_lspconfig(server_name, {})

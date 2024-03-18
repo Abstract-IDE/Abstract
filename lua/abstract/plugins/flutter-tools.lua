@@ -17,7 +17,11 @@ local spec = {
 }
 
 spec.config = function()
-	require("flutter-tools").setup()
+	require("flutter-tools").setup(vim.tbl_extend("force", {
+		--
+		-- flutter-tools setup settings goes here
+		--
+	}, { lsp = require("abstract.plugins.lspconfig").config() }))
 end
 
 return spec
