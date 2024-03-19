@@ -147,6 +147,10 @@ plugin["rmagatti/goto-preview"] = {
 	},
 }
 
+plugin["anuvyklack/windows.nvim"] = {
+	["<Leader>m"] = { ":WindowsMaximize<CR>", "Window maximizer (toggle)" },
+}
+
 M.plugin = plugin
 
 return M

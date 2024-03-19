@@ -41,4 +41,5 @@ return {
 	"typescript-tools",
 	"web-devicons",
 	"which-key",
+	"windows",
 }
