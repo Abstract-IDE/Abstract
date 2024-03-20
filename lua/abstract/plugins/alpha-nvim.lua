@@ -44,7 +44,7 @@ spec.config = function()
 	dashboard.section.buttons.val = {
 		dashboard.button("n", "  New file", ":ene <BAR> startinsert <CR>", options),
 		dashboard.button("r", "  Recent", ":Telescope oldfiles<CR>", options),
-		dashboard.button("s", "s  Sessions", ":SessionManager load_session<CR>", options),
+		dashboard.button("s", "s  Sessions", ":lua require('telescope')<CR>:SessionManager load_session<CR>", options),
 		dashboard.button("f", "🔎 Find file", ":Telescope find_files<CR>", options),
 		dashboard.button("q", "◼  Quit NVIM", ":qa<CR>", options),
 		-- dashboard.button("u", "🔨 Update Plugins", update_cmd, options),
