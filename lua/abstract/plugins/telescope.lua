@@ -11,9 +11,10 @@ is centered around modularity, allowing for easy customization.
 
 local spec = {
 	"nvim-telescope/telescope.nvim",
-	lazy = true,
-	cmd = { "Telescope" },
-	keys = { "t", "<C-f>", "<C-p>" },
+	-- NOTE: i need to figure it out how to implement lazy load
+	-- lazy = true,
+	-- cmd = { "Telescope" },
+	-- keys = { "t", "<C-f>", "<C-p>" },
 	dependencies = {
 		"nvim-lua/plenary.nvim",
 		"nvim-telescope/telescope-file-browser.nvim",
