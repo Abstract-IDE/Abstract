@@ -30,23 +30,6 @@ local spec = {
 }
 
 spec.config = function()
-	-- WARN: will be removed once telesope fix the border issue
-	-- currently when you set vim.go.winborder, telesope borders becomes ugly
-	-- https://github.com/nvim-telescope/telescope.nvim/issues/3436#issuecomment-2756267300
-	vim.api.nvim_create_autocmd("User", {
-		pattern = "TelescopeFindPre",
-		callback = function()
-			vim.opt_local.winborder = "none"
-			vim.api.nvim_create_autocmd("WinLeave", {
-				once = true,
-				callback = function()
-					vim.opt_local.winborder = "single"
-				end,
-			})
-		end,
-	})
-	--
-
 	require("abstract.utils.map").set_map("nvim-telescope/telescope.nvim")
 	local telescope = require("telescope")
 	local actions = require("telescope.actions")
