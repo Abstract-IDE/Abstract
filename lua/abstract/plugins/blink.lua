@@ -120,7 +120,17 @@ spec.opts = {
 		list = {
 			-- Maximum number of items to display
 			max_items = 200,
-			selection = { preselect = false, auto_insert = true },
+			selection = {
+				preselect = false,
+				auto_insert = true,
+			},
+
+			cycle = {
+				-- When `true`, calling `select_next` at the _bottom_ of the completion list will select the _first_ completion item.
+				-- from_bottom = true,
+				-- When `true`, calling `select_prev` at the _top_ of the completion list will select the _last_ completion item.
+				-- from_top = true,
+			},
 		},
 		accept = {
 			-- Create an undo point when accepting a completion item
