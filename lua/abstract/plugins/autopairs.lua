@@ -1,8 +1,8 @@
 --[[
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ─────────────────────────────────────────────────
-Plugin:    nvim-autopairs
-Github:    https://github.com/windwp/nvim-autopairs
+Plugin: nvim-autopairs
+Source: https://github.com/windwp/nvim-autopairs
 
 autopairs for neovim written in lua
 ─────────────────────────────────────────────────

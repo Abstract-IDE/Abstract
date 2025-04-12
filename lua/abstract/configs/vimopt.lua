@@ -96,3 +96,7 @@ vim.filetype.add({ -- Add custom filetupes
 		['http'] = 'http',
 	},
 })
+
+-- UI's related
+--- @type ''|'double'|'single'|'shadow'|'rounded'|'solid'|'none'
+vim.go.winborder = "single"

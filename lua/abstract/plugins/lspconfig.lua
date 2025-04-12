@@ -19,7 +19,7 @@ local lsp_config = function()
 	local severity = vim.diagnostic.severity
 	vim.diagnostic.config({
 		underline = true,
-		update_in_insert = true,
+		update_in_insert = true, -- Update diagnostics in Insert mode
 		virtual_text = false,
 
 		float = {

@@ -16,7 +16,7 @@ local spec = {
 	-- use a release tag to download pre-built binaries
 	-- OR build from source, requires nightly-https://rust-lang.github.io/rustup/concepts/channels.html#working-with-nightly-rust
 	-- build = 'cargo build --release',
-	version = "v0.*",
+	version = "1.*",
 	-- allows extending the providers array elsewhere in your config without having to redefine it
 	opts_extend = { "sources.default" },
 }
@@ -45,13 +45,23 @@ spec.opts = {
 	-- https://cmp.saghen.dev/configuration/sources.html
 	sources = {
 		-- default = { "lsp", "path", "snippets", "buffer" },
-		default = function(ctx)
+		default = function()
 			local success, node = pcall(vim.treesitter.get_node)
 			if success and node and vim.tbl_contains({ "comment", "line_comment", "block_comment" }, node:type()) then
 				return { "path", "buffer" }
 			end
 			return { "lsp", "path", "snippets", "buffer" }
 		end,
+		providers = {
+			path = {
+				opts = {
+					-- Path completion from cwd instead of current buffer's directory
+					get_cwd = function(_)
+						return vim.fn.getcwd()
+					end,
+				},
+			},
+		},
 	},
 
 	-- https://cmp.saghen.dev/configuration/snippets.html
@@ -80,7 +90,24 @@ spec.opts = {
 		window = { border = "single" },
 	},
 
+	-- https://cmp.saghen.dev/configuration/fuzzy
+	fuzzy = {
+		implementation = "prefer_rust_with_warning",
+		sorts = {
+			"exact",
+			-- default sorts
+			"score",
+			"sort_text",
+		},
+	},
+
 	completion = {
+		-- https://cmp.saghen.dev/configuration/completion.html#keyword
+		-- 'prefix' will fuzzy match on the text before the cursor
+		-- 'full' will fuzzy match on the text before _and_ after the cursor
+		-- example: 'foo_|_bar' will match 'foo_' for 'prefix' and 'foo__bar' for 'full'
+		keyword = { range = "full" },
+
 		trigger = {
 			-- SRC: https://cmp.saghen.dev/configuration/completion.html#trigger
 			show_in_snippet = true, -- When false, will not show the completion window automatically when in a snippet
@@ -98,6 +125,10 @@ spec.opts = {
 		accept = {
 			-- Create an undo point when accepting a completion item
 			create_undo_point = true,
+		},
+		-- Displays a preview of the selected item on the current line
+		ghost_text = {
+			enabled = false,
 		},
 		menu = {
 			enabled = true,
@@ -146,10 +177,6 @@ spec.opts = {
 				max_height = 20,
 				border = "single",
 			},
-		},
-		-- Displays a preview of the selected item on the current line
-		ghost_text = {
-			enabled = false,
 		},
 	},
 	appearance = {
