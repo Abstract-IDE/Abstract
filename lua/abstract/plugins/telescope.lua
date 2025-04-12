@@ -2,7 +2,7 @@
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ────────────────────────────────────────────────
 Plugin: telescope.nvim
-Github: https://github.com/nvim-telescope/telescope.nvim
+Source: https://github.com/nvim-telescope/telescope.nvim
 
 telescope.nvim is a highly extendable fuzzy finder over lists.
 Built on the latest awesome features from neovim core. Telescope
@@ -30,6 +30,23 @@ local spec = {
 }
 
 spec.config = function()
+	-- WARN: will be removed once telesope fix the border issue
+	-- currently when you set vim.go.winborder, telesope borders becomes ugly
+	-- https://github.com/nvim-telescope/telescope.nvim/issues/3436#issuecomment-2756267300
+	vim.api.nvim_create_autocmd("User", {
+		pattern = "TelescopeFindPre",
+		callback = function()
+			vim.opt_local.winborder = "none"
+			vim.api.nvim_create_autocmd("WinLeave", {
+				once = true,
+				callback = function()
+					vim.opt_local.winborder = "single"
+				end,
+			})
+		end,
+	})
+	--
+
 	require("abstract.utils.map").set_map("nvim-telescope/telescope.nvim")
 	local telescope = require("telescope")
 	local actions = require("telescope.actions")
