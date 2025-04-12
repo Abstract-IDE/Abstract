@@ -2,7 +2,7 @@
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ─────────────────────────────────────────────────
 Plugin: hovercraft.nvim
-Github: https://github.com/patrickpichler/hovercraft.nvim
+Source: https://github.com/patrickpichler/hovercraft.nvim
 
 hovercraft.nvim is a plug and play framework for writing custom hover provider.
 It brings a few providers out of the box, such as a LSP, as well as a Dictionary.
@@ -25,15 +25,14 @@ spec.opts = function()
 				{ "LSP", require("hovercraft.provider.lsp.hover").new() },
 				{ "Man", require("hovercraft.provider.man").new() },
 				{ "Dictionary", require("hovercraft.provider.dictionary").new() },
+				-- { "Git Blame", require("hovercraft.provider.git.blame").new() },
 				-- { 'Diagnostics',  Provider.Diagnostics.new(), },
 				-- { 'LSP',          Provider.Lsp.Hover.new(), },
 				-- { 'Man',          Provider.Man.new(), },
-				-- { 'Dictionary',   Provider.Dictionary.new(), },
 				-- { 'Github Issue', Provider.Github.Issue.new(), },
 				-- { 'Github Repo',  Provider.Github.Repo.new(), },
 				-- { 'Github User',  Provider.Github.User.new(), },
 				-- { 'Diagnostics',  Provider.Diagnostics.new(), },
-				-- { 'Git Blame',    Provider.Git.Blame.new(), },
 			},
 		},
 

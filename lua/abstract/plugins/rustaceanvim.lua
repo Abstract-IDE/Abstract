@@ -1,8 +1,8 @@
 --[[
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ─────────────────────────────────────────────────
-Plugin:    rustaceanvim
-Github:    https://github.com/mrcjkb/rustaceanvim
+Plugin: rustaceanvim
+Source: https://github.com/mrcjkb/rustaceanvim
 
 Supercharge your Rust experience in Neovim!
 A heavily modified fork of rust-tools.nvim
@@ -12,18 +12,23 @@ A heavily modified fork of rust-tools.nvim
 
 local spec = {
 	"mrcjkb/rustaceanvim",
-	version = "^5", -- Recommended
-	ft = { "rust" },
+	version = "^6", -- Recommended
+	lazy = false, -- This plugin is already lazy
 }
 
-spec.setup = function(hook)
+spec.config = function()
 	vim.g.rustaceanvim = {
-		server = hook,
+		-- LSP configuration
+		server = require("abstract.plugins.lspconfig").setup(),
+
+		-- Plugin configuration
 		tools = {
 			float_win_config = {
 				border = "rounded",
 			},
 		},
+		-- DAP configuration
+		dap = {},
 	}
 end
 
