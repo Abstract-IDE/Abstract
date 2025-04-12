@@ -15,40 +15,48 @@ local spec = {
 }
 
 local lsp_config = function()
-	local handlers = vim.lsp.handlers
+	-- https://neovim.io/doc/user/diagnostic.html#vim.diagnostic.config()
+	local severity = vim.diagnostic.severity
 	vim.diagnostic.config({
+		underline = true,
+		update_in_insert = true,
 		virtual_text = false,
+
 		float = {
 			border = "single",
 			focusable = true,
 			style = "minimal",
-			source = "always",
+			source = true, --- Include the diagnostic source in the message.
 			header = "",
 			prefix = "",
 		},
+
+		-- ●       
+		signs = {
+			text = { [severity.ERROR] = "", [severity.WARN] = "", [severity.INFO] = "", [severity.HINT] = "" },
+			-- Highlight entire line for errors
+			linehl = {
+				[severity.ERROR] = "DiagnosticSignError",
+				[severity.WARN] = "DiagnosticSignWarn",
+				[severity.INFO] = "DiagnosticSignInfo",
+				[severity.HINT] = "DiagnosticSignHint",
+			},
+			-- Highlight the line number for warnings
+			numhl = {
+				[severity.ERROR] = "DiagnosticSignError",
+				[severity.WARN] = "DiagnosticSignWarn",
+				[severity.INFO] = "DiagnosticSignInfo",
+				[severity.HINT] = "DiagnosticSignHint",
+			},
+		},
 	})
-	handlers["textDocument/publishDiagnostics"] = vim.lsp.with(vim.lsp.diagnostic.on_publish_diagnostics, {
-		underline = true,
-		signs = true,
-		update_in_insert = true,
-		-- virtual_text = {
-		-- 	false,
-		-- 	spacing = 6,
-		-- 	-- severity_limit='Error'  -- Only show virtual text on error
-		-- },
-	})
+
 	-- hover and signature help is handled by nvim patrickpichler/hovercraft.nvim
+	-- handlers = vim.lsp.handlers
 	-- handlers["textDocument/hover"] = vim.lsp.with(handlers.hover, { border = "rounded" })
 	-- handlers["textDocument/signatureHelp"] = vim.lsp.with(handlers.signature_help, { border = "single" })
 	-- show diagnostic on float window(like auto complete)
 	-- vim.api.nvim_command [[ autocmd CursorHold  *.lua,*.sh,*.bash,*.dart,*.py,*.cpp,*.c,js lua vim.lsp.diagnostic.show_line_diagnostics() ]]
-
-	-- set LSP diagnostic symbols/signs ●       
-	local sign_define = vim.fn.sign_define
-	sign_define("DiagnosticSignError", { text = "", texthl = "DiagnosticSignError", numhl = "DiagnosticSignError" })
-	sign_define("DiagnosticSignWarn", { text = "", texthl = "DiagnosticSignWarn", numhl = "DiagnosticSignWarn" })
-	sign_define("DiagnosticSignInfo", { text = "", texthl = "DiagnosticSignInfo", numhl = "DiagnosticSignInfo" })
-	sign_define("DiagnosticSignHint", { text = "", texthl = "DiagnosticSignHint", numhl = "DiagnosticSignHint" })
 
 	-- Auto-format files prior to saving them
 	-- vim.api.nvim_command[[autocmd BufWritePre <buffer> lua vim.lsp.buf.formatting_sync(nil, 1000)]]
