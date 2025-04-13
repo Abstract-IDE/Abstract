@@ -27,12 +27,24 @@ local lsp_config = function()
 		-- },
 
 		virtual_text = {
-			prefix = " ",
+			prefix = function(_, index, total)
+				if total == 1 then
+					return " "
+				end
+
+				if index ~= 1 then
+					return "■"
+				end
+
+				local symbols = ""
+				for _ = 2, total do
+					symbols = symbols .. "■"
+				end
+
+				return " " .. symbols
+			end,
 			current_line = true,
 			severity = { severity.ERROR, severity.WARN, severity.INFO, severity.HINT },
-			format = function(diagnostic)
-				return string.format("%s", diagnostic.message)
-			end,
 		},
 
 		float = {
