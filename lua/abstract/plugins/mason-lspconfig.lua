@@ -1,8 +1,8 @@
 --[[
 --━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ────────────────────────────────────────────────
-Plugin:    mason-lspconfig.nvim
-Github:    https://github.com/williamboman/mason-lspconfig.nvim
+Plugin: mason-lspconfig.nvim
+Source: https://github.com/williamboman/mason-lspconfig.nvim
 
 Extension to mason.nvim that makes it easier to use lspconfig with mason.nvim.
 

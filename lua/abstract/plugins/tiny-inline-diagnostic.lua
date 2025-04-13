@@ -2,7 +2,7 @@
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ────────────────────────────────────────────────
 Plugin: tiny-inline-diagnostic.nvim
-Github: https://github.com/rachartier/tiny-inline-diagnostic.nvim
+Source: https://github.com/rachartier/tiny-inline-diagnostic.nvim
 
 A Neovim plugin that display prettier diagnostic messages.
 Display one line diagnostic messages where the cursor is, with icons and colors.

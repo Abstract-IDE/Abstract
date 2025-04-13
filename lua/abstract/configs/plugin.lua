@@ -52,7 +52,6 @@ M.plugins = {
 	"tabby",
 	"telescope",
 	"tiny-code-action",
-	"tiny-inline-diagnostic",
 	"toggleterm",
 	"treesitter",
 	"trouble",

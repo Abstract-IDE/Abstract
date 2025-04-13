@@ -17,10 +17,23 @@ local spec = {
 local lsp_config = function()
 	-- https://neovim.io/doc/user/diagnostic.html#vim.diagnostic.config()
 	local severity = vim.diagnostic.severity
+
 	vim.diagnostic.config({
 		underline = true,
 		update_in_insert = true, -- Update diagnostics in Insert mode
-		virtual_text = false,
+
+		-- virtual_lines = {
+		-- 	current_line = true, -- Only show virtual line diagnostics for the current cursor line
+		-- },
+
+		virtual_text = {
+			prefix = " ",
+			current_line = true,
+			severity = { severity.ERROR, severity.WARN, severity.INFO, severity.HINT },
+			format = function(diagnostic)
+				return string.format("%s", diagnostic.message)
+			end,
+		},
 
 		float = {
 			border = "single",
