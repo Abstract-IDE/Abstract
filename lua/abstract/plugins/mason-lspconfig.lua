@@ -55,11 +55,10 @@ local mason_lspconfig = function(hook)
 		["ts_ls"] = function()
 			-- Typescript LSP is maintained by https://github.com/pmizio/typescript-tools.nvim
 		end,
-		-- NOTE: for now lets disable it as its slow; like if you make even single change in rust file and save, whole things starts load and its really slow
-		-- ["rust_analyzer"] = function()
-		-- 	-- Rust LSP is maintained by https://github.com/mrcjkb/rustaceanvim
-		-- 	require("abstract.plugins.rustaceanvim").setup(hook)
-		-- end,
+		["rust_analyzer"] = function()
+			-- Rust LSP is maintained by https://github.com/mrcjkb/rustaceanvim
+			-- config is in rustaceanvim.lua file
+		end,
 		["jdtls"] = function()
 			-- Java LSP is maintained by https://github.com/nvim-java/nvim-java
 			require("abstract.plugins.nvim-java").setup()
