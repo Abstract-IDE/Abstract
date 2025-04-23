@@ -31,7 +31,7 @@ spec.opts = {
 	},
 	bigfile = require("abstract.plugins.extension.snacks-bigfile"),
 	dashboard = require("abstract.plugins.extension.snacks-dashboard"),
-	explorer = require("abstract.plugins.extension.snacks-picker"),
+	-- explorer = require("abstract.plugins.extension.snacks-picker"),
 	indent = require("abstract.plugins.extension.snacks-indent"),
 	lazygit = require("abstract.plugins.extension.snacks-lazygit"),
 	notifier = require("abstract.plugins.extension.snacks-notifier"),

@@ -1,8 +1,8 @@
 --[[
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ─────────────────────────────────────────────────
-Plugin:    neo-tree.nvim
-Github:    https://github.com/nvim-neo-tree/neo-tree.nvim
+Plugin: neo-tree.nvim
+Source: https://github.com/nvim-neo-tree/neo-tree.nvim
 
 Neovim plugin to manage the file system and other tree like structures.
 ─────────────────────────────────────────────────
