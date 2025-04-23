@@ -239,7 +239,8 @@ M.plugin = {
 		{ "<Leader>vl",  "<CMD>lua Snacks.lazygit()<CR>",               desc = "Lazygit: open" },
 		{ "<Leader>vLl", "<CMD>lua Snacks.lazygit.log()<CR>",           desc = "Lazygit: log view" },
 		{ "<Leader>vLf", "<CMD>lua Snacks.lazygit.log_file()<CR>",      desc = "Lazygit: log of the current file" },
-		{ ";f",          "<CMD>lua Snacks.explorer()<CR>",               desc = "File Explorer(toggle)" },
+		-- using neo-tree instead
+		-- { ";f",          "<CMD>lua Snacks.explorer()<CR>",               desc = "File Explorer(toggle)" },
 	},
 }
 
