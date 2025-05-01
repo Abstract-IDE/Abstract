@@ -19,7 +19,23 @@ local spec = {
 }
 
 spec.opts = {
+	source_selector = {
+		winbar = true,
+		statusline = true,
+	},
+	enable_modified_markers = true, -- Show markers for files with unsaved changes.
+	enable_opened_markers = true, -- Enable tracking of opened files. Required for `components.name.highlight_opened_files`
+	enable_refresh_on_write = true, -- Refresh the tree when a file is written. Only used if `use_libuv_file_watcher` is false.
 	close_if_last_window = false, -- Close Neo-tree if it is the last window left in the tab
+	enable_cursor_hijack = false, -- If enabled neotree will keep the cursor on the first letter of the filename when moving in the tree.
+	git_status_async = true,
+	-- These options are for people with VERY large git repos
+	git_status_async_options = {
+		batch_size = 1000, -- how many lines of git status results to process at a time
+		batch_delay = 10, -- delay in ms between batches. Spreads out the workload to let other processes run.
+		max_lines = 10000, -- How many lines of git status results to process. Anything after this will be dropped.
+		-- Anything before this will be used. The last items to be processed are the untracked files.
+	},
 	popup_border_style = "rounded",
 	enable_git_status = true,
 	enable_diagnostics = true,
