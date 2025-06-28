@@ -12,17 +12,78 @@ Quickstart configs for Nvim LSP
 local spec = {
 	"neovim/nvim-lspconfig",
 	lazy = true,
+	event = { "CmdlineEnter", "BufRead", "BufNewFile", "InsertEnter" },
 }
 
-local lsp_config = function()
-	-- NOTE: previously mapping was done in on_attach function but its no longer working.
-	-- Enable Mappings
-	vim.api.nvim_create_autocmd("LspAttach", {
-		callback = function(_args)
-			require("abstract.utils.map").set_map("neovim/nvim-lspconfig", true)
-		end,
-	})
+---@param capabilities lsp.ClientCapabilities
+local lsp_configs = function(capabilities)
+	local config = vim.lsp.config
 
+	config("*", {
+		capabilities = capabilities,
+		flags = {
+			debounce_text_changes = 150,
+		},
+	})
+	config["swift"] = {
+		capabilities = {
+			workspace = {
+				didChangeWatchedFiles = {
+					dynamicRegistration = true,
+				},
+			},
+		},
+	}
+	config["html"] = {
+		filetypes = { "html", "htmldjango" },
+	}
+	config["jsonls"] = {
+		settings = {
+			json = {
+				schemas = require("schemastore").json.schemas(),
+				validate = { enable = true },
+			},
+		},
+	}
+	config["pyright"] = {
+		settings = {
+			python = {
+				analysis = {
+					autoSearchPaths = true,
+					-- diagnosticMode = "workspace", -- options: "workspace" | "openFilesOnly"
+					useLibraryCodeForTypes = true,
+				},
+			},
+		},
+	}
+	config["yamlls"] = {
+		settings = {
+			yaml = {
+				schemaStore = {
+					-- You must disable built-in schemaStore support if you want to use
+					-- this plugin and its advanced options like `ignore`.
+					enable = false,
+					-- Avoid TypeError: Cannot read properties of undefined (reading 'length')
+					url = "",
+				},
+				schemas = require("schemastore").yaml.schemas(),
+			},
+		},
+	}
+	config["ccls"] = {
+		capabilities = {
+			textDocument = {
+				completion = {
+					completionItem = {
+						snippetSupport = true,
+					},
+				},
+			},
+		},
+	}
+end
+
+spec.config = function()
 	-- https://neovim.io/doc/user/diagnostic.html#vim.diagnostic.config()
 	local severity = vim.diagnostic.severity
 
@@ -84,58 +145,35 @@ local lsp_config = function()
 		},
 	})
 
+	-- Neovim's default capabilities
+	local capabilities = vim.lsp.protocol.make_client_capabilities()
+	capabilities.textDocument.completion.completionItem.snippetSupport = true
+
 	-- hover and signature help is handled by nvim patrickpichler/hovercraft.nvim
 	-- handlers = vim.lsp.handlers
 	-- handlers["textDocument/hover"] = vim.lsp.with(handlers.hover, { border = "rounded" })
 	-- handlers["textDocument/signatureHelp"] = vim.lsp.with(handlers.signature_help, { border = "single" })
-	-- show diagnostic on float window(like auto complete)
-	-- vim.api.nvim_command [[ autocmd CursorHold  *.lua,*.sh,*.bash,*.dart,*.py,*.cpp,*.c,js lua vim.lsp.diagnostic.show_line_diagnostics() ]]
 
-	-- Auto-format files prior to saving them
-	-- vim.api.nvim_command[[autocmd BufWritePre <buffer> lua vim.lsp.buf.formatting_sync(nil, 1000)]]
-end
-
-local hook = {
-	flags = { debounce_text_changes = 150 },
-	on_attach = function(client, bufnr)
-		--[[
-		NOTE: integrate with none-ls | null -ls
-		Avoiding LSP formatting conflicts
-		ref: https://github.com/jose-elias-alvarez/null-ls.nvim/wiki/Avoiding-LSP-formatting-conflicts
-		     https://github.com/neovim/nvim-lspconfig/issues/1891#issuecomment-1157964108
-		client.server_capabilities.documentFormattingProvider = false
-		client.server_capabilities.documentRangeFormattingProvider = false
-		--]]
-
-		-- lsp support on winbar with nvim-navic
-		if ABSTRACT.PLUGINS["SmiteshP/nvim-navic"].enabled then
-			local _navic, navic = pcall(require, "nvim-navic")
-			if _navic and client.server_capabilities.documentSymbolProvider then
-				navic.attach(client, bufnr)
+	vim.api.nvim_create_autocmd("LspAttach", {
+		callback = function(ctx)
+			local client = vim.lsp.get_client_by_id(ctx.data.client_id)
+			if client == nil then
+				return
 			end
-		end
-	end,
-	capabilities = (function()
-		local _capabilities = vim.lsp.protocol.make_client_capabilities()
-		-- enable LSP's builtin snippet support
-		_capabilities.textDocument.completion.completionItem.snippetSupport = true
 
-		-- for blink.cmp
-		_capabilities = require("blink.cmp").get_lsp_capabilities(_capabilities)
+			-- Enable Mappings
+			require("abstract.utils.map").set_map("neovim/nvim-lspconfig", true)
 
-		-- -- for nvim.cmp
-		-- local _cmp_lsp, cmp_lsp = pcall(require, "cmp_nvim_lsp")
-		-- if _cmp_lsp then
-		-- 	return vim.tbl_deep_extend("force", _capabilities, cmp_lsp.default_capabilities())
-		-- end
+			-- if client:supports_method("textDocument/completion") then
+			-- 	vim.lsp.completion.enable(true, client.id, ctx.buf, { autotrigger = true })
+			-- end
+		end,
+	})
 
-		return _capabilities
-	end)(),
-}
-
-spec.setup = function()
-	lsp_config()
-	return hook
+	lsp_configs(capabilities)                        -- lspconfigs
+	require("abstract.plugins.none-ls").setup()      -- none-ls
+	require("abstract.plugins.mason").setup()        -- Mason
+	require("abstract.plugins.mason-lspconfig").setup() -- Mason-LspConfig
 end
 
 return spec

@@ -1,13 +1,10 @@
 --[[
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ─────────────────────────────────────────────────
-Plugin: neotab.nvim
-Github: https://github.com/L3MON4D3/LuaSnip
+Plugin: LuaSnip
+Source: https://github.com/L3MON4D3/LuaSnip
 
 Snippet Engine for Neovim written in Lua.
-
-WARN!
-LuaSnip's setup is called in cmp.lua
 ─────────────────────────────────────────────────
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 --]]
@@ -23,7 +20,7 @@ local spec = {
 	},
 }
 
-spec.setup = function()
+spec.config = function()
 	local luasnip = require("luasnip")
 
 	luasnip.config.set_config({
@@ -47,7 +44,8 @@ spec.setup = function()
 	-- from_vscode.lazy_load({
 	-- 	paths = { NVIM_DIR .. "/extra/snippets" },
 	-- })
-	return luasnip
+
+	-- return luasnip
 end
 
 return spec

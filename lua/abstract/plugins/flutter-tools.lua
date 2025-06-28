@@ -1,8 +1,8 @@
 --[[
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ────────────────────────────────────────────────
-Plugin:    flutter-tools.nvim
-Github:    https://github.com/akinsho/flutter-tools.nvim
+Plugin: flutter-tools.nvim
+Source: https://github.com/akinsho/flutter-tools.nvim
 
 Tools to help create flutter apps in neovim using the native lsp
 ────────────────────────────────────────────────
@@ -14,12 +14,6 @@ local spec = {
 	ft = { "dart" },
 }
 
-spec.config = function()
-	require("flutter-tools").setup(vim.tbl_extend("force", {
-		--
-		-- flutter-tools setup settings goes here
-		--
-	}, { lsp = require("abstract.plugins.lspconfig").setup() }))
-end
+spec.config = true
 
 return spec

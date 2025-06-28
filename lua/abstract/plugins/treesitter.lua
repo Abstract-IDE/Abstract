@@ -1,8 +1,8 @@
 --[[
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ─────────────────────────────────────────────────
-Plugin:    nvim-treesitter
-Github:    https://github.com/nvim-treesitter/nvim-treesitter
+Plugin: nvim-treesitter
+Source: https://github.com/nvim-treesitter/nvim-treesitter
 
 Nvim Treesitter configurations and abstraction layer
 ─────────────────────────────────────────────────
@@ -22,7 +22,7 @@ local spec = {
 spec.config = function()
 	local register = vim.treesitter.language.register
 	register("html", "htmldjango") -- enable html parser in htmldjango file
-	register("bash", "zsh") -- enable bash parser in zsh file
+	register("bash", "zsh")     -- enable bash parser in zsh file
 
 	require("nvim-treesitter.configs").setup({
 		-- Extensions
@@ -39,11 +39,11 @@ spec.config = function()
 		-- 		node_decremental = "<S-TAB>",
 		-- 	},
 		-- },
-		modules = {}, -- this option is not mentioned in doc. i am providing it to hide warning emmiting when editing this config
+		modules = {},                                           -- this option is not mentioned in doc. i am providing it to hide warning emmiting when editing this config
 		ensure_installed = { "c", "lua", "vim", "vimdoc", "query" }, -- A list of parser names, or "all" (the five listed parsers should always be installed)
-		sync_install = false, -- Install parsers synchronously (only applied to `ensure_installed`)
-		auto_install = true, -- Automatically install missing parsers when entering buffer. Recommendation: set to false if you don't have `tree-sitter` CLI installed locally
-		ignore_install = {}, -- List of parsers to ignore installing (or "all")
+		sync_install = false,                                   -- Install parsers synchronously (only applied to `ensure_installed`)
+		auto_install = true,                                    -- Automatically install missing parsers when entering buffer. Recommendation: set to false if you don't have `tree-sitter` CLI installed locally
+		ignore_install = {},                                    -- List of parsers to ignore installing (or "all")
 		parser_install_dir = vim.fn.stdpath("data") .. "/treesitter", -- Remember to run vim.opt.runtimepath:append("/some/path/to/store/parsers")!
 
 		-- Indentation based on treesitter for the = operator. NOTE: This is an experimental feature.

@@ -18,8 +18,6 @@ local spec = {
 
 spec.config = function()
 	vim.g.rustaceanvim = {
-		-- LSP configuration
-		server = require("abstract.plugins.lspconfig").setup(),
 
 		-- Plugin configuration
 		tools = {

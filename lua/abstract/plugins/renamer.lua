@@ -1,8 +1,8 @@
 --[[
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ─────────────────────────────────────────────────
-Plugin:    renamer.nvim
-Github:    https://github.com/filipdutescu/renamer.nvim
+Plugin: renamer.nvim
+Source: https://github.com/filipdutescu/renamer.nvim
 
 VS Code-like renaming UI for Neovim, writen in Lua.
 ─────────────────────────────────────────────────
