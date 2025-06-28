@@ -15,6 +15,14 @@ local spec = {
 }
 
 local lsp_config = function()
+	-- NOTE: previously mapping was done in on_attach function but its no longer working.
+	-- Enable Mappings
+	vim.api.nvim_create_autocmd("LspAttach", {
+		callback = function(_args)
+			require("abstract.utils.map").set_map("neovim/nvim-lspconfig", true)
+		end,
+	})
+
 	-- https://neovim.io/doc/user/diagnostic.html#vim.diagnostic.config()
 	local severity = vim.diagnostic.severity
 
@@ -106,8 +114,6 @@ local hook = {
 				navic.attach(client, bufnr)
 			end
 		end
-		-- Enable Mappings
-		require("abstract.utils.map").set_map("neovim/nvim-lspconfig", true)
 	end,
 	capabilities = (function()
 		local _capabilities = vim.lsp.protocol.make_client_capabilities()

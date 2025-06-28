@@ -12,7 +12,7 @@ Github: https://github.com/Abstract-IDE/Abstract-cs
 
 local spec = {
 	"Abstract-IDE/Abstract-cs",
-	branch = "rewrite",
+	branch = "rewrite-2",
 }
 
 spec.setup = function(opts)
