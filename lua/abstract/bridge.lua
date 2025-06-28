@@ -43,7 +43,7 @@ end
 
 function M.setup()
 	-- call abstract autocmds
-	require("abstract.configs.autocmd")
+	require("abstract.configs.autocmd").setup()
 	-- set Abstract's def
 	require("abstract.configs.vimopt")
 	-- Override Abstract's default with user config

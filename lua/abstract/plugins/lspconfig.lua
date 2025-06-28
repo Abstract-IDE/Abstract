@@ -154,7 +154,9 @@ spec.config = function()
 	-- handlers["textDocument/hover"] = vim.lsp.with(handlers.hover, { border = "rounded" })
 	-- handlers["textDocument/signatureHelp"] = vim.lsp.with(handlers.signature_help, { border = "single" })
 
+	local lsp_group = require("abstract.configs.autocmd").groups.Lsp
 	vim.api.nvim_create_autocmd("LspAttach", {
+		group = lsp_group,
 		callback = function(ctx)
 			local client = vim.lsp.get_client_by_id(ctx.data.client_id)
 			if client == nil then
