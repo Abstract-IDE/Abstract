@@ -15,8 +15,11 @@ local spec = {
 	branch = "rewrite-2",
 }
 
+---@param opts AbstractCsOptions
 spec.setup = function(opts)
-	opts = opts or {}
+	opts = vim.tbl_extend("keep", opts or {}, {
+		theme = "code",
+	})
 	require("abstract_cs").setup(opts)
 end
 
