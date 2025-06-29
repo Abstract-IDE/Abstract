@@ -16,66 +16,67 @@ local spec = {
 }
 
 ---@param capabilities lsp.ClientCapabilities
+---@return table<string,vim.lsp.Config>
 local lsp_configs = function(capabilities)
-	local config = vim.lsp.config
-
-	config("*", {
-		capabilities = capabilities,
-		flags = {
-			debounce_text_changes = 150,
+	return {
+		["*"] = {
+			capabilities = capabilities,
+			flags = {
+				debounce_text_changes = 150,
+			},
 		},
-	})
-	config["swift"] = {
-		capabilities = {
-			workspace = {
-				didChangeWatchedFiles = {
-					dynamicRegistration = true,
+		["swift"] = {
+			capabilities = {
+				workspace = {
+					didChangeWatchedFiles = {
+						dynamicRegistration = true,
+					},
 				},
 			},
 		},
-	}
-	config["html"] = {
-		filetypes = { "html", "htmldjango" },
-	}
-	config["jsonls"] = {
-		settings = {
-			json = {
-				schemas = require("schemastore").json.schemas(),
-				validate = { enable = true },
-			},
+		["html"] = {
+			filetypes = { "html", "htmldjango" },
 		},
-	}
-	config["pyright"] = {
-		settings = {
-			python = {
-				analysis = {
-					autoSearchPaths = true,
-					-- diagnosticMode = "workspace", -- options: "workspace" | "openFilesOnly"
-					useLibraryCodeForTypes = true,
+		["jsonls"] = {
+			settings = {
+				json = {
+					schemas = require("schemastore").json.schemas(),
+					validate = { enable = true },
 				},
 			},
 		},
-	}
-	config["yamlls"] = {
-		settings = {
-			yaml = {
-				schemaStore = {
-					-- You must disable built-in schemaStore support if you want to use
-					-- this plugin and its advanced options like `ignore`.
-					enable = false,
-					-- Avoid TypeError: Cannot read properties of undefined (reading 'length')
-					url = "",
+		["pyright"] = {
+			settings = {
+				python = {
+					analysis = {
+						autoSearchPaths = true,
+						-- diagnosticMode = "workspace", -- options: "workspace" | "openFilesOnly"
+						useLibraryCodeForTypes = true,
+					},
 				},
-				schemas = require("schemastore").yaml.schemas(),
 			},
 		},
-	}
-	config["ccls"] = {
-		capabilities = {
-			textDocument = {
-				completion = {
-					completionItem = {
-						snippetSupport = true,
+		["yamlls"] = {
+			settings = {
+				yaml = {
+					schemaStore = {
+						-- You must disable built-in schemaStore support if you want to use
+						-- this plugin and its advanced options like `ignore`.
+						enable = false,
+						-- Avoid TypeError: Cannot read properties of undefined (reading 'length')
+						url = "",
+					},
+					schemas = require("schemastore").yaml.schemas(),
+				},
+			},
+		},
+		["ccls"] = {
+			capabilities = {
+				textDocument = {
+					completion = {
+						completionItem = {
+							snippetSupport = true,
+						},
 					},
 				},
 			},
@@ -172,10 +173,17 @@ spec.config = function()
 		end,
 	})
 
-	lsp_configs(capabilities)                        -- lspconfigs
-	require("abstract.plugins.none-ls").setup()      -- none-ls
-	require("abstract.plugins.mason").setup()        -- Mason
-	require("abstract.plugins.mason-lspconfig").setup() -- Mason-LspConfig
+	local user_lsp = require("override.lsp")
+	-- Merge with user defined configs ("~/.config/nvim/lua/override/lsp.lua")
+	local configs = vim.tbl_extend("force", lsp_configs(capabilities), user_lsp.configs)
+
+	for lsp, config in pairs(configs) do
+		vim.lsp.config(lsp, config)
+	end
+
+	require("abstract.plugins.none-ls").setup() -- none-ls
+	require("abstract.plugins.mason").setup() -- Mason
+	require("abstract.plugins.mason-lspconfig").setup(user_lsp.ensure_installed) -- Mason-LspConfig
 end
 
 return spec

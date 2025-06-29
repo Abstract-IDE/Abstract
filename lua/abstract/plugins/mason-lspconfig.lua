@@ -14,7 +14,8 @@ local spec = {
 	lazy = true,
 }
 
-spec.setup = function()
+---@param ensure_installed string[]
+spec.setup = function(ensure_installed)
 	require("mason-lspconfig").setup({
 		automatic_enable = {
 			true, -- will automatically enable (vim.lsp.enable()) installed servers
@@ -26,16 +27,7 @@ spec.setup = function()
 
 		-- A list of servers to automatically install if they're not already installed. Example: { "rust_analyzer@nightly", "lua_ls" }
 		---@type string[]
-		ensure_installed = {
-			"bashls",
-			"cssls",
-			"eslint",
-			"html",
-			"jsonls",
-			"lua_ls",
-			"basedpyright",
-			"ts_ls", -- managed by typescript-tools
-		},
+		ensure_installed = ensure_installed,
 	})
 end
 
