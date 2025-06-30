@@ -18,7 +18,7 @@ local spec = {
 ---@param opts AbstractCsOptions
 spec.setup = function(opts)
 	opts = vim.tbl_extend("keep", opts or {}, {
-		theme = "code",
+		name = "code",
 	})
 	require("abstract_cs").setup(opts)
 end
