@@ -29,6 +29,9 @@ M.override = {
 
 -- Mappings that depends on plugin
 M.plugin = {
+	["folke/which-key.nvim"] = {
+		{ "<leader>?", "<CMD> lua require('which-key').show({ global = false }) <CR>", desc = "Buffer Local Keymaps (which-key)" },
+	},
 
 	["nvim-telescope/telescope.nvim"] = {
 		{ "tt",    "<CMD>lua require('telescope.builtin').builtin()<CR>",                                     desc = "Telescope builtin" },
@@ -204,6 +207,7 @@ M.plugin = {
 	["chrisgrieser/nvim-rip-substitute"] = {
 		{ "<Leader>:", "<CMD>lua require('rip-substitute').sub()<CR>", desc = "rip substitute", },
 	},
+
 	["CRAG666/code_runner.nvim"] = {
 		{ "<Leader>o",  group = "Run Code" },
 		{ '<leader>oo', ':RunCode<CR>',     desc = "Runs based on file type (Run Code)" },
@@ -214,8 +218,24 @@ M.plugin = {
 		{ '<leader>oj', ':CRFiletype<CR>',  desc = "Open json with supported files (Run Code)" },
 		{ '<leader>oJ', ':CRProjects<CR>',  desc = "Open json with list of projects (Run Code)" },
 	},
+
 	["akinsho/toggleterm.nvim"] = {
-		-- { "<Leader>T", group = "Terminal" },
+		{ "<Leader>w",  group = "Terminal (ToggleTerm)" },
+		{ "<Leader>w",  ":ToggleTerm<CR>",  desc = "Terminal toggle (ToggleTerm)" },
+		{ "<Leader>Wn", ":ToggleTermNew<CR>",     desc = "New terminal" },
+		-- { "<Leader>Ws",":ToggleTermSendCurrentLine<CR>",     desc = "Send current line" },
+		-- { "<Leader>Wl",":ToggleTermSendVisualLines<CR>",     desc = "Send selected lines" },
+		-- { "<Leader>Wv",":ToggleTermSendVisualSelection<CR>", desc = "Send visual selection" },
+	},
+
+	["voldikss/vim-floaterm"] = {
+		mode = {"n", "t", "v" },
+		{ "<Leader>w", group = "Terminal (Floaterm)" },
+		{ "<C-t>",      ":FloatermToggle<CR>", desc = "Terminal toggle (ToggleTerm)" },
+		{ "<Leader>wt", ":FloatermToggle<CR>", desc = "New toggle (ToggleTerm)" },
+		{ "<Leader>wn", ":FloatermNew<CR>",    desc = "New terminal (ToggleTerm)" },
+		{ "<Leader>wh", ":FloatermPrev<CR>",   desc = "Previous terminal (ToggleTerm)" },
+		{ "<Leader>wl", ":FloatermNext<CR>",   desc = "Next terminal (ToggleTerm)" },
 	},
 
 	["mistweaverco/kulala.nvim"] = {
@@ -241,6 +261,8 @@ M.plugin = {
 		{ "<Leader>vLf", "<CMD>lua Snacks.lazygit.log_file()<CR>",      desc = "Lazygit: log of the current file" },
 		-- using neo-tree instead
 		-- { ";f",          "<CMD>lua Snacks.explorer()<CR>",               desc = "File Explorer(toggle)" },
+		-- Terminal
+		-- { "<Leader>w",  "<CMD>lua Snacks.terminal.toggle()<CR>",  desc = "Terminal toggle (Snacks)" },
 	},
 }
 

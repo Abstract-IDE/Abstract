@@ -13,10 +13,7 @@ with possible key bindings of the command you started typing.
 local spec = {
 	"folke/which-key.nvim",
 	event = "VeryLazy",
-	init = function()
-		vim.o.timeout = true
-		vim.o.timeoutlen = 500
-	end,
+	keys = require("abstract.configs.mapping").plugin["folke/which-key.nvim"],
 }
 
 ---@class wk.Opts
@@ -67,8 +64,8 @@ spec.opts = {
 			text_objects = true, -- help for text objects triggered after entering an operator
 			windows = true, -- default bindings on <c-w>
 			nav = true, -- misc bindings to work with windows
-			z = true, -- bindings for folds, spelling and others prefixed with z
-			g = true, -- bindings for prefixed with g
+			z = true,   -- bindings for folds, spelling and others prefixed with z
+			g = true,   -- bindings for prefixed with g
 		},
 	},
 	---@type wk.Win.opts
@@ -92,7 +89,7 @@ spec.opts = {
 	},
 	layout = {
 		width = { min = 20 }, -- min and max width of the columns
-		spacing = 3, -- spacing between columns
+		spacing = 3,    -- spacing between columns
 	},
 	keys = {
 		scroll_down = "<c-d>", -- binding to scroll down inside the popup
@@ -125,13 +122,13 @@ spec.opts = {
 		},
 		desc = {
 			{ "<Plug>%(?(.*)%)?", "%1" },
-			{ "^%+", "" },
-			{ "<[cC]md>", "" },
-			{ "<[cC][rR]>", "" },
-			{ "<[sS]ilent>", "" },
-			{ "^lua%s+", "" },
-			{ "^call%s+", "" },
-			{ "^:%s*", "" },
+			{ "^%+",              "" },
+			{ "<[cC]md>",         "" },
+			{ "<[cC][rR]>",       "" },
+			{ "<[sS]ilent>",      "" },
+			{ "^lua%s+",          "" },
+			{ "^call%s+",         "" },
+			{ "^:%s*",            "" },
 		},
 	},
 	icons = {

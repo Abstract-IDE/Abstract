@@ -35,6 +35,8 @@ spec.opts = {
 	indent = require("abstract.plugins.extension.snacks-indent"),
 	lazygit = require("abstract.plugins.extension.snacks-lazygit"),
 	notifier = require("abstract.plugins.extension.snacks-notifier"),
+	-- NOTE: using voldikss/vim-floaterm for terminal
+	-- terminal = require("abstract.plugins.extension.snacks-terminal"),
 }
 
 return spec

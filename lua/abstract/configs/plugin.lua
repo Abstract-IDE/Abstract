@@ -53,7 +53,6 @@ M.plugins = {
 	"tabby",
 	"telescope",
 	"tiny-code-action",
-	"toggleterm",
 	"treesitter",
 	"trouble",
 	"ts-autotag",
@@ -61,6 +60,7 @@ M.plugins = {
 	"typescript-tools",
 	"typst-preview",
 	"vim-dadbod",
+	"vim-floaterm",
 	"which-key",
 	"windows",
 }
