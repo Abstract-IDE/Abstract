@@ -34,6 +34,7 @@ M.plugin = {
 	},
 
 	["nvim-telescope/telescope.nvim"] = {
+		{ "t",     group = "Telescope" },
 		{ "tt",    "<CMD>lua require('telescope.builtin').builtin()<CR>",                                     desc = "Telescope builtin" },
 		{ "tc",    "<CMD>lua require('telescope.builtin').commands()<CR>",                                    desc = "Commands" },
 		{ "th",    "<CMD>lua require('telescope.builtin').help_tags()<CR>",                                   desc = "Help tags" },
