@@ -7,6 +7,7 @@ M.builtin = {
 	{ "\\",         ":bnext<CR>",     desc = "Goto next buffer" },
 	{ "|",          ":bprevious<CR>", desc = "Goto previous buffer" },
 	{ "<M-q><M-w>", ":close <CR>",    desc = "Close current window" },
+	{ "<M-q><M-W>", ":only <CR>",     desc = "Close all other window" },
 
 	-- TAB (:h tab)
 	{ "<M-q>t",     ":tabclose<CR>",  desc = "Close current tab" },
