@@ -1,17 +1,20 @@
 --[[
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ────────────────────────────────────────────────
-Plugin: grug-far.nvim
-Source: https://github.com/MagicDuck/grug-far.nvim
+Plugin: img-clip.nvim
+Source: https://github.com/hakonharnes/img-clip.nvim
 
-Find And Replace plugin for neovim
+Embed images into any markup language, like LaTeX, Markdown or Typst
 ────────────────────────────────────────────────
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 --]]
 
 local spec = {
-	"MagicDuck/grug-far.nvim",
+	"hakonharnes/img-clip.nvim",
+	event = "VeryLazy",
+	keys = require("abstract.configs.mapping").plugin["hakonharnes/img-clip.nvim"],
 }
+
 spec.opts = {}
 
 return spec

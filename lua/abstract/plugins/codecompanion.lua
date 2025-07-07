@@ -1,17 +1,32 @@
 --[[
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ────────────────────────────────────────────────
-Plugin: grug-far.nvim
-Source: https://github.com/MagicDuck/grug-far.nvim
+Plugin: codecompanion.nvim
+Source: https://github.com/olimorris/codecompanion.nvim
 
-Find And Replace plugin for neovim
+ ✨ AI-powered coding, seamlessly in Neovim
 ────────────────────────────────────────────────
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 --]]
 
 local spec = {
-	"MagicDuck/grug-far.nvim",
+	"olimorris/codecompanion.nvim",
+	dependencies = {
+		"ravitemer/mcphub.nvim",
+	},
 }
-spec.opts = {}
+
+spec.opts = {
+	extensions = {
+		mcphub = {
+			callback = "mcphub.extensions.codecompanion",
+			opts = {
+				make_vars = true,
+				make_slash_commands = true,
+				show_result_in_chat = true,
+			},
+		},
+	},
+}
 
 return spec

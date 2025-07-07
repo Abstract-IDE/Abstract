@@ -27,6 +27,7 @@ M.plugins = {
 	"helpview",
 	"hop",
 	"hovercraft",
+	"img-clip",
 	"kulala",
 	"lazydev",
 	"lspconfig",

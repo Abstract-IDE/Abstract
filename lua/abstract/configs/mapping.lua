@@ -248,6 +248,7 @@ M.plugin = {
 		{ "<Leader>rt", "<CMD>lua require('kulala').toggle_view()<CR>",      desc = "Response view (Toggle )" },
 
 	},
+
 	["rest-nvim/rest.nvim"] = {
 		{ "<Leader>r",  group = "HTTP" },
 		{ "<Leader>rr", "<CMD>Rest run<CR>",      desc = "Run request under cursor" },
@@ -264,6 +265,11 @@ M.plugin = {
 		-- { ";f",          "<CMD>lua Snacks.explorer()<CR>",               desc = "File Explorer(toggle)" },
 		-- Terminal
 		-- { "<Leader>w",  "<CMD>lua Snacks.terminal.toggle()<CR>",  desc = "Terminal toggle (Snacks)" },
+	},
+
+	["hakonharnes/img-clip.nvim"] = {
+		{ "<Leader>P",   group = "img-clip" },
+		{ "<Leader>P",  "<CMD>PasteImage<CR>", desc = "Paste image from system clipboard" },
 	},
 }
 
