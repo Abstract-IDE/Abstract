@@ -11,8 +11,8 @@ M.builtin = {
 	-- TAB (:h tab)
 	{ "<M-q>t",     ":tabclose<CR>",  desc = "Close current tab" },
 	{ "<M-q>T",     ":tabonly<CR>",   desc = "Close all other tab" },
-	{ "<M-.>",      ":tabn<CR>",      desc = "Goto next tab" },
-	{ "<M-,>",      ":tabp<CR>",      desc = "Goto previous tab" },
+	{ "<Tab>",      ":tabn<CR>",      desc = "Goto next tab" },
+	{ "<S-Tab>",    ":tabp<CR>",      desc = "Goto previous tab" },
 	{ "<M-S-,>",    ":-tabmove<CR>",  desc = "Move tab to next position" },
 	{ "<M-S-.>",    ":+tabmove<CR>",  desc = "Move tab to previous position" },
 
