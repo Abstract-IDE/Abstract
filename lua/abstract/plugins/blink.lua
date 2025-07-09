@@ -151,8 +151,7 @@ spec.opts = {
 
 			draw = {
 				align_to = "none", -- Aligns the keyword you've typed to a component in the menu. 'label' or 'none' to disable, or 'cursor' to align to the cursor
-				-- columns = { { "kind_icon" }, { "label", gap = 1 } },
-				columns = { { "kind_icon", "label", "label_description", "kind", gap = 1 } },
+				columns = { { "kind_icon", "label", "kind", gap = 1 } },
 				components = {
 					label = {
 						width = { max = 40, fill = true },
