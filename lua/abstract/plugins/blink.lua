@@ -12,7 +12,6 @@ Performant, batteries-included completion plugin for Neovim
 local spec = {
 	"saghen/blink.cmp",
 	lazy = false, -- lazy loading handled internally
-	dependencies = {},
 	-- use a release tag to download pre-built binaries
 	-- OR build from source, requires nightly-https://rust-lang.github.io/rustup/concepts/channels.html#working-with-nightly-rust
 	-- build = 'cargo build --release',
@@ -56,9 +55,9 @@ spec.opts = {
 			path = {
 				opts = {
 					-- Path completion from cwd instead of current buffer's directory
-					get_cwd = function(_)
-						return vim.fn.getcwd()
-					end,
+					-- get_cwd = function(_)
+					-- 	return vim.fn.getcwd()
+					-- end,
 				},
 			},
 		},
@@ -87,7 +86,10 @@ spec.opts = {
 
 	signature = {
 		enabled = true,
-		window = { border = "single" },
+		window = {
+			border = "single",
+			show_documentation = false, -- only show the signature, and not the documentation.
+		},
 	},
 
 	-- https://cmp.saghen.dev/configuration/fuzzy
@@ -110,9 +112,9 @@ spec.opts = {
 
 		trigger = {
 			-- SRC: https://cmp.saghen.dev/configuration/completion.html#trigger
-			show_in_snippet = true, -- When false, will not show the completion window automatically when in a snippet
-			show_on_keyword = true, -- Shows after typing a keyword, typically an alphanumeric character or _
-			show_on_trigger_character = true, -- Shows after typing a trigger character, defined by the sources. For example for Lua or Rust, the LSP will define . as a trigger character.
+			show_in_snippet = true,            -- When false, will not show the completion window automatically when in a snippet
+			show_on_keyword = true,            -- Shows after typing a keyword, typically an alphanumeric character or _
+			show_on_trigger_character = true,  -- Shows after typing a trigger character, defined by the sources. For example for Lua or Rust, the LSP will define . as a trigger character.
 			show_on_insert_on_trigger_character = true, -- Shows after entering insert mode on top of a trigger character.
 		},
 
@@ -148,33 +150,50 @@ spec.opts = {
 			scrolloff = 0, -- keep the cursor X lines away from the top/bottom of the window
 
 			draw = {
-				-- padding = 1, -- Left and right padding, optionally { left, right } for different padding on each side
-				-- gap = 1, -- Gap between columns
-
 				align_to = "none", -- Aligns the keyword you've typed to a component in the menu. 'label' or 'none' to disable, or 'cursor' to align to the cursor
-				treesitter = { "lsp" }, -- Use treesitter to highlight the label text for the given list of sources
-				columns = { { "kind_icon", "label", "label_description", "kind" } },
+				-- columns = { { "kind_icon" }, { "label", gap = 1 } },
+				columns = { { "kind_icon", "label", "label_description", "kind", gap = 1 } },
 				components = {
-					kind_icon = {
-						text = function(ctx)
-							return ctx.kind_icon .. " "
-						end,
-					},
 					label = {
-						width = { max = 30, fill = false },
-					},
-					label_description = {
-						width = { max = 14, fill = true },
+						width = { max = 40, fill = true },
 						text = function(ctx)
-							return " " .. ctx.label_description
+							return require("colorful-menu").blink_components_text(ctx)
 						end,
-					},
-					kind = {
-						ellipsis = false,
-						width = { fill = false },
+						highlight = function(ctx)
+							return require("colorful-menu").blink_components_highlight(ctx)
+						end,
 					},
 				},
 			},
+
+			-- draw = {
+			-- 	-- padding = 1, -- Left and right padding, optionally { left, right } for different padding on each side
+			-- 	-- gap = 1, -- Gap between columns
+
+			-- 	align_to = "none", -- Aligns the keyword you've typed to a component in the menu. 'label' or 'none' to disable, or 'cursor' to align to the cursor
+			-- 	treesitter = { "lsp" }, -- Use treesitter to highlight the label text for the given list of sources
+			-- 	columns = { { "kind_icon", "label", "label_description", "kind" } },
+			-- 	components = {
+			-- 		kind_icon = {
+			-- 			text = function(ctx)
+			-- 				return ctx.kind_icon .. " "
+			-- 			end,
+			-- 		},
+			-- 		label = {
+			-- 			width = { max = 30, fill = false },
+			-- 		},
+			-- 		label_description = {
+			-- 			width = { max = 14, fill = true },
+			-- 			text = function(ctx)
+			-- 				return " " .. ctx.label_description
+			-- 			end,
+			-- 		},
+			-- 		kind = {
+			-- 			ellipsis = false,
+			-- 			width = { fill = false },
+			-- 		},
+			-- 	},
+			-- },
 		},
 		documentation = {
 			auto_show = true,
@@ -190,11 +209,6 @@ spec.opts = {
 		},
 	},
 	appearance = {
-		highlight_ns = vim.api.nvim_create_namespace("blink_cmp"),
-		-- Sets the fallback highlight groups to nvim-cmp's highlight groups
-		-- Useful for when your theme doesn't support blink.cmp
-		-- Will be removed in a future release
-		use_nvim_cmp_as_default = true,
 		-- Set to 'mono' for 'Nerd Font Mono' or 'normal' for 'Nerd Font'
 		-- Adjusts spacing to ensure icons are aligned
 		nerd_font_variant = "mono",
@@ -230,6 +244,26 @@ spec.opts = {
 			Event = "",
 			Operator = "",
 			TypeParameter = " ",
+		},
+	},
+
+	cmdline = {
+		enabled = true,
+		keymap = {
+			preset = "inherit",
+		},
+		completion = {
+			menu = { auto_show = true },
+			ghost_text = { enabled = true },
+
+			list = {
+				-- Maximum number of items to display
+				max_items = 200,
+				selection = {
+					preselect = false,
+					auto_insert = true,
+				},
+			},
 		},
 	},
 

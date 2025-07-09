@@ -13,6 +13,7 @@ M.plugins = {
 	"blink",
 	"bufdelete",
 	"code_runner",
+	"colorful-menu",
 	"colorizer",
 	"colorscheme",
 	"Comment",
