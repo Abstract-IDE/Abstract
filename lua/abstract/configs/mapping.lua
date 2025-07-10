@@ -1,10 +1,12 @@
 local M = {}
 local groups = {
-	lsp      = "LSP",
-	files    = "Files",
-	git      = "Version Control (Git)",
-	terminal = "Terminal",
-	http     = "HTTP",
+	lsp           = "LSP",
+	lsp_workspace = "lsp Workspace",
+	files         = "Files",
+	git           = "Version Control (Git)",
+	git_picker    = "git Picker",
+	terminal      = "Terminal",
+	http          = "HTTP",
 
 }
 
@@ -44,21 +46,19 @@ M.plugin = {
 
 	["nvim-telescope/telescope.nvim"] = {
 		{ "t",     group = "Telescope" },
-		{ "tt",    "<CMD>lua require('telescope.builtin').builtin()<CR>",                                     desc = "Telescope builtin" },
-		{ "tc",    "<CMD>lua require('telescope.builtin').commands()<CR>",                                    desc = "Commands" },
-		{ "th",    "<CMD>lua require('telescope.builtin').help_tags()<CR>",                                   desc = "Help tags" },
-		{ "tm",    "<CMD>lua require('telescope.builtin').keymaps()<CR>",                                     desc = "Mappings" },
-		{ "tw",    "<CMD>lua require('telescope.builtin').current_buffer_fuzzy_find()<CR>",                   desc = "Find word (current file)" },
-		-- Grep word. (using telescope-live-grep-args.nvim)
-		-- { "tg",    "<CMD>lua require('telescope.builtin').live_grep() <CR>",                  desc = "Find Word (project wise)" },
-		{ "tg",    "<CMD>lua require('telescope').extensions.live_grep_args.live_grep_args()<CR>",            desc = "Find word (project wise)" },
-		{ "tG",    "<CMD>lua require('telescope-live-grep-args.shortcuts').grep_word_under_cursor()<CR>",     desc = "Find word under cursor (project wise)" },
+		{ "tt",    function() require('telescope.builtin').builtin() end,                                    desc = "Telescope builtin" },
+		{ "tc",    function() require('telescope.builtin').commands() end,                                   desc = "Commands" },
+		{ "th",    function() require('telescope.builtin').help_tags() end,                                  desc = "Help tags" },
+		{ "tm",    function() require('telescope.builtin').keymaps() end,                                    desc = "Mappings" },
+		{ "tw",    function() require('telescope.builtin').current_buffer_fuzzy_find() end,                  desc = "Find word (current file)" },
+		{ "tg",    function() require('telescope').extensions.live_grep_args.live_grep_args() end,           desc = "Find word (project wise)" },
+		{ "tG",    function() require('telescope-live-grep-args.shortcuts').grep_word_under_cursor() end,    desc = "Find word under cursor (project wise)" },
 		-- Find files from current file's project
-		{ "tp",    "<CMD>lua require('telescope').extensions.project.project{}<CR>",                          desc = "Projects picker" },
-		{ "<C-p>", "<CMD>Telescope find_files<CR>",                                                           desc = "Find File (project dir)", },
+		{ "tp",    function() require('telescope').extensions.project.project {} end,                        desc = "Projects picker" },
+		{ "<C-p>", function() require('telescope.builtin').find_files() end,                                 desc = "Find File (project dir)", },
 		-- Show all files from current working directory
-		{ "<C-b>", "<CMD>lua require('telescope.builtin').buffers()<CR>",                                     desc = "Opened buffers", },
-		{ "<C-f>", "<CMD>lua require('telescope.builtin').find_files( { cwd = vim.fn.expand('%:p:h') })<CR>", desc = "Find File (current dir)", },
+		{ "<C-b>", function() require('telescope.builtin').buffers() end,                                    desc = "Opened buffers", },
+		{ "<C-f>", function() require('telescope.builtin').find_files({ cwd = vim.fn.expand('%:p:h') }) end, desc = "Find File (current dir)", },
 	},
 
 	["neovim/nvim-lspconfig"] = {
@@ -66,29 +66,29 @@ M.plugin = {
 		-- using 'patrickpichler/hovercraft.nvim' for hover
 		-- { "K",          "<CMD>lua vim.lsp.buf.hover()<CR>",             desc = "Show symbol hover information", },
 		-- { "<Leader>rn", "<CMD>lua vim.lsp.buf.rename()<CR>",            desc = "Rename symbol" },
-		{ "<Leader>e", "<CMD>lua vim.diagnostic.open_float()<CR>",               desc = "Show diagnostics" },
-		{ "<Leader>d", "<CMD>lua vim.lsp.buf.definition()<CR>",                  desc = "Jumps to definition" },
+		{ "<Leader>e", function() vim.diagnostic.open_float() end,               desc = "Show diagnostics" },
+		{ "<Leader>d", function() vim.lsp.buf.definition() end,                  desc = "Jumps to definition" },
 		-- using 'filipdutescu/renamer.nvim' for rename
-		{ "<Leader>R", "<CMD>lua require('renamer').rename()<CR>",               desc = "Rename symbol" },
+		{ "<Leader>R", function() require('renamer').rename({}) end,             desc = "Rename symbol" },
 		-- using 'rachartier/tiny-code-action.nvim' for code action
 		{ "<Leader>a", "<CMD>lua require('tiny-code-action').code_action()<CR>", desc = "Code action" },
 		{
 			{ "<Leader>l",  group = groups.lsp },
-			{ "<Leader>lf", "<CMD>lua vim.lsp.buf.format({ timeout_ms = 3000 })<CR>",                      desc = "Format document" },
-			{ "<Leader>lA", "<CMD>lua vim.lsp.buf.range_code_action()<CR>",                                desc = "Range code action" },
-			{ "<Leader>ld", "<CMD>lua vim.lsp.buf.declaration()<CR>",                                      desc = "Jumps to declaration" },
-			{ "<Leader>li", "<CMD>lua vim.lsp.buf.implementation()<CR>",                                   desc = "Lists all symbol implementations", },
-			{ "<Leader>ls", "<CMD>lua vim.lsp.buf.signature_help()<CR>",                                   desc = "Show symbol signature information", },
-			{ "<Leader>lt", "<CMD>lua vim.lsp.buf.type_definition()<CR>",                                  desc = "Jumps to type definition" },
+			{ "<Leader>lf", function() vim.lsp.buf.format({ timeout_ms = 3000 }) end,                      desc = "Format document" },
+			{ "<Leader>lA", function() vim.lsp.buf.range_code_action() end,                                desc = "Range code action" },
+			{ "<Leader>ld", function() vim.lsp.buf.declaration() end,                                      desc = "Jumps to declaration" },
+			{ "<Leader>li", function() vim.lsp.buf.implementation() end,                                   desc = "Lists all symbol implementations", },
+			{ "<Leader>ls", function() vim.lsp.buf.signature_help() end,                                   desc = "Show symbol signature information", },
+			{ "<Leader>lt", function() vim.lsp.buf.type_definition() end,                                  desc = "Jumps to type definition" },
 			{ "<Leader>lh", function() vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled()) end, desc = "Inlay hints (toggle)" },
-			{ "<Leader>lb", "<CMD>lua vim.diagnostic.goto_prev()<CR>",                                     desc = "Move to previous diagnostic" },
-			{ "<Leader>ln", "<CMD>lua vim.diagnostic.goto_next()<CR>",                                     desc = "Move to next diagnostic" },
-			{ "<Leader>lr", "<CMD>Telescope lsp_references<CR>",                                           desc = "Lsp references" },
+			{ "<Leader>ln", function() vim.diagnostic.jump({ count = 1, float = true }) end,               desc = "Move to next diagnostic" },
+			{ "<Leader>lb", function() vim.diagnostic.jump({ count = -1, float = true }) end,              desc = "Move to previous diagnostic" },
+			{ "<Leader>lr", function() require('telescope.builtin').lsp_references() end,                  desc = "Lsp references" },
 			{
-				{ "<Leader>lw",  group = "Workspace" },
-				{ "<Leader>lwa", "<CMD>lua vim.lsp.buf.add_workspace_folder()<CR>",                       desc = "Add workspace folder" },
-				{ "<Leader>lwr", "<CMD>lua vim.lsp.buf.remove_workspace_folder()<CR>",                    desc = "Remove workspace folders" },
-				{ "<Leader>lwl", "<CMD>lua print(vim.inspect(vim.lsp.buf.list_workspace_folders()))<CR>", desc = "List workspace folders" },
+				{ "<Leader>lw",  group = groups.lsp_workspace },
+				{ "<Leader>lwa", function() vim.lsp.buf.add_workspace_folder() end,                       desc = "Add workspace folder" },
+				{ "<Leader>lwr", function() vim.lsp.buf.remove_workspace_folder() end,                    desc = "Remove workspace folders" },
+				{ "<Leader>lwl", function() print(vim.inspect(vim.lsp.buf.list_workspace_folders())) end, desc = "List workspace folders" },
 			}
 		}
 	},
@@ -106,11 +106,7 @@ M.plugin = {
 			"K",
 			function()
 				local hovercraft = require("hovercraft")
-				if hovercraft.is_visible() then
-					hovercraft.enter_popup()
-				else
-					hovercraft.hover()
-				end
+				if hovercraft.is_visible() then hovercraft.enter_popup() else hovercraft.hover() end
 			end,
 			desc = "Hover"
 		},
@@ -177,12 +173,12 @@ M.plugin = {
 
 	["rmagatti/goto-preview"] = {
 		{ "gp",  group = groups.lsp },
-		{ "gpd", "<CMD>lua require('goto-preview').goto_preview_definition()<CR>",      desc = "Preview definition" },
-		{ "gpt", "<CMD>lua require('goto-preview').goto_preview_type_definition()<CR>", desc = "Preview type definition", },
-		{ "gpi", "<CMD>lua require('goto-preview').goto_preview_implementation()<CR>",  desc = "Preview definition" },
-		{ "gpD", "<CMD>lua require('goto-preview').goto_preview_declaration()<CR>",     desc = "Preview declaration" },
-		{ "gpr", "<CMD>lua require('goto-preview').goto_preview_references()<CR>",      desc = "Preview definition" },
-		{ "gpQ", "<CMD>lua require('goto-preview').close_all_win()<CR>",                desc = "Close all window" },
+		{ "gpd", function() require('goto-preview').goto_preview_definition() end,     desc = "Preview definition" },
+		{ "gpt", function() require('goto-preview').goto_preview_type_definition() end, desc = "Preview type definition", },
+		{ "gpi", function() require('goto-preview').goto_preview_implementation() end, desc = "Preview definition" },
+		{ "gpD", function() require('goto-preview').goto_preview_declaration() end,    desc = "Preview declaration" },
+		{ "gpr", function() require('goto-preview').goto_preview_references() end,     desc = "Preview definition" },
+		{ "gpQ", function() require('goto-preview').close_all_win() end,               desc = "Close all window" },
 	},
 
 	["anuvyklack/windows.nvim"] = {
@@ -265,37 +261,37 @@ M.plugin = {
 
 	["folke/snacks.nvim"] = {
 		{ "<Leader>s",   group = "Snacks" },
-		{ "<Leader>sn",  "<CMD>lua Snacks.notifier.show_history()<CR>",                      desc = "Notifications history" },
-		{ "<Leader>vl",  "<CMD>lua Snacks.lazygit()<CR>",                                    desc = "Lazygit: open" },
-		{ "<Leader>vLl", "<CMD>lua Snacks.lazygit.log()<CR>",                                desc = "Lazygit: log view" },
-		{ "<Leader>vLf", "<CMD>lua Snacks.lazygit.log_file()<CR>",                           desc = "Lazygit: log of the current file" },
+		{ "<Leader>sn",  "<CMD>lua Snacks.notifier.show_history()<CR>", desc = "Notifications history" },
+		{ "<Leader>vl",  "<CMD>lua Snacks.lazygit()<CR>",               desc = "Lazygit: open" },
+		{ "<Leader>vLl", "<CMD>lua Snacks.lazygit.log()<CR>",           desc = "Lazygit: log view" },
+		{ "<Leader>vLf", "<CMD>lua Snacks.lazygit.log_file()<CR>",      desc = "Lazygit: log of the current file" },
 		-- using neo-tree instead
 		-- { ";f",          "<CMD>lua Snacks.explorer()<CR>",               desc = "File Explorer(toggle)" },
 		-- Terminal
 		-- { "<Leader>w",  "<CMD>lua Snacks.terminal.toggle()<CR>",  desc = "Terminal toggle (Snacks)" },
 
-		----------------------------------------
-		-- find
-		{ "<C-b>",       "<CMD>lua Snacks.picker.buffers()<CR>",                             desc = "Buffers" },
-		{ "<C-p>",       "<CMD>lua Snacks.picker.files()<CR>",                               desc = "Find Files (project dir)" },
-		{ "<C-f>",       "<CMD>lua Snacks.picker.files({cwd = vim.fn.expand('%:p:h')})<CR>", desc = "Find Files (current dir)" },
-		{ "<leader>sp",  "<CMD>lua Snacks.picker.projects()<CR>",                            desc = "Projects" },
-		{ "<leader>sfF", "<CMD>lua Snacks.picker.smart()<CR>",                               desc = "Smart Find Files" },
-		{ "<leader>sfr", "<CMD>lua Snacks.picker.recent()<CR>",                              desc = "Recent files" },
-		-- Grep
-		{ "<leader>sgb", "<CMD>lua Snacks.picker.lines()<CR>",                               desc = "Buffer Lines" },
-		{ "<leader>sgB", "<CMD>lua Snacks.picker.grep_buffers()<CR>",                        desc = "Grep Open Buffers" },
-		{ "<leader>sgg", "<CMD>lua Snacks.picker.grep()<CR>",                                desc = "Grep" },
-		{ "<leader>sgw", "<CMD>lua Snacks.picker.grep_word()<CR>",                           desc = "Visual selection or word",        mode = { "n", "x" } },
-		-- search
-		{ "<leader>sh",  "<CMD>lua Snacks.picker.help()<CR>",                                desc = "Help Pages" },
-		{ "<leader>sH",  "<CMD>lua Snacks.picker.highlights()<CR>",                          desc = "Highlights" },
-		{ "<leader>sc",  "<CMD>lua Snacks.picker.commands()<CR>",                            desc = "Commands" },
-		{ "<leader>sC",  "<CMD>lua Snacks.picker.command_history()<CR>",                     desc = "Command History" },
+		-- ----------------------------------------
+		-- -- find
+		-- { "<C-b>",       "<CMD>lua Snacks.picker.buffers()<CR>",                             desc = "Buffers" },
+		-- { "<C-p>",       "<CMD>lua Snacks.picker.files()<CR>",                               desc = "Find Files (project dir)" },
+		-- { "<C-f>",       "<CMD>lua Snacks.picker.files({cwd = vim.fn.expand('%:p:h')})<CR>", desc = "Find Files (current dir)" },
+		-- { "<leader>sp",  "<CMD>lua Snacks.picker.projects()<CR>",                            desc = "Projects" },
+		-- { "<leader>sfF", "<CMD>lua Snacks.picker.smart()<CR>",                               desc = "Smart Find Files" },
+		-- { "<leader>sfr", "<CMD>lua Snacks.picker.recent()<CR>",                              desc = "Recent files" },
+		-- -- Grep
+		-- { "<leader>sgb", "<CMD>lua Snacks.picker.lines()<CR>",                               desc = "Buffer Lines" },
+		-- { "<leader>sgB", "<CMD>lua Snacks.picker.grep_buffers()<CR>",                        desc = "Grep Open Buffers" },
+		-- { "<leader>sgg", "<CMD>lua Snacks.picker.grep()<CR>",                                desc = "Grep" },
+		-- { "<leader>sgw", "<CMD>lua Snacks.picker.grep_word()<CR>",                           desc = "Visual selection or word",        mode = { "n", "x" } },
+		-- -- search
+		-- { "<leader>sh",  "<CMD>lua Snacks.picker.help()<CR>",                                desc = "Help Pages" },
+		-- { "<leader>sH",  "<CMD>lua Snacks.picker.highlights()<CR>",                          desc = "Highlights" },
+		-- { "<leader>sc",  "<CMD>lua Snacks.picker.commands()<CR>",                            desc = "Commands" },
+		-- { "<leader>sC",  "<CMD>lua Snacks.picker.command_history()<CR>",                     desc = "Command History" },
 
 		-- -- git
 		-- {
-		-- 	{ "<Leader>vp",  group = groups.git },
+		-- 	{ "<Leader>vp",  group = groups.git_picker },
 		-- 	{ "<leader>vpf", "<CMD>lua Snacks.picker.git_files()<CR>",    desc = "Find Git Files" },
 		-- 	{ "<leader>vpb", "<CMD>lua Snacks.picker.git_branches()<CR>", desc = "Git Branches" },
 		-- 	{ "<leader>vpl", "<CMD>lua Snacks.picker.git_log()<CR>",      desc = "Git Log" },
