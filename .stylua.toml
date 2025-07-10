@@ -4,3 +4,6 @@ indent_type = "Tabs"
 indent_width = 4
 quote_style = "AutoPreferDouble"
 call_parentheses = "Always"
+align_args = true
+align_parameter = false
+align_table_field = true

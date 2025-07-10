@@ -1,4 +1,12 @@
 local M = {}
+local groups = {
+	lsp      = "LSP",
+	files    = "Files",
+	git      = "Version Control (Git)",
+	terminal = "Terminal",
+	http     = "HTTP",
+
+}
 
 -- Mappings that don't depend on any plugin
 M.builtin = {
@@ -65,7 +73,7 @@ M.plugin = {
 		-- using 'rachartier/tiny-code-action.nvim' for code action
 		{ "<Leader>a", "<CMD>lua require('tiny-code-action').code_action()<CR>", desc = "Code action" },
 		{
-			{ "<Leader>l",  group = "LSP" },
+			{ "<Leader>l",  group = groups.lsp },
 			{ "<Leader>lf", "<CMD>lua vim.lsp.buf.format({ timeout_ms = 3000 })<CR>",                      desc = "Format document" },
 			{ "<Leader>lA", "<CMD>lua vim.lsp.buf.range_code_action()<CR>",                                desc = "Range code action" },
 			{ "<Leader>ld", "<CMD>lua vim.lsp.buf.declaration()<CR>",                                      desc = "Jumps to declaration" },
@@ -144,7 +152,7 @@ M.plugin = {
 	},
 
 	["folke/trouble.nvim"] = {
-		{ "<leader>T",  group = "Trouble" },
+		{ "<leader>T",  group = groups.lsp },
 		{ "<leader>t",  "<cmd>Trouble diagnostics toggle filter.buf=0<cr>",           desc = "Buffer Diagnostics (Trouble)" },
 		{ "<Leader>Tt", "<CMD>Trouble diagnostics toggle<CR>",                        desc = "Diagnostics (Trouble)" },
 		{ "<leader>Ts", "<cmd>Trouble symbols toggle focus=false<cr>",                desc = "Symbols (Trouble)" },
@@ -168,7 +176,7 @@ M.plugin = {
 	},
 
 	["rmagatti/goto-preview"] = {
-		{ "gp",  group = "Goto Preview" },
+		{ "gp",  group = groups.lsp },
 		{ "gpd", "<CMD>lua require('goto-preview').goto_preview_definition()<CR>",      desc = "Preview definition" },
 		{ "gpt", "<CMD>lua require('goto-preview').goto_preview_type_definition()<CR>", desc = "Preview type definition", },
 		{ "gpi", "<CMD>lua require('goto-preview').goto_preview_implementation()<CR>",  desc = "Preview definition" },
@@ -186,13 +194,12 @@ M.plugin = {
 	},
 
 	["lsig/messenger.nvim"] = {
-		{ "<Leader>v",  group = "Version Control (Git)" },
+		{ "<Leader>v",  group = groups.git },
 		{ "<Leader>vs", "<CMD>lua require('messenger').show()<CR>", desc = "Show commit message" },
-		{ "<Leader>vp", "<CMD>lua require('messenger').show()<CR>", desc = "Show commit message" },
 	},
 
 	["isakbm/gitgraph.nvim"] = {
-		{ "<Leader>v", group = "Version Control (Git)" },
+		{ "<Leader>v", group = groups.git },
 		{
 			"<Leader>vg",
 			function()
@@ -222,26 +229,26 @@ M.plugin = {
 	},
 
 	["akinsho/toggleterm.nvim"] = {
-		{ "<Leader>w",  group = "Terminal (ToggleTerm)" },
-		{ "<Leader>w",  ":ToggleTerm<CR>",  desc = "Terminal toggle (ToggleTerm)" },
-		{ "<Leader>Wn", ":ToggleTermNew<CR>",     desc = "New terminal" },
+		{ "<Leader>w",  group = groups.terminal },
+		{ "<Leader>w",  ":ToggleTerm<CR>",      desc = "Terminal toggle (ToggleTerm)" },
+		{ "<Leader>Wn", ":ToggleTermNew<CR>",   desc = "New terminal" },
 		-- { "<Leader>Ws",":ToggleTermSendCurrentLine<CR>",     desc = "Send current line" },
 		-- { "<Leader>Wl",":ToggleTermSendVisualLines<CR>",     desc = "Send selected lines" },
 		-- { "<Leader>Wv",":ToggleTermSendVisualSelection<CR>", desc = "Send visual selection" },
 	},
 
 	["voldikss/vim-floaterm"] = {
-		mode = {"n", "t", "v" },
-		{ "<Leader>w", group = "Terminal (Floaterm)" },
-		{ "<C-t>",      ":FloatermToggle<CR>", desc = "Terminal toggle (ToggleTerm)" },
-		{ "<Leader>wt", ":FloatermToggle<CR>", desc = "New toggle (ToggleTerm)" },
-		{ "<Leader>wn", ":FloatermNew<CR>",    desc = "New terminal (ToggleTerm)" },
-		{ "<Leader>wh", ":FloatermPrev<CR>",   desc = "Previous terminal (ToggleTerm)" },
-		{ "<Leader>wl", ":FloatermNext<CR>",   desc = "Next terminal (ToggleTerm)" },
+		mode = { "n", "t", "v" },
+		{ "<Leader>w",  group = groups.terminal },
+		{ "<C-t>",      ":FloatermToggle<CR>",  desc = "Terminal toggle (ToggleTerm)" },
+		{ "<Leader>wt", ":FloatermToggle<CR>",  desc = "New toggle (ToggleTerm)" },
+		{ "<Leader>wn", ":FloatermNew<CR>",     desc = "New terminal (ToggleTerm)" },
+		{ "<Leader>wh", ":FloatermPrev<CR>",    desc = "Previous terminal (ToggleTerm)" },
+		{ "<Leader>wl", ":FloatermNext<CR>",    desc = "Next terminal (ToggleTerm)" },
 	},
 
 	["mistweaverco/kulala.nvim"] = {
-		{ "<Leader>r",  group = "HTTP-Request" },
+		{ "<Leader>r",  group = groups.http },
 		{ "<Leader>rr", "<CMD>lua require('kulala').run()<CR>",              desc = "Make HTTP request" },
 		{ "<Leader>rh", "<CMD>lua require('kulala').jump_prev()<CR>",        desc = "Jump to the previous request" },
 		{ "<Leader>rl", "<CMD>lua require('kulala').jump_next()<CR>",        desc = "Jump to the next request" },
@@ -251,26 +258,87 @@ M.plugin = {
 	},
 
 	["rest-nvim/rest.nvim"] = {
-		{ "<Leader>r",  group = "HTTP" },
+		{ "<Leader>r",  group = groups.http },
 		{ "<Leader>rr", "<CMD>Rest run<CR>",      desc = "Run request under cursor" },
 		{ "<Leader>rl", "<CMD>Rest run last<CR>", desc = "Re-run latest request" },
 	},
 
 	["folke/snacks.nvim"] = {
 		{ "<Leader>s",   group = "Snacks" },
-		{ "<Leader>sn",  "<CMD>lua Snacks.notifier.show_history()<CR>", desc = "Notifications history" },
-		{ "<Leader>vl",  "<CMD>lua Snacks.lazygit()<CR>",               desc = "Lazygit: open" },
-		{ "<Leader>vLl", "<CMD>lua Snacks.lazygit.log()<CR>",           desc = "Lazygit: log view" },
-		{ "<Leader>vLf", "<CMD>lua Snacks.lazygit.log_file()<CR>",      desc = "Lazygit: log of the current file" },
+		{ "<Leader>sn",  "<CMD>lua Snacks.notifier.show_history()<CR>",                      desc = "Notifications history" },
+		{ "<Leader>vl",  "<CMD>lua Snacks.lazygit()<CR>",                                    desc = "Lazygit: open" },
+		{ "<Leader>vLl", "<CMD>lua Snacks.lazygit.log()<CR>",                                desc = "Lazygit: log view" },
+		{ "<Leader>vLf", "<CMD>lua Snacks.lazygit.log_file()<CR>",                           desc = "Lazygit: log of the current file" },
 		-- using neo-tree instead
 		-- { ";f",          "<CMD>lua Snacks.explorer()<CR>",               desc = "File Explorer(toggle)" },
 		-- Terminal
 		-- { "<Leader>w",  "<CMD>lua Snacks.terminal.toggle()<CR>",  desc = "Terminal toggle (Snacks)" },
+
+		----------------------------------------
+		-- find
+		{ "<C-b>",       "<CMD>lua Snacks.picker.buffers()<CR>",                             desc = "Buffers" },
+		{ "<C-p>",       "<CMD>lua Snacks.picker.files()<CR>",                               desc = "Find Files (project dir)" },
+		{ "<C-f>",       "<CMD>lua Snacks.picker.files({cwd = vim.fn.expand('%:p:h')})<CR>", desc = "Find Files (current dir)" },
+		{ "<leader>sp",  "<CMD>lua Snacks.picker.projects()<CR>",                            desc = "Projects" },
+		{ "<leader>sfF", "<CMD>lua Snacks.picker.smart()<CR>",                               desc = "Smart Find Files" },
+		{ "<leader>sfr", "<CMD>lua Snacks.picker.recent()<CR>",                              desc = "Recent files" },
+		-- Grep
+		{ "<leader>sgb", "<CMD>lua Snacks.picker.lines()<CR>",                               desc = "Buffer Lines" },
+		{ "<leader>sgB", "<CMD>lua Snacks.picker.grep_buffers()<CR>",                        desc = "Grep Open Buffers" },
+		{ "<leader>sgg", "<CMD>lua Snacks.picker.grep()<CR>",                                desc = "Grep" },
+		{ "<leader>sgw", "<CMD>lua Snacks.picker.grep_word()<CR>",                           desc = "Visual selection or word",        mode = { "n", "x" } },
+		-- search
+		{ "<leader>sh",  "<CMD>lua Snacks.picker.help()<CR>",                                desc = "Help Pages" },
+		{ "<leader>sH",  "<CMD>lua Snacks.picker.highlights()<CR>",                          desc = "Highlights" },
+		{ "<leader>sc",  "<CMD>lua Snacks.picker.commands()<CR>",                            desc = "Commands" },
+		{ "<leader>sC",  "<CMD>lua Snacks.picker.command_history()<CR>",                     desc = "Command History" },
+
+		-- -- git
+		-- {
+		-- 	{ "<Leader>vp",  group = groups.git },
+		-- 	{ "<leader>vpf", "<CMD>lua Snacks.picker.git_files()<CR>",    desc = "Find Git Files" },
+		-- 	{ "<leader>vpb", "<CMD>lua Snacks.picker.git_branches()<CR>", desc = "Git Branches" },
+		-- 	{ "<leader>vpl", "<CMD>lua Snacks.picker.git_log()<CR>",      desc = "Git Log" },
+		-- 	{ "<leader>vpL", "<CMD>lua Snacks.picker.git_log_line()<CR>", desc = "Git Log Line" },
+		-- 	{ "<leader>vps", "<CMD>lua Snacks.picker.git_status()<CR>",   desc = "Git Status" },
+		-- 	{ "<leader>vpS", "<CMD>lua Snacks.picker.git_stash()<CR>",    desc = "Git Stash" },
+		-- 	{ "<leader>vpd", "<CMD>lua Snacks.picker.git_diff()<CR>",     desc = "Git Diff (Hunks)" },
+		-- 	{ "<leader>vpF", "<CMD>lua Snacks.picker.git_log_file()<CR>", desc = "Git Log File" },
+		-- },
+		-- -- { '<leader>s"', function() Snacks.picker.registers() end, desc = "Registers" },
+		-- -- { '<leader>s/', function() Snacks.picker.search_history() end, desc = "Search History" },
+		-- -- { "<leader>sa", function() Snacks.picker.autocmds() end, desc = "Autocmds" },
+		-- -- { "<leader>sb", function() Snacks.picker.lines() end, desc = "Buffer Lines" },
+		-- -- { "<leader>sd", function() Snacks.picker.diagnostics() end, desc = "Diagnostics" },
+		-- -- { "<leader>sD", function() Snacks.picker.diagnostics_buffer() end, desc = "Buffer Diagnostics" },
+		-- -- { "<leader>si", function() Snacks.picker.icons() end, desc = "Icons" },
+		-- -- { "<leader>sj", function() Snacks.picker.jumps() end, desc = "Jumps" },
+		-- -- { "<leader>sk", function() Snacks.picker.keymaps() end, desc = "Keymaps" },
+		-- -- { "<leader>sl", function() Snacks.picker.loclist() end, desc = "Location List" },
+		-- -- { "<leader>sm", function() Snacks.picker.marks() end, desc = "Marks" },
+		-- -- { "<leader>sM", function() Snacks.picker.man() end, desc = "Man Pages" },
+		-- -- { "<leader>sp", function() Snacks.picker.lazy() end, desc = "Search for Plugin Spec" },
+		-- -- { "<leader>sq", function() Snacks.picker.qflist() end, desc = "Quickfix List" },
+		-- -- { "<leader>sR", function() Snacks.picker.resume() end, desc = "Resume" },
+		-- -- { "<leader>su", function() Snacks.picker.undo() end, desc = "Undo History" },
+		-- -- { "<leader>uC", function() Snacks.picker.colorschemes() end, desc = "Colorschemes" },
+		-- -- -- LSP
+		-- -- { "gd", function() Snacks.picker.lsp_definitions() end, desc = "Goto Definition" },
+		-- -- { "gD", function() Snacks.picker.lsp_declarations() end, desc = "Goto Declaration" },
+		-- -- { "gr", function() Snacks.picker.lsp_references() end, nowait = true, desc = "References" },
+		-- -- { "gI", function() Snacks.picker.lsp_implementations() end, desc = "Goto Implementation" },
+		-- -- { "gy", function() Snacks.picker.lsp_type_definitions() end, desc = "Goto T[y]pe Definition" },
+		-- -- { "<leader>ss", function() Snacks.picker.lsp_symbols() end, desc = "LSP Symbols" },
+		-- -- { "<leader>sS", function() Snacks.picker.lsp_workspace_symbols() end, desc = "LSP Workspace Symbols" },
+
+		-- -- { "<leader>n", function() Snacks.picker.notifications() end, desc = "Notification History" },
+		-- -- { "<leader>e", function() Snacks.explorer() end, desc = "File Explorer" },
+		----------------------------------------
 	},
 
 	["hakonharnes/img-clip.nvim"] = {
-		{ "<Leader>P",   group = "img-clip" },
-		{ "<Leader>P",  "<CMD>PasteImage<CR>", desc = "Paste image from system clipboard" },
+		{ "<Leader>P", group = "img-clip" },
+		{ "<Leader>P", "<CMD>PasteImage<CR>", desc = "Paste image from system clipboard" },
 	},
 }
 
