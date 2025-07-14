@@ -256,8 +256,6 @@ spec.opts = {
 			ghost_text = { enabled = true },
 
 			list = {
-				-- Maximum number of items to display
-				max_items = 200,
 				selection = {
 					preselect = false,
 					auto_insert = true,

@@ -56,6 +56,10 @@ spec.setup = function()
 		if package == "prettier" then
 			sources[#sources + 1] = formatting.prettier.with({})
 		end
+
+		if package == "typstyle" then
+			sources[#sources + 1] = formatting.typstyle.with({})
+		end
 	end
 
 	-- Go

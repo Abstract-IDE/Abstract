@@ -181,8 +181,8 @@ spec.config = function()
 		vim.lsp.config(lsp, config)
 	end
 
-	require("abstract.plugins.none-ls").setup() -- none-ls
-	require("abstract.plugins.mason").setup() -- Mason
+	require("abstract.plugins.mason").setup()
+	require("abstract.plugins.none-ls").setup()
 	require("abstract.plugins.mason-lspconfig").setup(user_lsp.ensure_installed) -- Mason-LspConfig
 end
 
