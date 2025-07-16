@@ -173,12 +173,12 @@ M.plugin = {
 
 	["rmagatti/goto-preview"] = {
 		{ "gp",  group = groups.lsp },
-		{ "gpd", function() require('goto-preview').goto_preview_definition() end,     desc = "Preview definition" },
+		{ "gpd", function() require('goto-preview').goto_preview_definition() end,      desc = "Preview definition" },
 		{ "gpt", function() require('goto-preview').goto_preview_type_definition() end, desc = "Preview type definition", },
-		{ "gpi", function() require('goto-preview').goto_preview_implementation() end, desc = "Preview definition" },
-		{ "gpD", function() require('goto-preview').goto_preview_declaration() end,    desc = "Preview declaration" },
-		{ "gpr", function() require('goto-preview').goto_preview_references() end,     desc = "Preview definition" },
-		{ "gpQ", function() require('goto-preview').close_all_win() end,               desc = "Close all window" },
+		{ "gpi", function() require('goto-preview').goto_preview_implementation() end,  desc = "Preview definition" },
+		{ "gpD", function() require('goto-preview').goto_preview_declaration() end,     desc = "Preview declaration" },
+		{ "gpr", function() require('goto-preview').goto_preview_references() end,      desc = "Preview definition" },
+		{ "gpQ", function() require('goto-preview').close_all_win() end,                desc = "Close all window" },
 	},
 
 	["anuvyklack/windows.nvim"] = {
@@ -336,6 +336,10 @@ M.plugin = {
 		{ "<Leader>P", group = "img-clip" },
 		{ "<Leader>P", "<CMD>PasteImage<CR>", desc = "Paste image from system clipboard" },
 	},
+
+	["OXY2DEV/markview.nvim"] = {
+		-- TODO
+	}
 }
 
 return M

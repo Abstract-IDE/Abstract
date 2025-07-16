@@ -12,18 +12,19 @@ Nvim Treesitter configurations and abstraction layer
 local spec = {
 	"nvim-treesitter/nvim-treesitter",
 	build = ":TSUpdate",
-	event = { "BufRead" },
 	dependencies = {
 		"nvim-treesitter/nvim-treesitter-textobjects", -- Syntax aware text-objects, select, move, swap, and peek support.
 		"nvim-treesitter/nvim-treesitter-refactor", -- Refactor modules for nvim-treesitter
 	},
 }
 
-spec.config = function()
+spec.init = function()
 	local register = vim.treesitter.language.register
 	register("html", "htmldjango") -- enable html parser in htmldjango file
 	register("bash", "zsh")     -- enable bash parser in zsh file
+end
 
+spec.config = function()
 	require("nvim-treesitter.configs").setup({
 		-- Extensions
 		textobjects = require("abstract.plugins.extension.treesitter-textobjects").textobjects,
