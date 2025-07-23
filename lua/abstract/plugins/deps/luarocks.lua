@@ -1,8 +1,8 @@
 --[[
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ─────────────────────────────────────────────────
-Plugin:    plenary.nvim
-Github:    https://github.com/nvim-lua/plenary.nvim
+Plugin: plenary.nvim
+Source: https://github.com/nvim-lua/plenary.nvim
 
 luarocks.nvim is a Neovim plugin designed to streamline the installation of
 luarocks packages directly within Neovim. It simplifies the process of

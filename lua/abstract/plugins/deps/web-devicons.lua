@@ -1,9 +1,8 @@
 --[[
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ─────────────────────────────────────────────────
-Plugin:    nvim-web-devicons
-Github:    https://github.com/nvim-tree/nvim-web-devicons
-
+Plugin: nvim-web-devicons
+Source: https://github.com/nvim-tree/nvim-web-devicons
 
 A lua fork of vim-devicons.
 This plugin provides the same icons as well as colors for each icon.
