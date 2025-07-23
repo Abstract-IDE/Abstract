@@ -9,6 +9,7 @@ M.deps = {
 M.plugins = {
 	"abstract-autocmds",
 	"abstract-cursor",
+	"abstract-window",
 	"autopairs",
 	"blink",
 	"bufdelete",
@@ -64,7 +65,6 @@ M.plugins = {
 	"vim-dadbod",
 	"vim-floaterm",
 	"which-key",
-	"windows",
 }
 
 return M

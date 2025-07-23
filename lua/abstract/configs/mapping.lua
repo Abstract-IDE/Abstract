@@ -7,6 +7,7 @@ local groups = {
 	git_picker    = "git Picker",
 	terminal      = "Terminal",
 	http          = "HTTP",
+	window        = "Window",
 
 }
 
@@ -339,7 +340,13 @@ M.plugin = {
 
 	["OXY2DEV/markview.nvim"] = {
 		-- TODO
-	}
+	},
+
+	["Abstract-IDE/abstract-window.nvim"] = {
+		{ "<Leader>m",  group = groups.window },
+		{ "<Leader>mm", function() require("abstract-window").toggle.maximize() end, desc = "Window maximizer (toggle)" },
+	},
+
 }
 
 return M
