@@ -16,7 +16,6 @@ M.plugins = {
 	"code_runner",
 	"colorful-menu",
 	"colorizer",
-	"colorscheme",
 	"Comment",
 	"csvview",
 	"dart-vim-plugin",
