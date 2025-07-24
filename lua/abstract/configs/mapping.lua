@@ -347,6 +347,9 @@ M.plugin = {
 		{ "<Leader>mm", function() require("abstract-window").toggle.maximize() end, desc = "Window maximizer (toggle)" },
 	},
 
+	["Abstract-IDE/abstract-terminal.nvim"] = {
+		-- TODO
+	},
 }
 
 return M

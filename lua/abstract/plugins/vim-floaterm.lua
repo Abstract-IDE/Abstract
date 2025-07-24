@@ -97,7 +97,7 @@ spec.init = function()
 
 	-- Whether to enter Terminal-mode after opening a floaterm.
 	-- Type Boolean. Default: v:true
-	vim.g.floaterm_autoinsert = false
+	vim.g.floaterm_autoinsert = true
 
 	-- The position of the floaterm title.
 	-- Type String. Default: 'left'
