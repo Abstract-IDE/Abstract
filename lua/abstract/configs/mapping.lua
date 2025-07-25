@@ -343,7 +343,7 @@ M.plugin = {
 	},
 	["folke/snacks.nvim/gitbrowse"] = {
 		{ "<Leader>vm",  group = groups.git_more },
-		{ "<Leader>vmb",  "<CMD>lua Snacks.gitbrowse()<CR>",          desc = "Git Browse" },
+		{ "<Leader>vmb", "<CMD>lua Snacks.gitbrowse()<CR>", desc = "Git Browse" },
 	},
 
 
@@ -356,13 +356,21 @@ M.plugin = {
 		-- TODO
 	},
 
-	["abstract-window"] = {
+	["Abstract-IDE/abstract-plugs.nvim/window"] = {
 		{ "<Leader>m",  group = groups.window },
 		{ "<Leader>mm", function() require("abs").window().toggle.maximize() end, desc = "Window maximizer (toggle)" },
 	},
 
-	["abstract-terminal"] = {
-		-- TODO
+	["Abstract-IDE/abstract-plugs.nvim/terminal"] = {
+		mode = { "i", "n", "v", "t" },
+		{ "<C>",   group = groups.terminal },
+		{ "<C-t>", function() require("abs").terminal().toggle() end, desc = "New toggle (ToggleTerm)" },
+		{
+			mode = { "t" },
+			{ "<C-n>", function() require("abs").terminal().new() end,  desc = "Open new terminal" },
+			{ "<C-h>", function() require("abs").terminal().prev() end, desc = "Goto previous terminal" },
+			{ "<C-l>", function() require("abs").terminal().next() end, desc = "Goto next terminal" },
+		}
 	},
 
 	["MagicDuck/grug-far.nvim"] = {

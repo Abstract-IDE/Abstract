@@ -17,7 +17,6 @@ spec.config = function()
 	local abstract = require('abs')
 	local set_map = require("abstract.utils.map").set_map
 
-
 	require('abstract.plugins.extension.abstract-window').setup(abstract, set_map)
 	require("abstract.plugins.extension.abstract-terminal").setup(abstract, set_map)
 end

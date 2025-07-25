@@ -13,7 +13,7 @@ a command framework for window-related utilities.
 local M = {}
 
 M.setup = function(plug, set_map)
-	set_map("abstract-window")
+	set_map("Abstract-IDE/abstract-plugs.nvim/window")
 	plug.window().setup()
 end
 
