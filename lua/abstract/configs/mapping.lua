@@ -188,7 +188,8 @@ M.plugin = {
 	},
 
 	["stevearc/oil.nvim"] = {
-		{ "-", "<CMD>Oil<CR>", desc = "Open parent directory" },
+		{ "-", group = groups.files },
+		{ "-", "<CMD>Oil<CR>",      desc = "Open parent directory" },
 	},
 
 	["lsig/messenger.nvim"] = {
@@ -350,6 +351,15 @@ M.plugin = {
 
 	["abstract-terminal"] = {
 		-- TODO
+	},
+
+	["MagicDuck/grug-far.nvim"] = {
+		{ "<Leader>f",  group = groups.files },
+		{ "<Leader>fr", function() require('grug-far').open() end, desc = "Find and replace: (grug-far)" },
+	},
+
+	["A7Lavinraj/fyler.nvim"] = {
+		{ "-", "<CMD>Fyler<CR>", desc = "todo: this desc" },
 	},
 }
 

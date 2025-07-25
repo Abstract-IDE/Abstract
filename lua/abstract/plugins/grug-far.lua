@@ -11,6 +11,7 @@ Find And Replace plugin for neovim
 
 local spec = {
 	"MagicDuck/grug-far.nvim",
+	keys = require("abstract.configs.mapping").plugin["MagicDuck/grug-far.nvim"],
 }
 spec.opts = {}
 

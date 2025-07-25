@@ -2,7 +2,7 @@
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ────────────────────────────────────────────────
 Plugin: oil.nvim
-Github: https://github.com/stevearc/oil.nvim
+Source: https://github.com/stevearc/oil.nvim
 
 Neovim file explorer: edit your filesystem like a buffer
 ────────────────────────────────────────────────
