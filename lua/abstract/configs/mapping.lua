@@ -1,12 +1,15 @@
 local M = {}
 local groups = {
-	lsp           = "LSP",
-	lsp_workspace = "lsp Workspace",
+	close         = "Close",
 	files         = "Files",
 	git           = "Version Control (Git)",
-	git_picker    = "git Picker",
-	terminal      = "Terminal",
+	git_lazygit   = "Lazygit",
+	git_more      = "More",
+	git_picker    = "Picker",
 	http          = "HTTP",
+	lsp           = "LSP",
+	lsp_workspace = "Workspace",
+	terminal      = "Terminal",
 	window        = "Window",
 
 }
@@ -18,7 +21,7 @@ M.builtin = {
 	{ "\\",         ":bnext<CR>",     desc = "Goto next buffer" },
 	{ "|",          ":bprevious<CR>", desc = "Goto previous buffer" },
 	{ "<M-q><M-w>", ":close <CR>",    desc = "Close current window" },
-	{ "<M-q><M-W>", ":only <CR>",     desc = "Close all other window" },
+	{ "<M-q><S-w>", ":only <CR>",     desc = "Close all window except current one" },
 
 	-- TAB (:h tab)
 	{ "<M-q>t",     ":tabclose<CR>",  desc = "Close current tab" },
@@ -208,10 +211,6 @@ M.plugin = {
 		},
 	},
 
-	["famiu/bufdelete.nvim"] = {
-		{ "<M-q><M-q>", "<CMD>lua require('bufdelete').bufwipeout(0)<CR>", desc = "Close current buffer without killing windows", },
-	},
-
 	["chrisgrieser/nvim-rip-substitute"] = {
 		{ "<Leader>:", "<CMD>lua require('rip-substitute').sub()<CR>", desc = "rip substitute", },
 	},
@@ -263,11 +262,8 @@ M.plugin = {
 	},
 
 	["folke/snacks.nvim"] = {
-		{ "<Leader>s",   group = "Snacks" },
-		{ "<Leader>sn",  "<CMD>lua Snacks.notifier.show_history()<CR>", desc = "Notifications history" },
-		{ "<Leader>vl",  "<CMD>lua Snacks.lazygit()<CR>",               desc = "Lazygit: open" },
-		{ "<Leader>vLl", "<CMD>lua Snacks.lazygit.log()<CR>",           desc = "Lazygit: log view" },
-		{ "<Leader>vLf", "<CMD>lua Snacks.lazygit.log_file()<CR>",      desc = "Lazygit: log of the current file" },
+		{ "<Leader>s",  group = "Snacks" },
+		{ "<Leader>sn", "<CMD>lua Snacks.notifier.show_history()<CR>", desc = "Notifications history" },
 		-- using neo-tree instead
 		-- { ";f",          "<CMD>lua Snacks.explorer()<CR>",               desc = "File Explorer(toggle)" },
 		-- Terminal
@@ -334,6 +330,22 @@ M.plugin = {
 		-- -- { "<leader>e", function() Snacks.explorer() end, desc = "File Explorer" },
 		----------------------------------------
 	},
+	["folke/snacks.nvim/bufdelete"] = {
+		{ "<M-q>",      group = groups.close },
+		{ "<M-q><M-q>", "<CMD>lua Snacks.bufdelete()<CR>",       desc = "Delete current buffer", },
+		{ "<M-q><S-q>", "<CMD>lua Snacks.bufdelete.other()<CR>", desc = "Delete all buffers except the current one", },
+	},
+	["folke/snacks.nvim/lazygit"] = {
+		{ "<Leader>vL",  group = groups.git_lazygit },
+		{ "<Leader>vl",  "<CMD>lua Snacks.lazygit()<CR>",          desc = "open lazygit" },
+		{ "<Leader>vLl", "<CMD>lua Snacks.lazygit.log()<CR>",      desc = "log view" },
+		{ "<Leader>vLf", "<CMD>lua Snacks.lazygit.log_file()<CR>", desc = "log of the current file" },
+	},
+	["folke/snacks.nvim/gitbrowse"] = {
+		{ "<Leader>vm",  group = groups.git_more },
+		{ "<Leader>vmb",  "<CMD>lua Snacks.gitbrowse()<CR>",          desc = "Git Browse" },
+	},
+
 
 	["hakonharnes/img-clip.nvim"] = {
 		{ "<Leader>P", group = "img-clip" },

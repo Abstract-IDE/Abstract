@@ -9,7 +9,9 @@ Visualize indent guides and scopes based on treesitter or indent.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 --]]
 
+---@class snacks.indent.Config
 local config = {
+	enabled = true,
 	indent = {
 		enabled = true, -- enable indent guides
 		priority = 1,

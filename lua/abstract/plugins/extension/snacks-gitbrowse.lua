@@ -1,24 +1,21 @@
 --[[
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ─────────────────────────────────────────────────
-Plugin: Bufdelete - snacks.nvim
-Source: https://github.com/folke/snacks.nvim/blob/main/docs/bufdelete.md
+Plugin: GitBrowse - snacks.nvim
+Source: https://github.com/folke/snacks.nvim/blob/main/docs/gitbrowse.md
 
-Delete buffers without disrupting window layout.
-If the buffer you want to close has changes, a prompt will be shown to save or discard.
+Open the repo of the active file in the browser (e.g., GitHub)
 ─────────────────────────────────────────────────
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 --]]
 local M = {}
 
----@return snacks.bufdelete.Opts
+---@return snacks.gitbrowse.Config
 function M.config(keymap)
-	keymap("folke/snacks.nvim/bufdelete")
+	keymap("folke/snacks.nvim/gitbrowse")
 
-	---@type snacks.bufdelete.Opts
-	return {
-		enabled = true,
-	}
+	---@type snacks.gitbrowse.Config
+	return {}
 end
 
 return M

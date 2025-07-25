@@ -16,17 +16,19 @@ local spec = {
 }
 
 spec.config = function()
+	local keymap = require("abstract.utils.map").set_map
 	require("abstract.utils.map").set_map("folke/snacks.nvim")
 
 	require("snacks").setup({
 
 		-- Plugins
 		bigfile = require("abstract.plugins.extension.snacks-bigfile"),
-		bufdelete = require("abstract.plugins.extension.snacks-bufdelete"),
+		bufdelete = require("abstract.plugins.extension.snacks-bufdelete").config(keymap),
 		dashboard = require("abstract.plugins.extension.snacks-dashboard"),
+		gitbrowse = require("abstract.plugins.extension.snacks-gitbrowse").config(keymap),
 		indent = require("abstract.plugins.extension.snacks-indent"),
 		input = require("abstract.plugins.extension.snacks-input"),
-		lazygit = require("abstract.plugins.extension.snacks-lazygit"),
+		lazygit = require("abstract.plugins.extension.snacks-lazygit").config(keymap),
 		notifier = require("abstract.plugins.extension.snacks-notifier"),
 		quickfile = require("abstract.plugins.extension.snacks-quickfile"),
 
