@@ -4,10 +4,12 @@ local groups = {
 	files         = "Files",
 	git           = "Version Control (Git)",
 	git_lazygit   = "Lazygit",
-	git_more      = "More",
+	git_more      = "More git",
 	git_picker    = "Picker",
 	http          = "HTTP",
 	lsp           = "LSP",
+	lsp_trouble   = "Trouble",
+	lsp_preview   = "Preview",
 	lsp_workspace = "Workspace",
 	terminal      = "Terminal",
 	window        = "Window",
@@ -84,7 +86,7 @@ M.plugin = {
 			{ "<Leader>ld", function() vim.lsp.buf.declaration() end,                                      desc = "Jumps to declaration" },
 			{ "<Leader>li", function() vim.lsp.buf.implementation() end,                                   desc = "Lists all symbol implementations", },
 			{ "<Leader>ls", function() vim.lsp.buf.signature_help() end,                                   desc = "Show symbol signature information", },
-			{ "<Leader>lt", function() vim.lsp.buf.type_definition() end,                                  desc = "Jumps to type definition" },
+			{ "<Leader>lD", function() vim.lsp.buf.type_definition() end,                                  desc = "Jumps to type definition" },
 			{ "<Leader>lh", function() vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled()) end, desc = "Inlay hints (toggle)" },
 			{ "<Leader>ln", function() vim.diagnostic.jump({ count = 1, float = true }) end,               desc = "Move to next diagnostic" },
 			{ "<Leader>lb", function() vim.diagnostic.jump({ count = -1, float = true }) end,              desc = "Move to previous diagnostic" },
@@ -153,13 +155,15 @@ M.plugin = {
 	},
 
 	["folke/trouble.nvim"] = {
-		{ "<leader>T",  group = groups.lsp },
-		{ "<leader>t",  "<cmd>Trouble diagnostics toggle filter.buf=0<cr>",           desc = "Buffer Diagnostics (Trouble)" },
-		{ "<Leader>Tt", "<CMD>Trouble diagnostics toggle<CR>",                        desc = "Diagnostics (Trouble)" },
-		{ "<leader>Ts", "<cmd>Trouble symbols toggle focus=false<cr>",                desc = "Symbols (Trouble)" },
-		{ "<leader>Tl", "<cmd>Trouble lsp toggle focus=false win.position=right<cr>", desc = "LSP Definitions / references / ... (Trouble)" },
-		{ "<leader>TL", "<cmd>Trouble loclist toggle<cr>",                            desc = "Location List (Trouble)" },
-		{ "<leader>Tq", "<cmd>Trouble qflist toggle<cr>",                             desc = "Quickfix List (Trouble)" },
+		{ "<leader>t", "<cmd>Trouble diagnostics toggle filter.buf=0<cr>", desc = "Buffer Diagnostics (Trouble)" },
+		{
+			{ "<leader>lt",  group = groups.lsp_trouble },
+			{ "<Leader>ltt", "<CMD>Trouble diagnostics toggle<CR>",                        desc = "Diagnostics" },
+			{ "<leader>lts", "<cmd>Trouble symbols toggle focus=false<cr>",                desc = "Symbols" },
+			{ "<leader>ltl", "<cmd>Trouble lsp toggle focus=false win.position=right<cr>", desc = "LSP Definitions / references / ..." },
+			{ "<leader>ltL", "<cmd>Trouble loclist toggle<cr>",                            desc = "Location List" },
+			{ "<leader>ltq", "<cmd>Trouble qflist toggle<cr>",                             desc = "Quickfix List" },
+		}
 	},
 
 	["nvim-neo-tree/neo-tree.nvim"] = {
@@ -177,13 +181,13 @@ M.plugin = {
 	},
 
 	["rmagatti/goto-preview"] = {
-		{ "gp",  group = groups.lsp },
-		{ "gpd", function() require('goto-preview').goto_preview_definition() end,      desc = "Preview definition" },
-		{ "gpt", function() require('goto-preview').goto_preview_type_definition() end, desc = "Preview type definition", },
-		{ "gpi", function() require('goto-preview').goto_preview_implementation() end,  desc = "Preview definition" },
-		{ "gpD", function() require('goto-preview').goto_preview_declaration() end,     desc = "Preview declaration" },
-		{ "gpr", function() require('goto-preview').goto_preview_references() end,      desc = "Preview definition" },
-		{ "gpQ", function() require('goto-preview').close_all_win() end,                desc = "Close all window" },
+		{ "<Leader>lp",  group = groups.lsp_preview },
+		{ "<Leader>lpd", function() require('goto-preview').goto_preview_definition() end,      desc = "Definition preview" },
+		{ "<Leader>lpt", function() require('goto-preview').goto_preview_type_definition() end, desc = "Type definition preview", },
+		{ "<Leader>lpi", function() require('goto-preview').goto_preview_implementation() end,  desc = "Implementation preview" },
+		{ "<Leader>lpD", function() require('goto-preview').goto_preview_declaration() end,     desc = "Declaration preview" },
+		{ "<Leader>lpr", function() require('goto-preview').goto_preview_references() end,      desc = "References preview" },
+		{ "<Leader>lpQ", function() require('goto-preview').close_all_win() end,                desc = "Close all window preview" },
 	},
 
 	["anuvyklack/windows.nvim"] = {
