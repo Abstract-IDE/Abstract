@@ -12,7 +12,6 @@ M.plugins = {
 	"abstract-plugs",
 	"autopairs",
 	"blink",
-	"bufdelete",
 	"code_runner",
 	"colorful-menu",
 	"colorizer",

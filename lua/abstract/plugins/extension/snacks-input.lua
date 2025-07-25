@@ -1,20 +1,17 @@
 --[[
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ─────────────────────────────────────────────────
-Plugin: bufdelete.nvim
-Source: https://github.com/famiu/bufdelete.nvim
+Plugin: Input - snacks.nvim
+Source: https://github.com/folke/snacks.nvim/blob/main/docs/input.md
 
-Neovim's default :bdelete command can be quite annoying, since
-it also messes up your entire window layout by deleting windows.
-bufdelete.nvim aims to fix that by providing useful commands that
-allow you to delete a buffer without messing up your window layout.
+Better vim.ui.input
 ─────────────────────────────────────────────────
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 --]]
 
-local spec = {
-	"famiu/bufdelete.nvim",
-	keys = require("abstract.configs.mapping").plugin["famiu/bufdelete.nvim"],
+---@class snacks.input.Config
+local config = {
+	enabled = true,
 }
 
-return spec
+return config
