@@ -36,6 +36,7 @@ spec.config = function()
 		indent = require("abstract.plugins.extension.snacks-indent"),
 		lazygit = require("abstract.plugins.extension.snacks-lazygit"),
 		notifier = require("abstract.plugins.extension.snacks-notifier"),
+		quickfile = require("abstract.plugins.extension.snacks-quickfile"),
 
 		-- Maybe use in future
 		--------------------------
