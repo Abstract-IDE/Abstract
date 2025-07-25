@@ -359,10 +359,14 @@ M.plugin = {
 	["Abstract-IDE/abstract-plugs.nvim/window"] = {
 		{ "<Leader>m",  group = groups.window },
 		{ "<Leader>mm", function() require("abs").window().toggle.maximize() end, desc = "Window maximizer (toggle)" },
+		{
+			mode = { "i", "n", "t" },
+			{ "<M-m>", function() require("abs").window().toggle.maximize() end, desc = "Window maximizer (toggle)" },
+		}
 	},
 
 	["Abstract-IDE/abstract-plugs.nvim/terminal"] = {
-		mode = { "i", "n", "v", "t" },
+		mode = { "i", "n", "t" },
 		{ "<C>",   group = groups.terminal },
 		{ "<C-t>", function() require("abs").terminal().toggle() end, desc = "New toggle (ToggleTerm)" },
 		{
