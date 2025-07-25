@@ -9,8 +9,7 @@ M.deps = {
 M.plugins = {
 	"abstract-autocmds",
 	"abstract-cursor",
-	"abstract-terminal",
-	"abstract-window",
+	"abstract-plugs",
 	"autopairs",
 	"blink",
 	"bufdelete",

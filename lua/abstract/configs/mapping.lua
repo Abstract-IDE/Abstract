@@ -36,7 +36,8 @@ M.builtin = {
 
 -- Mappings that depends on plugin but reqires to override builtin mappings
 M.override = {
-	{ "<Leader>f", "<CMD>lua vim.lsp.buf.format({ timeout_ms = 3000 })<CR>", desc = "Format document" },
+	-- example:
+	-- { "<Leader>lf", "<CMD>lua vim.lsp.buf.format({ timeout_ms = 3000 })<CR>", desc = "Format document" },
 }
 
 -- Mappings that depends on plugin
@@ -342,12 +343,12 @@ M.plugin = {
 		-- TODO
 	},
 
-	["Abstract-IDE/abstract-window.nvim"] = {
+	["abstract-window"] = {
 		{ "<Leader>m",  group = groups.window },
-		{ "<Leader>mm", function() require("abstract-window").toggle.maximize() end, desc = "Window maximizer (toggle)" },
+		{ "<Leader>mm", function() require("abs").window().toggle.maximize() end, desc = "Window maximizer (toggle)" },
 	},
 
-	["Abstract-IDE/abstract-terminal.nvim"] = {
+	["abstract-terminal"] = {
 		-- TODO
 	},
 }
