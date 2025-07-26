@@ -19,6 +19,7 @@ spec.config = function()
 
 	require('abstract.plugins.extension.abstract-window').setup(abstract, set_map)
 	require("abstract.plugins.extension.abstract-terminal").setup(abstract, set_map)
+	abstract.whitespace().setup()
 end
 
 return spec
