@@ -1,8 +1,8 @@
 --[[
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ────────────────────────────────────────────────
-Plugin:    fidget.nvim
-Github:    https://github.com/j-hui/fidget.nvim
+Plugin: fidget.nvim
+Source: https://github.com/j-hui/fidget.nvim
 
 💫 Extensible UI for Neovim notifications and LSP progress messages.
 ────────────────────────────────────────────────
@@ -14,6 +14,14 @@ local spec = {
 	lazy = true,
 	event = { "LspAttach" },
 	opts = {}
+}
+
+spec.opts = {
+	notification = {
+		window = {
+			winblend = 100, -- Background color opacity in the notification window
+		}
+	}
 }
 
 
