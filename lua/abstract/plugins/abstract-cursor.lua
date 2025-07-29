@@ -1,8 +1,8 @@
 --[[
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ────────────────────────────────────────────────
-Plugin:    abstract-cursor
-Github:    https://github.com/Abstract-IDE/abstract-cursor
+Plugin: abstract-cursor
+Source: https://github.com/Abstract-IDE/abstract-cursor
 
 dynamic cursor
 ────────────────────────────────────────────────
