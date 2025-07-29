@@ -29,24 +29,21 @@ spec.opts = {
 		enable = true,
 		colors = {
 			i = {
-				fg = "#000000",
-				bg = "#ac3131",
-				bold = true,
+				fg = "#ac3131",
+				reverse=true,
 			},
 			v = {
-				fg = "#000000",
-				bg = "#d1d1d1",
-				bold = true,
+				fg = "#d1d1d1",
+				reverse=true,
 			},
+				reverse=true,
 			V = {
-				fg = "#000000",
-				bg = "#d1d1d1",
-				bold = true,
+				fg = "#ffffff",
+				reverse=true,
 			},
 			["^V"] = {
-				fg = "#000000",
-				bg = "#d1d1d1",
-				bold = true,
+				fg = "#d1d1d1",
+				reverse=true,
 			},
 		},
 	},
