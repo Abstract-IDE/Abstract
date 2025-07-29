@@ -15,12 +15,25 @@ local spec = {
 	event = { "CmdlineEnter", "BufRead", "BufNewFile", "InsertEnter" },
 }
 
----@param capabilities lsp.ClientCapabilities
 ---@return table<string,vim.lsp.Config>
-local lsp_configs = function(capabilities)
+local lsp_configs = function()
 	return {
+		--  Add additional capabilities to all clients
 		["*"] = {
-			capabilities = capabilities,
+			root_markers = { '.git' },
+			capabilities = {
+				textDocument = {
+					semanticTokens = {
+						multilineTokenSupport = true,
+					},
+					completion = {
+						completionItem = {
+							snippetSupport = true,
+						}
+					}
+				}
+			},
+
 			flags = {
 				debounce_text_changes = 150,
 			},
@@ -90,28 +103,24 @@ spec.config = function()
 
 	vim.diagnostic.config({
 		underline = true,
-		update_in_insert = true, -- Update diagnostics in Insert mode
+		update_in_insert = true,
 
 		-- virtual_lines = {
 		-- 	current_line = true, -- Only show virtual line diagnostics for the current cursor line
 		-- },
 
 		virtual_text = {
-			prefix = function(_, index, total)
-				if total == 1 then
-					return " "
+			prefix = function(dst, index, total)
+				-- not show box if there is just one error
+				-- if total == 1 then
+				-- 	return " "
+				-- end
+
+				if index == 1 then
+					return "  " .. "■"
 				end
 
-				if index ~= 1 then
-					return "■"
-				end
-
-				local symbols = ""
-				for _ = 2, total do
-					symbols = symbols .. "■"
-				end
-
-				return " " .. symbols
+				return "■"
 			end,
 			current_line = true,
 			severity = { severity.ERROR, severity.WARN, severity.INFO, severity.HINT },
@@ -146,10 +155,6 @@ spec.config = function()
 		},
 	})
 
-	-- Neovim's default capabilities
-	local capabilities = vim.lsp.protocol.make_client_capabilities()
-	capabilities.textDocument.completion.completionItem.snippetSupport = true
-
 	-- hover and signature help is handled by nvim patrickpichler/hovercraft.nvim
 	-- handlers = vim.lsp.handlers
 	-- handlers["textDocument/hover"] = vim.lsp.with(handlers.hover, { border = "rounded" })
@@ -175,7 +180,7 @@ spec.config = function()
 
 	local user_lsp = require("override.lsp")
 	-- Merge with user defined configs ("~/.config/nvim/lua/override/lsp.lua")
-	local configs = vim.tbl_extend("force", lsp_configs(capabilities), user_lsp.configs)
+	local configs = vim.tbl_extend("force", lsp_configs(), user_lsp.configs)
 
 	for lsp, config in pairs(configs) do
 		vim.lsp.config(lsp, config)
