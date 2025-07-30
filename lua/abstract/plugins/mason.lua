@@ -51,6 +51,8 @@ spec.setup = function(ensure_lsp)
 	}
 	require("mason").setup(config)
 	require("abstract.plugins.mason-lspconfig").setup(ensure_lsp)
+	-- must load after mason
+	require("abstract.plugins.mason-nvim-dap").setup()
 end
 
 return spec
