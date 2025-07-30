@@ -1,22 +1,25 @@
 local M = {}
 local groups = {
-	close         = "Close",
-	debug         = "Debug",
-	debug_ui      = "UI",
-	files         = "Files",
-	git           = "Version Control - Git",
-	git_lazygit   = "Lazygit",
-	git_more      = "More git",
-	git_picker    = "Picker",
-	http          = "HTTP",
-	log           = "Logs",
-	lsp           = "LSP",
-	lsp_preview   = "Preview",
-	lsp_trouble   = "Trouble",
-	lsp_workspace = "Workspace",
-	terminal      = "Terminal",
-	window        = "Window",
-	run           = "Run Code"
+	close           = "Close",
+	debug           = "Debug",
+	debug_ui        = "UI",
+	files           = "Files",
+	git             = "Version Control - Git",
+	git_lazygit     = "Lazygit",
+	git_more        = "More git",
+	git_picker      = "Picker",
+	go              = "Go",
+	http            = "HTTP",
+	log             = "Logs",
+	lsp             = "LSP",
+	lsp_preview     = "Preview",
+	lsp_trouble     = "Trouble",
+	lsp_workspace   = "Workspace",
+	manager         = "Manager",
+	manager_session = "Session",
+	run             = "Run Code",
+	telescope       = "Telescope",
+	terminal        = "Terminal",
 }
 
 -- Mappings that don't depend on any plugin
@@ -54,24 +57,30 @@ M.override = {
 -- Mappings that depends on plugin
 M.plugin = {
 	["folke/which-key.nvim"] = {
-		{ "<leader>?", "<CMD> lua require('which-key').show({ global = false }) <CR>", desc = "Buffer Local Keymaps (which-key)" },
+		{ "<leader>?", function() require('which-key').show({ global = false }) end, desc = "Buffer Local Keymaps /which-key" },
 	},
 
 	["nvim-telescope/telescope.nvim"] = {
-		{ "t",     group = "Telescope" },
+		{ "t",     group = groups.telescope },
 		{ "tt",    function() require('telescope.builtin').builtin() end,                                    desc = "Telescope builtin" },
 		{ "tc",    function() require('telescope.builtin').commands() end,                                   desc = "Commands" },
 		{ "th",    function() require('telescope.builtin').help_tags() end,                                  desc = "Help tags" },
 		{ "tm",    function() require('telescope.builtin').keymaps() end,                                    desc = "Mappings" },
 		{ "tw",    function() require('telescope.builtin').current_buffer_fuzzy_find() end,                  desc = "Find word (current file)" },
-		{ "tg",    function() require('telescope').extensions.live_grep_args.live_grep_args() end,           desc = "Find word (project wise)" },
-		{ "tG",    function() require('telescope-live-grep-args.shortcuts').grep_word_under_cursor() end,    desc = "Find word under cursor (project wise)" },
 		-- Find files from current file's project
-		{ "tp",    function() require('telescope').extensions.project.project {} end,                        desc = "Projects picker" },
 		{ "<C-p>", function() require('telescope.builtin').find_files() end,                                 desc = "Find File (project dir)", },
 		-- Show all files from current working directory
 		{ "<C-b>", function() require('telescope.builtin').buffers() end,                                    desc = "Opened buffers", },
 		{ "<C-f>", function() require('telescope.builtin').find_files({ cwd = vim.fn.expand('%:p:h') }) end, desc = "Find File (current dir)", },
+	},
+	["nvim-telescope/telescope.nvim/project"] = {
+		{ "<Leader>m",  group = groups.manager },
+		{ "<Leader>mp", function() require('telescope').extensions.project.project {} end, desc = "Projects" },
+	},
+	["nvim-telescope/telescope.nvim/live_grep_args"] = {
+		{ "t",  group = groups.telescope },
+		{ "tg", function() require('telescope').extensions.live_grep_args.live_grep_args() end,        desc = "Find word (project wise)" },
+		{ "tG", function() require('telescope-live-grep-args.shortcuts').grep_word_under_cursor() end, desc = "Find word under cursor (project wise)" },
 	},
 
 	["neovim/nvim-lspconfig"] = {
@@ -115,25 +124,6 @@ M.plugin = {
 		},
 	},
 
-	["cbochs/grapple.nvim"] = {
-		{
-			{ "<Leader>g",  group = "Grapple" },
-			{ "<Leader>gt", "<CMD>Grapple open_tags<CR>",      desc = "Show tags" },
-			{ "<Leader>gl", "<CMD>Grapple open_loaded<CR>",    desc = "Show loaded" },
-			{ "<Leader>gs", "<CMD>Grapple open_scopes<CR>",    desc = "Show scopes" },
-			{ "<Leader>ga", "<CMD>Grapple toggle<CR>",         desc = "Tag (toggle)" },
-			{ "<Leader>gk", "<CMD>Grapple toggle_tags<CR>",    desc = "Tags (toggle)" },
-			{ "<Leader>gK", "<CMD>Grapple toggle_scopes<CR>",  desc = "Scopes (toggle)" },
-			{ "<Leader>gn", "<CMD>Grapple cycle forward<CR>",  desc = "Goto next tag" },
-			{ "<Leader>gp", "<CMD>Grapple cycle backward<CR>", desc = "Goto previous tag" },
-		},
-		{ "<M-1>", "<CMD>Grapple select index=1<CR>", desc = "Grapple select 1" },
-		{ "<M-2>", "<CMD>Grapple select index=2<CR>", desc = "Grapple select 2" },
-		{ "<M-3>", "<CMD>Grapple select index=3<CR>", desc = "Grapple select 3" },
-		{ "<M-4>", "<CMD>Grapple select index=4<CR>", desc = "Grapple select 4" },
-		{ "<M-5>", "<CMD>Grapple select index=5<CR>", desc = "Grapple select 5" },
-	},
-
 	["folke/trouble.nvim"] = {
 		{ "<leader>lt",  group = groups.lsp_trouble },
 		{ "<Leader>ltt", "<CMD>Trouble diagnostics toggle<CR>",                        desc = "Diagnostics - project" },
@@ -150,12 +140,6 @@ M.plugin = {
 
 	["smoka7/hop.nvim"] = {
 		{ "f", "<CMD>lua require'hop'.hint_words()<CR>", desc = "Jump anywhere" },
-	},
-
-	["Shatur/neovim-session-manager"] = {
-		{ ";s",  group = "Session Manager" },
-		{ ";sl", ":SessionManager load_session<CR>",   desc = "Load sessions" },
-		{ ";sd", ":SessionManager delete_session<CR>", desc = "Delete sessions" },
 	},
 
 	["rmagatti/goto-preview"] = {
@@ -201,13 +185,13 @@ M.plugin = {
 		{ "<Leader>rh", "<CMD>lua require('kulala').jump_prev()<CR>",        desc = "Jump to the previous request" },
 		{ "<Leader>rl", "<CMD>lua require('kulala').jump_next()<CR>",        desc = "Jump to the next request" },
 		{ "<Leader>re", "<CMD>lua require('kulala').set_selected_env()<CR>", desc = "Select environment" },
-		{ "<Leader>rt", "<CMD>lua require('kulala').toggle_view()<CR>",      desc = "Response view (Toggle )" },
+		{ "<Leader>rt", "<CMD>lua require('kulala').toggle_view()<CR>",      desc = "Response view /toggle" },
 
 	},
 
 	["folke/snacks.nvim"] = {
 		{ "<Leader>L",  group = groups.log },
-		{ "<Leader>Ln", "<CMD>lua Snacks.notifier.show_history()<CR>", desc = "Notifications history - snacks" },
+		{ "<Leader>Ln", "<CMD>lua Snacks.notifier.show_history()<CR>", desc = "Notification history /snacks" },
 	},
 	["folke/snacks.nvim/bufdelete"] = {
 		{ "<M-q>",      group = groups.close },
@@ -230,17 +214,13 @@ M.plugin = {
 	},
 
 	["Abstract-IDE/abstract-plugs.nvim/window"] = {
-		{ "<Leader>m",  group = groups.window },
-		{ "<Leader>mm", function() require("abs").window().toggle.maximize() end, desc = "Window maximizer (toggle)" },
-		{
-			mode = { "i", "n", "t" },
-			{ "<M-m>", function() require("abs").window().toggle.maximize() end, desc = "Window maximizer (toggle)" },
-		}
+		mode = { "i", "n", "t" },
+		{ "<M-m>", function() require("abs").window().toggle.maximize() end, desc = "Window maximizer /toggle" },
 	},
 	["Abstract-IDE/abstract-plugs.nvim/terminal"] = {
 		mode = { "i", "n", "t" },
 		{ "<C>",   group = groups.terminal },
-		{ "<C-t>", function() require("abs").terminal().toggle() end, desc = "New toggle (ToggleTerm)" },
+		{ "<C-t>", function() require("abs").terminal().toggle() end, desc = "Terminal /toggle" },
 		{
 			mode = { "t" },
 			{ "<C-n>", function() require("abs").terminal().new() end,  desc = "Open new terminal" },
@@ -256,7 +236,7 @@ M.plugin = {
 		{ "<Leader>di", function() require('dap').step_into() end,         desc = "Step into" },
 		{ "<Leader>do", function() require('dap').step_out() end,          desc = "Step out" },
 		--
-		{ "<Leader>db", function() require('dap').toggle_breakpoint() end, desc = "Breakpoint - toggle" },
+		{ "<Leader>db", function() require('dap').toggle_breakpoint() end, desc = "Breakpoint /toggle" },
 		{ "<Leader>dr", function() require('dap').repl.open() end,         desc = "Open REPL" },
 		{ "<Leader>dl", function() require('dap').run_last() end,          desc = "Run last" },
 		{
@@ -279,6 +259,34 @@ M.plugin = {
 				desc = "Scopes widget"
 			},
 		}
+	},
+
+	["cbochs/grapple.nvim"] = {
+		{ "<Leader>g",  group = groups.go },
+		{ "<Leader>gt", ":Grapple open_tags<CR>",      desc = "Show tags" },
+		{ "<Leader>gl", ":Grapple open_loaded<CR>",    desc = "Show loaded" },
+		{ "<Leader>gs", ":Grapple open_scopes<CR>",    desc = "Show scopes" },
+		{ "<Leader>ga", ":Grapple toggle<CR>",         desc = "Tag /toggle" },
+		{ "<Leader>gk", ":Grapple toggle_tags<CR>",    desc = "Tags /toggle" },
+		{ "<Leader>gK", ":Grapple toggle_scopes<CR>",  desc = "Scopes /toggle" },
+		{ "<Leader>gn", ":Grapple cycle forward<CR>",  desc = "Goto next tag" },
+		{ "<Leader>gp", ":Grapple cycle backward<CR>", desc = "Goto previous tag" },
+		{ "<M-1>",      ":Grapple select index=1<CR>", desc = "Grapple select 1" },
+		{ "<M-2>",      ":Grapple select index=2<CR>", desc = "Grapple select 2" },
+		{ "<M-3>",      ":Grapple select index=3<CR>", desc = "Grapple select 3" },
+		{ "<M-4>",      ":Grapple select index=4<CR>", desc = "Grapple select 4" },
+		{ "<M-5>",      ":Grapple select index=5<CR>", desc = "Grapple select 5" },
+	},
+
+	["Shatur/neovim-session-manager"] = {
+		{ "<Leader>ms",  group = groups.manager_session },
+		{ "<Leader>mS",  ":SessionManager available_commands<CR>",         desc = "Session commands" },
+		{ "<Leader>msc", ":SessionManager available_commands<CR>",         desc = "Session commands" },
+		{ "<Leader>msl", ":SessionManager load_session<CR>",               desc = "Load sessions" },
+		{ "<Leader>msL", ":SessionManager load_current_dir_session<CR>",   desc = "Load current dir session" },
+		{ "<Leader>mss", ":SessionManager save_current_session<CR>",       desc = "Save current session" },
+		{ "<Leader>msd", ":SessionManager delete_session<CR>",             desc = "Delete sessions" },
+		{ "<Leader>msD", ":SessionManager delete_current_dir_session<CR>", desc = "Delete current dir sessions" },
 	},
 }
 

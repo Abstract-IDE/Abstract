@@ -34,6 +34,7 @@ spec.config = function()
 	local telescope = require("telescope")
 	local actions = require("telescope.actions")
 	local action_layout = require("telescope.actions.layout")
+	local set_map = require("abstract.utils.map").set_map
 
 	telescope.setup({
 		defaults = {
@@ -83,7 +84,7 @@ spec.config = function()
 			color_devicons = true,
 			use_less = true,
 			set_env = { ["COLORTERM"] = "truecolor" }, -- default = nil,
-			path_display = { "truncate" }, -- How file paths are displayed ()
+			path_display = { "truncate" },    -- How file paths are displayed ()
 
 			preview = {
 				msg_bg_fillchar = " ",
@@ -130,10 +131,10 @@ spec.config = function()
 		extensions = {
 			["ui-select"] = require("abstract.plugins.extension.telescope-ui-select").config,
 			file_browser = require("abstract.plugins.extension.telescope-file-browser").config,
-			project = require("abstract.plugins.extension.telescope-project").config,
+			project = require("abstract.plugins.extension.telescope-project").config(set_map),
 			fzf = require("abstract.plugins.extension.telescope-fzf-native").config,
 			media_files = require("abstract.plugins.extension.telescope-media-files").config,
-			live_grep_args = require("abstract.plugins.extension.telescope-live-grep-args").config,
+			live_grep_args = require("abstract.plugins.extension.telescope-live-grep-args").config(set_map),
 		},
 	})
 
