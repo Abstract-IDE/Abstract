@@ -1,8 +1,8 @@
 --[[
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ─────────────────────────────────────────────────
-Plugin:    windows.nvim
-Github:    https://github.com/anuvyklack/windows.nvim
+Plugin: windows.nvim
+Source: https://github.com/anuvyklack/windows.nvim
 
 Automatically expand width of the current window.
 Maximizes and restore it. And all this with nice animations!

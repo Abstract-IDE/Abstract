@@ -1,8 +1,8 @@
 --[[
 --━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ────────────────────────────────────────────────
-Plugin:    gitgraph.nvim
-Github:    https://github.com/isakbm/gitgraph.nvim
+Plugin: gitgraph.nvim
+Source: https://github.com/isakbm/gitgraph.nvim
 
 Git Graph plugin for neovim.
 ────────────────────────────────────────────────

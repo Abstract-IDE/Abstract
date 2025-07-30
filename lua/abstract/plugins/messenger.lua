@@ -2,7 +2,7 @@
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ────────────────────────────────────────────────
 Plugin: messenger.nvim
-Github: https://github.com/lsig/messenger.nvim
+Source: https://github.com/lsig/messenger.nvim
 
 Reveal the commit message under the cursor - Written in Lua
 ────────────────────────────────────────────────

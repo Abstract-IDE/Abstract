@@ -2,7 +2,7 @@
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ─────────────────────────────────────────────────
 Plugin: copilot.lua
-Github: https://github.com/zbirenbaum/copilot.lua
+Source: https://github.com/zbirenbaum/copilot.lua
 
 Fully featured & enhanced replacement for copilot.vim
 complete with API for interacting with Github Copilot
