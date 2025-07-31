@@ -66,12 +66,10 @@ M.plugin = {
 		{ "tc",    function() require('telescope.builtin').commands() end,                                   desc = "Commands" },
 		{ "th",    function() require('telescope.builtin').help_tags() end,                                  desc = "Help tags" },
 		{ "tm",    function() require('telescope.builtin').keymaps() end,                                    desc = "Mappings" },
-		{ "tw",    function() require('telescope.builtin').current_buffer_fuzzy_find() end,                  desc = "Find word (current file)" },
-		-- Find files from current file's project
-		{ "<C-p>", function() require('telescope.builtin').find_files() end,                                 desc = "Find File (project dir)", },
-		-- Show all files from current working directory
-		{ "<C-b>", function() require('telescope.builtin').buffers() end,                                    desc = "Opened buffers", },
-		{ "<C-f>", function() require('telescope.builtin').find_files({ cwd = vim.fn.expand('%:p:h') }) end, desc = "Find File (current dir)", },
+		{ "tw",    function() require('telescope.builtin').current_buffer_fuzzy_find() end,                  desc = "Find word /current file" },
+		{ "<M-b>", function() require('telescope.builtin').buffers() end,                                    desc = "Opened buffers", },
+		{ "<M-f>", function() require('telescope.builtin').find_files() end,                                 desc = "Find File /project dir", },
+		{ "<M-F>", function() require('telescope.builtin').find_files({ cwd = vim.fn.expand('%:p:h') }) end, desc = "Find File /current dir", },
 	},
 	["nvim-telescope/telescope.nvim/project"] = {
 		{ "<Leader>m",  group = groups.manager },
