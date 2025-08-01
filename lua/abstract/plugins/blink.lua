@@ -144,14 +144,15 @@ spec.opts = {
 		},
 		menu = {
 			enabled = true,
-			min_width = 15,
-			max_height = 12,
-			border = "single",
+			min_width = 10,
+			max_height = 16,
+			border = "rounded",
 			scrolloff = 0, -- keep the cursor X lines away from the top/bottom of the window
 
 			draw = {
 				align_to = "none", -- Aligns the keyword you've typed to a component in the menu. 'label' or 'none' to disable, or 'cursor' to align to the cursor
-				columns = { { "kind_icon", "label", "kind", gap = 1 } },
+				-- columns = { { "kind_icon", "label", "kind", gap = 1 } },
+				columns = { { "kind_icon", "label", gap = 2 } },
 				components = {
 					label = {
 						width = { max = 40, fill = true },
@@ -203,7 +204,7 @@ spec.opts = {
 			window = {
 				max_width = 60,
 				max_height = 20,
-				border = "single",
+				border = "rounded",
 			},
 		},
 	},
@@ -215,7 +216,7 @@ spec.opts = {
 		kind_icons = {
 			Text = "",
 			Method = "",
-			Function = "󰊕",
+			Function = "󰊕 ƒ",
 			Constructor = "󰒓",
 
 			Field = "󰜢",
