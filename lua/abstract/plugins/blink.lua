@@ -216,7 +216,7 @@ spec.opts = {
 		kind_icons = {
 			Text = "",
 			Method = "",
-			Function = "󰊕 ƒ",
+			Function = "ƒ",
 			Constructor = "󰒓",
 
 			Field = "󰜢",
