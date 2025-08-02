@@ -11,8 +11,6 @@ Quickstart configs for Nvim LSP
 
 local spec = {
 	"neovim/nvim-lspconfig",
-	lazy = true,
-	event = { "CmdlineEnter", "BufRead", "BufNewFile", "InsertEnter" },
 }
 
 ---@return table<string,vim.lsp.Config>
@@ -97,7 +95,7 @@ local lsp_configs = function()
 	}
 end
 
-spec.config = function()
+local diagnostics_config = function()
 	-- https://neovim.io/doc/user/diagnostic.html#vim.diagnostic.config()
 	local severity = vim.diagnostic.severity
 
@@ -154,6 +152,10 @@ spec.config = function()
 			},
 		},
 	})
+end
+
+spec.setup = function()
+	diagnostics_config()
 
 	-- hover and signature help is handled by nvim patrickpichler/hovercraft.nvim
 	-- handlers = vim.lsp.handlers
@@ -178,16 +180,18 @@ spec.config = function()
 		end,
 	})
 
-	local user_lsp = require("override.lsp")
-	-- Merge with user defined configs ("~/.config/nvim/lua/override/lsp.lua")
+	local user_lsp = require("override.lsp") -- ~/.config/nvim/lua/override/lsp.lua
+	-- Merge with user defined configs
 	local configs = vim.tbl_extend("force", lsp_configs(), user_lsp.configs)
 
+	-- configure LSP clients
 	for lsp, config in pairs(configs) do
 		vim.lsp.config(lsp, config)
 	end
 
-	require("abstract.plugins.mason").setup(user_lsp.ensure_installed)
-	require("abstract.plugins.none-ls").setup()
+	return {
+		ensure_installed = user_lsp.ensure_installed
+	}
 end
 
 return spec

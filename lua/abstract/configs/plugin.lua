@@ -35,6 +35,7 @@ M.plugins = {
 	"markview",
 	"mason",
 	"mason-lspconfig",
+	"mason-null-ls",
 	"mason-nvim-dap",
 	"neo-tree",
 	"noice",

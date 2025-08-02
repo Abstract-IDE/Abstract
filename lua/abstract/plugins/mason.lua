@@ -16,8 +16,8 @@ local spec = {
 	event = { "CmdlineEnter", "BufRead", "BufNewFile", "InsertEnter" },
 }
 
-spec.setup = function(ensure_lsp)
-	local config = {
+spec.config = function()
+	require("mason").setup({
 		-- Controls to which degree logs are written to the log file. It's useful to set this to vim.log.levels.DEBUG when
 		-- debugging issues with package installations.
 		log_level = vim.log.levels.INFO,
@@ -48,11 +48,18 @@ spec.setup = function(ensure_lsp)
 				package_uninstalled = "✗",
 			},
 		},
-	}
-	require("mason").setup(config)
-	require("abstract.plugins.mason-lspconfig").setup(ensure_lsp)
-	-- must load after mason
+	})
+
+	-- === must load after mason ===
+
+	local ensure_installed = require('abstract.plugins.lspconfig').setup()
+	require('abstract.plugins.mason-lspconfig').setup(ensure_installed)
+
 	require("abstract.plugins.mason-nvim-dap").setup()
+
+	-- null/none-ls
+	require("abstract.plugins.mason-null-ls").setup()
+	require("abstract.plugins.none-ls").setup()
 end
 
 return spec

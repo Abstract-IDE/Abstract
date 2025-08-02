@@ -12,6 +12,7 @@ mason-nvim-dap bridges mason.nvim with the nvim-dap plugin
 
 local spec = {
 	"jay-babu/mason-nvim-dap.nvim",
+	lazy = true,
 }
 
 spec.setup = function()

@@ -28,21 +28,16 @@ M.builtin = {
 
 	{ "\\",         ":bnext<CR>",     desc = "Goto next buffer" },
 	{ "|",          ":bprevious<CR>", desc = "Goto previous buffer" },
+	-- === Window ===
 	{ "<M-q><M-w>", ":close <CR>",    desc = "Close current window" },
 	{ "<M-q><S-w>", ":only <CR>",     desc = "Close all window except current one" },
-
-	-- TAB (:h tab)
-	{ "<M-q>t",     ":tabclose<CR>",  desc = "Close current tab" },
-	{ "<M-q>T",     ":tabonly<CR>",   desc = "Close all other tab" },
+	-- === TAB ===
+	{ "<M-q><M-t>", ":tabclose<CR>",  desc = "Close current tab" },
+	{ "<M-q><S-t>", ":tabonly<CR>",   desc = "Close all other tab" },
 	{ "<Tab>",      ":tabn<CR>",      desc = "Goto next tab" },
 	{ "<S-Tab>",    ":tabp<CR>",      desc = "Goto previous tab" },
 	{ "<M-S-,>",    ":-tabmove<CR>",  desc = "Move tab to next position" },
 	{ "<M-S-.>",    ":+tabmove<CR>",  desc = "Move tab to previous position" },
-
-	{ "<M-h>",      "<C-w>h",         desc = "Move cursor to left window" },
-	{ "<M-l>",      "<C-w>l",         desc = "Move cursor to right window" },
-	{ "<M-k>",      "<C-w>k",         desc = "Move cursor to above window" },
-	{ "<M-j>",      "<C-w>j",         desc = "Move cursor to below window" },
 
 	-- LOGS
 	{ "<Leader>Lm", ":messages<CR>",  desc = "Messages history" },
@@ -95,7 +90,7 @@ M.plugin = {
 		{ "<Leader>li", function() vim.lsp.buf.implementation() end,                                   desc = "Lists all symbol implementations", },
 		{ "<Leader>ls", function() vim.lsp.buf.signature_help() end,                                   desc = "Show symbol signature information", },
 		{ "<Leader>lT", function() vim.lsp.buf.type_definition() end,                                  desc = "Jumps to type definition" },
-		{ "<Leader>lh", function() vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled()) end, desc = "Inlay hints (toggle)" },
+		{ "<Leader>lh", function() vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled()) end, desc = "Inlay hints /toggle" },
 		{ "<Leader>ln", function() vim.diagnostic.jump({ count = 1, float = true }) end,               desc = "Move to next diagnostic" },
 		{ "<Leader>lb", function() vim.diagnostic.jump({ count = -1, float = true }) end,              desc = "Move to previous diagnostic" },
 		{ "<Leader>lr", function() require('telescope.builtin').lsp_references() end,                  desc = "Lsp references" },
@@ -124,10 +119,10 @@ M.plugin = {
 
 	["folke/trouble.nvim"] = {
 		{ "<leader>lt",  group = groups.lsp_trouble },
-		{ "<Leader>ltt", "<CMD>Trouble diagnostics toggle<CR>",                        desc = "Diagnostics - project" },
-		{ "<leader>ltT", "<cmd>Trouble diagnostics toggle filter.buf=0<cr>",           desc = "Diagnostics - buffer" },
+		{ "<Leader>ltt", "<CMD>Trouble diagnostics toggle<CR>",                        desc = "Diagnostics /project" },
+		{ "<leader>ltT", "<cmd>Trouble diagnostics toggle filter.buf=0<cr>",           desc = "Diagnostics /buffer" },
 		{ "<leader>lts", "<cmd>Trouble symbols toggle focus=false<cr>",                desc = "Symbols" },
-		{ "<leader>ltl", "<cmd>Trouble lsp toggle focus=false win.position=right<cr>", desc = "LSP Definitions / references / ..." },
+		{ "<leader>ltl", "<cmd>Trouble lsp toggle focus=false win.position=right<cr>", desc = "LSP Definitions/references/..." },
 		{ "<leader>ltL", "<cmd>Trouble loclist toggle<cr>",                            desc = "Location List" },
 		{ "<leader>ltq", "<cmd>Trouble qflist toggle<cr>",                             desc = "Quickfix List" },
 	},
@@ -217,13 +212,13 @@ M.plugin = {
 	},
 	["Abstract-IDE/abstract-plugs.nvim/terminal"] = {
 		mode = { "i", "n", "t" },
-		{ "<C>",   group = groups.terminal },
-		{ "<C-t>", function() require("abs").terminal().toggle() end, desc = "Terminal /toggle" },
+		{ "<M-t>",      group = groups.terminal },
+		{ "<M-t><M-t>", function() require("abs").terminal().toggle() end, desc = "Terminal /toggle" },
 		{
 			mode = { "t" },
-			{ "<C-n>", function() require("abs").terminal().new() end,  desc = "Open new terminal" },
-			{ "<C-h>", function() require("abs").terminal().prev() end, desc = "Goto previous terminal" },
-			{ "<C-l>", function() require("abs").terminal().next() end, desc = "Goto next terminal" },
+			{ "<M-t>n",     function() require("abs").terminal().new() end,  desc = "Open new terminal" },
+			{ "<M-t><M-h>", function() require("abs").terminal().prev() end, desc = "Goto previous terminal" },
+			{ "<M-t><M-l>", function() require("abs").terminal().next() end, desc = "Goto next terminal" },
 		}
 	},
 
