@@ -8,6 +8,7 @@ local groups = {
 	git_lazygit     = "Lazygit",
 	git_more        = "More git",
 	git_picker      = "Picker",
+	git_repo        = "Git - Repos",
 	go              = "Go",
 	http            = "HTTP",
 	log             = "Logs",
@@ -196,6 +197,14 @@ M.plugin = {
 		{ "<Leader>vl",  "<CMD>lua Snacks.lazygit()<CR>",          desc = "open lazygit" },
 		{ "<Leader>vLl", "<CMD>lua Snacks.lazygit.log()<CR>",      desc = "log view" },
 		{ "<Leader>vLf", "<CMD>lua Snacks.lazygit.log_file()<CR>", desc = "log of the current file" },
+	},
+	["folke/snacks.nvim/gh"] = {
+		{ "<Leader>vg", group = groups.git_repo },
+		{ "<Leader>vgp", "<CMD>lua Snacks.picker.gh_pr()<CR>",                     desc = "Browse open pull requests" },
+		{ "<Leader>vgP", "<CMD>lua Snacks.picker.gh_pr({state='all'})<CR>",        desc = "Browse open pull requests (All)",
+		{ "<Leader>vgi", "<CMD>lua Snacks.picker.gh_issue()<CR>",                  desc = "Browse open issues" },
+		{ "<Leader>vgI", "<CMD>lua Snacks.picker.gh_issue({ state = 'all' })<CR>", desc = "Browse open issues (All)" },
+		},
 	},
 	["folke/snacks.nvim/gitbrowse"] = {
 		{ "<Leader>vm",  group = groups.git_more },

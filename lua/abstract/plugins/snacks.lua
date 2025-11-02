@@ -25,6 +25,7 @@ spec.config = function()
 		bigfile = require("abstract.plugins.extension.snacks-bigfile"),
 		bufdelete = require("abstract.plugins.extension.snacks-bufdelete").config(keymap),
 		dashboard = require("abstract.plugins.extension.snacks-dashboard"),
+		gh = require("abstract.plugins.extension.snacks-gh").config(keymap),
 		gitbrowse = require("abstract.plugins.extension.snacks-gitbrowse").config(keymap),
 		indent = require("abstract.plugins.extension.snacks-indent"),
 		input = require("abstract.plugins.extension.snacks-input"),
