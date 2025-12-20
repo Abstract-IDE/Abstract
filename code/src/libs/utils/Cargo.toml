@@ -1,0 +1,6 @@
+[package]
+name = "abstract-utils"
+version = { workspace = true }
+edition = { workspace = true }
+
+[dependencies]

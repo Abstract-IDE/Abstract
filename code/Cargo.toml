@@ -1,0 +1,47 @@
+[workspace]
+resolver = "2"
+members = [
+  # core
+  "src/core/indent",
+  # libs
+  "src/libs/utils",
+  "src/neovim/editor",
+]
+
+[workspace.package]
+version       = "0.1.0"
+edition       = "2024"
+rust-version  = "1.91.1"
+license       = "MIT"
+authors       = ["Ali Shahid <code@AlixShahid.com>"]
+description   = "Abstract the neovim"
+categories    = ["editor", "ide"]
+keywords      = ["neovim", "ide", "editor"]
+documentation = "https://github.com/Abstract-IDE/Abstract"
+repository    = "https://github.com/Abstract-IDE/Abstract"
+homepage      = "https://github.com/Abstract-IDE/Abstract"
+
+
+[workspace.dependencies]
+# === Core === #
+wsc_indent = { package = "abstract-indent", path = "src/core/indent" }
+# === Libraries === #
+wsl_utils = { package = "abstract-utils", path = "src/libs/utils" }
+
+# === 3rd Parties === #
+anyhow             = { version = "1.0.100" }
+mlua               = { version = "0.11.5", default-features = false, features = ["luajit52", "async", "send", "anyhow", "serde", "macros"] }
+nvim-oxi           = { version = "0.6.0", features = ["neovim-nightly", "test"] }
+serde              = { version = "1.0.228", features = ["derive"] }
+serde_json         = { version = "1.0.145" }
+thiserror          = { version = "2.0.17" }
+tokio              = { version = "1.48.0", features = ["sync", "macros", "rt-multi-thread", "fs", "time"] }
+tracing            = { version = "0.1.44" }
+tracing-subscriber = { version = "0.3.22", features = ["env-filter"] }
+
+
+[profile.release]
+lto           = true
+codegen-units = 1
+strip         = true
+panic         = "abort"
