@@ -1,11 +1,13 @@
 [workspace]
 resolver = "2"
 members = [
-  # core
+  # Core
   "src/core/indent",
-  # libs
+  # Libs
   "src/libs/utils",
   "src/neovim/editor",
+  # Plugins
+  "src/plugins/autogood"
 ]
 
 [workspace.package]
@@ -24,14 +26,17 @@ homepage      = "https://github.com/Abstract-IDE/Abstract"
 
 [workspace.dependencies]
 # === Core === #
-wsc_indent = { package = "abstract-indent", path = "src/core/indent" }
+wsc_indent = { package = "abstract-indent", path = "./src/core/indent" }
 # === Libraries === #
-wsl_utils = { package = "abstract-utils", path = "src/libs/utils" }
+wsl_utils = { package = "abstract-utils", path = "./src/libs/utils" }
+# === Plugins === #
+wsp_autogood = { package = "abstract-autogood", path = "./src/plugins/autogood" }
 
 # === 3rd Parties === #
 anyhow             = { version = "1.0.100" }
 mlua               = { version = "0.11.5", default-features = false, features = ["luajit52", "async", "send", "anyhow", "serde", "macros"] }
 nvim-oxi           = { version = "0.6.0", features = ["neovim-nightly", "test"] }
+once_cell          = { version = "1.21.3" }
 serde              = { version = "1.0.228", features = ["derive"] }
 serde_json         = { version = "1.0.145" }
 thiserror          = { version = "2.0.17" }

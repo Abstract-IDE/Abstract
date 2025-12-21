@@ -1,0 +1,15 @@
+[package]
+name = "abstract-autogood"
+version      = { workspace = true }
+edition      = { workspace = true }
+authors      = { workspace = true }
+license      = { workspace = true }
+rust-version = { workspace = true }
+
+[dependencies]
+# local libraries
+wsl_utils  = { workspace = true }
+
+# 3rd parties libraries
+nvim-oxi  = { workspace = true }
+once_cell = { workspace = true }

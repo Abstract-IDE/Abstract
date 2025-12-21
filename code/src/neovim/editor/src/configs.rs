@@ -17,12 +17,7 @@ use crate::utils::api::{
 pub struct Config {}
 
 impl Config {
-    pub fn new() -> Self {
-        let _ = Self::init();
-        Self {}
-    }
-
-    fn init() -> nvim_oxi::Result<()> {
+    pub fn init() -> nvim_oxi::Result<()> {
         // ----------------------------
         // Leader keys
         // ----------------------------

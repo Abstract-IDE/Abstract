@@ -14,16 +14,17 @@ crate-type = ["cdylib"]
 
 [dependencies]
 # local libraries
-wsc_indent = { workspace = true }
-wsl_utils  = { workspace = true }
+wsc_indent   = { workspace = true }
+wsl_utils    = { workspace = true }
+wsp_autogood = { workspace = true }
 
 # 3rd parties libraries
-nvim-oxi  = { workspace = true }
-tokio     = { workspace = true }
-thiserror = { workspace = true }
 anyhow    = { workspace = true }
 mlua      = { workspace = true }
-once_cell = "1.21.3"
+nvim-oxi  = { workspace = true }
+once_cell = { workspace = true }
+thiserror = { workspace = true }
+tokio     = { workspace = true }
 
 
 [build-dependencies]

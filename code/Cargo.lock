@@ -6,6 +6,7 @@ version = 4
 name = "abstract"
 version = "0.1.0"
 dependencies = [
+ "abstract-autogood",
  "abstract-indent",
  "abstract-utils",
  "anyhow",
@@ -14,6 +15,15 @@ dependencies = [
  "once_cell",
  "thiserror",
  "tokio",
+]
+
+[[package]]
+name = "abstract-autogood"
+version = "0.1.0"
+dependencies = [
+ "abstract-utils",
+ "nvim-oxi",
+ "once_cell",
 ]
 
 [[package]]
