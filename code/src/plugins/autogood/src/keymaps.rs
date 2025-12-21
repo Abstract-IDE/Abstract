@@ -1,5 +1,6 @@
 use nvim_oxi::{
-    Function, Result,
+    Function,
+    Result, //
     api::{
         self,
         opts::SetKeymapOpts,

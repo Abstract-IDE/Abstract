@@ -5,6 +5,7 @@ use nvim_oxi::{
         opts::{CreateAugroupOpts, CreateAutocmdOpts},
     },
 };
+use wsl_utils::neovim::types::events::Events;
 
 pub struct AutoCmds {}
 
@@ -33,7 +34,7 @@ impl AutoCmds {
             .patterns(["*"])
             .command(cmd)
             .build();
-        create_autocmd(["TextYankPost"], &opts)?;
+        create_autocmd([Events::TextYankPost.as_ref()], &opts)?;
 
         Ok(())
     }
@@ -46,7 +47,7 @@ impl AutoCmds {
             .command(r#"if line("'\"") > 0 && line("'\"") <= line("$") | exe "normal! g`\"" | endif"#)
             .build();
 
-        create_autocmd(["BufWinEnter"], &opts)?;
+        create_autocmd([Events::BufWinEnter.as_ref()], &opts)?;
 
         Ok(())
     }
@@ -59,7 +60,7 @@ impl AutoCmds {
             .command("%s/\\s\\+$//e")
             .build();
 
-        create_autocmd(["BufWritePre"], &opts)?;
+        create_autocmd([Events::BufWritePre.as_ref()], &opts)?;
 
         Ok(())
     }
@@ -72,7 +73,7 @@ impl AutoCmds {
             .command("setlocal formatoptions-=c formatoptions-=r formatoptions-=o")
             .build();
 
-        create_autocmd(["BufEnter", "FileType"], &opts)?;
+        create_autocmd([Events::BufEnter.as_ref(), Events::FileType.as_ref()], &opts)?;
 
         Ok(())
     }
@@ -85,7 +86,7 @@ impl AutoCmds {
             .command("let @/ = ''")
             .build();
 
-        create_autocmd(["BufWinEnter"], &opts)?;
+        create_autocmd([Events::BufWinEnter.as_ref()], &opts)?;
 
         Ok(())
     }
@@ -98,7 +99,7 @@ impl AutoCmds {
             .command("nnoremap <c-z> <nop>")
             .build();
 
-        create_autocmd(["BufEnter"], &opts)?;
+        create_autocmd([Events::BufEnter.as_ref()], &opts)?;
 
         Ok(())
     }

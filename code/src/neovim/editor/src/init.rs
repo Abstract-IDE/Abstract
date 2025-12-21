@@ -1,5 +1,4 @@
 use nvim_oxi::{self};
-
 use wsp_autogood::{self};
 
 use crate::{
