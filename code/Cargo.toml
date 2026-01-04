@@ -2,7 +2,7 @@
 resolver = "2"
 members = [
   # Core
-  "src/core/indent",
+  "src/core/abspm",
   # Libs
   "src/libs/utils",
   "src/neovim/editor",
@@ -26,26 +26,36 @@ homepage      = "https://github.com/Abstract-IDE/Abstract"
 
 [workspace.dependencies]
 # === Core === #
-wsc_indent = { package = "abstract-indent", path = "./src/core/indent" }
+wc_abspm = { package = "abspm", path = "./src/core/abspm" }
 # === Libraries === #
-wsl_utils = { package = "abstract-utils", path = "./src/libs/utils" }
+wl_utils = { package = "abstract-utils", path = "./src/libs/utils" }
 # === Plugins === #
-wsp_autogood = { package = "abstract-autogood", path = "./src/plugins/autogood" }
+wp_autogood = { package = "abstract-autogood", path = "./src/plugins/autogood" }
 
 # === 3rd Parties === #
 anyhow             = { version = "1.0.100" }
+chrono             = { version = "0.4.42", features = ["serde"] }
+dirs               = { version = "6.0.0" }
+futures            = { version = "0.3.31" }
+git2               = { version = "0.20.3", default-features = false, features = ["ssh", "https"] }
+hex                = { version = "0.4.3" }
 mlua               = { version = "0.11.5", default-features = false, features = ["luajit52", "async", "send", "anyhow", "serde", "macros"] }
-nvim-oxi           = { version = "0.6.0", features = ["neovim-nightly", "test"] }
+nvim-oxi           = { version = "0.6.0", features = ["neovim-nightly", "mlua", "test"] }
 once_cell          = { version = "1.21.3" }
+parking_lot        = { version = "0.12.5" }
 serde              = { version = "1.0.228", features = ["derive"] }
 serde_json         = { version = "1.0.145" }
+sha2               = { version = "0.10.9" }
+shellexpand        = { version = "3.1.1" }
 strum              = { version = "0.27.2" }
 strum_macros       = { version = "0.27.2" }
+tempfile           = { version = "3.24.0" }
 thiserror          = { version = "2.0.17" }
-tokio              = { version = "1.48.0", features = ["sync", "macros", "rt-multi-thread", "fs", "time"] }
+tokio              = { version = "1.48.0", features = ["sync", "macros", "rt-multi-thread", "fs", "time", "process"] }
+tokio-test         = { version = "0.4.4" }
+toml               = { version = "0.9.10" }
 tracing            = { version = "0.1.44" }
 tracing-subscriber = { version = "0.3.22", features = ["env-filter"] }
-
 
 [profile.release]
 lto           = true

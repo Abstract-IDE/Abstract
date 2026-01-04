@@ -1,0 +1,19 @@
+[package]
+name = "abspm"
+version = { workspace = true }
+edition = { workspace = true }
+
+[dependencies]
+chrono      = { workspace = true }
+dirs        = { workspace = true }
+futures     = { workspace = true }
+git2        = { workspace = true }
+hex         = { workspace = true }
+parking_lot = { workspace = true }
+sha2        = { workspace = true }
+shellexpand = { workspace = true }
+toml        = { workspace = true }
+
+[dev-dependencies]
+tempfile    = { workspace = true }
+tokio-test  = { workspace = true }

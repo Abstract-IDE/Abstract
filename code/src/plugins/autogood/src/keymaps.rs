@@ -1,8 +1,8 @@
 use nvim_oxi::{
-    Function,
-    Result, //
+    Function, Result,
     api::{
-        self,
+        command,
+        get_current_line,
         opts::SetKeymapOpts,
         set_keymap,
         types::Mode, //
@@ -28,12 +28,12 @@ impl Mapping {
 
     pub fn smart_dd() -> Result<()> {
         let callback = Function::from_fn(move |_| -> Result<()> {
-            let line = api::get_current_line()?;
+            let line = get_current_line()?;
 
             if line.trim().is_empty() {
-                api::command("normal! \"_dd")?;
+                command("normal! \"_dd")?;
             } else {
-                api::command("normal! dd")?;
+                command("normal! dd")?;
             }
 
             Ok(())
@@ -41,7 +41,7 @@ impl Mapping {
 
         let opts = SetKeymapOpts::builder().noremap(true).silent(true).callback(callback).build();
 
-        api::set_keymap(Mode::Normal, "dd", "", &opts)?;
+        set_keymap(Mode::Normal, "dd", "", &opts)?;
 
         Ok(())
     }

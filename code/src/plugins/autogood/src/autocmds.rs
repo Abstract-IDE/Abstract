@@ -5,7 +5,8 @@ use nvim_oxi::{
         opts::{CreateAugroupOpts, CreateAutocmdOpts},
     },
 };
-use wsl_utils::neovim::types::events::Events;
+
+use wl_utils::neovim::types::events::Events;
 
 pub struct AutoCmds {}
 

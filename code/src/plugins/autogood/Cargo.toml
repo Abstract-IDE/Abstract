@@ -8,7 +8,7 @@ rust-version = { workspace = true }
 
 [dependencies]
 # local libraries
-wsl_utils  = { workspace = true }
+wl_utils  = { workspace = true }
 
 # 3rd parties libraries
 nvim-oxi  = { workspace = true }
