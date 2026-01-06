@@ -1,6 +1,8 @@
+use std::sync::LazyLock;
+
 use nvim_oxi::mlua;
 
-#[allow(dead_code)]
+#[allow(unused)]
 #[derive(Hash, Eq, PartialEq, Debug, Clone, Copy)]
 pub enum MapKey {
     Builtin,
@@ -31,23 +33,29 @@ pub enum MapKey {
     WhichKey,
 }
 
-#[derive(Debug, Clone)]
-pub struct Mapping {
-    lua: mlua::Lua,
-}
+// Global static keymap using built-in LazyLock
+pub static KEYMAPS: LazyLock<Mapping> = LazyLock::new(Mapping::new);
 
+#[derive(Debug, Clone)]
+pub struct Mapping;
+
+#[allow(unused)]
 impl Mapping {
-    pub fn new(lua: mlua::Lua) -> Self {
-        Self { lua }
+    pub fn new() -> Self {
+        Self
     }
 
     pub fn set_map(&self, key: MapKey) -> nvim_oxi::Result<()> {
-        let which_key = format!(r#"require("which-key").add({})"#, self.get_map(key));
-        self.lua.load(which_key).exec().inspect_err(|e| {
+        let which_key = format!("require'which-key'.add({})", self.get_map(key));
+        mlua::lua().load(which_key).exec().inspect_err(|e| {
             eprintln!("{e}");
         })?;
 
         Ok(())
+    }
+
+    pub fn set_map_str(&self, key: MapKey) -> &'static str {
+        Box::leak(format!("require'which-key'.add({})", self.get_map(key)).into_boxed_str())
     }
 
     pub fn get_map(&self, key: MapKey) -> &'static str {

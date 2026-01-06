@@ -8,7 +8,8 @@ use super::configs;
 pub struct PluginManager;
 
 impl PluginManager {
-    pub fn new(lua: mlua::Lua) -> nvim_oxi::Result<Self> {
+    pub fn new() -> nvim_oxi::Result<Self> {
+        let lua = mlua::lua();
         Self::bootstrap(lua.clone())?;
         Self::setup(lua)?;
 

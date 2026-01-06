@@ -5,7 +5,10 @@ use wp_autogood::{self};
 use crate::{
     core::{
         configs::Config,
-        keymaps::{MapKey, Mapping}, //
+        keymaps::{
+            KEYMAPS,
+            MapKey, //
+        },
     },
     plugins::lazy,
     utils::runtime, //
@@ -23,15 +26,12 @@ fn libabstract() -> nvim_oxi::Result<()> {
 }
 
 fn plugins_setup() -> nvim_oxi::Result<()> {
-    let lua = nvim_oxi::mlua::lua();
-    let keymap = Mapping::new(lua.clone());
-
     wp_autogood::Init::new().keymaps().autocmds();
-    lazy::PluginManager::new(lua.clone())?;
+    lazy::PluginManager::new()?;
 
     // NOTE: this must be called after initilizing PluginManager as mapping depends on external plugin key-map
     // setup which-key for builtin keymaps (keymaps that don't depends on 3rd parties plugins)
-    keymap.set_map(MapKey::Builtin)?;
+    KEYMAPS.set_map(MapKey::Builtin)?;
 
     Ok(())
 }

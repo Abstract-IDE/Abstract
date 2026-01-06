@@ -11,17 +11,28 @@ anywhere in a document with as few keystrokes as possible
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 */
 
+use crate::core::keymaps::{
+    KEYMAPS, //
+    MapKey,
+};
+
 pub struct Plugin;
 
 impl Plugin {
     pub fn spec() -> &'static str {
-        r#"{
-            "smoka7/hop.nvim",
-            version = "*",
-            opts = {
-                keys = "qwertyuiopasdfghjklzxcvbnm",
-                jump_on_sole_occurrence = false,
-            }
-        }"#
+        let spec = format!(
+            r#"{{
+                "smoka7/hop.nvim",
+                version = "*",
+                opts = {{
+                    keys = "qwertyuiopasdfghjklzxcvbnm",
+                    jump_on_sole_occurrence = false,
+                }},
+                keys={}
+            }}"#,
+            KEYMAPS.get_map(MapKey::Hop)
+        );
+
+        Box::leak(spec.into_boxed_str())
     }
 }
