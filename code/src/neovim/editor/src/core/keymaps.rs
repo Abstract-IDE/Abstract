@@ -1,6 +1,12 @@
-use std::sync::LazyLock;
+use std::sync::{
+    LazyLock,
+    Mutex, //
+};
 
-use nvim_oxi::mlua;
+use nvim_oxi::{
+    self,
+    mlua, //
+};
 
 #[allow(unused)]
 #[derive(Hash, Eq, PartialEq, Debug, Clone, Copy)]
@@ -93,7 +99,7 @@ impl Mapping {
 // Plugin keymaps
 impl Mapping {
     pub fn builtin(&self) -> &'static str {
-        r##"{
+        r#"{
             { "\\",         ":bnext<CR>",     desc = "Goto next buffer" },
             { "|",          ":bprevious<CR>", desc = "Goto previous buffer" },
             -- Window
@@ -108,7 +114,7 @@ impl Mapping {
             { "<M-S-.>",    ":+tabmove<CR>",  desc = "Move tab to previous position" },
             -- LOGS
             { "<Leader>Lm", ":messages<CR>",  desc = "Messages history" },
-        }"##
+        }"#
     }
 
     fn which_key(&self) -> &'static str {
@@ -118,7 +124,7 @@ impl Mapping {
     }
 
     fn lsp_config(&self) -> &'static str {
-        r##"{
+        r#"{
             { "<Leader>l",  group = "LSP" },
             { "<Leader>lf", function() vim.lsp.buf.format({ timeout_ms = 3000 }) end, desc = "Format document" },
             { "<Leader>la", function() require('tiny-code-action').code_action({}) end, desc = "Code action" },
@@ -141,7 +147,7 @@ impl Mapping {
                 { "<Leader>lwl", function() print(vim.inspect(vim.lsp.buf.list_workspace_folders())) end, desc = "List workspace folders" },
             },
             { "<Leader>Ll", function() vim.cmd('tabnew ' .. vim.lsp.get_log_path()) end, desc = "LSP logs" },
-        }"##
+        }"#
     }
 
     fn hovercraft(&self) -> &'static str {
@@ -238,37 +244,37 @@ impl Mapping {
     }
 
     fn snacks(&self) -> &'static str {
-        r##"{
+        r#"{
             { "<Leader>L",  group = "Logs" },
             { "<Leader>Ln", "<CMD>lua Snacks.notifier.show_history()<CR>", desc = "Notification history /snacks" },
-        }"##
+        }"#
     }
 
     fn snacks_bufdelete(&self) -> &'static str {
-        r##"{
+        r#"{
             { "<M-q>",      group = "Close" },
             { "<M-q><M-q>", "<CMD>lua Snacks.bufdelete()<CR>", desc = "Delete current buffer" },
             { "<M-q><S-q>", "<CMD>lua Snacks.bufdelete.other()<CR>", desc = "Delete all buffers except the current one" },
-        }"##
+        }"#
     }
 
     fn snacks_lazygit(&self) -> &'static str {
-        r##"{
+        r#"{
             { "<Leader>vL",  group = "Lazygit" },
             { "<Leader>vl",  "<CMD>lua Snacks.lazygit()<CR>", desc = "open lazygit" },
             { "<Leader>vLl", "<CMD>lua Snacks.lazygit.log()<CR>", desc = "log view" },
             { "<Leader>vLf", "<CMD>lua Snacks.lazygit.log_file()<CR>", desc = "log of the current file" },
-        }"##
+        }"#
     }
 
     fn snacks_gh(&self) -> &'static str {
-        r###"{
+        r#"{
             { "<Leader>vg", group = "Git - Repos" },
             { "<Leader>vgp", "<CMD>lua Snacks.picker.gh_pr()<CR>", desc = "Browse open pull requests" },
             { "<Leader>vgP", "<CMD>lua Snacks.picker.gh_pr({state='all'})<CR>", desc = "Browse open pull requests (All)" },
             { "<Leader>vgi", "<CMD>lua Snacks.picker.gh_issue()<CR>", desc = "Browse open issues" },
             { "<Leader>vgI", "<CMD>lua Snacks.picker.gh_issue({ state = 'all' })<CR>", desc = "Browse open issues (All)" },
-        }"###
+        }"#
     }
 
     fn snacks_gitbrowse(&self) -> &'static str {
@@ -279,7 +285,7 @@ impl Mapping {
     }
 
     fn snacks_picker(&self) -> &'static str {
-        r###"{
+        r#"{
             {
                 { "<M-b>",  "<CMD>lua Snacks.picker.buffers()<CR>", desc = "Buffers" },
                 { "<M-f>",  "<CMD>lua Snacks.picker.files()<CR>" , desc = "Find Files /project" },
@@ -299,16 +305,16 @@ impl Mapping {
                 { "<Leader>m",  group = "Manager" },
                 { "<Leader>mp", "<CMD>lua Snacks.picker.projects()<CR>", desc = "Projects" },
             },
-        }"###
+        }"#
     }
 
     fn fff(&self) -> &'static str {
-        r###"{
+        r#"{
             { "<M-g>",  group = "Find" },
             { "<M-b>",  "<CMD>lua Snacks.picker.buffers()<CR>", desc = "Buffers" },
             { "<M-f>",  "<CMD>lua require('fff').find_in_git_root()<CR>" , desc = "Find Files /project" },
             { "<M-F>",  "<CMD>lua require('fff').find_files()<CR>", desc = "Find Files /current", mode = { "n", "x" } },
-        }"###
+        }"#
     }
 
     fn markview(&self) -> &'static str {
@@ -399,5 +405,37 @@ impl Mapping {
             { "<Leader>msd", ":SessionManager delete_session<CR>", desc = "Delete sessions" },
             { "<Leader>msD", ":SessionManager delete_current_dir_session<CR>", desc = "Delete current dir sessions" },
         }"#
+    }
+}
+
+pub static LOADED_PLUGINS: LazyLock<Mutex<Vec<MapKey>>> = LazyLock::new(|| Mutex::new(Vec::new()));
+
+pub struct MapLoader;
+
+impl MapLoader {
+    /// Fire-and-forget signal.
+    pub fn signal(plugin: MapKey) {
+        if let Ok(mut loaded) = LOADED_PLUGINS.lock() {
+            loaded.push(plugin);
+        } else {
+            nvim_oxi::api::err_writeln("MapLoader: LOADED_PLUGINS mutex poisoned; signal ignored");
+        }
+    }
+
+    /// Registers all collected keymaps with which-key.
+    pub fn register_all() -> nvim_oxi::Result<()> {
+        let loaded = LOADED_PLUGINS
+            .lock()
+            .map_err(|_| mlua::Error::RuntimeError("MapLoader: LOADED_PLUGINS mutex poisoned".to_string()))?;
+
+        let lua = mlua::lua();
+
+        for plugin in loaded.iter().copied() {
+            let keymap = KEYMAPS.get_map(plugin);
+            let code = format!("require('which-key').add({})", keymap);
+            lua.load(&code).exec()?;
+        }
+
+        Ok(())
     }
 }

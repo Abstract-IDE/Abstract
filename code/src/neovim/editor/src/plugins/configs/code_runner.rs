@@ -11,19 +11,23 @@ it manages projects like in intellij but without being slow
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 */
 
+use crate::core::keymaps::{KEYMAPS, MapKey};
+
 pub struct Plugin;
 
 impl Plugin {
     pub fn spec() -> &'static str {
-        let config = Self::config();
-
         let spec = format!(
             r#"{{
                 "CRAG666/code_runner.nvim",
                 event = "BufRead",
-                config = {}
+                keys = {},
+                opts = {},
+                config = function() {} end,
             }}"#,
-            config,
+            KEYMAPS.get_map(MapKey::CodeRunner),
+            Self::opts(),
+            KEYMAPS.set_map_str(MapKey::CodeRunner)
         );
 
         Box::leak(spec.into_boxed_str())
@@ -31,40 +35,38 @@ impl Plugin {
 }
 
 impl Plugin {
-    pub fn config() -> &'static str {
-        r#"function()
-            require("code_runner").setup({
-                filetype = {
-                    java = {
-                        "cd $dir &&",
-                        "javac $fileName &&",
-                        "java $fileNameWithoutExt",
-                    },
-                    python = "python3 -u",
-                    typescript = "deno run",
-                    rust = {
-                        "cd $dir &&",
-                        "rustc $fileName &&",
-                        "$dir/$fileNameWithoutExt",
-                    },
-                    c = function(...)
-                        c_base = {
-                            "cd $dir &&",
-                            "gcc $fileName -o",
-                            "/tmp/$fileNameWithoutExt",
-                        }
-                        local c_exec = {
-                            "&& /tmp/$fileNameWithoutExt &&",
-                            "rm /tmp/$fileNameWithoutExt",
-                        }
-                        vim.ui.input({ prompt = "Add more args:" }, function(input)
-                            c_base[4] = input
-                            vim.print(vim.tbl_extend("force", c_base, c_exec))
-                            require("code_runner.commands").run_from_fn(vim.list_extend(c_base, c_exec))
-                        end)
-                    end,
+    pub fn opts() -> &'static str {
+        r#"{
+            filetype = {
+                java = {
+                    "cd $dir &&",
+                    "javac $fileName &&",
+                    "java $fileNameWithoutExt",
                 },
-            })
-        end"#
+                python = "python3 -u",
+                typescript = "deno run",
+                rust = {
+                    "cd $dir &&",
+                    "rustc $fileName &&",
+                    "$dir/$fileNameWithoutExt",
+                },
+                c = function(...)
+                    c_base = {
+                        "cd $dir &&",
+                        "gcc $fileName -o",
+                        "/tmp/$fileNameWithoutExt",
+                    }
+                    local c_exec = {
+                        "&& /tmp/$fileNameWithoutExt &&",
+                        "rm /tmp/$fileNameWithoutExt",
+                    }
+                    vim.ui.input({ prompt = "Add more args:" }, function(input)
+                        c_base[4] = input
+                        vim.print(vim.tbl_extend("force", c_base, c_exec))
+                        require("code_runner.commands").run_from_fn(vim.list_extend(c_base, c_exec))
+                    end)
+                end,
+            },
+        }"#
     }
 }

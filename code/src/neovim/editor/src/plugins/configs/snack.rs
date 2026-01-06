@@ -9,12 +9,18 @@ A collection of small QoL plugins for Neovim.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 */
 
+use crate::core::keymaps::{
+    MapKey,
+    MapLoader, //
+};
+
 pub struct Plugin;
 
 impl Plugin {
     pub fn spec() -> &'static str {
-        let mut opts_parts = Vec::new();
+        MapLoader::signal(MapKey::Snacks);
 
+        let mut opts_parts = Vec::new();
         opts_parts.push(format!("notifier = {}", Self::config_notifier()));
         opts_parts.push(format!("picker   = {}", Self::config_picker()));
 
@@ -80,6 +86,8 @@ impl Plugin {
 // https://github.com/folke/snacks.nvim/blob/main/docs/picker.md
 impl Plugin {
     pub fn config_picker() -> &'static str {
+        MapLoader::signal(MapKey::SnacksPicker);
+
         r##"{
             prompt = "🔎 ", -- 
             sources = {},

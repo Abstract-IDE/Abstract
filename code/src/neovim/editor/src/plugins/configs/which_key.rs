@@ -10,6 +10,11 @@ with possible key bindings of the command you started typing.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 */
 
+use crate::core::keymaps::{
+    KEYMAPS,
+    MapKey, //
+};
+
 pub struct Plugin;
 
 impl Plugin {
@@ -19,8 +24,10 @@ impl Plugin {
             r#"{{
                 "folke/which-key.nvim",
                 event = "VeryLazy",
-                opts = {}
+                keys = {},
+                opts = {},
             }}"#,
+            KEYMAPS.get_map(MapKey::WhichKey),
             opts,
         );
 

@@ -6,8 +6,9 @@ use crate::{
     core::{
         configs::Config,
         keymaps::{
-            KEYMAPS,
-            MapKey, //
+            KEYMAPS, //
+            MapKey,
+            MapLoader,
         },
     },
     plugins::lazy,
@@ -29,9 +30,11 @@ fn plugins_setup() -> nvim_oxi::Result<()> {
     wp_autogood::Init::new().keymaps().autocmds();
     lazy::PluginManager::new()?;
 
+    // Register builtin keymaps
+    KEYMAPS.set_map(MapKey::Builtin)?;
     // NOTE: this must be called after initilizing PluginManager as mapping depends on external plugin key-map
     // setup which-key for builtin keymaps (keymaps that don't depends on 3rd parties plugins)
-    KEYMAPS.set_map(MapKey::Builtin)?;
+    MapLoader::register_all()?;
 
     Ok(())
 }
