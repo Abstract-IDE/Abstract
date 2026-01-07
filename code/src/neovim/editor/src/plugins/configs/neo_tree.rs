@@ -16,7 +16,6 @@ pub struct Plugin;
 impl Plugin {
     pub fn spec() -> &'static str {
         let opts = Self::opts();
-        let keys = keymaps::KEYMAPS.get_map(keymaps::MapKey::NeoTree);
 
         format!(
             // language=lua
@@ -26,7 +25,6 @@ impl Plugin {
                 dependencies = {{
                     -- "3rd/image.nvim", -- Optional image support in preview window: See `# Preview Mode` for more information
                 }},
-                keys = {keys},
                 opts = {opts},
             }}"#
         )
