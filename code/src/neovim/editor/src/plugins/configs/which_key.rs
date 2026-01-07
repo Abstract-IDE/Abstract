@@ -20,7 +20,7 @@ pub struct Plugin;
 impl Plugin {
     pub fn spec() -> &'static str {
         let opts = Self::opts();
-        let spec = format!(
+        format!(
             r#"{{
                 "folke/which-key.nvim",
                 event = "VeryLazy",
@@ -29,9 +29,8 @@ impl Plugin {
             }}"#,
             KEYMAPS.get_map(MapKey::WhichKey),
             opts,
-        );
-
-        Box::leak(spec.into_boxed_str())
+        )
+        .leak()
     }
 }
 

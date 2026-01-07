@@ -1,15 +1,13 @@
 /*
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ────────────────────────────────────────────────
-Plugin: nvim-treesitter
-Source: https://github.com/nvim-treesitter/nvim-treesitter
+Plugin: fff.nvim
+Source: https://github.com/dmtrKovalenko/fff.nvim
 
-Nvim Treesitter configurations and abstraction layer
+Finally a smart fuzzy file picker for neovim.
 ────────────────────────────────────────────────
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 */
-
-use crate::core::constants::NVIM_TREESITTER_HOME;
 
 pub struct Plugin;
 
@@ -46,18 +44,13 @@ impl Plugin {
 
 impl Plugin {
     pub fn config() -> &'static str {
-        let nvim_treesitter_home: &str = &NVIM_TREESITTER_HOME;
         // language=lua
-        format!(
-            r#"function()
-                require('nvim-treesitter').setup({{
-                    -- Directory to install parsers and queries to (prepended to `runtimepath` to have priority)
-                    -- NOTE!: Remember to run vim.opt.runtimepath:append("/some/path/to/store/parsers")
-                    -- NOTE!: we are adding to rtp using lazy.nvim
-                    install_dir = {nvim_treesitter_home:?},
-                }})
-            end"#
-        )
-        .leak()
+        r#"function()
+            require('nvim-treesitter').setup {
+                -- Directory to install parsers and queries to (prepended to `runtimepath` to have priority)
+                -- NOTE!: Remember to run vim.opt.runtimepath:append("/some/path/to/store/parsers")
+                install_dir = vim.fn.stdpath('data') .. '/rust/treesitter'
+            }
+        end"#
     }
 }

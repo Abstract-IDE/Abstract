@@ -16,7 +16,7 @@ impl Plugin {
         r#"{
             "OXY2DEV/helpview.nvim",
             ft = "help",
-            opts = {}
+            opts = {},
         }"#
     }
 }

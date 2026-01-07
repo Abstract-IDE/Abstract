@@ -4,7 +4,7 @@
 Plugin: gitsigns.nvim
 Github: https://github.com/lewis6991/gitsigns.nvim
 
-Super fast git decorations implemented purely in Lua.
+Deep buffer integration for Git
 
        ┃ ┃ │  ┆
 ─────────────────────────────────────────────────
@@ -22,9 +22,8 @@ impl Plugin {
                 "lewis6991/gitsigns.nvim",
                 lazy = true,
                 event = {{ "BufReadPre", "BufNewFile", "InsertEnter" }},
-                opts = {}
+                opts = {opts},
             }}"#,
-            opts,
         );
 
         Box::leak(spec.into_boxed_str())

@@ -21,7 +21,7 @@ impl Plugin {
                 "cbochs/grapple.nvim",
                 event = {{ "BufReadPost", "BufNewFile" }},
                 cmd = "Grapple",
-                opts = {}
+                opts = {},
             }}"#,
             opts,
         );

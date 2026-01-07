@@ -3,101 +3,186 @@ use nvim_oxi::{
     mlua, //
 };
 
+use crate::core::constants::{
+    NVIM_PLUGINS_HOME,
+    NVIM_TREESITTER_HOME, //
+};
+
 use super::configs;
 
 pub struct PluginManager;
 
 impl PluginManager {
     pub fn new() -> nvim_oxi::Result<Self> {
-        let lua = mlua::lua();
-        Self::bootstrap(lua.clone())?;
-        Self::setup(lua)?;
-
+        Self::setup()?;
         Ok(Self)
     }
 
-    // Setup lazy.nvim with plugins
-    fn setup(lua: mlua::Lua) -> nvim_oxi::Result<()> {
-        //
+    fn spec() -> String {
+        use configs::*;
+
         let specs = [
             //
             // Dependencies that other plugins depends on
-            configs::colorful_menu::Plugin::spec(),
-            configs::luarocks::Plugin::spec(),
-            configs::mini_icons::Plugin::spec(),
-            configs::nio::Plugin::spec(),
-            configs::nui::Plugin::spec(),
-            configs::plenary::Plugin::spec(),
-            configs::web_devicons::Plugin::spec(),
+            colorful_menu::Plugin::spec(),
+            luarocks::Plugin::spec(),
+            mini_icons::Plugin::spec(),
+            nio::Plugin::spec(),
+            nui::Plugin::spec(),
+            plenary::Plugin::spec(),
+            web_devicons::Plugin::spec(),
             //
             // Plugins
-            configs::abstract_cs::Plugin::spec(),
-            configs::abstract_cursor::Plugin::spec(),
-            configs::abstract_line::Plugin::spec(),
-            configs::abstract_plugs::Plugin::spec(),
-            configs::blink::Plugin::spec(),
-            configs::code_runner::Plugin::spec(),
-            configs::colorizer::Plugin::spec(),
-            configs::csvview::Plugin::spec(),
-            configs::fidget::Plugin::spec(),
-            configs::gitsigns::Plugin::spec(),
-            configs::grapple::Plugin::spec(),
-            configs::helpview::Plugin::spec(),
-            configs::hop::Plugin::spec(),
-            configs::luasnip::Plugin::spec(),
-            configs::snack::Plugin::spec(),
-            configs::treesitter::Plugin::spec(),
-            configs::which_key::Plugin::spec(),
+            abstract_cs::Plugin::spec(),
+            abstract_cursor::Plugin::spec(),
+            abstract_line::Plugin::spec(),
+            abstract_plugs::Plugin::spec(),
+            autopairs::Plugin::spec(),
+            blink::Plugin::spec(),
+            bqf::Plugin::spec(),
+            code_runner::Plugin::spec(),
+            colorizer::Plugin::spec(),
+            comment::Plugin::spec(),
+            csvview::Plugin::spec(),
+            dap::Plugin::spec(),
+            dap_ui::Plugin::spec(),
+            dap_virtual_text::Plugin::spec(),
+            dart_vim_plugin::Plugin::spec(),
+            fff::Plugin::spec(),
+            fidget::Plugin::spec(),
+            flutter_tools::Plugin::spec(),
+            gitgraph::Plugin::spec(),
+            gitsigns::Plugin::spec(),
+            goto_preview::Plugin::spec(),
+            grapple::Plugin::spec(),
+            helpview::Plugin::spec(),
+            hop::Plugin::spec(),
+            hovercraft::Plugin::spec(),
+            java::Plugin::spec(),
+            kulala::Plugin::spec(),
+            luasnip::Plugin::spec(),
+            markdown_preview::Plugin::spec(),
+            markview::Plugin::spec(),
+            neo_tree::Plugin::spec(),
+            neotest::Plugin::spec(),
+            noice::Plugin::spec(),
+            oil::Plugin::spec(),
+            penvim::Plugin::spec(),
+            renamer::Plugin::spec(),
+            rustaceanvim::Plugin::spec(),
+            schema_store::Plugin::spec(),
+            session_manager::Plugin::spec(),
+            snack::Plugin::spec(),
+            surround::Plugin::spec(),
+            tabby::Plugin::spec(),
+            tiny_code_action::Plugin::spec(),
+            treesitter::Plugin::spec(),
+            trouble::Plugin::spec(),
+            ts_autotag::Plugin::spec(),
+            ts_context_commentstring::Plugin::spec(),
+            typescript_tools::Plugin::spec(),
+            typst_preview::Plugin::spec(),
+            vim_dadbod::Plugin::spec(),
+            which_key::Plugin::spec(),
+            //
+            // mason::Plugin::spec(),
+            // mason_lspconfig::Plugin::spec(),
+            // mason_null_ls::Plugin::spec(),
+            // mason_nvim_dap::Plugin::spec(),
+            // none_ls::Plugin::spec(),
         ];
 
-        let spec = format!("{{\n{}\n}}", specs.join(",\n"));
-        let setup_code = format!(
+        format!("{{\n{}\n}}", specs.join(",\n"))
+    }
+
+    // Setup lazy.nvim with plugins
+    fn setup() -> nvim_oxi::Result<()> {
+        //
+        let lua = mlua::lua();
+        Self::bootstrap(lua.clone())?;
+
+        let spec = Self::spec();
+        let nvim_plugins_home: &str = &NVIM_PLUGINS_HOME;
+        let nvim_treesitter_home: &str = &NVIM_TREESITTER_HOME;
+
+        let setup_lazy = format!(
             // language=lua
             r#"
                 require("lazy").setup({{
                     spec = {spec},
-                    install = {{ colorscheme = {{ "habamax" }} }},
-                    checker = {{ enabled = true }},
+
+                    root = {nvim_plugins_home:?}, -- directory where plugins will be installed
+                    -- TODO: change it later with proper path
+                    lockfile = {nvim_plugins_home:?} .. "/lazy-lock.json", -- lockfile generated after running update.
+
+                    performance = {{
+                        cache = {{ enabled = true }},
+                        reset_packpath = true, -- reset the package path to improve startup time
+                        rtp = {{
+                            reset = true, -- reset the runtime path to $VIMRUNTIME and your config directory
+                            -- add any custom paths here that you want to includes in the rtp
+                            ---@type string[]
+                            paths = {{
+                                -- ABSTRACT["INSTALL_PATH"],
+                                {nvim_treesitter_home:?}
+                            }},
+                            ---@type string[] list any plugins you want to disable here
+                            disabled_plugins = {{ "tutor" }}, -- "gzip", "matchit", "matchparen", "netrwPlugin", "tarPlugin", "tohtml", "zipPlugin",
+                        }},
+                    }},
+
+                    install = {{
+                        -- install missing plugins on startup. This doesn't increase startup time.
+                        missing = true,
+                        -- try to load one of these colorschemes when starting an installation during startup
+                        colorscheme = {{ "abscs", "default" }},
+                    }},
+
+                    ui = {{
+                        -- a number <1 is a percentage., >1 is a fixed size
+                        size = {{ width = 0.8, height = 0.8 }},
+                        wrap = true, -- wrap the lines in the ui
+                        border = "rounded", -- The border to use for the UI window. Accepts same border values as |nvim_open_win()|.
+                        title_pos = "center", ---@type "center" | "left" | "right"
+                        throttle = 20, -- how frequently should the ui process render events
+                        backdrop = 100, -- The backdrop opacity. 0 is fully opaque, 100 is fully transparent.
+                    }},
                 }})
             "#
         );
 
-        lua.load(&setup_code).exec()?;
+        lua.load(&setup_lazy).exec()?;
 
         Ok(())
     }
 
     // Bootstrap lazy.nvim
     fn bootstrap(lua: mlua::Lua) -> nvim_oxi::Result<()> {
-        lua.load(
+        let lazypath: &str = &NVIM_PLUGINS_HOME;
+
+        let exec = format!(
             r#"
-                local lazypath = vim.fn.stdpath("data") .. "/rust/lazy/lazy.nvim"
+                local lazypath = {lazypath:?} .. "/lazy.nvim"
                 if not (vim.uv or vim.loop).fs_stat(lazypath) then
                     local lazyrepo = "https://github.com/folke/lazy.nvim.git"
-                    local out = vim.fn.system({ "git", "clone", "--filter=blob:none", "--branch=stable", lazyrepo, lazypath })
+                    local out = vim.fn.system({{ "git", "clone", "--filter=blob:none", "--branch=stable", lazyrepo, lazypath }})
                     if vim.v.shell_error ~= 0 then
-                        vim.api.nvim_echo({
-                            { "Failed to clone lazy.nvim:\n", "ErrorMsg" },
-                            { out, "WarningMsg" },
-                            { "\nPress any key to exit..." },
-                        }, true, {})
+                        vim.api.nvim_echo(
+                            {{
+                                {{ "Failed to clone lazy.nvim:\n", "ErrorMsg" }},
+                                {{ out, "WarningMsg" }},
+                                {{ "\nPress any key to exit..." }},
+                            }}, true, {{}}
+                        )
                         vim.fn.getchar()
                         os.exit(1)
                     end
                 end
                 vim.opt.rtp:prepend(lazypath)
-            "#,
-        )
-        .exec()?;
+            "#
+        );
 
-        // // Set leaders
-        // lua.load(
-        //     r#"
-        //         vim.g.mapleader = " "
-        //         vim.g.maplocalleader = "\\"
-        //     "#,
-        // )
-        // .exec()?;
+        lua.load(exec).exec()?;
 
         Ok(())
     }

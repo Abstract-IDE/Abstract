@@ -24,11 +24,11 @@ impl Plugin {
             r#"{{
                 "smoka7/hop.nvim",
                 version = "*",
+                keys={},
                 opts = {{
                     keys = "qwertyuiopasdfghjklzxcvbnm",
                     jump_on_sole_occurrence = false,
                 }},
-                keys={}
             }}"#,
             KEYMAPS.get_map(MapKey::Hop)
         );

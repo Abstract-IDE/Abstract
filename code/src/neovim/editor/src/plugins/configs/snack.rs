@@ -9,32 +9,28 @@ A collection of small QoL plugins for Neovim.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 */
 
-use crate::core::keymaps::{
-    MapKey,
-    MapLoader, //
-};
+use crate::core::keymaps;
 
 pub struct Plugin;
 
 impl Plugin {
     pub fn spec() -> &'static str {
-        MapLoader::signal(MapKey::Snacks);
+        keymaps::MapLoader::signal(keymaps::MapKey::Snacks);
 
         let mut opts_parts = Vec::new();
         opts_parts.push(format!("notifier = {}", Self::config_notifier()));
         opts_parts.push(format!("picker   = {}", Self::config_picker()));
+        let opts_parts = opts_parts.join(",\n");
 
-        let spec = format!(
+        format!(
             r#"{{
                 "folke/snacks.nvim",
                 priority = 1000,
                 lazy = false,
-                config = function() require("snacks").setup({{ {} }}) end
+                config = function() require("snacks").setup({{ {opts_parts} }}) end
             }}"#,
-            opts_parts.join(",\n")
-        );
-
-        Box::leak(spec.into_boxed_str())
+        )
+        .leak()
     }
 }
 
@@ -86,7 +82,7 @@ impl Plugin {
 // https://github.com/folke/snacks.nvim/blob/main/docs/picker.md
 impl Plugin {
     pub fn config_picker() -> &'static str {
-        MapLoader::signal(MapKey::SnacksPicker);
+        keymaps::MapLoader::signal(keymaps::MapKey::SnacksPicker);
 
         r##"{
             prompt = "🔎 ", -- 
