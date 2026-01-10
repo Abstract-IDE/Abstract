@@ -173,24 +173,24 @@ impl Mapping {
         format!(
             r#"{{
                 {{ "<Leader>l",  group = "{group_lsp}" }},
-                {{ "<Leader>lf", function() vim.lsp.buf.format({{ timeout_ms = 3000 }}) end, desc = "Format document" }},
-                {{ "<Leader>la", function() require('tiny-code-action').code_action({{}}) end, desc = "Code action" }},
-                {{ "<Leader>lA", function() vim.lsp.buf.range_code_action() end, desc = "Range code action" }},
-                {{ "<Leader>ld", function() vim.lsp.buf.definition() end, desc = "Jumps to definition" }},
-                {{ "<Leader>lD", function() vim.lsp.buf.declaration() end, desc = "Jumps to declaration" }},
-                {{ "<Leader>le", function() vim.diagnostic.open_float() end, desc = "Show diagnostics" }},
-                {{ "<Leader>li", function() vim.lsp.buf.implementation() end, desc = "Lists all symbol implementations" }},
-                {{ "<Leader>ls", function() vim.lsp.buf.signature_help() end, desc = "Show symbol signature information" }},
-                {{ "<Leader>lT", function() vim.lsp.buf.type_definition() end, desc = "Jumps to type definition" }},
+                {{ "<Leader>lf", function() vim.lsp.buf.format({{ timeout_ms = 3000 }}) end,                    desc = "Format document" }},
+                {{ "<Leader>la", function() require('tiny-code-action').code_action({{}}) end,                  desc = "Code action" }},
+                {{ "<Leader>lA", function() vim.lsp.buf.range_code_action() end,                                desc = "Range code action" }},
+                {{ "<Leader>ld", function() vim.lsp.buf.definition() end,                                       desc = "Jumps to definition" }},
+                {{ "<Leader>lD", function() vim.lsp.buf.declaration() end,                                      desc = "Jumps to declaration" }},
+                {{ "<Leader>le", function() vim.diagnostic.open_float() end,                                    desc = "Show diagnostics" }},
+                {{ "<Leader>li", function() vim.lsp.buf.implementation() end,                                   desc = "Lists all symbol implementations" }},
+                {{ "<Leader>ls", function() vim.lsp.buf.signature_help() end,                                   desc = "Show symbol signature information" }},
+                {{ "<Leader>lT", function() vim.lsp.buf.type_definition() end,                                  desc = "Jumps to type definition" }},
                 {{ "<Leader>lh", function() vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled()) end, desc = "Inlay hints /toggle" }},
-                {{ "<Leader>ln", function() vim.diagnostic.jump({{ count = 1, float = true }}) end, desc = "Move to next diagnostic" }},
-                {{ "<Leader>lb", function() vim.diagnostic.jump({{ count = -1, float = true }}) end, desc = "Move to previous diagnostic" }},
-                {{ "<Leader>lr", function() require('snacks').picker.lsp_references() end, nowait = true, desc = "References" }},
-                {{ "<Leader>lR", function() require('renamer').rename({{}}) end, desc = "Rename symbol" }},
+                {{ "<Leader>ln", function() vim.diagnostic.jump({{ count = 1, float = true }}) end,             desc = "Move to next diagnostic" }},
+                {{ "<Leader>lb", function() vim.diagnostic.jump({{ count = -1, float = true }}) end,            desc = "Move to previous diagnostic" }},
+                {{ "<Leader>lr", function() require('snacks').picker.lsp_references() end, nowait = true,       desc = "References" }},
+                {{ "<Leader>lR", function() require('renamer').rename({{}}) end,                                desc = "Rename symbol" }},
                 {{
                     {{ "<Leader>lw",  group = "{group_workspace}" }},
-                    {{ "<Leader>lwa", function() vim.lsp.buf.add_workspace_folder() end, desc = "Add workspace folder" }},
-                    {{ "<Leader>lwr", function() vim.lsp.buf.remove_workspace_folder() end, desc = "Remove workspace folders" }},
+                    {{ "<Leader>lwa", function() vim.lsp.buf.add_workspace_folder() end,                       desc = "Add workspace folder" }},
+                    {{ "<Leader>lwr", function() vim.lsp.buf.remove_workspace_folder() end,                    desc = "Remove workspace folders" }},
                     {{ "<Leader>lwl", function() print(vim.inspect(vim.lsp.buf.list_workspace_folders())) end, desc = "List workspace folders" }},
                 }},
                 {{ "<Leader>Ll", function() vim.cmd('tabnew ' .. vim.lsp.get_log_path()) end, desc = "LSP logs" }},
@@ -216,12 +216,12 @@ impl Mapping {
         format!(
             r#"{{
                 {{ "<leader>lt",  group = "{group_trouble}" }},
-                {{ "<Leader>ltt", "<CMD>Trouble diagnostics toggle<CR>", desc = "Diagnostics /project" }},
-                {{ "<leader>ltT", "<cmd>Trouble diagnostics toggle filter.buf=0<cr>", desc = "Diagnostics /buffer" }},
-                {{ "<leader>lts", "<cmd>Trouble symbols toggle focus=false<cr>", desc = "Symbols" }},
+                {{ "<Leader>ltt", "<CMD>Trouble diagnostics toggle<CR>",                        desc = "Diagnostics /project" }},
+                {{ "<leader>ltT", "<cmd>Trouble diagnostics toggle filter.buf=0<cr>",           desc = "Diagnostics /buffer" }},
+                {{ "<leader>lts", "<cmd>Trouble symbols toggle focus=false<cr>",                desc = "Symbols" }},
                 {{ "<leader>ltl", "<cmd>Trouble lsp toggle focus=false win.position=right<cr>", desc = "LSP Definitions/references/..." }},
-                {{ "<leader>ltL", "<cmd>Trouble loclist toggle<cr>", desc = "Location List" }},
-                {{ "<leader>ltq", "<cmd>Trouble qflist toggle<cr>", desc = "Quickfix List" }},
+                {{ "<leader>ltL", "<cmd>Trouble loclist toggle<cr>",                            desc = "Location List" }},
+                {{ "<leader>ltq", "<cmd>Trouble qflist toggle<cr>",                             desc = "Quickfix List" }},
             }}"#
         ).leak()
     }
@@ -243,12 +243,12 @@ impl Mapping {
         format!(
             r#"{{
                 {{ "<Leader>lp",  group = "{group_preview}" }},
-                {{ "<Leader>lpd", function() require('goto-preview').goto_preview_definition({{}}) end, desc = "Definition preview" }},
+                {{ "<Leader>lpd", function() require('goto-preview').goto_preview_definition({{}}) end,      desc = "Definition preview" }},
                 {{ "<Leader>lpt", function() require('goto-preview').goto_preview_type_definition({{}}) end, desc = "Type definition preview" }},
-                {{ "<Leader>lpi", function() require('goto-preview').goto_preview_implementation({{}}) end, desc = "Implementation preview" }},
-                {{ "<Leader>lpD", function() require('goto-preview').goto_preview_declaration({{}}) end, desc = "Declaration preview" }},
-                {{ "<Leader>lpr", function() require('goto-preview').goto_preview_references() end, desc = "References preview" }},
-                {{ "<Leader>lpQ", function() require('goto-preview').close_all_win() end, desc = "Close all window preview" }},
+                {{ "<Leader>lpi", function() require('goto-preview').goto_preview_implementation({{}}) end,  desc = "Implementation preview" }},
+                {{ "<Leader>lpD", function() require('goto-preview').goto_preview_declaration({{}}) end,     desc = "Declaration preview" }},
+                {{ "<Leader>lpr", function() require('goto-preview').goto_preview_references() end,          desc = "References preview" }},
+                {{ "<Leader>lpQ", function() require('goto-preview').close_all_win() end,                    desc = "Close all window preview" }},
             }}"#
         ).leak()
     }
@@ -269,13 +269,7 @@ impl Mapping {
         format!(
             r#"{{
                 {{ "<Leader>v", group = "{group_git}" }},
-                {{
-                    "<Leader>vg",
-                    function()
-                        require("gitgraph").draw({{}}, {{ all = true, max_count = 5000 }})
-                    end,
-                    desc = "Git graph",
-                }},
+                {{ "<Leader>vg", function() require("gitgraph").draw({{}}, {{ all = true, max_count = 5000 }}) end, desc = "Git graph" }},
             }}"#
         )
         .leak()
@@ -286,13 +280,13 @@ impl Mapping {
         format!(
             r#"{{
                 {{ "<Leader>o",  group = "{group_run_code}" }},
-                {{ "<leader>oo", ":RunCode<CR>", desc = "Runs based on file type (Run Code)" }},
-                {{ "<leader>of", ":RunFile<CR>", desc = "Execute command from its key in current directory (Run Code)" }},
+                {{ "<leader>oo", ":RunCode<CR>",     desc = "Runs based on file type (Run Code)" }},
+                {{ "<leader>of", ":RunFile<CR>",     desc = "Execute command from its key in current directory (Run Code)" }},
                 {{ "<leader>ot", ":RunFile tab<CR>", desc = "Run the current file (optionally you can select an opening mode)." }},
-                {{ "<leader>op", ":RunProject<CR>", desc = "Run the current project(If you are in a project otherwise you will not do anything)." }},
-                {{ "<leader>oq", ":RunClose<CR>", desc = "Close runner (Run Code)" }},
-                {{ "<leader>oj", ":CRFiletype<CR>", desc = "Open json with supported files (Run Code)" }},
-                {{ "<leader>oJ", ":CRProjects<CR>", desc = "Open json with list of projects (Run Code)" }},
+                {{ "<leader>op", ":RunProject<CR>",  desc = "Run the current project(If you are in a project otherwise you will not do anything)." }},
+                {{ "<leader>oq", ":RunClose<CR>",    desc = "Close runner (Run Code)" }},
+                {{ "<leader>oj", ":CRFiletype<CR>",  desc = "Open json with supported files (Run Code)" }},
+                {{ "<leader>oJ", ":CRProjects<CR>",  desc = "Open json with list of projects (Run Code)" }},
             }}"#
         ).leak()
     }
@@ -302,11 +296,11 @@ impl Mapping {
         format!(
             r#"{{
                 {{ "<Leader>r",  group = "{group_http}" }},
-                {{ "<Leader>rr", "<CMD>lua require('kulala').run()<CR>", desc = "Make HTTP request" }},
-                {{ "<Leader>rh", "<CMD>lua require('kulala').jump_prev()<CR>", desc = "Jump to the previous request" }},
-                {{ "<Leader>rl", "<CMD>lua require('kulala').jump_next()<CR>", desc = "Jump to the next request" }},
+                {{ "<Leader>rr", "<CMD>lua require('kulala').run()<CR>",              desc = "Make HTTP request" }},
+                {{ "<Leader>rh", "<CMD>lua require('kulala').jump_prev()<CR>",        desc = "Jump to the previous request" }},
+                {{ "<Leader>rl", "<CMD>lua require('kulala').jump_next()<CR>",        desc = "Jump to the next request" }},
                 {{ "<Leader>re", "<CMD>lua require('kulala').set_selected_env()<CR>", desc = "Select environment" }},
-                {{ "<Leader>rt", "<CMD>lua require('kulala').toggle_view()<CR>", desc = "Response view /toggle" }},
+                {{ "<Leader>rt", "<CMD>lua require('kulala').toggle_view()<CR>",      desc = "Response view /toggle" }},
             }}"#
         )
         .leak()
@@ -327,7 +321,7 @@ impl Mapping {
         format!(
             r#"{{
                 {{ "<M-q>",      group = "{group_close}" }},
-                {{ "<M-q><M-q>", "<CMD>lua Snacks.bufdelete()<CR>", desc = "Delete current buffer" }},
+                {{ "<M-q><M-q>", "<CMD>lua Snacks.bufdelete()<CR>",       desc = "Delete current buffer" }},
                 {{ "<M-q><S-q>", "<CMD>lua Snacks.bufdelete.other()<CR>", desc = "Delete all buffers except the current one" }},
             }}"#
         ).leak()
@@ -338,8 +332,8 @@ impl Mapping {
         format!(
             r#"{{
                 {{ "<Leader>vL",  group = "{group_lazygit}" }},
-                {{ "<Leader>vl",  "<CMD>lua Snacks.lazygit()<CR>", desc = "open lazygit" }},
-                {{ "<Leader>vLl", "<CMD>lua Snacks.lazygit.log()<CR>", desc = "log view" }},
+                {{ "<Leader>vl",  "<CMD>lua Snacks.lazygit()<CR>",          desc = "open lazygit" }},
+                {{ "<Leader>vLl", "<CMD>lua Snacks.lazygit.log()<CR>",      desc = "log view" }},
                 {{ "<Leader>vLf", "<CMD>lua Snacks.lazygit.log_file()<CR>", desc = "log of the current file" }},
             }}"#
         )
@@ -351,9 +345,9 @@ impl Mapping {
         format!(
             r#"{{
                 {{ "<Leader>vg", group = "{group_git_repos}" }},
-                {{ "<Leader>vgp", "<CMD>lua Snacks.picker.gh_pr()<CR>", desc = "Browse open pull requests" }},
-                {{ "<Leader>vgP", "<CMD>lua Snacks.picker.gh_pr({{state='all'}})<CR>", desc = "Browse open pull requests (All)" }},
-                {{ "<Leader>vgi", "<CMD>lua Snacks.picker.gh_issue()<CR>", desc = "Browse open issues" }},
+                {{ "<Leader>vgp", "<CMD>lua Snacks.picker.gh_pr()<CR>",                       desc = "Browse open pull requests" }},
+                {{ "<Leader>vgP", "<CMD>lua Snacks.picker.gh_pr({{state='all'}})<CR>",        desc = "Browse open pull requests (All)" }},
+                {{ "<Leader>vgi", "<CMD>lua Snacks.picker.gh_issue()<CR>",                    desc = "Browse open issues" }},
                 {{ "<Leader>vgI", "<CMD>lua Snacks.picker.gh_issue({{ state = 'all' }})<CR>", desc = "Browse open issues (All)" }},
             }}"#
         ).leak()
@@ -376,19 +370,19 @@ impl Mapping {
         format!(
             r#"{{
                 {{
-                    {{ "<M-b>",  "<CMD>lua Snacks.picker.buffers()<CR>", desc = "Buffers" }},
-                    {{ "<M-f>",  "<CMD>lua Snacks.picker.files()<CR>" , desc = "Find Files /project" }},
+                    {{ "<M-b>",  "<CMD>lua Snacks.picker.buffers()<CR>",                                 desc = "Buffers" }},
+                    {{ "<M-f>",  "<CMD>lua Snacks.picker.files()<CR>" ,                                  desc = "Find Files /project" }},
                     {{ "<M-F>",  "<CMD>lua Snacks.picker.files({{ cwd = vim.fn.expand('%:p:h') }})<CR>", desc = "Find Files /current", mode = {{ "n", "x" }} }},
                 }},
                 {{
                     {{ "<M-g>",  group = "{group_find}" }},
-                    {{ "<M-g>g", "<CMD>lua Snacks.picker.grep()<CR>", desc = "Find word /project" }},
+                    {{ "<M-g>g", "<CMD>lua Snacks.picker.grep()<CR>",      desc = "Find word /project" }},
                     {{ "<M-g>w", "<CMD>lua Snacks.picker.grep_word()<CR>", desc = "Find under Visual selection or word" }},
-                    {{ "<M-g>l", "<CMD>lua Snacks.picker.lines()<CR>", desc = "Search Buffer Lines" }},
-                    {{ "<M-g>c", "<CMD>lua Snacks.picker.commands()<CR>", desc = "Commands" }},
-                    {{ "<M-g>m", "<CMD>lua Snacks.picker.keymaps()<CR>", desc = "Mappings" }},
-                    {{ "<M-g>h", "<CMD>lua Snacks.picker.help()<CR>", desc = "Help" }},
-                    {{ "<M-g>p", "<CMD>lua Snacks.picker.pick()<CR>", desc = "Snacks builtin cmds" }},
+                    {{ "<M-g>l", "<CMD>lua Snacks.picker.lines()<CR>",     desc = "Search Buffer Lines" }},
+                    {{ "<M-g>c", "<CMD>lua Snacks.picker.commands()<CR>",  desc = "Commands" }},
+                    {{ "<M-g>m", "<CMD>lua Snacks.picker.keymaps()<CR>",   desc = "Mappings" }},
+                    {{ "<M-g>h", "<CMD>lua Snacks.picker.help()<CR>",      desc = "Help" }},
+                    {{ "<M-g>p", "<CMD>lua Snacks.picker.pick()<CR>",      desc = "Snacks builtin cmds" }},
                 }},
                 {{
                     {{ "<Leader>m",  group = "{group_manager}" }},
@@ -403,9 +397,9 @@ impl Mapping {
         format!(
             r#"{{
                 {{ "<M-g>",  group = "{group_find}" }},
-                {{ "<M-b>",  "<CMD>lua Snacks.picker.buffers()<CR>", desc = "Buffers" }},
+                {{ "<M-b>",  "<CMD>lua Snacks.picker.buffers()<CR>",            desc = "Buffers" }},
                 {{ "<M-f>",  "<CMD>lua require('fff').find_in_git_root()<CR>" , desc = "Find Files /project" }},
-                {{ "<M-F>",  "<CMD>lua require('fff').find_files()<CR>", desc = "Find Files /current", mode = {{ "n", "x" }} }},
+                {{ "<M-F>",  "<CMD>lua require('fff').find_files()<CR>",        desc = "Find Files /current", mode = {{ "n", "x" }} }},
             }}"#
         ).leak()
     }
