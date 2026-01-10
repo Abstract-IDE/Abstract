@@ -12,8 +12,8 @@ anywhere in a document with as few keystrokes as possible
 */
 
 use crate::core::keymaps::{
-    KEYMAPS, //
-    MapKey,
+    MAPPING, //
+    Key,
 };
 
 pub struct Plugin;
@@ -30,7 +30,7 @@ impl Plugin {
                     jump_on_sole_occurrence = false,
                 }},
             }}"#,
-            KEYMAPS.get_map(MapKey::Hop)
+            MAPPING.get_map(Key::Hop)
         );
 
         Box::leak(spec.into_boxed_str())

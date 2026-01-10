@@ -19,7 +19,7 @@ pub struct Plugin;
 impl Plugin {
     pub fn spec() -> &'static str {
         let opts = Self::opts();
-        let keys = keymaps::KEYMAPS.get_map(keymaps::MapKey::Hovercraft);
+        let keys = keymaps::MAPPING.get_map(keymaps::Key::Hovercraft);
 
         format!(
             // language=lua

@@ -11,7 +11,7 @@ it manages projects like in intellij but without being slow
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 */
 
-use crate::core::keymaps::{KEYMAPS, MapKey};
+use crate::core::keymaps;
 
 pub struct Plugin;
 
@@ -25,9 +25,9 @@ impl Plugin {
                 opts = {},
                 config = function() {} end,
             }}"#,
-            KEYMAPS.get_map(MapKey::CodeRunner),
+            keymaps::MAPPING.get_map(keymaps::Key::CodeRunner),
             Self::opts(),
-            KEYMAPS.set_map_str(MapKey::CodeRunner)
+            keymaps::MAPPING.set_map_str(keymaps::Key::CodeRunner)
         );
 
         Box::leak(spec.into_boxed_str())

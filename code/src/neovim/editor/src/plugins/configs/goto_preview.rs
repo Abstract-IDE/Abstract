@@ -32,7 +32,7 @@ impl Plugin {
 
 impl Plugin {
     pub fn config() -> &'static str {
-        keymaps::MapLoader::signal(keymaps::MapKey::GotoPreview);
+        keymaps::MAPPING.signal(keymaps::Key::GotoPreview);
 
         // language=lua
         r#"function()

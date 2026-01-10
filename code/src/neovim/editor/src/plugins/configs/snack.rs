@@ -15,7 +15,7 @@ pub struct Plugin;
 
 impl Plugin {
     pub fn spec() -> &'static str {
-        keymaps::MapLoader::signal(keymaps::MapKey::Snacks);
+        keymaps::MAPPING.signal(keymaps::Key::Snacks);
 
         let mut opts_parts = Vec::new();
 
@@ -86,7 +86,7 @@ impl Plugin {
 #[allow(unused)]
 impl Plugin {
     pub fn config_picker() -> &'static str {
-        keymaps::MapLoader::signal(keymaps::MapKey::SnacksPicker);
+        keymaps::MAPPING.signal(keymaps::Key::SnacksPicker);
 
         r##"{
             prompt = "🔎 ", -- 

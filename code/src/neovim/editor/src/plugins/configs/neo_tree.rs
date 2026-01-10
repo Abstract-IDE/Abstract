@@ -34,7 +34,7 @@ impl Plugin {
 
 impl Plugin {
     pub fn opts() -> &'static str {
-        keymaps::MapLoader::signal(keymaps::MapKey::NeoTree);
+        keymaps::MAPPING.signal(keymaps::Key::NeoTree);
 
         // language=lua
         r#"{

@@ -16,7 +16,7 @@ pub struct Plugin;
 impl Plugin {
     pub fn spec() -> &'static str {
         let config = Self::config();
-        let keys = keymaps::KEYMAPS.get_map(keymaps::MapKey::SessionManager);
+        let keys = keymaps::MAPPING.get_map(keymaps::Key::SessionManager);
 
         format!(
             // language=lua
@@ -34,7 +34,7 @@ impl Plugin {
 
 impl Plugin {
     pub fn config() -> &'static str {
-        keymaps::MapLoader::signal(keymaps::MapKey::SessionManager);
+        keymaps::MAPPING.signal(keymaps::Key::SessionManager);
 
         // language=lua
         r#"function()

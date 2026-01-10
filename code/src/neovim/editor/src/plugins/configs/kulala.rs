@@ -16,7 +16,7 @@ pub struct Plugin;
 impl Plugin {
     pub fn spec() -> &'static str {
         let opts = Self::opts();
-        let keys = keymaps::KEYMAPS.get_map(keymaps::MapKey::Kulala);
+        let keys = keymaps::MAPPING.get_map(keymaps::Key::Kulala);
 
         format!(
             // language=lua
@@ -34,8 +34,7 @@ impl Plugin {
 
 impl Plugin {
     pub fn opts() -> &'static str {
-        keymaps::MapLoader::signal(keymaps::MapKey::Kulala);
-
+        keymaps::MAPPING.signal(keymaps::Key::Kulala);
         // language=lua
         r#"function()
             return {

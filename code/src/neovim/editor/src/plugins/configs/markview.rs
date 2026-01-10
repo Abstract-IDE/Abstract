@@ -33,7 +33,7 @@ impl Plugin {
 
 impl Plugin {
     pub fn config() -> &'static str {
-        keymaps::MapLoader::signal(keymaps::MapKey::Markview);
+        keymaps::MAPPING.signal(keymaps::Key::Markview);
         // language=lua
         r#"function()
             -- NOTE: for now lets disable for all filetype. later we will provide a mapping to enable/disable

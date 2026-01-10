@@ -10,10 +10,7 @@ with possible key bindings of the command you started typing.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 */
 
-use crate::core::keymaps::{
-    KEYMAPS,
-    MapKey, //
-};
+use crate::core::keymaps;
 
 pub struct Plugin;
 
@@ -27,7 +24,7 @@ impl Plugin {
                 keys = {},
                 opts = {},
             }}"#,
-            KEYMAPS.get_map(MapKey::WhichKey),
+            keymaps::MAPPING.get_map(keymaps::Key::WhichKey),
             opts,
         )
         .leak()

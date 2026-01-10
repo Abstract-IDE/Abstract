@@ -8,9 +8,9 @@ use nvim_oxi::{
     mlua, //
 };
 
-#[allow(unused)]
+#[allow(unused, clippy::enum_variant_names)]
 #[derive(Hash, Eq, PartialEq, Debug, Clone, Copy)]
-pub enum MapKey {
+pub enum Key {
     Builtin,
     //
     AbstractTerminal,
@@ -39,19 +39,48 @@ pub enum MapKey {
     WhichKey,
 }
 
-// Global static keymap using built-in LazyLock
-pub static KEYMAPS: LazyLock<Mapping> = LazyLock::new(Mapping::new);
+// Global static keymap
+pub static MAPPING: LazyLock<Mapping> = LazyLock::new(Mapping::new);
+pub static LOADED_PLUGINS: LazyLock<Mutex<Vec<Key>>> = LazyLock::new(|| Mutex::new(Vec::new()));
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct Mapping;
 
-#[allow(unused)]
 impl Mapping {
     pub fn new() -> Self {
         Self
     }
 
-    pub fn set_map(&self, key: MapKey) -> nvim_oxi::Result<()> {
+    /// Fire-and-forget signal.
+    pub fn signal(self, plugin: Key) {
+        if let Ok(mut loaded) = LOADED_PLUGINS.lock() {
+            loaded.push(plugin);
+        } else {
+            nvim_oxi::api::err_writeln("MapLoader: LOADED_PLUGINS mutex poisoned; signal ignored");
+        }
+    }
+
+    /// Registers all collected keymaps with which-key.
+    pub fn register_all(&self) -> nvim_oxi::Result<()> {
+        let loaded = LOADED_PLUGINS
+            .lock()
+            .map_err(|_| mlua::Error::RuntimeError("MapLoader: LOADED_PLUGINS mutex poisoned".to_string()))?;
+
+        let lua = mlua::lua();
+
+        for plugin in loaded.iter().copied() {
+            let keymap = self.get_map(plugin);
+            let code = format!("require('which-key').add({})", keymap);
+            lua.load(&code).exec()?;
+        }
+
+        Ok(())
+    }
+}
+
+#[allow(unused)]
+impl Mapping {
+    pub fn set_map(&self, key: Key) -> nvim_oxi::Result<()> {
         let which_key = format!("require'which-key'.add({})", self.get_map(key));
         mlua::lua().load(which_key).exec().inspect_err(|e| {
             eprintln!("{e}");
@@ -60,38 +89,38 @@ impl Mapping {
         Ok(())
     }
 
-    pub fn set_map_str(&self, key: MapKey) -> &'static str {
+    pub fn set_map_str(&self, key: Key) -> &'static str {
         Box::leak(format!("require'which-key'.add({})", self.get_map(key)).into_boxed_str())
     }
 
-    pub fn get_map(&self, key: MapKey) -> &'static str {
+    pub fn get_map(&self, key: Key) -> &'static str {
         match key {
-            MapKey::Builtin => self.builtin(),
+            Key::Builtin => self.builtin(),
             //
-            MapKey::AbstractTerminal => self.abstract_terminal(),
-            MapKey::AbstractWindow => self.abstract_window(),
-            MapKey::CodeRunner => self.code_runner(),
-            MapKey::Dap => self.dap(),
-            MapKey::Fff => self.fff(),
-            MapKey::GitGraph => self.git_graph(),
-            MapKey::GotoPreview => self.goto_preview(),
-            MapKey::Grapple => self.grapple(),
-            MapKey::Hop => self.hop(),
-            MapKey::Hovercraft => self.hovercraft(),
-            MapKey::Kulala => self.kulala(),
-            MapKey::LspConfig => self.lsp_config(),
-            MapKey::Markview => self.markview(),
-            MapKey::NeoTree => self.neo_tree(),
-            MapKey::Oil => self.oil(),
-            MapKey::SessionManager => self.session_manager(),
-            MapKey::Snacks => self.snacks(),
-            MapKey::SnacksBufDelete => self.snacks_bufdelete(),
-            MapKey::SnacksGh => self.snacks_gh(),
-            MapKey::SnacksGitBrowse => self.snacks_gitbrowse(),
-            MapKey::SnacksLazygit => self.snacks_lazygit(),
-            MapKey::SnacksPicker => self.snacks_picker(),
-            MapKey::Trouble => self.trouble(),
-            MapKey::WhichKey => self.which_key(),
+            Key::AbstractTerminal => self.abstract_terminal(),
+            Key::AbstractWindow => self.abstract_window(),
+            Key::CodeRunner => self.code_runner(),
+            Key::Dap => self.dap(),
+            Key::Fff => self.fff(),
+            Key::GitGraph => self.git_graph(),
+            Key::GotoPreview => self.goto_preview(),
+            Key::Grapple => self.grapple(),
+            Key::Hop => self.hop(),
+            Key::Hovercraft => self.hovercraft(),
+            Key::Kulala => self.kulala(),
+            Key::LspConfig => self.lsp_config(),
+            Key::Markview => self.markview(),
+            Key::NeoTree => self.neo_tree(),
+            Key::Oil => self.oil(),
+            Key::SessionManager => self.session_manager(),
+            Key::Snacks => self.snacks(),
+            Key::SnacksBufDelete => self.snacks_bufdelete(),
+            Key::SnacksGh => self.snacks_gh(),
+            Key::SnacksGitBrowse => self.snacks_gitbrowse(),
+            Key::SnacksLazygit => self.snacks_lazygit(),
+            Key::SnacksPicker => self.snacks_picker(),
+            Key::Trouble => self.trouble(),
+            Key::WhichKey => self.which_key(),
         }
     }
 }
@@ -509,37 +538,5 @@ impl Mapping {
             }}"#
         )
         .leak()
-    }
-}
-
-pub static LOADED_PLUGINS: LazyLock<Mutex<Vec<MapKey>>> = LazyLock::new(|| Mutex::new(Vec::new()));
-
-pub struct MapLoader;
-
-impl MapLoader {
-    /// Fire-and-forget signal.
-    pub fn signal(plugin: MapKey) {
-        if let Ok(mut loaded) = LOADED_PLUGINS.lock() {
-            loaded.push(plugin);
-        } else {
-            nvim_oxi::api::err_writeln("MapLoader: LOADED_PLUGINS mutex poisoned; signal ignored");
-        }
-    }
-
-    /// Registers all collected keymaps with which-key.
-    pub fn register_all() -> nvim_oxi::Result<()> {
-        let loaded = LOADED_PLUGINS
-            .lock()
-            .map_err(|_| mlua::Error::RuntimeError("MapLoader: LOADED_PLUGINS mutex poisoned".to_string()))?;
-
-        let lua = mlua::lua();
-
-        for plugin in loaded.iter().copied() {
-            let keymap = KEYMAPS.get_map(plugin);
-            let code = format!("require('which-key').add({})", keymap);
-            lua.load(&code).exec()?;
-        }
-
-        Ok(())
     }
 }

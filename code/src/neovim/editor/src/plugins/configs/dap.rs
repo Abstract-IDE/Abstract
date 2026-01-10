@@ -15,7 +15,7 @@ pub struct Plugin;
 
 impl Plugin {
     pub fn spec() -> &'static str {
-        keymaps::MapLoader::signal(keymaps::MapKey::Dap);
+        keymaps::MAPPING.signal(keymaps::Key::Dap);
 
         // language=lua
         r#"{
