@@ -18,8 +18,11 @@ impl Plugin {
         keymaps::MapLoader::signal(keymaps::MapKey::Snacks);
 
         let mut opts_parts = Vec::new();
+
         opts_parts.push(format!("notifier = {}", Self::config_notifier()));
-        opts_parts.push(format!("picker   = {}", Self::config_picker()));
+        // NOTE: using fff for now.
+        // opts_parts.push(format!("picker   = {}", Self::config_picker()));
+
         let opts_parts = opts_parts.join(",\n");
 
         format!(
@@ -80,6 +83,7 @@ impl Plugin {
 
 // PICKER
 // https://github.com/folke/snacks.nvim/blob/main/docs/picker.md
+#[allow(unused)]
 impl Plugin {
     pub fn config_picker() -> &'static str {
         keymaps::MapLoader::signal(keymaps::MapKey::SnacksPicker);
