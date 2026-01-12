@@ -21,6 +21,7 @@ impl Plugin {
 
         opts_parts.push(format!("notifier = {}", Self::config_notifier()));
         opts_parts.push(format!("dashboard = {}", Self::config_dashboard()));
+        opts_parts.push(format!("bufdelete = {}", Self::config_bufdelete()));
         // NOTE: using fff for now.
         // opts_parts.push(format!("picker   = {}", Self::config_picker()));
 
@@ -35,6 +36,17 @@ impl Plugin {
             }}"#,
         )
         .leak()
+    }
+}
+
+// BUFFER DELETE
+// https://github.com/folke/snacks.nvim/blob/main/docs/bufdelete.md
+impl Plugin {
+    pub fn config_bufdelete() -> &'static str {
+        keymaps::MAPPING.signal(keymaps::Key::SnacksBufDelete);
+        r#"{
+            enabled = true,
+        }"#
     }
 }
 

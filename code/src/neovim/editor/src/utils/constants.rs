@@ -10,22 +10,10 @@ pub static NVIM_DATA_HOME: LazyLock<String> =
 
 pub static NVIM_TREESITTER_HOME: LazyLock<String> = LazyLock::new(|| format!("{}/treesitter", NVIM_DATA_HOME.as_str()));
 
-// ROOT of this rust project
-pub static NVIM_REPO_HOME: LazyLock<String> = LazyLock::new(|| {
-    let cwd = env::current_dir().expect("Failed to get current directory");
-    cwd.parent()
-        .and_then(|p| p.parent())
-        .and_then(|p| p.parent())
-        .expect("Failed to get grandparent directory")
-        .to_string_lossy()
-        .into_owned()
-});
-
 //
 //
 // MP = Plugin Manager
 //
 
 pub static NVIM_PM_INSTALL_HOME: LazyLock<String> = LazyLock::new(|| format!("{}/plugins", NVIM_DATA_HOME.as_str()));
-pub static NVIM_PM_LOCK: LazyLock<String> =
-    LazyLock::new(|| env::current_dir().expect("Failed to get current directory").to_string_lossy().to_string());
+pub static NVIM_PM_LOCK: LazyLock<String> = LazyLock::new(|| env!("CARGO_MANIFEST_DIR").to_string());
