@@ -1,12 +1,12 @@
+use std::path::PathBuf;
+
+use git2::build::RepoBuilder;
 use nvim_oxi::{
     self,
     mlua, //
 };
 
-use crate::core::constants::{
-    NVIM_PLUGINS_HOME,
-    NVIM_TREESITTER_HOME, //
-};
+use crate::utils::constants;
 
 use super::configs;
 
@@ -18,83 +18,6 @@ impl PluginManager {
         Ok(Self)
     }
 
-    fn spec() -> String {
-        use configs::*;
-
-        let specs = [
-            //
-            // Dependencies that other plugins depends on
-            colorful_menu::Plugin::spec(),
-            luarocks::Plugin::spec(),
-            mini_icons::Plugin::spec(),
-            nio::Plugin::spec(),
-            nui::Plugin::spec(),
-            plenary::Plugin::spec(),
-            web_devicons::Plugin::spec(),
-            //
-            // Plugins
-            abstract_cs::Plugin::spec(),
-            abstract_cursor::Plugin::spec(),
-            abstract_line::Plugin::spec(),
-            abstract_plugs::Plugin::spec(),
-            autopairs::Plugin::spec(),
-            blink::Plugin::spec(),
-            bqf::Plugin::spec(),
-            code_runner::Plugin::spec(),
-            colorizer::Plugin::spec(),
-            comment::Plugin::spec(),
-            csvview::Plugin::spec(),
-            dap::Plugin::spec(),
-            dap_ui::Plugin::spec(),
-            dap_virtual_text::Plugin::spec(),
-            dart_vim_plugin::Plugin::spec(),
-            fff::Plugin::spec(),
-            fidget::Plugin::spec(),
-            flutter_tools::Plugin::spec(),
-            gitgraph::Plugin::spec(),
-            gitsigns::Plugin::spec(),
-            goto_preview::Plugin::spec(),
-            grapple::Plugin::spec(),
-            helpview::Plugin::spec(),
-            hop::Plugin::spec(),
-            hovercraft::Plugin::spec(),
-            java::Plugin::spec(),
-            kulala::Plugin::spec(),
-            luasnip::Plugin::spec(),
-            markdown_preview::Plugin::spec(),
-            markview::Plugin::spec(),
-            neo_tree::Plugin::spec(),
-            neotest::Plugin::spec(),
-            noice::Plugin::spec(),
-            oil::Plugin::spec(),
-            penvim::Plugin::spec(),
-            renamer::Plugin::spec(),
-            rustaceanvim::Plugin::spec(),
-            schema_store::Plugin::spec(),
-            session_manager::Plugin::spec(),
-            snack::Plugin::spec(),
-            surround::Plugin::spec(),
-            tabby::Plugin::spec(),
-            tiny_code_action::Plugin::spec(),
-            treesitter::Plugin::spec(),
-            trouble::Plugin::spec(),
-            ts_autotag::Plugin::spec(),
-            ts_context_commentstring::Plugin::spec(),
-            typescript_tools::Plugin::spec(),
-            typst_preview::Plugin::spec(),
-            vim_dadbod::Plugin::spec(),
-            which_key::Plugin::spec(),
-            //
-            // mason::Plugin::spec(),
-            // mason_lspconfig::Plugin::spec(),
-            // mason_null_ls::Plugin::spec(),
-            // mason_nvim_dap::Plugin::spec(),
-            // none_ls::Plugin::spec(),
-        ];
-
-        format!("{{\n{}\n}}", specs.join(",\n"))
-    }
-
     // Setup lazy.nvim with plugins
     fn setup() -> nvim_oxi::Result<()> {
         //
@@ -102,8 +25,9 @@ impl PluginManager {
         Self::bootstrap(lua.clone())?;
 
         let spec = Self::spec();
-        let nvim_plugins_home: &str = &NVIM_PLUGINS_HOME;
-        let nvim_treesitter_home: &str = &NVIM_TREESITTER_HOME;
+        let nvim_treesitter_home: &str = &constants::NVIM_TREESITTER_HOME;
+        let nvim_plugins_home: &str = &constants::NVIM_PM_INSTALL_HOME;
+        let nvim_lock_path: &str = &constants::NVIM_PM_LOCK;
 
         let setup_lazy = format!(
             // language=lua
@@ -113,7 +37,7 @@ impl PluginManager {
 
                     root = {nvim_plugins_home:?}, -- directory where plugins will be installed
                     -- TODO: change it later with proper path
-                    lockfile = {nvim_plugins_home:?} .. "/lazy-lock.json", -- lockfile generated after running update.
+                    lockfile = {nvim_lock_path:?} .. "/plugin-lock.json", -- lockfile generated after running update.
 
                     performance = {{
                         cache = {{ enabled = true }},
@@ -156,34 +80,98 @@ impl PluginManager {
         Ok(())
     }
 
-    // Bootstrap lazy.nvim
     fn bootstrap(lua: mlua::Lua) -> nvim_oxi::Result<()> {
-        let lazypath: &str = &NVIM_PLUGINS_HOME;
+        let lazypath: PathBuf = PathBuf::from(&*constants::NVIM_PM_INSTALL_HOME).join("lazy.nvim");
 
-        let exec = format!(
-            r#"
-                local lazypath = {lazypath:?} .. "/lazy.nvim"
-                if not (vim.uv or vim.loop).fs_stat(lazypath) then
-                    local lazyrepo = "https://github.com/folke/lazy.nvim.git"
-                    local out = vim.fn.system({{ "git", "clone", "--filter=blob:none", "--branch=stable", lazyrepo, lazypath }})
-                    if vim.v.shell_error ~= 0 then
-                        vim.api.nvim_echo(
-                            {{
-                                {{ "Failed to clone lazy.nvim:\n", "ErrorMsg" }},
-                                {{ out, "WarningMsg" }},
-                                {{ "\nPress any key to exit..." }},
-                            }}, true, {{}}
-                        )
-                        vim.fn.getchar()
-                        os.exit(1)
-                    end
-                end
-                vim.opt.rtp:prepend(lazypath)
-            "#
-        );
+        if !lazypath.exists() {
+            let lazy_remote = "https://github.com/folke/lazy.nvim.git";
 
+            println!("lazy.nvin not found");
+            println!("installing... ");
+            println!("cloning: {lazy_remote}");
+
+            let mut fo = git2::FetchOptions::new();
+            fo.depth(1);
+            if let Err(e) = RepoBuilder::new().branch("main").fetch_options(fo).clone(lazy_remote, &lazypath) {
+                println!("failed to clone lazy.nvim\n{}", e);
+            }
+        };
+
+        let exec = format!("vim.opt.rtp:prepend({:?})", lazypath);
         lua.load(exec).exec()?;
 
         Ok(())
+    }
+}
+
+impl PluginManager {
+    fn spec() -> String {
+        use configs::*;
+
+        let specs = [
+            //
+            // Dependencies that other plugins depends on
+            colorful_menu::Plugin::spec(),
+            mini_icons::Plugin::spec(),
+            nio::Plugin::spec(),
+            nui::Plugin::spec(),
+            plenary::Plugin::spec(),
+            web_devicons::Plugin::spec(),
+            //
+            // Plugins
+            abstract_cs::Plugin::spec(),
+            abstract_cursor::Plugin::spec(),
+            abstract_line::Plugin::spec(),
+            abstract_plugs::Plugin::spec(),
+            autopairs::Plugin::spec(),
+            blink::Plugin::spec(),
+            bqf::Plugin::spec(),
+            code_runner::Plugin::spec(),
+            colorizer::Plugin::spec(),
+            comment::Plugin::spec(),
+            csvview::Plugin::spec(),
+            dap::Plugin::spec(),
+            dart_vim_plugin::Plugin::spec(),
+            fff::Plugin::spec(),
+            fidget::Plugin::spec(),
+            flutter_tools::Plugin::spec(),
+            gitgraph::Plugin::spec(),
+            gitsigns::Plugin::spec(),
+            goto_preview::Plugin::spec(),
+            grapple::Plugin::spec(),
+            helpview::Plugin::spec(),
+            hop::Plugin::spec(),
+            hovercraft::Plugin::spec(),
+            java::Plugin::spec(),
+            kulala::Plugin::spec(),
+            luasnip::Plugin::spec(),
+            markdown_preview::Plugin::spec(),
+            markview::Plugin::spec(),
+            mason::Plugin::spec(),
+            neo_tree::Plugin::spec(),
+            neotest::Plugin::spec(),
+            noice::Plugin::spec(),
+            none_ls::Plugin::spec(),
+            oil::Plugin::spec(),
+            penvim::Plugin::spec(),
+            renamer::Plugin::spec(),
+            rustaceanvim::Plugin::spec(),
+            schema_store::Plugin::spec(),
+            session_manager::Plugin::spec(),
+            snack::Plugin::spec(),
+            surround::Plugin::spec(),
+            tabby::Plugin::spec(),
+            tiny_code_action::Plugin::spec(),
+            treesitter::Plugin::spec(),
+            trouble::Plugin::spec(),
+            ts_autotag::Plugin::spec(),
+            ts_context_commentstring::Plugin::spec(),
+            typescript_tools::Plugin::spec(),
+            typst_preview::Plugin::spec(),
+            vim_dadbod::Plugin::spec(),
+            which_key::Plugin::spec(),
+        ];
+
+        format!("{{\n{}\n}}", specs.join(",\n"))
     }
 }

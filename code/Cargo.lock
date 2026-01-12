@@ -27,6 +27,7 @@ dependencies = [
  "abstract-autogood",
  "abstract-utils",
  "anyhow",
+ "git2",
  "nvim-oxi",
  "once_cell",
  "thiserror",

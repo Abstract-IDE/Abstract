@@ -1,10 +1,11 @@
 /*
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ────────────────────────────────────────────────
-Plugin: fff.nvim
-Source: https://github.com/dmtrKovalenko/fff.nvim
+Plugin: none-ls.nvim
+Source: https://github.com/nvimtools/none-ls.nvim
 
-Finally a smart fuzzy file picker for neovim.
+null-ls.nvim reloaded / Use Neovim as a language server
+to inject LSP diagnostics, code actions, and more via Lua.
 ────────────────────────────────────────────────
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 */
@@ -13,44 +14,69 @@ pub struct Plugin;
 
 impl Plugin {
     pub fn spec() -> &'static str {
-        let config = Self::config();
-        let init = Self::init();
-        let spec = format!(
-            // language=lua
-            r#"{{
-                'nvim-treesitter/nvim-treesitter',
-                lazy = false,
-                build = ':TSUpdate',
-                init = {init},
-                config = {config},
-            }}"#
-        );
-
-        Box::leak(spec.into_boxed_str())
+        r#"{
+            "nvimtools/none-ls.nvim",
+            lazy = true,
+        }"#
     }
 }
 
 impl Plugin {
-    pub fn init() -> &'static str {
+    pub fn setup() -> &'static str {
         // language=lua
-        r#"function()
-            local register = vim.treesitter.language.register
-            register("html", { "htmldjango" })
-            register("bash", { "zsh" } )
-            register('xml',  { 'svg', 'xslt' })
-        end"#
-    }
-}
+        r#"
+            -- https://github.com/nvimtools/none-ls.nvim/blob/main/doc/BUILTINS.md
+            local null = require("null-ls")
 
-impl Plugin {
-    pub fn config() -> &'static str {
-        // language=lua
-        r#"function()
-            require('nvim-treesitter').setup {
-                -- Directory to install parsers and queries to (prepended to `runtimepath` to have priority)
-                -- NOTE!: Remember to run vim.opt.runtimepath:append("/some/path/to/store/parsers")
-                install_dir = vim.fn.stdpath('data') .. '/rust/treesitter'
-            }
-        end"#
+            local formatting = null.builtins.formatting
+            -- local completion = null.builtins.completion
+            -- local diagnostics = null.builtins.diagnostics
+            -- local code_actions = null.builtins.code_actions
+
+            -- register any number of sources simultaneously
+            local sources = {}
+
+            -- === FORMATTING === ---
+            -- https://github.com/nvimtools/none-ls.nvim/tree/main/lua/null-ls/builtins/formatting
+
+            -- Go
+            if vim.fn.executable("gofmt") == 1 then
+                sources[#sources + 1] = formatting.gofmt.with({})
+            end
+
+            -- === CODEACTION === --
+            -- https://github.com/nvimtools/none-ls.nvim/tree/main/lua/null-ls/builtins/code_actions
+
+            -- -- Javascript
+            -- if vim.fn.executable("clang-format") == 1 then
+            --     sources[#sources + 1] = code_actions.eslint.with({
+            --         command = "eslint",
+            --         filetypes = { "javascript", "javascriptreact", "typescript", "typescriptreact", "vue" },
+            --         args = { "-f", "json", "--stdin", "--stdin-filename", "$FILENAME" },
+            --         to_stdin = true,
+            --     })
+            -- end
+
+            -- === DIAGNOSTICS === --
+            -- -- https://github.com/nvimtools/none-ls.nvim/tree/main/lua/null-ls/builtins/diagnostics
+
+            -- -- Django ("htmldjango")
+            -- if vim.fn.executable("djlint") == 1 then
+            --     sources[#sources+1] = diagnostics.djlint.with({
+            --         command = "djlint",
+            --         args = { "$FILENAME" },
+            --     })
+            -- end
+
+            -- === COMPLETION === --
+            -- https://github.com/nvimtools/none-ls.nvim/tree/main/lua/null-ls/builtins/completion
+
+            -- === HOVER === --
+            -- https://github.com/nvimtools/none-ls.nvim/tree/main/lua/null-ls/builtins/hover
+
+
+            -- setup null-ls
+            null.setup({ debug = false, sources = sources })
+        "#
     }
 }

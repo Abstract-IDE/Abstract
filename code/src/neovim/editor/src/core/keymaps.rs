@@ -246,11 +246,11 @@ impl Mapping {
             r#"{{
                 {{ "<leader>lt",  group = "{group_trouble}" }},
                 {{ "<Leader>ltt", "<CMD>Trouble diagnostics toggle<CR>",                        desc = "Diagnostics /project" }},
-                {{ "<leader>ltT", "<cmd>Trouble diagnostics toggle filter.buf=0<cr>",           desc = "Diagnostics /buffer" }},
-                {{ "<leader>lts", "<cmd>Trouble symbols toggle focus=false<cr>",                desc = "Symbols" }},
-                {{ "<leader>ltl", "<cmd>Trouble lsp toggle focus=false win.position=right<cr>", desc = "LSP Definitions/references/..." }},
                 {{ "<leader>ltL", "<cmd>Trouble loclist toggle<cr>",                            desc = "Location List" }},
+                {{ "<leader>ltT", "<cmd>Trouble diagnostics toggle filter.buf=0<cr>",           desc = "Diagnostics /buffer" }},
+                {{ "<leader>ltl", "<cmd>Trouble lsp toggle focus=false win.position=right<cr>", desc = "LSP Definitions/references/..." }},
                 {{ "<leader>ltq", "<cmd>Trouble qflist toggle<cr>",                             desc = "Quickfix List" }},
+                {{ "<leader>lts", "<cmd>Trouble symbols toggle focus=false<cr>",                desc = "Symbols" }},
             }}"#
         ).leak()
     }
@@ -453,7 +453,7 @@ impl Mapping {
                 {{ "<M-t><M-t>", function() require("abs").terminal().toggle() end, desc = "Terminal /toggle" }},
                 {{
                     mode = {{ "t" }},
-                    {{ "<M-t>n",     function() require("abs").terminal().new() end, desc = "Open new terminal" }},
+                    {{ "<M-t>n",     function() require("abs").terminal().new() end,  desc = "Open new terminal" }},
                     {{ "<M-t><M-h>", function() require("abs").terminal().prev() end, desc = "Goto previous terminal" }},
                     {{ "<M-t><M-l>", function() require("abs").terminal().next() end, desc = "Goto next terminal" }},
                 }}
@@ -468,32 +468,18 @@ impl Mapping {
         format!(
             r#"{{
                 {{ "<Leader>d",  group = "{group_debug}" }},
-                {{ "<Leader>dc", function() require('dap').continue() end, desc = "Continue debug" }},
-                {{ "<Leader>ds", function() require('dap').step_over() end, desc = "Step over" }},
-                {{ "<Leader>di", function() require('dap').step_into() end, desc = "Step into" }},
-                {{ "<Leader>do", function() require('dap').step_out() end, desc = "Step out" }},
                 {{ "<Leader>db", function() require('dap').toggle_breakpoint() end, desc = "Breakpoint /toggle" }},
-                {{ "<Leader>dr", function() require('dap').repl.open() end, desc = "Open REPL" }},
-                {{ "<Leader>dl", function() require('dap').run_last() end, desc = "Run last" }},
+                {{ "<Leader>dc", function() require('dap').continue() end,          desc = "Continue debug" }},
+                {{ "<Leader>di", function() require('dap').step_into() end,         desc = "Step into" }},
+                {{ "<Leader>dl", function() require('dap').run_last() end,          desc = "Run last" }},
+                {{ "<Leader>do", function() require('dap').step_out() end,          desc = "Step out" }},
+                {{ "<Leader>dr", function() require('dap').repl.open() end,         desc = "Open REPL" }},
+                {{ "<Leader>ds", function() require('dap').step_over() end,         desc = "Step over" }},
                 {{
                     {{ "<Leader>du",  group = "{group_ui}" }},
-                    {{ "<Leader>dup", function() require('dap.ui.widgets').preview() end, desc = " Preview widget" }},
-                    {{
-                        "<Leader>duf",
-                        function()
-                            local widgets = require('dap.ui.widgets')
-                            widgets.centered_float(widgets.frames)
-                        end,
-                        desc = "Frames widget"
-                    }},
-                    {{
-                        "<Leader>duc",
-                        function()
-                            local widgets = require('dap.ui.widgets')
-                            widgets.centered_float(widgets.scopes)
-                        end,
-                        desc = "Scopes widget"
-                    }},
+                    {{ "<Leader>dup", function() require('dap.ui.widgets').preview() end,                                              desc = "Preview widget" }},
+                    {{ "<Leader>duf", function() local widgets = require('dap.ui.widgets') widgets.centered_float(widgets.frames) end, desc = "Frames widget" }},
+                    {{ "<Leader>duc", function() local widgets = require('dap.ui.widgets') widgets.centered_float(widgets.scopes) end, desc = "Scopes widget" }},
                 }}
             }}"#
         )
@@ -505,19 +491,19 @@ impl Mapping {
         format!(
             r#"{{
                 {{ "<Leader>g",  group = "{group_go}" }},
-                {{ "<Leader>gt", ":Grapple open_tags<CR>", desc = "Show tags" }},
-                {{ "<Leader>gl", ":Grapple open_loaded<CR>", desc = "Show loaded" }},
-                {{ "<Leader>gs", ":Grapple open_scopes<CR>", desc = "Show scopes" }},
-                {{ "<Leader>ga", ":Grapple toggle<CR>", desc = "Tag /toggle" }},
-                {{ "<Leader>gk", ":Grapple toggle_tags<CR>", desc = "Tags /toggle" }},
-                {{ "<Leader>gK", ":Grapple toggle_scopes<CR>", desc = "Scopes /toggle" }},
-                {{ "<Leader>gn", ":Grapple cycle forward<CR>", desc = "Goto next tag" }},
-                {{ "<Leader>gp", ":Grapple cycle backward<CR>", desc = "Goto previous tag" }},
-                {{ "<M-1>", ":Grapple select index=1<CR>", desc = "Grapple select 1" }},
-                {{ "<M-2>", ":Grapple select index=2<CR>", desc = "Grapple select 2" }},
-                {{ "<M-3>", ":Grapple select index=3<CR>", desc = "Grapple select 3" }},
-                {{ "<M-4>", ":Grapple select index=4<CR>", desc = "Grapple select 4" }},
-                {{ "<M-5>", ":Grapple select index=5<CR>", desc = "Grapple select 5" }},
+                {{ "<Leader>gt", "<CMD> Grapple open_tags<CR>",      desc = "Show tags" }},
+                {{ "<Leader>gl", "<CMD> Grapple open_loaded<CR>",    desc = "Show loaded" }},
+                {{ "<Leader>gs", "<CMD> Grapple open_scopes<CR>",    desc = "Show scopes" }},
+                {{ "<Leader>ga", "<CMD> Grapple toggle<CR>",         desc = "Tag /toggle" }},
+                {{ "<Leader>gk", "<CMD> Grapple toggle_tags<CR>",    desc = "Tags /toggle" }},
+                {{ "<Leader>gK", "<CMD> Grapple toggle_scopes<CR>",  desc = "Scopes /toggle" }},
+                {{ "<Leader>gn", "<CMD> Grapple cycle forward<CR>",  desc = "Goto next tag" }},
+                {{ "<Leader>gp", "<CMD> Grapple cycle backward<CR>", desc = "Goto previous tag" }},
+                {{ "<M-1>",      "<CMD> Grapple select index=1<CR>", desc = "Grapple select 1" }},
+                {{ "<M-2>",      "<CMD> Grapple select index=2<CR>", desc = "Grapple select 2" }},
+                {{ "<M-3>",      "<CMD> Grapple select index=3<CR>", desc = "Grapple select 3" }},
+                {{ "<M-4>",      "<CMD> Grapple select index=4<CR>", desc = "Grapple select 4" }},
+                {{ "<M-5>",      "<CMD> Grapple select index=5<CR>", desc = "Grapple select 5" }},
             }}"#
         )
         .leak()

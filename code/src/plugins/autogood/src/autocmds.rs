@@ -1,10 +1,15 @@
 use nvim_oxi::{
     Result,
     api::{
-        self, create_autocmd,
-        opts::{CreateAugroupOpts, CreateAutocmdOpts},
+        self,
+        create_autocmd, //
+        opts::{
+            CreateAugroupOpts,
+            CreateAutocmdOpts, //
+        },
     },
 };
+
 use wl_utils::neovim::types::events::Events;
 
 pub struct AutoCmds {}

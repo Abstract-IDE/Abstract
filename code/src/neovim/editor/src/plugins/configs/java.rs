@@ -15,6 +15,7 @@ impl Plugin {
     pub fn spec() -> &'static str {
         r#"{
             "nvim-java/nvim-java",
+            ft = { "java", "kotlin" },
             opts = {},
         }"#
     }

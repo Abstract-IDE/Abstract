@@ -14,23 +14,21 @@ pub struct Plugin;
 impl Plugin {
     pub fn spec() -> &'static str {
         let opts = Self::opts();
-        let spec = format!(
+        format!(
             r#"{{
                 "saghen/blink.cmp",
-                lazy = false, -- lazy loading handled internally
+                lazy = false,
+                event = {{ "CmdlineEnter", "InsertEnter" }},
+
                 -- use a release tag to download pre-built binaries
                 -- OR build from source, requires nightly-https://rust-lang.github.io/rustup/concepts/channels.html#working-with-nightly-rust
                 -- build = 'cargo build --release',
                 version = "1.*",
                 -- allows extending the providers array elsewhere in your config without having to redefine it
                 opts_extend = {{ "sources.default" }},
-
-                opts = {}
+                opts = {opts},
             }}"#,
-            opts,
-        );
-
-        Box::leak(spec.into_boxed_str())
+        ).leak()
     }
 }
 

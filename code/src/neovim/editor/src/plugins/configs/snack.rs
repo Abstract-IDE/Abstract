@@ -20,6 +20,7 @@ impl Plugin {
         let mut opts_parts = Vec::new();
 
         opts_parts.push(format!("notifier = {}", Self::config_notifier()));
+        opts_parts.push(format!("dashboard = {}", Self::config_dashboard()));
         // NOTE: using fff for now.
         // opts_parts.push(format!("picker   = {}", Self::config_picker()));
 
@@ -417,5 +418,65 @@ impl Plugin {
                 extmarks = false, -- show extmarks errors
             },
         }"##
+    }
+}
+
+// DASHBOARD
+// https://github.com/folke/snacks.nvim/blob/main/docs/dashboard.md
+impl Plugin {
+    pub fn config_dashboard() -> &'static str {
+        r#"{
+            enabled = true,
+            width = 40,
+            sections = function()
+                local header = function()
+                    local _header = ""
+                    _header = _header .. "┃█████       " .. "\n"
+                    _header = _header .. "┃██ ██      " .. "\n"
+                    _header = _header .. "┃██  ██     " .. "\n"
+                    _header = _header .. "┃██ ████████  " .. "\n"
+                    _header = _header .. "┃██    ██   " .. "\n"
+                    _header = _header .. "┃██     ██  " .. "\n"
+                    return _header
+                end
+
+                local info = function()
+                    local _datetime, datetime = pcall(os.date, " %I:%M:%p (%d-%m-%Y)")
+                    local version = vim.version()
+                    local nvim_verion = string.format("v%d.%d.%d", version.major, version.minor, version.patch)
+                    if _datetime then
+                        return nvim_verion .. " | " .. datetime
+                    end
+                    return nvim_verion
+                end
+
+                local session = function()
+                    vim.cmd([[SessionManager load_session]])
+                end
+
+                -- stylua: ignore
+                return {
+                    { align = "center", text = { header() } },
+                    {
+                        gap = 0,
+                        indent = 0,
+                        padding = 4,
+                        { icon = " ", key = "n", desc = "New File", action = ":ene | startinsert" },
+                        { icon = " ", key = "r", desc = "Recent Files", action = ":lua Snacks.dashboard.pick('oldfiles')" },
+                        { icon = " ", key = "s", desc = "Sessions", action = session },
+                        { icon = " ", key = "f", desc = "Find File", action = ":lua Snacks.dashboard.pick('files')" },
+                        { icon = " ", key = "g", desc = "Find Text", action = ":lua Snacks.dashboard.pick('live_grep')" },
+                        { icon = "󰒲 ", key = "L", desc = "Lazy", action = ":Lazy", enabled = package.loaded.lazy ~= nil },
+                        { icon = " ", key = "q", desc = "Quit", action = ":qa" },
+                    },
+                    {
+                        align = "center",
+                        gap = 0,
+                        { section = "startup" },
+                        { text = { info() } },
+                    }
+                }
+            end,
+        }"#
     }
 }

@@ -20,11 +20,12 @@ wp_autogood = { workspace = true }
 
 # 3rd parties libraries
 anyhow    = { workspace = true }
-# mlua      = { workspace = true }
+git2      = { workspace = true }
 nvim-oxi  = { workspace = true }
 once_cell = { workspace = true }
 thiserror = { workspace = true }
 tokio     = { workspace = true }
+# mlua      = { workspace = true }
 
 
 [build-dependencies]

@@ -9,7 +9,7 @@ Nvim Treesitter configurations and abstraction layer
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 */
 
-use crate::core::constants::NVIM_TREESITTER_HOME;
+use crate::utils::constants::NVIM_TREESITTER_HOME;
 
 pub struct Plugin;
 
