@@ -15,16 +15,17 @@ pub struct Plugin;
 impl Plugin {
     pub fn spec() -> &'static str {
         let config = Self::config();
-        let spec = format!(
+        format!(
             // language=lua
             r#"{{
                 "Abstract-IDE/Abstract-cs",
                 branch = "rewrite-2",
+                lazy = false,
+                priority = 1000,
                 config = {config},
             }}"#
-        );
-
-        Box::leak(spec.into_boxed_str())
+        )
+        .leak()
     }
 }
 

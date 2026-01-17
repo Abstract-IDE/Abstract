@@ -89,13 +89,12 @@ impl Plugin {
             r#"function()
                 require("mason").setup({mason_opts})
 
-                -- === must load after mason ===
+                -- === must be loaded after mason ===
+                -- WARN! order matters
                 {setup_lsp}
                 {setup_mason_lspconfig}
-                {setup_mason_nvim_dap}
-
-                -- null/none-ls
                 {setup_mason_null_ls}
+                {setup_mason_nvim_dap}
                 {setup_none_ls}
 
             end"#
@@ -107,7 +106,7 @@ impl Plugin {
 /*
 ────────────────────────────────────────────────
 Plugin: mason-lspconfig.nvim
-Source: https://github.com/williamboman/mason-lspconfig.nvim
+Source: https://github.com/mason-org/mason-lspconfig.nvim
 
 Extension to mason.nvim that makes it easier to use lspconfig with mason.nvim.
 ────────────────────────────────────────────────
@@ -164,6 +163,7 @@ impl PluginMasonNullLs {
         r#"{
             "jay-babu/mason-null-ls.nvim",
             lazy=true,
+            event = { "BufReadPre", "BufNewFile" },
         }"#
     }
 
@@ -171,8 +171,13 @@ impl PluginMasonNullLs {
         // language=lua
         r#"
         require("mason-null-ls").setup({
-            ensure_installed = {
-                -- Opt to list sources here, when available in mason.
+            -- A list of sources to install if they're not already installed.
+            ensure_installed = {},
+            -- Enable or disable null-ls methods to get set up
+            -- This setting is useful if some functionality is handled by other plugins such as `conform` and `nvim-lint`
+            methods = {
+                formatting = true,
+                code_actions = true,
             },
             automatic_installation = false,
             handlers = {},
