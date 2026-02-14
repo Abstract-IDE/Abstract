@@ -9,12 +9,14 @@ Performant, batteries-included completion plugin for Neovim
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 */
 
+use crate::lua_spec;
+
 pub struct Plugin;
 
 impl Plugin {
-    pub fn spec() -> &'static str {
+    pub fn spec() -> crate::plugins::spec::SpecInfo {
         let opts = Self::opts();
-        format!(
+        lua_spec!(format!(
             r#"{{
                 "saghen/blink.cmp",
                 lazy = false,
@@ -28,7 +30,7 @@ impl Plugin {
                 opts_extend = {{ "sources.default" }},
                 opts = {opts},
             }}"#,
-        ).leak()
+        ).leak())
     }
 }
 

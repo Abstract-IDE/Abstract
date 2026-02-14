@@ -15,13 +15,15 @@ The Neovim plugin for https://github.com/Myriad-Dreamin/tinymist.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 */
 
+use crate::lua_spec;
+
 pub struct Plugin;
 
 impl Plugin {
-    pub fn spec() -> &'static str {
+    pub fn spec() -> crate::plugins::spec::SpecInfo {
         let opts = Self::opts();
 
-        format!(
+        lua_spec!(format!(
             // language=lua
             r#"{{
                 "chomosuke/typst-preview.nvim",
@@ -32,7 +34,7 @@ impl Plugin {
                 opts = {opts},
             }}"#
         )
-        .leak()
+        .leak())
     }
 }
 

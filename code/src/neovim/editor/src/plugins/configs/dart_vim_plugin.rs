@@ -10,13 +10,15 @@ and indentation for Dart code in Vim.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 */
 
+use crate::lua_spec;
+
 pub struct Plugin;
 
 impl Plugin {
-    pub fn spec() -> &'static str {
+    pub fn spec() -> crate::plugins::spec::SpecInfo {
         let config = Self::config();
 
-        format!(
+        lua_spec!(format!(
             // language=lua
             r#"{{
                 "dart-lang/dart-vim-plugin",
@@ -25,7 +27,7 @@ impl Plugin {
                 config = {config},
             }}"#
         )
-        .leak()
+        .leak())
     }
 }
 

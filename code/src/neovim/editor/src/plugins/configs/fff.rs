@@ -10,14 +10,15 @@ Finally a smart fuzzy file picker for neovim.
 */
 
 use crate::core::keymaps;
+use crate::lua_spec;
 
 pub struct Plugin;
 
 impl Plugin {
-    pub fn spec() -> &'static str {
+    pub fn spec() -> crate::plugins::spec::SpecInfo {
         let opts = Self::opts();
         let keys = keymaps::MAPPING.get_map(keymaps::Key::Fff);
-        format!(
+        lua_spec!(format!(
             // language=lua
             r#"{{
                 "dmtrKovalenko/fff.nvim",
@@ -28,7 +29,7 @@ impl Plugin {
                 opts = {opts},
             }}"#
         )
-        .leak()
+        .leak())
     }
 }
 

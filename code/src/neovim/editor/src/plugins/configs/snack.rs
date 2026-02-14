@@ -10,11 +10,12 @@ A collection of small QoL plugins for Neovim.
 */
 
 use crate::core::keymaps;
+use crate::lua_spec;
 
 pub struct Plugin;
 
 impl Plugin {
-    pub fn spec() -> &'static str {
+    pub fn spec() -> crate::plugins::spec::SpecInfo {
         keymaps::MAPPING.signal(keymaps::Key::Snacks);
 
         let mut opts_parts = Vec::new();
@@ -27,7 +28,7 @@ impl Plugin {
 
         let opts_parts = opts_parts.join(",\n");
 
-        format!(
+        lua_spec!(format!(
             r#"{{
                 "folke/snacks.nvim",
                 priority = 1000,
@@ -35,7 +36,7 @@ impl Plugin {
                 config = function() require("snacks").setup({{ {opts_parts} }}) end
             }}"#,
         )
-        .leak()
+        .leak())
     }
 }
 

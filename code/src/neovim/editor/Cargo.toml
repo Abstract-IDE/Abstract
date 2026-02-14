@@ -19,12 +19,14 @@ wl_utils    = { workspace = true }
 wp_autogood = { workspace = true }
 
 # 3rd parties libraries
-anyhow    = { workspace = true }
-git2      = { workspace = true }
-nvim-oxi  = { workspace = true }
-once_cell = { workspace = true }
-thiserror = { workspace = true }
-tokio     = { workspace = true }
+anyhow             = { workspace = true }
+git2               = { workspace = true }
+nvim-oxi           = { workspace = true }
+once_cell          = { workspace = true }
+thiserror          = { workspace = true }
+tokio              = { workspace = true }
+tracing            = { workspace = true }
+tracing-subscriber = { workspace = true }
 # mlua      = { workspace = true }
 
 

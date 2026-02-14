@@ -9,15 +9,17 @@ Neovim treesitter plugin for setting the commentstring based on the cursor locat
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 */
 
+use crate::lua_spec;
+
 pub struct Plugin;
 
 impl Plugin {
-    pub fn spec() -> &'static str {
+    pub fn spec() -> crate::plugins::spec::SpecInfo {
         // language=lua
-        r#"{
+        lua_spec!(r#"{
             "JoosepAlviste/nvim-ts-context-commentstring",
             lazy = true,
-        }"#
+        }"#)
     }
 }
 

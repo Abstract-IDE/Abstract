@@ -9,21 +9,21 @@ collections of neovim plugins
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 */
 
+use crate::lua_spec;
+
 pub struct Plugin;
 
 impl Plugin {
-    pub fn spec() -> &'static str {
+    pub fn spec() -> crate::plugins::spec::SpecInfo {
         let config = Self::config();
 
-        let spec = format!(
+        lua_spec!(format!(
             r#"{{
                 "Abstract-IDE/abstract-plugs.nvim",
                 config = {}
             }}"#,
             config,
-        );
-
-        Box::leak(spec.into_boxed_str())
+        ).leak())
     }
 }
 

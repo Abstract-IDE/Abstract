@@ -11,17 +11,19 @@ anywhere in a document with as few keystrokes as possible
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 */
 
-use crate::core::keymaps::{
-    MAPPING, //
-    Key,
+use crate::{
+    core::keymaps::{Key, MAPPING},
+    lua_spec,
+    plugins::spec::SpecInfo,
 };
 
 pub struct Plugin;
 
 impl Plugin {
-    pub fn spec() -> &'static str {
-        let spec = format!(
-            r#"{{
+    pub fn spec() -> SpecInfo {
+        lua_spec!(
+            format!(
+                r#"{{
                 "smoka7/hop.nvim",
                 version = "*",
                 keys={},
@@ -30,9 +32,9 @@ impl Plugin {
                     jump_on_sole_occurrence = false,
                 }},
             }}"#,
-            MAPPING.get_map(Key::Hop)
-        );
-
-        Box::leak(spec.into_boxed_str())
+                MAPPING.get_map(Key::Hop)
+            )
+            .leak()
+        )
     }
 }

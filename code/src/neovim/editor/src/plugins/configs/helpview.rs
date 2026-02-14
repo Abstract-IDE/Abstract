@@ -9,14 +9,16 @@ An impractical way to view vimdoc/help files
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 */
 
+use crate::lua_spec;
+
 pub struct Plugin;
 
 impl Plugin {
-    pub fn spec() -> &'static str {
-        r#"{
+    pub fn spec() -> crate::plugins::spec::SpecInfo {
+        lua_spec!(r#"{
             "OXY2DEV/helpview.nvim",
             ft = "help",
             opts = {},
-        }"#
+        }"#)
     }
 }

@@ -9,12 +9,14 @@ Snippet Engine for Neovim written in Lua.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 */
 
+use crate::lua_spec;
+
 pub struct Plugin;
 
 impl Plugin {
-    pub fn spec() -> &'static str {
+    pub fn spec() -> crate::plugins::spec::SpecInfo {
         let config = Self::config();
-        let spec = format!(
+        lua_spec!(format!(
             r#"{{
                 "L3MON4D3/LuaSnip",
                 version = "v2.*", -- follow latest release.
@@ -27,9 +29,7 @@ impl Plugin {
                 config={}
             }}"#,
             config,
-        );
-
-        Box::leak(spec.into_boxed_str())
+        ).leak())
     }
 }
 

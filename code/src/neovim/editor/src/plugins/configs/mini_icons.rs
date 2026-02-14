@@ -9,13 +9,15 @@ Icon provider. Part of 'mini.nvim' library.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 */
 
+use crate::lua_spec;
+
 pub struct Plugin;
 
 impl Plugin {
-    pub fn spec() -> &'static str {
-        r#"{
+    pub fn spec() -> crate::plugins::spec::SpecInfo {
+        lua_spec!(r#"{
             "nvim-mini/mini.icons",
             lazy = true
-        }"#
+        }"#)
     }
 }

@@ -9,28 +9,34 @@ Debug Adapter Protocol client implementation for Neovim
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 */
 
-use crate::core::keymaps;
+use crate::{
+    core::keymaps,
+    lua_spec,
+    plugins::spec::SpecInfo, //
+};
 
 pub struct Plugin;
 
 impl Plugin {
-    pub fn spec() -> &'static str {
+    pub fn spec() -> SpecInfo {
         keymaps::MAPPING.signal(keymaps::Key::Dap);
 
         let config_dap_ui = PluginDapUi::spec();
         let config_dap_virtual_text = PluginDapVirtualText::spec();
 
         // language=lua
-        format!(
-            r#"{{
+        lua_spec!(
+            format!(
+                r#"{{
             "mfussenegger/nvim-dap",
             dependencies = {{
                 {config_dap_ui},
                 {config_dap_virtual_text},
             }},
         }}"#
+            )
+            .leak()
         )
-        .leak()
     }
 }
 

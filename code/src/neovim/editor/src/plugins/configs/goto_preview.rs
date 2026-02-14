@@ -11,14 +11,15 @@ implementation, declaration and references calls in floating windows.
 */
 
 use crate::core::keymaps;
+use crate::lua_spec;
 
 pub struct Plugin;
 
 impl Plugin {
-    pub fn spec() -> &'static str {
+    pub fn spec() -> crate::plugins::spec::SpecInfo {
         let config = Self::config();
 
-        format!(
+        lua_spec!(format!(
             // language=lua
             r#"{{
                 "rmagatti/goto-preview",
@@ -26,7 +27,7 @@ impl Plugin {
                 config = {config},
             }}"#
         )
-        .leak()
+        .leak())
     }
 }
 

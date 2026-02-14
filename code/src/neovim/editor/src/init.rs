@@ -1,3 +1,5 @@
+use std::panic;
+
 use nvim_oxi::{self};
 use wp_autogood::{self};
 
@@ -7,11 +9,49 @@ use crate::{
         keymaps, //
     },
     plugins::lazy,
-    utils::runtime, //
+    utils::{
+        runtime,
+        trace::{self, NotifyLevel}, //
+    },
 };
 
 #[nvim_oxi::plugin]
 fn libabstract() -> nvim_oxi::Result<()> {
+    // Initialize tracing first so all subsequent code can use tracing macros
+    trace::init();
+    tracing::info!("Abstract initializing...");
+
+    // Catch any panics so they show as error messages instead of killing Neovim
+    let result = panic::catch_unwind(plugins_init);
+
+    match result {
+        Ok(Ok(())) => {
+            tracing::info!("Abstract initialized successfully");
+            Ok(())
+        },
+        Ok(Err(e)) => {
+            let msg = format!("[Abstract] {e}");
+            tracing::error!("{msg}");
+            trace::vim_notify(&msg, NotifyLevel::Error);
+            Ok(())
+        },
+        Err(panic_info) => {
+            let panic_msg = if let Some(s) = panic_info.downcast_ref::<&str>() {
+                s.to_string()
+            } else if let Some(s) = panic_info.downcast_ref::<String>() {
+                s.clone()
+            } else {
+                "Unknown panic".to_string()
+            };
+            let msg = format!("[Abstract] PANIC: {panic_msg}");
+            tracing::error!("{msg}");
+            trace::vim_notify(&msg, NotifyLevel::Error);
+            Ok(())
+        },
+    }
+}
+
+fn plugins_init() -> nvim_oxi::Result<()> {
     Config::init()?;
     plugins_setup()?;
     runtime::spawn(async {

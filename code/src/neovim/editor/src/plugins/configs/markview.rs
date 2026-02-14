@@ -10,14 +10,15 @@ A hackable markdown, Typst, latex, html(inline) & YAML previewer for Neovim
 */
 
 use crate::core::keymaps;
+use crate::lua_spec;
 
 pub struct Plugin;
 
 impl Plugin {
-    pub fn spec() -> &'static str {
+    pub fn spec() -> crate::plugins::spec::SpecInfo {
         let config = Self::config();
 
-        format!(
+        lua_spec!(format!(
             // language=lua
             r#"{{
                 "OXY2DEV/markview.nvim",
@@ -27,7 +28,7 @@ impl Plugin {
                 config = {config},
             }}"#
         )
-        .leak()
+        .leak())
     }
 }
 

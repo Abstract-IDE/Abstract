@@ -10,15 +10,17 @@ run and visualize code actions with Telescope.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 */
 
+use crate::lua_spec;
+
 pub struct Plugin;
 
 impl Plugin {
-    pub fn spec() -> &'static str {
-        r#"{
+    pub fn spec() -> crate::plugins::spec::SpecInfo {
+        lua_spec!(r#"{
             "rachartier/tiny-code-action.nvim",
             lazy = true,
             event = { "LspAttach" },
             opts = {},
-        }"#
+        }"#)
     }
 }

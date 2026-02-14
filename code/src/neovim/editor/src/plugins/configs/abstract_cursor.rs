@@ -9,21 +9,21 @@ dynamic cursor
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 */
 
+use crate::lua_spec;
+
 pub struct Plugin;
 
 impl Plugin {
-    pub fn spec() -> &'static str {
+    pub fn spec() -> crate::plugins::spec::SpecInfo {
         let opts = Self::opts();
-        let spec = format!(
+        lua_spec!(format!(
             // language=lua
             r#"{{
                 "Abstract-IDE/abstract-cursor",
                 event = {{"BufRead"}},
                 opts = {opts},
             }}"#
-        );
-
-        Box::leak(spec.into_boxed_str())
+        ).leak())
     }
 }
 

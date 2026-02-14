@@ -9,11 +9,13 @@ Bring enjoyment to your auto completion.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 */
 
+use crate::lua_spec;
+
 pub struct Plugin;
 
 impl Plugin {
-    pub fn spec() -> &'static str {
-        r#"{
+    pub fn spec() -> crate::plugins::spec::SpecInfo {
+        lua_spec!(r#"{
             "xzbdmw/colorful-menu.nvim",
             lazy = true,
             opts = {
@@ -25,6 +27,6 @@ impl Plugin {
                 -- Default 60.
                 max_width = 40,
             }
-        }"#
+        }"#)
     }
 }

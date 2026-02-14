@@ -10,23 +10,26 @@ With this plugin, you can easily view and edit CSV files within Neovim.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 */
 
+use crate::{lua_spec, plugins::spec::SpecInfo};
+
 pub struct Plugin;
 
 impl Plugin {
-    pub fn spec() -> &'static str {
+    pub fn spec() -> SpecInfo {
         let opts = Self::opts();
 
-        let spec = format!(
-            r#"{{
+        lua_spec!(
+            format!(
+                r#"{{
                 'hat0uma/csvview.nvim',
                 lazy = true,
                 ft = "csv",
                 opts = {}
             }}"#,
-            opts,
-        );
-
-        Box::leak(spec.into_boxed_str())
+                opts,
+            )
+            .leak()
+        )
     }
 }
 

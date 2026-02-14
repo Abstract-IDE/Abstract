@@ -12,12 +12,13 @@ it manages projects like in intellij but without being slow
 */
 
 use crate::core::keymaps;
+use crate::lua_spec;
 
 pub struct Plugin;
 
 impl Plugin {
-    pub fn spec() -> &'static str {
-        let spec = format!(
+    pub fn spec() -> crate::plugins::spec::SpecInfo {
+        lua_spec!(format!(
             r#"{{
                 "CRAG666/code_runner.nvim",
                 event = "BufRead",
@@ -28,9 +29,7 @@ impl Plugin {
             keymaps::MAPPING.get_map(keymaps::Key::CodeRunner),
             Self::opts(),
             keymaps::MAPPING.set_map_str(keymaps::Key::CodeRunner)
-        );
-
-        Box::leak(spec.into_boxed_str())
+        ).leak())
     }
 }
 

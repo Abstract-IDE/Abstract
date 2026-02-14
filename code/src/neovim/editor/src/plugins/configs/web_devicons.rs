@@ -11,13 +11,15 @@ Light and dark color variants are provided.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 */
 
+use crate::lua_spec;
+
 pub struct Plugin;
 
 impl Plugin {
-    pub fn spec() -> &'static str {
-        r#"{
+    pub fn spec() -> crate::plugins::spec::SpecInfo {
+        lua_spec!(r#"{
             "nvim-tree/nvim-web-devicons",
             lazy = true
-        }"#
+        }"#)
     }
 }

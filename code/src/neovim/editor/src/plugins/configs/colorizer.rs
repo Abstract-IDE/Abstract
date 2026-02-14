@@ -15,22 +15,22 @@ now it moved to https://github.com/catgoose/nvim-colorizer.lua
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 */
 
+use crate::lua_spec;
+
 pub struct Plugin;
 
 impl Plugin {
-    pub fn spec() -> &'static str {
+    pub fn spec() -> crate::plugins::spec::SpecInfo {
         let opts = Self::opts();
 
-        let spec = format!(
+        lua_spec!(format!(
             r#"{{
                 "catgoose/nvim-colorizer.lua",
                 event = {{ "BufReadPre", "BufNewFile", "InsertEnter" }},
                 opts = {}
             }}"#,
             opts,
-        );
-
-        Box::leak(spec.into_boxed_str())
+        ).leak())
     }
 }
 

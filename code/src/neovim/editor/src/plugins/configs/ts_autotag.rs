@@ -9,12 +9,14 @@ Use treesitter to auto close and auto rename html tag
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 */
 
+use crate::lua_spec;
+
 pub struct Plugin;
 
 impl Plugin {
-    pub fn spec() -> &'static str {
+    pub fn spec() -> crate::plugins::spec::SpecInfo {
         // language=lua
-        r#"{
+        lua_spec!(r#"{
             "windwp/nvim-ts-autotag",
             event = { "InsertEnter", "LspAttach" },
             -- stylua: ignore
@@ -24,6 +26,6 @@ impl Plugin {
                 "svelte", "tsx", "typescript", "typescriptreact", "vue", "xml",
             },
             opts = {},
-        }"#
+        }"#)
     }
 }

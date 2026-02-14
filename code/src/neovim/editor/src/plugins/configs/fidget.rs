@@ -9,13 +9,15 @@ Source: https://github.com/j-hui/fidget.nvim
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 */
 
+use crate::lua_spec;
+
 pub struct Plugin;
 
 impl Plugin {
-    pub fn spec() -> &'static str {
+    pub fn spec() -> crate::plugins::spec::SpecInfo {
         let opts = Self::opts();
 
-        let spec = format!(
+        lua_spec!(format!(
             r#"{{
                 "j-hui/fidget.nvim",
                 lazy = true,
@@ -23,9 +25,7 @@ impl Plugin {
                 opts = {}
             }}"#,
             opts,
-        );
-
-        Box::leak(spec.into_boxed_str())
+        ).leak())
     }
 }
 

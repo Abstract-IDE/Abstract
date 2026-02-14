@@ -10,15 +10,16 @@ A minimal REST-Client Interface for Neovim.
 */
 
 use crate::core::keymaps;
+use crate::lua_spec;
 
 pub struct Plugin;
 
 impl Plugin {
-    pub fn spec() -> &'static str {
+    pub fn spec() -> crate::plugins::spec::SpecInfo {
         let opts = Self::opts();
         let keys = keymaps::MAPPING.get_map(keymaps::Key::Kulala);
 
-        format!(
+        lua_spec!(format!(
             // language=lua
             r#"{{
                 "mistweaverco/kulala.nvim",
@@ -28,7 +29,7 @@ impl Plugin {
                 opts = {opts},
             }}"#
         )
-        .leak()
+        .leak())
     }
 }
 

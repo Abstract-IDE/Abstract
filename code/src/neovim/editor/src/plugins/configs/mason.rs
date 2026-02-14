@@ -11,18 +11,19 @@ Git Graph plugin for neovim.
 
 use super::none_ls;
 use crate::core::lsp::Lsp;
+use crate::lua_spec;
 
 pub struct Plugin;
 
 impl Plugin {
-    pub fn spec() -> &'static str {
+    pub fn spec() -> crate::plugins::spec::SpecInfo {
         let config = Self::config();
 
         let config_mason_lspconfig = PluginMasonLspConfig::spec();
         let config_mason_null_ls = PluginMasonNullLs::spec();
         let config_mason_nvim_dap = PluginMasonNvimDap::spec();
 
-        format!(
+        lua_spec!(format!(
             // language=lua
             r#"{{
                 "mason-org/mason.nvim",
@@ -36,7 +37,7 @@ impl Plugin {
                 config={config},
             }}"#
         )
-        .leak()
+        .leak())
     }
 
     pub fn opts() -> &'static str {

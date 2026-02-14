@@ -11,13 +11,14 @@ Supports treesitter, dot repeat, left-right/up-down motions, hooks, and more
 */
 
 use super::ts_context_commentstring;
+use crate::lua_spec;
 
 pub struct Plugin;
 
 impl Plugin {
-    pub fn spec() -> &'static str {
+    pub fn spec() -> crate::plugins::spec::SpecInfo {
         let opts = Self::opts();
-        format!(
+        lua_spec!(format!(
             // language=lua
             r#"{{
                 "numToStr/Comment.nvim",
@@ -25,7 +26,7 @@ impl Plugin {
                 opts = {opts},
             }}"#
         )
-        .leak()
+        .leak())
     }
 }
 

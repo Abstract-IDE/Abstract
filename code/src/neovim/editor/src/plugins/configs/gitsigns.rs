@@ -11,22 +11,22 @@ Deep buffer integration for Git
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 */
 
+use crate::lua_spec;
+
 pub struct Plugin;
 
 impl Plugin {
-    pub fn spec() -> &'static str {
+    pub fn spec() -> crate::plugins::spec::SpecInfo {
         let opts = Self::opts();
 
-        let spec = format!(
+        lua_spec!(format!(
             r#"{{
                 "lewis6991/gitsigns.nvim",
                 lazy = true,
                 event = {{ "BufReadPre", "BufNewFile", "InsertEnter" }},
                 opts = {opts},
             }}"#,
-        );
-
-        Box::leak(spec.into_boxed_str())
+        ).leak())
     }
 }
 

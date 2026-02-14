@@ -10,14 +10,15 @@ Nvim Treesitter configurations and abstraction layer
 */
 
 use crate::utils::constants::NVIM_TREESITTER_HOME;
+use crate::lua_spec;
 
 pub struct Plugin;
 
 impl Plugin {
-    pub fn spec() -> &'static str {
+    pub fn spec() -> crate::plugins::spec::SpecInfo {
         let config = Self::config();
         let init = Self::init();
-        let spec = format!(
+        lua_spec!(format!(
             // language=lua
             r#"{{
                 'nvim-treesitter/nvim-treesitter',
@@ -26,9 +27,7 @@ impl Plugin {
                 init = {init},
                 config = {config},
             }}"#
-        );
-
-        Box::leak(spec.into_boxed_str())
+        ).leak())
     }
 }
 

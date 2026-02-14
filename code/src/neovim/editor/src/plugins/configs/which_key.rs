@@ -11,13 +11,14 @@ with possible key bindings of the command you started typing.
 */
 
 use crate::core::keymaps;
+use crate::lua_spec;
 
 pub struct Plugin;
 
 impl Plugin {
-    pub fn spec() -> &'static str {
+    pub fn spec() -> crate::plugins::spec::SpecInfo {
         let opts = Self::opts();
-        format!(
+        lua_spec!(format!(
             r#"{{
                 "folke/which-key.nvim",
                 event = "VeryLazy",
@@ -27,7 +28,7 @@ impl Plugin {
             keymaps::MAPPING.get_map(keymaps::Key::WhichKey),
             opts,
         )
-        .leak()
+        .leak())
     }
 }
 

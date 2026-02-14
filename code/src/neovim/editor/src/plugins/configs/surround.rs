@@ -9,13 +9,15 @@ Add/change/delete surrounding delimiter pairs with ease.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 */
 
+use crate::lua_spec;
+
 pub struct Plugin;
 
 impl Plugin {
-    pub fn spec() -> &'static str {
+    pub fn spec() -> crate::plugins::spec::SpecInfo {
         let opts = Self::opts();
 
-        format!(
+        lua_spec!(format!(
             // language=lua
             r#"{{
                 "kylechui/nvim-surround",
@@ -24,7 +26,7 @@ impl Plugin {
                 opts = {opts},
             }}"#
         )
-        .leak()
+        .leak())
     }
 }
 

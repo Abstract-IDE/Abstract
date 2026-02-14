@@ -10,14 +10,15 @@ Neovim plugin to manage the file system and other tree like structures.
 */
 
 use crate::core::keymaps;
+use crate::lua_spec;
 
 pub struct Plugin;
 
 impl Plugin {
-    pub fn spec() -> &'static str {
+    pub fn spec() -> crate::plugins::spec::SpecInfo {
         let opts = Self::opts();
 
-        format!(
+        lua_spec!(format!(
             // language=lua
             r#"{{
                 "nvim-neo-tree/neo-tree.nvim",
@@ -28,7 +29,7 @@ impl Plugin {
                 opts = {opts},
             }}"#
         )
-        .leak()
+        .leak())
     }
 }
 

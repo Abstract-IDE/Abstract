@@ -9,24 +9,30 @@ Neovim file explorer: edit your filesystem like a buffer
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 */
 
-use crate::core::keymaps;
+use crate::{
+    core::keymaps,
+    lua_spec,
+    plugins::spec::SpecInfo, //
+};
 
 pub struct Plugin;
 
 impl Plugin {
-    pub fn spec() -> &'static str {
+    pub fn spec() -> SpecInfo {
         let opts = Self::opts();
         let keys = keymaps::MAPPING.get_map(keymaps::Key::Oil);
 
-        format!(
-            // language=lua
-            r#"{{
+        lua_spec!(
+            format!(
+                // language=lua
+                r#"{{
                 "stevearc/oil.nvim",
                 keys = {keys},
                 opts = {opts},
             }}"#
+            )
+            .leak()
         )
-        .leak()
     }
 }
 

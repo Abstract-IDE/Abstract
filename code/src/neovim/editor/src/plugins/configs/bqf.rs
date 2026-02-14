@@ -9,12 +9,14 @@ Better quickfix window in Neovim, polish old quickfix window.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 */
 
+use crate::lua_spec;
+
 pub struct Plugin;
 
 impl Plugin {
-    pub fn spec() -> &'static str {
+    pub fn spec() -> crate::plugins::spec::SpecInfo {
         let opts = Self::opts();
-        let spec = format!(
+        lua_spec!(format!(
             // language=lua
             r#"{{
                 'nvim-treesitter/nvim-treesitter',
@@ -22,9 +24,7 @@ impl Plugin {
                 build = ':TSUpdate',
                 opts = {opts},
             }}"#
-        );
-
-        Box::leak(spec.into_boxed_str())
+        ).leak())
     }
 }
 

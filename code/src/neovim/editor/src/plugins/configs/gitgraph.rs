@@ -10,15 +10,16 @@ Git Graph plugin for neovim.
 */
 
 use crate::core::keymaps;
+use crate::lua_spec;
 
 pub struct Plugin;
 
 impl Plugin {
-    pub fn spec() -> &'static str {
+    pub fn spec() -> crate::plugins::spec::SpecInfo {
         let config = Self::config();
         let keys = keymaps::MAPPING.get_map(keymaps::Key::GitGraph);
 
-        format!(
+        lua_spec!(format!(
             // language=lua
             r#"{{
                 "isakbm/gitgraph.nvim",
@@ -28,7 +29,7 @@ impl Plugin {
                 config = {config},
             }}"#
         )
-        .leak()
+        .leak())
     }
 }
 

@@ -10,11 +10,13 @@ scrolling and flexible configuration.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 */
 
+use crate::lua_spec;
+
 pub struct Plugin;
 
 impl Plugin {
-    pub fn spec() -> &'static str {
-        r#"{
+    pub fn spec() -> crate::plugins::spec::SpecInfo {
+        lua_spec!(r#"{
             "iamcco/markdown-preview.nvim",
             cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
             ft = { "markdown" },
@@ -22,6 +24,6 @@ impl Plugin {
             init = function()
                 vim.g.mkdp_filetypes = { "markdown" }
             end,
-        }"#
+        }"#)
     }
 }
