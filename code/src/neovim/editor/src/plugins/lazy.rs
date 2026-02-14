@@ -7,9 +7,12 @@ use nvim_oxi::{
 };
 
 use super::{configs, spec::SpecInfo};
-use crate::utils::{
-    constants,
-    trace::{self, NotifyLevel},
+use crate::{
+    lua_file, lua_spec,
+    utils::{
+        constants,
+        trace::{self, NotifyLevel},
+    },
 };
 
 pub struct PluginManager;
@@ -31,58 +34,17 @@ impl PluginManager {
         let nvim_plugins_home: &str = &constants::NVIM_PM_INSTALL_HOME;
         let nvim_lock_path: &str = &constants::NVIM_PM_LOCK;
 
-        let setup_lazy = format!(
-            // language=lua
-            r#"
-                local ok, err = pcall(function()
-                    require("lazy").setup({{
-                        spec = {spec},
-
-                        root = {nvim_plugins_home:?}, -- directory where plugins will be installed
-                        -- TODO: change it later with proper path
-                        lockfile = {nvim_lock_path:?} .. "/plugin-lock.json", -- lockfile generated after running update.
-
-                        performance = {{
-                            cache = {{ enabled = true }},
-                            reset_packpath = true, -- reset the package path to improve startup time
-                            rtp = {{
-                                reset = true, -- reset the runtime path to $VIMRUNTIME and your config directory
-                                -- add any custom paths here that you want to includes in the rtp
-                                ---@type string[]
-                                paths = {{
-                                    -- ABSTRACT["INSTALL_PATH"],
-                                    {nvim_treesitter_home:?}
-                                }},
-                                ---@type string[] list any plugins you want to disable here
-                                disabled_plugins = {{ "tutor" }}, -- "gzip", "matchit", "matchparen", "netrwPlugin", "tarPlugin", "tohtml", "zipPlugin",
-                            }},
-                        }},
-
-                        install = {{
-                            -- install missing plugins on startup. This doesn't increase startup time.
-                            missing = true,
-                            -- try to load one of these colorschemes when starting an installation during startup
-                            colorscheme = {{ "abscs", "default" }},
-                        }},
-
-                        ui = {{
-                            -- a number <1 is a percentage., >1 is a fixed size
-                            size = {{ width = 0.8, height = 0.8 }},
-                            wrap = true, -- wrap the lines in the ui
-                            border = "rounded", -- The border to use for the UI window. Accepts same border values as |nvim_open_win()|.
-                            title_pos = "center", ---@type "center" | "left" | "right"
-                            throttle = 20, -- how frequently should the ui process render events
-                            backdrop = 100, -- The backdrop opacity. 0 is fully opaque, 100 is fully transparent.
-                        }},
-                    }})
-                end)
-                if not ok then
-                    vim.notify("[Abstract] lazy.nvim setup failed:\n" .. tostring(err), vim.log.levels.ERROR)
-                end
-            "#
+        let lazy_config = lua_spec!(
+            lua_file!("configs/lazy.lua"),
+            &[
+                ("SPEC", &spec),
+                ("NVIM_TS_HOME", nvim_treesitter_home),
+                ("NVIM_PLUGINS_HOME", nvim_plugins_home),
+                ("NVIM_LOCK_PATH", nvim_lock_path)
+            ]
         );
 
-        lua.load(&setup_lazy).exec()?;
+        lua.load(lazy_config.spec).exec()?;
 
         Ok(())
     }
@@ -106,6 +68,124 @@ impl PluginManager {
         lua.load(exec).exec()?;
 
         Ok(())
+    }
+}
+
+impl PluginManager {
+    /// Formats a spec error with the actual Rust source file, line number, and offending code.
+    ///
+    /// Example output:
+    /// ```text
+    /// [Abstract] Invalid spec 'vim_dadbod'
+    ///   --> src/neovim/editor/src/plugins/configs/vim_dadbod.rs:31
+    ///   |
+    ///    30 |             init = function()
+    /// >  31 |       TESTING FOR ERROR
+    ///    32 |                 -- Your DBUI configuration
+    ///   |
+    ///   = '=' expected near 'FOR'
+    /// ```
+    fn format_spec_error(name: &str, info: &SpecInfo, raw_error: &str) -> String {
+        let lua_line = Self::extract_error_line(raw_error);
+        let error_msg = Self::extract_error_message(raw_error);
+
+        if info.spec.contains("--@src:") {
+            Self::format_file_error(name, info, lua_line, error_msg)
+        } else {
+            Self::format_inline_error(name, info, lua_line, error_msg)
+        }
+    }
+
+    /// Format error for `lua_spec!(r#"..."#)` — Lua is inline in Rust file.
+    fn format_inline_error(name: &str, info: &SpecInfo, lua_line: Option<usize>, error_msg: &str) -> String {
+        let lines: Vec<&str> = info.spec.lines().collect();
+        let rust_line = lua_line.map(|l| info.spec_line as usize + l - 1);
+
+        let mut report = format!("[Abstract] Invalid spec '{name}'\n");
+        report.push_str(&format!("  --> {}:{}\n", info.file, rust_line.map(|l| l.to_string()).unwrap_or_default()));
+
+        if let Some(lua_ln) = lua_line {
+            let start = lua_ln.saturating_sub(2);
+            let end = (lua_ln + 1).min(lines.len());
+
+            (start..end).for_each(|i| {
+                let display_line = info.spec_line as usize + i;
+                let marker = if i + 1 == lua_ln { ">" } else { " " };
+                report.push_str(&format!("{marker} {display_line:4} | {}\n", lines[i]));
+            });
+        }
+
+        report.push_str(&format!("  = {error_msg}"));
+        report
+    }
+
+    /// Format error for `lua_spec!(lua_file!(...), ...)` — Lua is in external .lua file.
+    /// Shows chronological trace: Rust file → Lua file.
+    fn format_file_error(name: &str, info: &SpecInfo, lua_line: Option<usize>, error_msg: &str) -> String {
+        use crate::plugins::spec::{resolve_full_path, resolve_source};
+
+        let mut report = format!("[Abstract] Invalid spec '{name}'\n");
+
+        // 1. Rust source (where the spec is built)
+        report.push_str(&format!("  1 --> {}:{} (spec definition)\n", info.file, info.spec_line));
+
+        if let Some(lua_ln) = lua_line {
+            if let Some(resolved) = resolve_source(info.spec, lua_ln) {
+                let full_path = resolve_full_path(info.file, &resolved.relative_path);
+
+                // 2. Lua file (where the error is)
+                report.push_str(&format!("  2 --> {}:{}\n", full_path, resolved.source_line));
+
+                // Code snippet
+                let lines: Vec<&str> = info.spec.lines().collect();
+                let start = lua_ln.saturating_sub(2);
+                let end = (lua_ln + 1).min(lines.len());
+
+                for (i, line_content) in lines.iter().enumerate().take(end).skip(start) {
+                    let display_num = resolved.source_line as isize - (lua_ln as isize - 1 - i as isize);
+                    let marker = if i + 1 == lua_ln { ">" } else { " " };
+                    if line_content.trim().starts_with("--@src:") {
+                        continue;
+                    }
+                    if display_num > 0 {
+                        report.push_str(&format!("{marker} {:4} | {}\n", display_num, line_content));
+                    }
+                }
+            } else {
+                // No marker — fallback to composed spec line
+                let lines: Vec<&str> = info.spec.lines().collect();
+                let start = lua_ln.saturating_sub(2);
+                let end = (lua_ln + 1).min(lines.len());
+
+                (start..end).for_each(|i| {
+                    let marker = if i + 1 == lua_ln { ">" } else { " " };
+                    report.push_str(&format!("{marker} {:4} | {}\n", i + 1, lines[i]));
+                });
+            }
+        }
+
+        report.push_str(&format!("  = {error_msg}"));
+        report
+    }
+
+    /// Parse line number from Lua error like `[string "plugin:foo"]:2: msg`
+    fn extract_error_line(error: &str) -> Option<usize> {
+        let after_bracket = error.find("]:")?;
+        let rest = &error[after_bracket + 2..];
+        let colon = rest.find(':')?;
+        rest[..colon].trim().parse().ok()
+    }
+
+    /// Extract just the error message, stripping the `[string "..."]:N:` prefix
+    fn extract_error_message(error: &str) -> &str {
+        if let Some(bracket_pos) = error.find("]:") {
+            let rest = &error[bracket_pos + 2..];
+            if let Some(colon_pos) = rest.find(':') {
+                let msg = &rest[colon_pos + 1..];
+                return msg.trim();
+            }
+        }
+        error.trim()
     }
 }
 
@@ -167,7 +247,6 @@ impl PluginManager {
             neo_tree,
             neotest,
             noice,
-            none_ls,
             oil,
             penvim,
             renamer,
@@ -201,75 +280,16 @@ impl PluginManager {
                 Err(e) => {
                     let report = Self::format_spec_error(name, info, &e.to_string());
                     tracing::error!("Plugin spec validation failed:\n{report}");
-                    trace::vim_notify(&report, NotifyLevel::Error);
+                    if info.spec.contains("--@src:") {
+                        trace::vim_notify_error_report(&report);
+                    } else {
+                        trace::vim_notify(&report, NotifyLevel::Error);
+                    }
                 },
             }
         }
 
         tracing::info!("Validated {}/{} plugin specs", valid_specs.len(), specs.len());
         format!("{{\n{}\n}}", valid_specs.join(",\n"))
-    }
-
-    /// Formats a spec error with the actual Rust source file, line number, and offending code.
-    ///
-    /// Example output:
-    /// ```text
-    /// [Abstract] Invalid spec 'vim_dadbod'
-    ///   --> src/neovim/editor/src/plugins/configs/vim_dadbod.rs:31
-    ///   |
-    ///    30 |             init = function()
-    /// >  31 |       TESTING FOR ERROR
-    ///    32 |                 -- Your DBUI configuration
-    ///   |
-    ///   = '=' expected near 'FOR'
-    /// ```
-    fn format_spec_error(name: &str, info: &SpecInfo, raw_error: &str) -> String {
-        let lua_line = Self::extract_error_line(raw_error);
-        let error_msg = Self::extract_error_message(raw_error);
-        let lines: Vec<&str> = info.spec.lines().collect();
-
-        // Compute real Rust line: spec_line is where lua_spec! was called,
-        // and the spec content starts on that same line (or +1 for the opening `r#"`).
-        // lua_line is 1-indexed within the spec string.
-        let rust_line = lua_line.map(|l| info.spec_line as usize + l - 1);
-
-        let mut report = format!("[Abstract] Invalid spec '{name}'\n");
-        report.push_str(&format!("  --> {}:{}\n", info.file, rust_line.map(|l| l.to_string()).unwrap_or_default()));
-
-        if let Some(lua_ln) = lua_line {
-            let start = lua_ln.saturating_sub(2);
-            let end = (lua_ln + 1).min(lines.len());
-
-            report.push_str("  |\n");
-            (start..end).for_each(|i| {
-                let display_line = info.spec_line as usize + i; // real Rust line
-                let marker = if i + 1 == lua_ln { ">" } else { " " };
-                report.push_str(&format!("{marker} {display_line:4} | {}\n", lines[i]));
-            });
-            report.push_str("  |\n");
-        }
-
-        report.push_str(&format!("  = {error_msg}"));
-        report
-    }
-
-    /// Parse line number from Lua error like `[string "plugin:foo"]:2: msg`
-    fn extract_error_line(error: &str) -> Option<usize> {
-        let after_bracket = error.find("]:")?;
-        let rest = &error[after_bracket + 2..];
-        let colon = rest.find(':')?;
-        rest[..colon].trim().parse().ok()
-    }
-
-    /// Extract just the error message, stripping the `[string "..."]:N:` prefix
-    fn extract_error_message(error: &str) -> &str {
-        if let Some(bracket_pos) = error.find("]:") {
-            let rest = &error[bracket_pos + 2..];
-            if let Some(colon_pos) = rest.find(':') {
-                let msg = &rest[colon_pos + 1..];
-                return msg.trim();
-            }
-        }
-        error.trim()
     }
 }

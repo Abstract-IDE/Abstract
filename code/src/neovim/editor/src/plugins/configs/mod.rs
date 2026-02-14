@@ -40,7 +40,6 @@ pub mod mason;
 pub mod neo_tree;
 pub mod neotest;
 pub mod noice;
-pub mod none_ls;
 pub mod oil;
 pub mod penvim;
 pub mod renamer;

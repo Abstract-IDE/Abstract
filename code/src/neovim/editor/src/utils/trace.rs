@@ -29,7 +29,7 @@ pub fn init() {
                 // If we can't open the log file, just skip file logging
                 eprintln!("[Abstract] Failed to open log file: {}", log_path.display());
                 return;
-            }
+            },
         };
 
         // Env filter: ABSTRACT_LOG=debug, ABSTRACT_LOG=trace, etc.
@@ -62,13 +62,37 @@ pub fn vim_notify(msg: &str, level: NotifyLevel) {
         NotifyLevel::Warn => "vim.log.levels.WARN",
         NotifyLevel::Info => "vim.log.levels.INFO",
     };
-    let _ = lua
-        .load(format!("vim.notify([==[{msg}]==], {level_str})"))
-        .exec();
+    let _ = lua.load(format!("vim.notify([==[{msg}]==], {level_str})")).exec();
 }
 
+#[allow(unused)]
 pub enum NotifyLevel {
     Error,
     Warn,
     Info,
+}
+
+/// Send a colored error report to Neovim using nvim_echo with highlight groups.
+pub fn vim_notify_error_report(report: &str) {
+    let lua = mlua::lua();
+
+    let mut chunks = String::from("vim.api.nvim_echo({");
+    for line in report.lines() {
+        let escaped = line.replace('\\', "\\\\").replace('"', "\\\"");
+        let hl = if line.starts_with("[Abstract]") {
+            "ErrorMsg"
+        } else if line.contains("-->") {
+            "Directory"
+        } else if line.starts_with('>') {
+            "WarningMsg"
+        } else if line.starts_with("  =") {
+            "ErrorMsg"
+        } else {
+            "Comment"
+        };
+        chunks.push_str(&format!("{{\"{escaped}\\n\", \"{hl}\"}},"));
+    }
+    chunks.push_str("}, true, {})");
+
+    let _ = lua.load(&chunks).exec();
 }
