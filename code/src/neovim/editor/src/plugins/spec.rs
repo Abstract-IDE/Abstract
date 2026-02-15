@@ -30,7 +30,7 @@ macro_rules! lua_spec {
         $crate::plugins::spec::SpecInfo { spec: Box::leak(tagged.into_boxed_str()), file: file!(), spec_line: line!() }
     }};
     // Lua file, no args
-    ($file:expr,_) => {
+    ($file:expr,) => {
         lua_spec!($file, &[] as &[(&str, &str)])
     };
 }
@@ -58,14 +58,16 @@ pub fn parse_lua(content: &str, args: &[(&str, &str)], lua_path: &str, rust_file
         let after_marker = &rest[start + 7..];
         if let Some(end) = after_marker.find("]]") {
             let template = after_marker[..end].trim();
-            check_unresolved(template, &arg_names, lua_path, rust_file, rust_line);
 
-            let mut expanded = template.to_string();
-            for (name, val) in args {
-                expanded = expanded.replace(&format!("${name}"), val);
+            if check_unresolved(template, &arg_names, lua_path, rust_file, rust_line) {
+                let mut expanded = template.to_string();
+                for (name, val) in args {
+                    expanded = expanded.replace(&format!("${name}"), val);
+                }
+                result.push_str(&expanded);
             }
+            // else: skip the marker entirely, plugin will fail validation with a friendly error
 
-            result.push_str(&expanded);
             rest = &after_marker[end + 2..];
         } else {
             result.push_str(&rest[start..start + 7]);
@@ -77,21 +79,25 @@ pub fn parse_lua(content: &str, args: &[(&str, &str)], lua_path: &str, rust_file
     result
 }
 
-fn check_unresolved(template: &str, arg_names: &[&str], lua_path: &str, rust_file: &str, rust_line: u32) {
+fn check_unresolved(template: &str, arg_names: &[&str], lua_path: &str, rust_file: &str, rust_line: u32) -> bool {
     let mut scan = template;
     while let Some(pos) = scan.find('$') {
         let var_end = scan[pos + 1..].find(|c: char| !c.is_alphanumeric() && c != '_').unwrap_or(scan.len() - pos - 1);
         let var_name = &scan[pos + 1..pos + 1 + var_end];
         if !var_name.is_empty() && !arg_names.contains(&var_name) {
-            panic!(
-                "\n[Abstract] Unresolved variable `${var_name}`\n  \
+            let msg = format!(
+                "[Abstract] Unresolved variable `${var_name}`\n  \
                  --> template: {lua_path}\n  \
                  --> called from: {rust_file}:{rust_line}\n  \
-                 Hint: pass (\"{var_name}\", \"value\") in the args\n",
+                 Hint: pass (\"{var_name}\", \"value\") in the args",
             );
+            tracing::error!("{msg}");
+            crate::utils::trace::vim_notify(&msg, crate::utils::trace::NotifyLevel::Error);
+            return false;
         }
         scan = &scan[pos + 1 + var_end..];
     }
+    true
 }
 
 // ── Source Resolution ──
@@ -113,7 +119,10 @@ pub fn resolve_source(spec: &str, lua_error_line: usize) -> Option<ResolvedSourc
         if line_num > lua_error_line {
             break;
         }
-        if let Some(rest) = line.trim().strip_prefix("--@src:") {
+        if let Some(marker_pos) = line.find("--@src:") {
+            let rest = &line[marker_pos + 7..];
+            // strip trailing Lua content (e.g. closing brackets)
+            let rest = rest.trim_end();
             let parts: Vec<&str> = rest.rsplitn(2, ':').collect();
             if parts.len() == 2 {
                 if let Ok(offset) = parts[0].parse::<usize>() {
