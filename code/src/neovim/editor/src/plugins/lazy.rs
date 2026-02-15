@@ -193,10 +193,21 @@ impl PluginManager {
 /// Usage: `specs![module_a, module_b, ...]`
 /// Expands to: `vec![("module_a", module_a::Plugin::spec()), ...]`
 macro_rules! specs {
-    ($($module:ident),* $(,)?) => {
-        vec![
-            $((stringify!($module), $module::Plugin::spec()),)*
-        ]
+    (@entry $module:ident) => {
+        (stringify!($module), $module::Plugin::spec())
+    };
+    (@entry ($path:literal)) => {{
+        let info = lua_spec!(lua_file!($path), &[] as &[(&str, &str)]);
+        let name = $path.rsplit('/').next().unwrap_or($path).trim_end_matches(".lua");
+        (name, info)
+    }};
+    (@entry ($path:literal, $args:expr)) => {{
+        let info = lua_spec!(lua_file!($path), $args);
+        let name = $path.rsplit('/').next().unwrap_or($path).trim_end_matches(".lua");
+        (name, info)
+    }};
+    ($($entry:tt),* $(,)?) => {
+        vec![$(specs!(@entry $entry)),*]
     };
 }
 
@@ -215,12 +226,12 @@ impl PluginManager {
             plenary,
             web_devicons,
             // Plugins
+            ("configs/blink.lua"),
             abstract_cs,
             abstract_cursor,
             abstract_line,
             abstract_plugs,
             autopairs,
-            blink,
             bqf,
             code_runner,
             colorizer,

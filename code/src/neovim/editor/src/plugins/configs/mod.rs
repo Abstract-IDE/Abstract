@@ -13,7 +13,6 @@ pub mod abstract_cursor;
 pub mod abstract_line;
 pub mod abstract_plugs;
 pub mod autopairs;
-pub mod blink;
 pub mod bqf;
 pub mod code_runner;
 pub mod colorizer;

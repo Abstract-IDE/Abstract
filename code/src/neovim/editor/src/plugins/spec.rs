@@ -30,7 +30,7 @@ macro_rules! lua_spec {
         $crate::plugins::spec::SpecInfo { spec: Box::leak(tagged.into_boxed_str()), file: file!(), spec_line: line!() }
     }};
     // Lua file, no args
-    ($file:expr,) => {
+    ($file:expr,_) => {
         lua_spec!($file, &[] as &[(&str, &str)])
     };
 }

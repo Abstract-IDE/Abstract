@@ -1,8 +1,8 @@
-return function(root, data)
-    vim.g.ABSTRACT_ROOT = root
+return function(data, repo)
     vim.g.ABSTRACT_DATA = data
+    vim.g.ABSTRACT_ROOT = repo
 
-    local code = root .. "/code"
+    local code = repo .. "/code"
     local profile = "release"
     local lib_ext = vim.fn.has("mac") == 1 and "dylib" or "so"
     local lib_path = code .. "/target/" .. profile .. "/libabstract." .. lib_ext
