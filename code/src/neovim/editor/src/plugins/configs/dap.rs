@@ -26,7 +26,7 @@ impl Plugin {
 
         // language=lua
         lua_spec!(
-            format!(
+            raw format!(
                 r#"{{
             "mfussenegger/nvim-dap",
             dependencies = {{

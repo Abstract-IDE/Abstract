@@ -19,7 +19,7 @@ pub struct Plugin;
 
 impl Plugin {
     pub fn spec() -> crate::plugins::spec::SpecInfo {
-        lua_spec!(r#"{
+        lua_spec!(raw r#"{
             "vhyrro/luarocks.nvim",
             -- Very high priority is required,
             -- luarocks.nvim should run as the first plugin in your config.

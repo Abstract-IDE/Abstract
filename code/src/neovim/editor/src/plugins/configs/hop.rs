@@ -22,7 +22,7 @@ pub struct Plugin;
 impl Plugin {
     pub fn spec() -> SpecInfo {
         lua_spec!(
-            format!(
+            raw format!(
                 r#"{{
                 "smoka7/hop.nvim",
                 version = "*",

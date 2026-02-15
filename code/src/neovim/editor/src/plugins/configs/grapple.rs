@@ -18,7 +18,7 @@ impl Plugin {
     pub fn spec() -> crate::plugins::spec::SpecInfo {
         let opts = Self::opts();
 
-        lua_spec!(format!(
+        lua_spec!(raw format!(
             r#"{{
                 "cbochs/grapple.nvim",
                 event = {{ "BufReadPost", "BufNewFile" }},

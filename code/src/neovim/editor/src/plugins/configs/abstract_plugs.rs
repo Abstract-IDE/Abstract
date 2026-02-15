@@ -17,7 +17,7 @@ impl Plugin {
     pub fn spec() -> crate::plugins::spec::SpecInfo {
         let config = Self::config();
 
-        lua_spec!(format!(
+        lua_spec!(raw format!(
             r#"{{
                 "Abstract-IDE/abstract-plugs.nvim",
                 config = {}

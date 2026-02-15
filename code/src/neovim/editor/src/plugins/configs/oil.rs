@@ -23,7 +23,7 @@ impl Plugin {
         let keys = keymaps::MAPPING.get_map(keymaps::Key::Oil);
 
         lua_spec!(
-            format!(
+            raw format!(
                 // language=lua
                 r#"{{
                 "stevearc/oil.nvim",

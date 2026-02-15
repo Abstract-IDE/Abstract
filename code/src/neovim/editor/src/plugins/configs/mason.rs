@@ -10,37 +10,30 @@ Git Graph plugin for neovim.
 */
 
 use crate::{
-    core::lsp::Lsp,
-    lua_file,
-    lua_spec,
-    plugins::spec::extract_section_tracked, //
+    core::keymaps::{Key, MAPPING},
+    lua_section, lua_spec,
 };
 
 pub struct Plugin;
-
 impl Plugin {
     pub fn spec() -> crate::plugins::spec::SpecInfo {
-        let setup_lsp = Lsp::setup().unwrap_or("");
-
-        let none_ls = lua_file!("none_ls.lua");
-        let lspconfig = lua_file!("mason_lspconfig.lua");
-        let mason_null_ls = lua_file!("mason_null_ls.lua");
-        let nvim_dap = lua_file!("mason_nvim_dap.lua");
-
         lua_spec!(
-            lua_file!("mason.lua"),
+            "mason.lua",
             &[
                 // specs
-                ("NONE_LS_SPEC", extract_section_tracked(none_ls, "spec")),
-                ("LSPCONFIG_SPEC", extract_section_tracked(lspconfig, "spec")),
-                ("NULL_LS_SPEC", extract_section_tracked(mason_null_ls, "spec")),
-                ("NVIM_DAP_SPEC", extract_section_tracked(nvim_dap, "spec")),
+                ("NONE_LS_SPEC", lua_section!("none_ls.lua", "spec")),
+                ("LSPCONFIG_SPEC", lua_section!("mason_lspconfig.lua", "spec")),
+                ("NULL_LS_SPEC", lua_section!("mason_null_ls.lua", "spec")),
+                ("NVIM_DAP_SPEC", lua_section!("mason_nvim_dap.lua", "spec")),
                 // setups
-                ("LSPCONFIG_SETUP", extract_section_tracked(lspconfig, "setup")),
-                ("LSP_SETUP", setup_lsp),
-                ("MASON_NULL_LS_SETUP", extract_section_tracked(mason_null_ls, "setup")),
-                ("NONE_LS_SETUP", extract_section_tracked(none_ls, "setup")),
-                ("NVIM_DAP_SETUP", extract_section_tracked(nvim_dap, "setup")),
+                (
+                    "LSP_SETUP",
+                    lua_section!("../../core/lsp.lua", "setup", &[("LSP_MAPPING", MAPPING.get_map(Key::LspConfig))])
+                ),
+                ("LSPCONFIG_SETUP", lua_section!("mason_lspconfig.lua", "setup")),
+                ("MASON_NULL_LS_SETUP", lua_section!("mason_null_ls.lua", "setup")),
+                ("NONE_LS_SETUP", lua_section!("none_ls.lua", "setup")),
+                ("NVIM_DAP_SETUP", lua_section!("mason_nvim_dap.lua", "setup")),
             ]
         )
     }

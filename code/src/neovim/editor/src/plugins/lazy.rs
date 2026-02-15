@@ -9,7 +9,7 @@ use nvim_oxi::{
 use super::{configs, spec::SpecInfo};
 use crate::{
     core::keymaps::{Key, MAPPING},
-    lua_file, lua_spec,
+    lua_spec,
     utils::{
         constants,
         trace::{self, NotifyLevel},
@@ -36,7 +36,7 @@ impl PluginManager {
         let nvim_lock_path: &str = &constants::NVIM_PM_LOCK;
 
         let lazy_config = lua_spec!(
-            lua_file!("configs/lazy.lua"),
+            "configs/lazy.lua",
             &[
                 ("SPEC", &spec),
                 ("NVIM_TS_HOME", nvim_treesitter_home),
@@ -198,14 +198,12 @@ macro_rules! specs {
         (stringify!($module), $module::Plugin::spec())
     };
     (@entry ($path:literal)) => {{
-        let info = lua_spec!(lua_file!($path), &[] as &[(&str, &str)]);
         let name = $path.rsplit('/').next().unwrap_or($path).trim_end_matches(".lua");
-        (name, info)
+        (name, lua_spec!($path))
     }};
     (@entry ($path:literal, $args:expr)) => {{
-        let info = lua_spec!(lua_file!($path), $args);
         let name = $path.rsplit('/').next().unwrap_or($path).trim_end_matches(".lua");
-        (name, info)
+        (name, lua_spec!($path, $args))
     }};
     ($($entry:tt),* $(,)?) => {
         vec![$(specs!(@entry $entry)),*]
@@ -227,9 +225,10 @@ impl PluginManager {
             plenary,
             web_devicons,
             // Plugins
-            ("configs/trouble.lua", &[("MAPPING", MAPPING.get_map(Key::Trouble))]),
             ("configs/blink.lua"),
-            abstract_cs,
+            ("configs/trouble.lua", &[("MAPPING", MAPPING.get_map(Key::Trouble))]),
+            ("configs/which-key.lua", &[("MAPPING", MAPPING.get_map(Key::WhichKey))]),
+            ("configs/abstract-cs.lua"),
             abstract_cursor,
             abstract_line,
             abstract_plugs,
@@ -275,7 +274,6 @@ impl PluginManager {
             typescript_tools,
             typst_preview,
             vim_dadbod,
-            which_key,
         ];
 
         let mut valid_specs = Vec::with_capacity(specs.len());

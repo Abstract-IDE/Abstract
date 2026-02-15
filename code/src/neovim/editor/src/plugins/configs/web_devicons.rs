@@ -17,7 +17,7 @@ pub struct Plugin;
 
 impl Plugin {
     pub fn spec() -> crate::plugins::spec::SpecInfo {
-        lua_spec!(r#"{
+        lua_spec!(raw r#"{
             "nvim-tree/nvim-web-devicons",
             lazy = true
         }"#)

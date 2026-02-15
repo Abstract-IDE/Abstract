@@ -17,7 +17,7 @@ impl Plugin {
     pub fn spec() -> crate::plugins::spec::SpecInfo {
         let opts = Self::opts();
 
-        lua_spec!(format!(
+        lua_spec!(raw format!(
             // language=lua
             r#"{{
                 "pmizio/typescript-tools.nvim",

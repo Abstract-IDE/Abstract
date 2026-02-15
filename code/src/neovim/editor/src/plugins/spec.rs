@@ -1,14 +1,15 @@
 // ── Plugin Spec System ──
 //
-// Two ways to define a plugin:
+// Two macros to define plugins:
 //
-//   lua_spec!(r#"{ "author/plugin", lazy = true }"#)
+//   lua_spec!("plugin.lua")
+//   lua_spec!("plugin.lua", &[("VAR", "value")])
+//   lua_spec!(raw r#"{ "author/plugin", lazy = true }"#)
 //
-//   lua_spec!(lua_file!("plugin.lua"), &[("VAR", "value")])
+// One macro for section extraction:
 //
-// Both return `SpecInfo`. Validation in lazy.rs handles error
-// reporting for both — inline specs map to Rust lines,
-// file specs resolve `--@src:` markers to the actual .lua file.
+//   lua_section!("sub_plugin.lua", "spec")
+//   lua_section!("sub_plugin.lua", "setup", &[("VAR", "value")])
 
 pub struct SpecInfo {
     pub spec: &'static str,
@@ -18,35 +19,41 @@ pub struct SpecInfo {
 
 #[macro_export]
 macro_rules! lua_spec {
-    // Raw Lua string (inline in .rs file)
-    ($spec:expr) => {
+    // Inline Lua string (legacy)
+    (raw $spec:expr) => {
         $crate::plugins::spec::SpecInfo { spec: $spec, file: file!(), spec_line: line!() }
     };
-    // Lua file with template args
-    ($file:expr, $args:expr) => {{
-        let (path, content) = $file;
-        let parsed = $crate::plugins::spec::parse_lua(content, $args, path, file!(), line!());
-        let tagged = format!("(function()\n--@src:{path}\n{parsed}\nend)()");
+    // File, no args
+    ($path:literal) => {{
+        let content = include_str!($path);
+        let parsed = $crate::plugins::spec::parse_lua(content, &[], $path, file!(), line!());
+        let tagged = format!("(function()\n--@src:{}\n{parsed}\nend)()", $path);
         $crate::plugins::spec::SpecInfo { spec: Box::leak(tagged.into_boxed_str()), file: file!(), spec_line: line!() }
     }};
-    // Lua file, no args
-    ($file:expr,) => {
-        lua_spec!($file, &[] as &[(&str, &str)])
-    };
+    // File with args
+    ($path:literal, $args:expr) => {{
+        let content = include_str!($path);
+        let parsed = $crate::plugins::spec::parse_lua(content, $args, $path, file!(), line!());
+        let tagged = format!("(function()\n--@src:{}\n{parsed}\nend)()", $path);
+        $crate::plugins::spec::SpecInfo { spec: Box::leak(tagged.into_boxed_str()), file: file!(), spec_line: line!() }
+    }};
 }
 
-/// Pairs a relative path with `include_str!` for use with `lua_spec!`.
 #[macro_export]
-macro_rules! lua_file {
-    ($path:literal) => {
-        ($path, include_str!($path))
+macro_rules! lua_section {
+    ($path:literal, $section:literal) => {
+        $crate::plugins::spec::extract_section(($path, include_str!($path)), $section, &[])
+    };
+    ($path:literal, $section:literal, $args:expr) => {
+        $crate::plugins::spec::extract_section(($path, include_str!($path)), $section, $args)
     };
 }
 
 // ── Template Parser ──
 //
 // Replaces `--[[@rs $VAR ]]` markers in Lua files with values from Rust.
-// Panics at startup if a `$VAR` has no matching arg.
+// Reports to Neovim if a `$VAR` has no matching arg.
+
 pub fn parse_lua(content: &str, args: &[(&str, &str)], lua_path: &str, rust_file: &str, rust_line: u32) -> String {
     let mut result = String::with_capacity(content.len());
     let mut rest = content;
@@ -114,6 +121,7 @@ fn check_unresolved(template: &str, arg_names: &[&str], lua_path: &str, rust_fil
 //
 // Scans `--@src:path` or `--@src:path:offset` markers in the composed
 // spec string and maps Lua error lines back to the original .lua file.
+
 pub struct ResolvedSource {
     pub relative_path: String,
     pub source_line: usize,
@@ -131,7 +139,6 @@ pub fn resolve_source(spec: &str, lua_error_line: usize) -> Option<ResolvedSourc
         }
         if let Some(marker_pos) = line.find("--@src:") {
             let rest = &line[marker_pos + 7..];
-            // strip trailing Lua content (e.g. closing brackets)
             let rest = rest.trim_end();
             let parts: Vec<&str> = rest.rsplitn(2, ':').collect();
             if parts.len() == 2 {
@@ -171,7 +178,24 @@ pub fn resolve_full_path(rust_file: &str, relative_lua_path: &str) -> String {
 //
 // Extracts content between `--@section` and `--@end` markers.
 // Used for splitting sub-plugin files into spec + setup parts.
-pub fn extract_section<'a>(content: &'a str, section: &str) -> &'a str {
+// Injects `--@src:path:offset` for error tracing and resolves
+// any `--[[@rs $VAR ]]` templates if args are provided.
+
+pub fn extract_section((path, content): (&str, &str), section: &str, args: &[(&str, &str)]) -> &'static str {
+    let body = extract_section_raw(content, section);
+    if body.is_empty() {
+        return "";
+    }
+
+    let body_start = content.find(body).unwrap_or(0);
+    let line_offset = content[..body_start].chars().filter(|&c| c == '\n').count() + 1;
+
+    let parsed = if args.is_empty() { body.to_string() } else { parse_lua(body, args, path, path, 0) };
+
+    Box::leak(format!("--@src:{path}:{line_offset}\n{parsed}").into_boxed_str())
+}
+
+pub fn extract_section_raw<'a>(content: &'a str, section: &str) -> &'a str {
     let start_marker = format!("--@{section}");
     let end_marker = "--@end";
 
@@ -183,17 +207,4 @@ pub fn extract_section<'a>(content: &'a str, section: &str) -> &'a str {
     let rest = &content[start..];
     let end = rest.find(end_marker).map(|i| start + i).unwrap_or(content.len());
     content[start..end].trim()
-}
-
-/// Same as `extract_section` but injects `--@src:path:offset` for error tracing.
-pub fn extract_section_tracked((path, content): (&str, &str), section: &str) -> &'static str {
-    let body = extract_section(content, section);
-    if body.is_empty() {
-        return "";
-    }
-
-    let body_start = content.find(body).unwrap_or(0);
-    let line_offset = content[..body_start].chars().filter(|&c| c == '\n').count() + 1;
-
-    Box::leak(format!("--@src:{path}:{line_offset}\n{body}").into_boxed_str())
 }

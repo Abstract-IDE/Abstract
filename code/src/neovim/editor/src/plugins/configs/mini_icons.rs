@@ -15,7 +15,7 @@ pub struct Plugin;
 
 impl Plugin {
     pub fn spec() -> crate::plugins::spec::SpecInfo {
-        lua_spec!(r#"{
+        lua_spec!(raw r#"{
             "nvim-mini/mini.icons",
             lazy = true
         }"#)

@@ -16,7 +16,7 @@ pub struct Plugin;
 impl Plugin {
     pub fn spec() -> crate::plugins::spec::SpecInfo {
         // language=lua
-        lua_spec!(r#"{
+        lua_spec!(raw r#"{
             "windwp/nvim-ts-autotag",
             event = { "InsertEnter", "LspAttach" },
             -- stylua: ignore

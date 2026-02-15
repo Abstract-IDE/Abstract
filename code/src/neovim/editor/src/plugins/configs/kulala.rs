@@ -19,7 +19,7 @@ impl Plugin {
         let opts = Self::opts();
         let keys = keymaps::MAPPING.get_map(keymaps::Key::Kulala);
 
-        lua_spec!(format!(
+        lua_spec!(raw format!(
             // language=lua
             r#"{{
                 "mistweaverco/kulala.nvim",

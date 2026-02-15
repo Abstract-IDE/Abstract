@@ -18,7 +18,7 @@ impl Plugin {
     pub fn spec() -> crate::plugins::spec::SpecInfo {
         let opts = Self::opts();
         let keys = keymaps::MAPPING.get_map(keymaps::Key::Fff);
-        lua_spec!(format!(
+        lua_spec!(raw format!(
             // language=lua
             r#"{{
                 "dmtrKovalenko/fff.nvim",

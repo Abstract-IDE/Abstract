@@ -15,7 +15,7 @@ pub struct Plugin;
 
 impl Plugin {
     pub fn spec() -> crate::plugins::spec::SpecInfo {
-        lua_spec!(r#"{
+        lua_spec!(raw r#"{
             "tpope/vim-dadbod",
             dependencies = {
                 { "kristijanhusak/vim-dadbod-ui", lazy = true }, -- Simple UI for vim-dadbod.

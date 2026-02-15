@@ -16,7 +16,7 @@ pub struct Plugin;
 impl Plugin {
     pub fn spec() -> crate::plugins::spec::SpecInfo {
         let config = Self::config();
-        lua_spec!(format!(
+        lua_spec!(raw format!(
             r#"{{
                 "L3MON4D3/LuaSnip",
                 version = "v2.*", -- follow latest release.

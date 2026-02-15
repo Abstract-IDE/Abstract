@@ -19,7 +19,7 @@ impl Plugin {
         let opts = Self::opts();
 
         lua_spec!(
-            format!(
+            raw format!(
                 r#"{{
                 'hat0uma/csvview.nvim',
                 lazy = true,

@@ -16,7 +16,7 @@ pub struct Plugin;
 
 impl Plugin {
     pub fn spec() -> crate::plugins::spec::SpecInfo {
-        lua_spec!(r#"{
+        lua_spec!(raw r#"{
             "rachartier/tiny-code-action.nvim",
             lazy = true,
             event = { "LspAttach" },

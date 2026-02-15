@@ -18,7 +18,7 @@ pub struct Plugin;
 
 impl Plugin {
     pub fn spec() -> crate::plugins::spec::SpecInfo {
-        lua_spec!(format!(
+        lua_spec!(raw format!(
             r#"{{
                 "CRAG666/code_runner.nvim",
                 event = "BufRead",

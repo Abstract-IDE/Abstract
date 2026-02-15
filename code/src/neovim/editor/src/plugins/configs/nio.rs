@@ -18,7 +18,7 @@ pub struct Plugin;
 
 impl Plugin {
     pub fn spec() -> crate::plugins::spec::SpecInfo {
-        lua_spec!(r#"{
+        lua_spec!(raw r#"{
             "nvim-neotest/nvim-nio",
             version = "*",
             lazy = true

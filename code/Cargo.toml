@@ -47,7 +47,7 @@ serde              = { version = "1.0.228", features = ["derive"] }
 serde_json         = { version = "1.0.145" }
 sha2               = { version = "0.10.9" }
 shellexpand        = { version = "3.1.1" }
-strum              = { version = "0.27.2" }
+strum              = { version = "0.27.2", features = ["derive"]}
 strum_macros       = { version = "0.27.2" }
 tempfile           = { version = "3.24.0" }
 thiserror          = { version = "2.0.17" }

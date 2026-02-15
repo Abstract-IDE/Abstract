@@ -19,7 +19,7 @@ impl Plugin {
         let config = Self::config();
         let keys = keymaps::MAPPING.get_map(keymaps::Key::GitGraph);
 
-        lua_spec!(format!(
+        lua_spec!(raw format!(
             // language=lua
             r#"{{
                 "isakbm/gitgraph.nvim",

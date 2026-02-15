@@ -8,7 +8,6 @@ pub mod plenary;
 pub mod web_devicons;
 
 // Plugins
-pub mod abstract_cs;
 pub mod abstract_cursor;
 pub mod abstract_line;
 pub mod abstract_plugs;
@@ -54,4 +53,3 @@ pub mod ts_autotag;
 pub mod typescript_tools;
 pub mod typst_preview;
 pub mod vim_dadbod;
-pub mod which_key;
