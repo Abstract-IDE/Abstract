@@ -8,6 +8,7 @@ use nvim_oxi::{
 
 use super::{configs, spec::SpecInfo};
 use crate::{
+    core::keymaps::{Key, MAPPING},
     lua_file, lua_spec,
     utils::{
         constants,
@@ -226,6 +227,7 @@ impl PluginManager {
             plenary,
             web_devicons,
             // Plugins
+            ("configs/trouble.lua", &[("MAPPING", MAPPING.get_map(Key::Trouble))]),
             ("configs/blink.lua"),
             abstract_cs,
             abstract_cursor,
@@ -269,7 +271,6 @@ impl PluginManager {
             tabby,
             tiny_code_action,
             treesitter,
-            trouble,
             ts_autotag,
             typescript_tools,
             typst_preview,

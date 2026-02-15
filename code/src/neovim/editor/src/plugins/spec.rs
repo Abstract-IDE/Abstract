@@ -64,9 +64,19 @@ pub fn parse_lua(content: &str, args: &[(&str, &str)], lua_path: &str, rust_file
                 for (name, val) in args {
                     expanded = expanded.replace(&format!("${name}"), val);
                 }
+
+                let marker_newlines = rest[start..start + 7 + end + 2].chars().filter(|&c| c == '\n').count();
+                let expanded_newlines = expanded.chars().filter(|&c| c == '\n').count();
+
                 result.push_str(&expanded);
+
+                // Multi-line expansion shifts lines — re-anchor
+                if expanded_newlines > marker_newlines {
+                    let consumed = content.len() - after_marker[end + 2..].len();
+                    let next_original_line = content[..consumed].chars().filter(|&c| c == '\n').count() + 1;
+                    result.push_str(&format!("\n--@src:{lua_path}:{next_original_line}\n"));
+                }
             }
-            // else: skip the marker entirely, plugin will fail validation with a friendly error
 
             rest = &after_marker[end + 2..];
         } else {

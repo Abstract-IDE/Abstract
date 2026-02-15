@@ -50,7 +50,6 @@ pub mod surround;
 pub mod tabby;
 pub mod tiny_code_action;
 pub mod treesitter;
-pub mod trouble;
 pub mod ts_autotag;
 pub mod typescript_tools;
 pub mod typst_preview;
