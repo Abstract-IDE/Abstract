@@ -1,31 +1,23 @@
-/*
+--[[
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ─────────────────────────────────────────────────
-Plugin: snacks.nvim
-Source: github.com/folke/snacks.nvim
+Plugin: fidget.nvim
+Source: https://github.com/j-hui/fidget.nvim
 
-A collection of small QoL plugins for Neovim.
+💫 Extensible UI for Neovim notifications and LSP progress messages.
 ─────────────────────────────────────────────────
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-*/
+--]]
 
-use crate::{
-    core::keymaps::{Key, MAPPING},
-    lua_spec,
-};
-
-pub struct Plugin;
-
-impl Plugin {
-    pub fn spec() -> crate::plugins::spec::SpecInfo {
-        MAPPING.signal(Key::Snacks);
-
-        lua_spec!(
-            "snack.lua",
-            &[
-                ("MAPPING_BUFDELETE", MAPPING.set_map_str(Key::SnacksBufdelete)),
-                ("MAPPING_PICKER", MAPPING.set_map_str(Key::SnacksPicker)),
-            ]
-        )
+return {
+    "j-hui/fidget.nvim",
+    lazy = true,
+    event = { "LspAttach" },
+    opts = {
+        notification = {
+            window = {
+                winblend = 100,
+            }
+        }
     }
 }

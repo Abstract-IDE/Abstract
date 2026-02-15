@@ -1,31 +1,15 @@
-/*
+--[[
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ─────────────────────────────────────────────────
-Plugin: snacks.nvim
-Source: github.com/folke/snacks.nvim
+Plugin: MunifTanjim/nui.nvim
+Source: https://github.com/MunifTanjim/nui.nvim
 
-A collection of small QoL plugins for Neovim.
+UI Component Library for Neovim.
 ─────────────────────────────────────────────────
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-*/
+--]]
 
-use crate::{
-    core::keymaps::{Key, MAPPING},
-    lua_spec,
-};
-
-pub struct Plugin;
-
-impl Plugin {
-    pub fn spec() -> crate::plugins::spec::SpecInfo {
-        MAPPING.signal(Key::Snacks);
-
-        lua_spec!(
-            "snack.lua",
-            &[
-                ("MAPPING_BUFDELETE", MAPPING.set_map_str(Key::SnacksBufdelete)),
-                ("MAPPING_PICKER", MAPPING.set_map_str(Key::SnacksPicker)),
-            ]
-        )
-    }
+return {
+    "MunifTanjim/nui.nvim",
+    lazy = true
 }

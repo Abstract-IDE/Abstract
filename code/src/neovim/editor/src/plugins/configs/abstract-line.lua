@@ -1,31 +1,15 @@
-/*
+--[[
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ─────────────────────────────────────────────────
-Plugin: snacks.nvim
-Source: github.com/folke/snacks.nvim
+Plugin: abstract-line
+Source: https://github.com/Abstract-IDE/abstract-line
 
-A collection of small QoL plugins for Neovim.
+status line for Abstract-IDE
 ─────────────────────────────────────────────────
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-*/
+--]]
 
-use crate::{
-    core::keymaps::{Key, MAPPING},
-    lua_spec,
-};
-
-pub struct Plugin;
-
-impl Plugin {
-    pub fn spec() -> crate::plugins::spec::SpecInfo {
-        MAPPING.signal(Key::Snacks);
-
-        lua_spec!(
-            "snack.lua",
-            &[
-                ("MAPPING_BUFDELETE", MAPPING.set_map_str(Key::SnacksBufdelete)),
-                ("MAPPING_PICKER", MAPPING.set_map_str(Key::SnacksPicker)),
-            ]
-        )
-    }
+return {
+    "Abstract-IDE/abstract-line",
+    opts = {},
 }

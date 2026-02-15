@@ -1,31 +1,23 @@
-/*
+--[[
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ─────────────────────────────────────────────────
-Plugin: snacks.nvim
-Source: github.com/folke/snacks.nvim
+Plugin: grapple-nvim
+Source: https://github.com/cbochs/grapple.nvim
 
-A collection of small QoL plugins for Neovim.
+Grapple is a plugin that aims to provide immediate navigation
+to important files (and their last known cursor location).
 ─────────────────────────────────────────────────
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-*/
+--]]
 
-use crate::{
-    core::keymaps::{Key, MAPPING},
-    lua_spec,
-};
-
-pub struct Plugin;
-
-impl Plugin {
-    pub fn spec() -> crate::plugins::spec::SpecInfo {
-        MAPPING.signal(Key::Snacks);
-
-        lua_spec!(
-            "snack.lua",
-            &[
-                ("MAPPING_BUFDELETE", MAPPING.set_map_str(Key::SnacksBufdelete)),
-                ("MAPPING_PICKER", MAPPING.set_map_str(Key::SnacksPicker)),
-            ]
-        )
-    }
+return {
+    "cbochs/grapple.nvim",
+    event = { "BufReadPost", "BufNewFile" },
+    cmd = "Grapple",
+    opts = {
+        ---@type boolean
+        icons = true,
+        ---@type "basename" | "relative"
+        style = "basename",
+    },
 }

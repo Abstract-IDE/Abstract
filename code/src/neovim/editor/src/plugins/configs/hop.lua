@@ -1,31 +1,22 @@
-/*
+--[[
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ─────────────────────────────────────────────────
-Plugin: snacks.nvim
-Source: github.com/folke/snacks.nvim
+Plugin: hop.nvim
+Source: https://github.com/smoka7/hop.nvim
+        (forked of: https://github.com/phaazon/hop.nvim)
 
-A collection of small QoL plugins for Neovim.
+Hop is an EasyMotion-like plugin allowing you to jump
+anywhere in a document with as few keystrokes as possible
 ─────────────────────────────────────────────────
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-*/
+--]]
 
-use crate::{
-    core::keymaps::{Key, MAPPING},
-    lua_spec,
-};
-
-pub struct Plugin;
-
-impl Plugin {
-    pub fn spec() -> crate::plugins::spec::SpecInfo {
-        MAPPING.signal(Key::Snacks);
-
-        lua_spec!(
-            "snack.lua",
-            &[
-                ("MAPPING_BUFDELETE", MAPPING.set_map_str(Key::SnacksBufdelete)),
-                ("MAPPING_PICKER", MAPPING.set_map_str(Key::SnacksPicker)),
-            ]
-        )
-    }
+return {
+    "smoka7/hop.nvim",
+    version = "*",
+    keys = --[[@rs $MAPPING ]],
+    opts = {
+        keys = "qwertyuiopasdfghjklzxcvbnm",
+        jump_on_sole_occurrence = false,
+    },
 }

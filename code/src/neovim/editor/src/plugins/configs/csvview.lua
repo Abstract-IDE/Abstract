@@ -1,31 +1,27 @@
-/*
+--[[
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ─────────────────────────────────────────────────
-Plugin: snacks.nvim
-Source: github.com/folke/snacks.nvim
+Plugin: csvview.nvim
+Source: https://github.com/hat0uma/csvview.nvim
 
-A collection of small QoL plugins for Neovim.
+lightweight CSV file viewer plugin for Neovim.
+With this plugin, you can easily view and edit CSV files within Neovim.
 ─────────────────────────────────────────────────
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-*/
+--]]
 
-use crate::{
-    core::keymaps::{Key, MAPPING},
-    lua_spec,
-};
-
-pub struct Plugin;
-
-impl Plugin {
-    pub fn spec() -> crate::plugins::spec::SpecInfo {
-        MAPPING.signal(Key::Snacks);
-
-        lua_spec!(
-            "snack.lua",
-            &[
-                ("MAPPING_BUFDELETE", MAPPING.set_map_str(Key::SnacksBufdelete)),
-                ("MAPPING_PICKER", MAPPING.set_map_str(Key::SnacksPicker)),
-            ]
-        )
+return {
+    'hat0uma/csvview.nvim',
+    lazy = true,
+    ft = "csv",
+    opts = {
+        view = {
+            ---@type integer
+            min_column_width = 5,
+            ---@type integer
+            spacing = 2,
+            ---@type "highlight" | "border"
+            display_mode = "highlight",
+        },
     }
 }

@@ -69,7 +69,23 @@ pub fn parse_lua(content: &str, args: &[(&str, &str)], lua_path: &str, rust_file
             if check_unresolved(template, &arg_names, lua_path, rust_file, rust_line) {
                 let mut expanded = template.to_string();
                 for (name, val) in args {
-                    expanded = expanded.replace(&format!("${name}"), val);
+                    let pattern = format!("${name}");
+                    let mut replaced = String::new();
+                    let mut scan = expanded.as_str();
+                    while let Some(pos) = scan.find(&pattern) {
+                        replaced.push_str(&scan[..pos]);
+                        let after = &scan[pos + pattern.len()..];
+                        // Word boundary check: only replace if next char isn't alphanumeric or _
+                        let next_ch = after.chars().next();
+                        if next_ch.is_none_or(|c| !c.is_alphanumeric() && c != '_') {
+                            replaced.push_str(val);
+                        } else {
+                            replaced.push_str(&pattern);
+                        }
+                        scan = after;
+                    }
+                    replaced.push_str(scan);
+                    expanded = replaced;
                 }
 
                 let marker_newlines = rest[start..start + 7 + end + 2].chars().filter(|&c| c == '\n').count();

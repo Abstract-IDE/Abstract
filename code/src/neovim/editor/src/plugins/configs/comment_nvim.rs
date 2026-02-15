@@ -19,8 +19,8 @@ impl Plugin {
         lua_spec!(
             "comment_nvim.lua",
             &[
-                ("TS_CONTEXT_COMMENTSTRING", lua_section!("ts_context_commentstring.lua", "spec")),
-                ("HOOK_SETUP", lua_section!("ts_context_commentstring.lua", "setup")),
+                ("TS_CONTEXT_COMMENTSTRING", lua_section!("ts-context-commentstring.lua", "spec")),
+                ("HOOK_SETUP", lua_section!("ts-context-commentstring.lua", "setup")),
             ]
         )
     }

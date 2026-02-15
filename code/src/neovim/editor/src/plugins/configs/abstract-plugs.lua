@@ -1,31 +1,26 @@
-/*
+--[[
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ─────────────────────────────────────────────────
-Plugin: snacks.nvim
-Source: github.com/folke/snacks.nvim
+Plugin: abstract-plugs.nvim
+Source: https://github.com/Abstract-IDE/abstract-plugs.nvim
 
-A collection of small QoL plugins for Neovim.
+collections of neovim plugins
 ─────────────────────────────────────────────────
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-*/
+--]]
 
-use crate::{
-    core::keymaps::{Key, MAPPING},
-    lua_spec,
-};
-
-pub struct Plugin;
-
-impl Plugin {
-    pub fn spec() -> crate::plugins::spec::SpecInfo {
-        MAPPING.signal(Key::Snacks);
-
-        lua_spec!(
-            "snack.lua",
-            &[
-                ("MAPPING_BUFDELETE", MAPPING.set_map_str(Key::SnacksBufdelete)),
-                ("MAPPING_PICKER", MAPPING.set_map_str(Key::SnacksPicker)),
-            ]
-        )
-    }
+return {
+    "Abstract-IDE/abstract-plugs.nvim",
+    config = function()
+        local abstract = require('abs')
+        abstract.window().setup()
+        abstract.terminal().setup({
+            height = 0.4,
+            width = 0.6,
+            offset_row = 0.9,
+            offset_col = 0.5,
+            border = "rounded",
+        })
+        abstract.whitespace().setup()
+    end,
 }

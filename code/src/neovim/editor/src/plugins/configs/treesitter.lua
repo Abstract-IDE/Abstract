@@ -1,3 +1,14 @@
+--[[
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+─────────────────────────────────────────────────
+Plugin: nvim-treesitter
+Source: https://github.com/nvim-treesitter/nvim-treesitter
+
+Nvim Treesitter configurations and abstraction layer
+─────────────────────────────────────────────────
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+--]]
+
 local spec = {
     'nvim-treesitter/nvim-treesitter',
     lazy = false,

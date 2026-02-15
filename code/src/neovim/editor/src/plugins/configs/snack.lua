@@ -34,8 +34,7 @@ end
 -- BUFFER DELETE
 -- https://github.com/folke/snacks.nvim/blob/main/docs/bufdelete.md
 configs.bufdelete = function()
-    require("which-key").add( --[[@rs $MAPPING_BUFDELETE ]])
-
+    --[[@rs $MAPPING_BUFDELETE ]]
     return {
         enabled = true,
     }
@@ -85,7 +84,7 @@ configs.notifier = {
 -- PICKER
 -- https://github.com/folke/snacks.nvim/blob/main/docs/picker.md
 configs.picker = function()
-    require("which-key").add( --[[@rs $MAPPING_PICKER ]])
+    --[[@rs $MAPPING_PICKER ]]
     return {
         prompt = "🔎 ", -- 
         sources = {},
