@@ -8,7 +8,6 @@ pub mod plenary;
 pub mod web_devicons;
 
 // Plugins
-pub mod abstract_cursor;
 pub mod abstract_line;
 pub mod abstract_plugs;
 pub mod autopairs;
@@ -48,7 +47,6 @@ pub mod snack;
 pub mod surround;
 pub mod tabby;
 pub mod tiny_code_action;
-pub mod treesitter;
 pub mod ts_autotag;
 pub mod typescript_tools;
 pub mod typst_preview;

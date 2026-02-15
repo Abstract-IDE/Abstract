@@ -3,7 +3,7 @@ return function(data, repo)
     vim.g.ABSTRACT_ROOT = repo
 
     local code = repo .. "/code"
-    local profile = "release"
+    local profile = "debug"
     local lib_ext = vim.fn.has("mac") == 1 and "dylib" or "so"
     local lib_path = code .. "/target/" .. profile .. "/libabstract." .. lib_ext
 
