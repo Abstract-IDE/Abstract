@@ -249,6 +249,7 @@ impl PluginManager {
             ("configs/hovercraft.lua", &[("MAPPING", MAPPING.get_map(Key::Hovercraft))]),
             ("configs/java.lua"),
             ("configs/kulala.lua", &[("MAPPING_SET", MAPPING.set_map_str(Key::Kulala))]),
+            ("configs/lazydev-nvim.lua"),
             ("configs/luasnip.lua"),
             ("configs/markdown-preview.lua"),
             ("configs/markview.lua", &[("MAPPING_SET", MAPPING.set_map_str(Key::Markview))]),

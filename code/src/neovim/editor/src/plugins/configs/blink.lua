@@ -51,7 +51,7 @@ spec.opts = {
             if success and node and vim.tbl_contains({ "comment", "line_comment", "block_comment" }, node:type()) then
                 return { "path", "buffer" }
             end
-            return { "lsp", "path", "snippets", "buffer" }
+            return { "lazydev", "lsp", "path", "snippets", "buffer" }
         end,
         providers = {
             path = {
@@ -61,6 +61,12 @@ spec.opts = {
                     --     return vim.fn.getcwd()
                     -- end,
                 },
+            },
+            lazydev = {
+                name = "LazyDev",
+                module = "lazydev.integrations.blink",
+                -- make lazydev completions top priority (see `:h blink.cmp`)
+                score_offset = 100,
             },
         },
     },
