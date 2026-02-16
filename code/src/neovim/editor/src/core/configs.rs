@@ -116,7 +116,7 @@ impl Config {
         set_opt("tabstop", 4)?; // tab width
         set_opt("smarttab", true)?; // <tab>/<BS> in leading whitespace
         set_opt("autoindent", true)?; // maintain indent of current line
-        // set_opt("expandtab", false)?; // don't expand tabs into spaces (commented out)
+        // set_opt("expandtab", false)?; // don't expand tabs into spaces
         set_opt("shiftround", true)?; // round indent on shift
 
         // ----------------------------
@@ -125,7 +125,7 @@ impl Config {
         set_opt("splitbelow", true)?; // horizontal splits below current window
         set_opt("splitright", true)?; // vertical splits to right
         set_opt("laststatus", 3)?; // always show status line (3 = global status)
-        // set_opt("colorcolumn", "79")?; // vertical word limit line (commented out)
+        // set_opt("colorcolumn", "79")?; // vertical word limit line
         set_opt("cmdheight", 1)?; // command height
 
         // ----------------------------
@@ -134,7 +134,7 @@ impl Config {
         set_opt("hidden", true)?; // hide buffers with unsaved changes
         set_opt("inccommand", "split")?; // live preview of :s results
         set_opt("shell", "zsh")?; // shell for :! or system()
-        // set_opt("lazyredraw", true)?; // faster scrolling (commented out)
+        // set_opt("lazyredraw", true)?; // faster scrolling
 
         // ----------------------------
         // Wildignore / completion
@@ -148,7 +148,7 @@ impl Config {
         // Misc
         // ----------------------------
         set_opt("showmode", false)?; // disable insert/replace/visual mode messages
-        // set_opt("cmdheight", 0)?; // command height (commented out)
+        // set_opt("cmdheight", 0)?; // command height
 
         Ok(())
     }

@@ -11,6 +11,8 @@
 //   lua_section!("sub_plugin.lua", "spec")
 //   lua_section!("sub_plugin.lua", "setup", &[("VAR", "value")])
 
+use crate::utils::trace;
+
 pub struct SpecInfo {
     pub spec: &'static str,
     pub file: &'static str,
@@ -125,7 +127,7 @@ fn check_unresolved(template: &str, arg_names: &[&str], lua_path: &str, rust_fil
                  Hint: pass (\"{var_name}\", \"value\") in the args",
             );
             tracing::error!("{msg}");
-            crate::utils::trace::vim_notify(&msg, crate::utils::trace::NotifyLevel::Error);
+            trace::vim_notify(&msg, trace::NotifyLevel::Error);
             return false;
         }
         scan = &scan[pos + 1 + var_end..];
