@@ -233,10 +233,13 @@ M.snacks_picker = --@snacks_picker
 
 M.fff = --@fff
 {
-    { "<M-g>", group = _G.ABSTRACT_PLUGIN_GROUP.find },
-    { "<M-b>", "<CMD>lua Snacks.picker.buffers()<CR>",           desc = "Buffers" },
-    { "<M-f>", "<CMD>lua require('fff').find_in_git_root()<CR>", desc = "Find Files /project" },
-    { "<M-F>", "<CMD>lua require('fff').find_files()<CR>",       desc = "Find Files /current", mode = { "n", "x" } },
+    { "<M-g>",      group = _G.ABSTRACT_PLUGIN_GROUP.find },
+    { "<M-f>",      function() require('fff').find_files() end,                              desc = "Find Files /project" },
+    { "<M-F>",      function() require('fff').find_files_in_dir(vim.fn.expand('%:p:h')) end, desc = "Find Files /current",                mode = { "n", "x" } },
+    { "<M-b>",      "<CMD>lua Snacks.picker.buffers()<CR>",                                  desc = "Buffers" },
+    { "<M-g><M-g>", "<CMD>lua Snacks.picker.grep()<CR>",                                     desc = "Find word /project" },
+    { "<M-g><M-w>", "<CMD>lua Snacks.picker.grep_word()<CR>",                                desc = "Find under Visual selection or word" },
+    -- { "<M-g><M-g>", function() require('fff').live_grep() end,                               desc = "Find word /project" },
 }
 --@end
 
