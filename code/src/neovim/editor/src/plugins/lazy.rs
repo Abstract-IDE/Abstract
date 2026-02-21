@@ -237,6 +237,7 @@ impl PluginManager {
             ("configs/csvview.lua"),
             ("configs/dap.lua", &[("MAPPING_SET", MAPPING.set_map_str(Key::Dap))]),
             ("configs/dart-vim-plugin.lua"),
+            ("configs/dropbar-nvim.lua"),
             ("configs/fff.lua", &[("MAPPING", MAPPING.get_map(Key::Fff))]),
             ("configs/fidget.lua"),
             ("configs/flutter-tools.lua"),
