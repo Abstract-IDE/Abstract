@@ -1,8 +1,8 @@
 use std::panic;
 
 use nvim_oxi::{self};
-use wc_indent::setup_indent_autocmds;
 use wp_autogood::{self};
+use wp_indent::setup_indent_autocmds;
 
 use crate::{
     core::{

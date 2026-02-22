@@ -1,12 +1,11 @@
 [workspace]
 resolver = "2"
 members = [
-  # Core
-  "src/core/abspm",
   # Libs
   "src/libs/utils",
   "src/neovim/editor",
   # Plugins
+  "src/plugins/abspm",
   "src/plugins/autogood",
   "src/plugins/indent",
 ]
@@ -26,13 +25,12 @@ homepage      = "https://github.com/Abstract-IDE/Abstract"
 
 
 [workspace.dependencies]
-# === Core === #
-wc_abspm = { package = "abspm", path = "./src/core/abspm" }
 # === Libraries === #
 wl_utils = { package = "abstract-utils", path = "./src/libs/utils" }
 # === Plugins === #
+wp_indent   = { package = "abstract-indent", path = "./src/plugins/indent" }
+wp_abspm    = { package = "abspm", path = "./src/plugins/abspm" }
 wp_autogood = { package = "abstract-autogood", path = "./src/plugins/autogood" }
-wc_indent   = { package = "abstract-indent", path = "./src/plugins/indent" }
 
 # === 3rd Parties === #
 anyhow             = { version = "1.0.100" }
