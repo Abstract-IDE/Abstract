@@ -11,7 +11,7 @@ Git Graph plugin for neovim.
 local spec = {
     "isakbm/gitgraph.nvim",
     dependencies = { "sindrets/diffview.nvim" },
-    event = "BufEnter",
+    event = { "CmdlineEnter", "BufRead", "BufNewFile", "InsertEnter" },
 }
 
 spec.config = function()
