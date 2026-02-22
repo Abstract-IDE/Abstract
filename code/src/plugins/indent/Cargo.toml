@@ -1,0 +1,16 @@
+[package]
+name    = "abstract-indent"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+crate-type = ["rlib", "cdylib"]
+
+[dependencies]
+memmap2  = { workspace = true }
+nvim-oxi = { workspace = true }
+rayon    = { workspace = true }
+serde    = { workspace = true }
+
+[dev-dependencies]
+serde_json = { workspace = true }

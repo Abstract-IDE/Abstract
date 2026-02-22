@@ -13,7 +13,7 @@ it manages projects like in intellij but without being slow
 
 local spec = {
     "CRAG666/code_runner.nvim",
-    event = "BufRead",
+    event = { "BufRead", "BufNewFile", },
     cmd = "RunCode",
 }
 
