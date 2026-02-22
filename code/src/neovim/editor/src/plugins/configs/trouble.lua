@@ -16,7 +16,7 @@ local spec = {
 }
 
 spec.config = function()
-    require('which-key').add( --[[@rs $MAPPING ]])
+    --[[@rs $MAPPING_SET ]]
 
     require('trouble').setup({
         auto_close = true,       -- auto close when there are no items

@@ -11,12 +11,15 @@ anywhere in a document with as few keystrokes as possible
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 --]]
 
-return {
+local spec = {
     "smoka7/hop.nvim",
     version = "*",
-    keys = --[[@rs $MAPPING ]],
-    opts = {
-        keys = "qwertyuiopasdfghjklzxcvbnm",
-        jump_on_sole_occurrence = false,
-    },
+    --[[@rs keys= $MAPPING, ]]
 }
+
+spec.opts = {
+    keys = "qwertyuiopasdfghjklzxcvbnm",
+    jump_on_sole_occurrence = false,
+}
+
+return spec
