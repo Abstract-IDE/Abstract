@@ -51,6 +51,7 @@ dependencies = [
 name = "abstract-indent"
 version = "0.1.0"
 dependencies = [
+ "abstract-utils",
  "memmap2",
  "nvim-oxi",
  "rayon",

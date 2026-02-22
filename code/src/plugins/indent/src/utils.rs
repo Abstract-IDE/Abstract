@@ -5,6 +5,8 @@ use nvim_oxi::api::{
     opts::{CreateAugroupOpts, CreateAutocmdOpts, OptionOpts},
 };
 
+use wl_utils::neovim::types::events::Events;
+
 use crate::core::{
     error::IndentError,
     indent::Indent,
@@ -82,7 +84,7 @@ pub fn setup_indent_autocmds() -> Result<(), nvim_oxi::Error> {
         })
         .build();
 
-    api::create_autocmd(["BufReadPost"], &autocmd_opts)?;
+    api::create_autocmd([Events::BufReadPost.as_ref()], &autocmd_opts)?;
 
     Ok(())
 }
