@@ -20,10 +20,12 @@ local configs = {}
 
 spec.config = function()
     require("snacks").setup({
+        bigfile = configs.bigfile,
         bufdelete = configs.bufdelete(),
         dashboard = configs.dashboard,
-        notifier = configs.notifier,
         indent = configs.indent,
+        input = configs.input,
+        notifier = configs.notifier,
 
         -- NOTE: using fff for now
         -- picker = configs.picker(),
@@ -32,7 +34,7 @@ end
 
 
 
--- BUFFER DELETE
+-- === BUFFER DELETE === --
 -- https://github.com/folke/snacks.nvim/blob/main/docs/bufdelete.md
 configs.bufdelete = function()
     --[[@rs $MAPPING_BUFDELETE ]]
@@ -42,7 +44,7 @@ configs.bufdelete = function()
 end
 
 
--- NOTIFIER
+-- === NOTIFIER ===
 -- https://github.com/folke/snacks.nvim/blob/main/docs/notifier.md
 configs.notifier = {
     enabled = true,
@@ -82,7 +84,7 @@ configs.notifier = {
     refresh = 50, -- refresh at most every 50ms
 }
 
--- PICKER
+-- === PICKER === --
 -- https://github.com/folke/snacks.nvim/blob/main/docs/picker.md
 configs.picker = function()
     --[[@rs $MAPPING_PICKER ]]
@@ -418,7 +420,7 @@ configs.picker = function()
     }
 end
 
--- DASHBOARD
+-- === DASHBOARD === --
 -- https://github.com/folke/snacks.nvim/blob/main/docs/dashboard.md
 configs.dashboard = {
     enabled = true,
@@ -476,7 +478,7 @@ configs.dashboard = {
 
 }
 
--- Indent
+-- === Indent === --
 -- https://github.com/folke/snacks.nvim/blob/main/docs/indent.md
 ---@class snacks.indent.Config
 configs.indent = {
@@ -530,5 +532,39 @@ configs.indent = {
         },
     },
 }
+
+-- === Bigfile === --
+-- https://github.com/folke/snacks.nvim/blob/main/docs/bigfile.md
+---@class snacks.bigfile.Config
+configs.bigfile = {
+    enabled = true,
+    notify = true,          -- show notification when big file detected
+    size = 5 * 1024 * 1024, -- 5MB
+    line_length = 1000,     -- average line length (useful for minified files)
+    -- Enable or disable features when big file detected
+    ---@param ctx {buf: number, ft:string}
+    setup = function(ctx)
+        if vim.fn.exists(":NoMatchParen") ~= 0 then
+            vim.cmd([[NoMatchParen]])
+        end
+        Snacks.util.wo(0, { foldmethod = "manual", statuscolumn = "", conceallevel = 0 })
+        vim.b.minianimate_disable = true
+        vim.schedule(function()
+            if vim.api.nvim_buf_is_valid(ctx.buf) then
+                vim.bo[ctx.buf].syntax = ctx.ft
+            end
+        end)
+    end,
+}
+
+
+-- === Input === --
+-- Better vim.ui.input
+-- https://github.com/folke/snacks.nvim/blob/main/docs/input.md
+---@class snacks.input.Config
+configs.input = {
+    enabled = true,
+}
+
 
 return spec
