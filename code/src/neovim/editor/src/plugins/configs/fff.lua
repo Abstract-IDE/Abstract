@@ -20,17 +20,21 @@ local spec = {
 spec.opts = {
     base_path = vim.fn.getcwd(),
     prompt = '🔎 ',
-    title = 'FFFiles',
+    title = 'Find files',
     max_results = 100,
     max_threads = 4,
     lazy_sync = true,
     layout = {
-        height = 0.8,
-        width = 0.8,
+        height = 0.9,
+        width = 0.9,
         prompt_position = 'top',
-        preview_position = 'right',
+        preview_position = 'right', -- or 'left', 'right', 'top', 'bottom'
         preview_size = 0.5,
-        show_scrollbar = false, -- Show scrollbar for pagination
+        show_scrollbar = false,     -- Show scrollbar for pagination
+        flex = {                    -- set to false to disable flex layout
+            size = 80,              -- column threshold: if screen width >= size, use preview_position; otherwise use wrap
+            wrap = 'bottom',        -- position to use when screen is narrower than size
+        },
     },
     preview = {
         enabled = true,
