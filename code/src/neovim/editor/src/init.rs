@@ -1,8 +1,10 @@
 use std::panic;
 
 use nvim_oxi::{self};
+
 use wp_autogood::{self};
-use wp_indent::setup_indent_autocmds;
+use wp_indent::{self};
+use wp_terminal::{self};
 
 use crate::{
     core::{
@@ -66,8 +68,8 @@ fn plugins_setup() -> nvim_oxi::Result<()> {
     wp_autogood::Init::new().keymaps().autocmds();
     lazy::PluginManager::new()?;
 
-    // indent
-    setup_indent_autocmds()?;
+    wp_indent::setup_indent_autocmds()?;
+    wp_terminal::setup();
 
     // Register builtin keymaps
     keymaps::MAPPING.set_map(keymaps::Key::Builtin)?;

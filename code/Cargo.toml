@@ -8,6 +8,7 @@ members = [
   "src/plugins/abspm",
   "src/plugins/autogood",
   "src/plugins/indent",
+  "src/plugins/terminal",
 ]
 
 [workspace.package]
@@ -28,9 +29,10 @@ homepage      = "https://github.com/Abstract-IDE/Abstract"
 # === Libraries === #
 wl_utils = { package = "abstract-utils", path = "./src/libs/utils" }
 # === Plugins === #
-wp_indent   = { package = "abstract-indent", path = "./src/plugins/indent" }
 wp_abspm    = { package = "abspm", path = "./src/plugins/abspm" }
 wp_autogood = { package = "abstract-autogood", path = "./src/plugins/autogood" }
+wp_indent   = { package = "abstract-indent", path = "./src/plugins/indent" }
+wp_terminal = { package = "abstract-terminal", path = "./src/plugins/terminal" }
 
 # === 3rd Parties === #
 anyhow             = { version = "1.0.100" }

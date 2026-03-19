@@ -26,6 +26,7 @@ dependencies = [
  "abspm",
  "abstract-autogood",
  "abstract-indent",
+ "abstract-terminal",
  "abstract-utils",
  "anyhow",
  "git2",
@@ -55,6 +56,16 @@ dependencies = [
  "memmap2",
  "nvim-oxi",
  "rayon",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "abstract-terminal"
+version = "0.1.0"
+dependencies = [
+ "abstract-utils",
+ "nvim-oxi",
  "serde",
  "serde_json",
 ]

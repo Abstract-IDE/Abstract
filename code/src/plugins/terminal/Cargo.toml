@@ -1,0 +1,16 @@
+[package]
+name         = "abstract-terminal"
+version      = { workspace = true }
+edition      = { workspace = true }
+authors      = { workspace = true }
+license      = { workspace = true }
+rust-version = { workspace = true }
+
+[dependencies]
+# local libraries
+wl_utils = { workspace = true }
+
+# 3rd parties libraries
+nvim-oxi = { workspace = true }
+serde.workspace = true
+serde_json.workspace = true
