@@ -53,21 +53,21 @@ pub fn open_floating(state: &mut State, buf: &nvim_oxi::api::Buffer) -> nvim_oxi
 
 /// Update the title of the existing floating window to reflect the current index.
 pub fn update_title(state: &State) -> nvim_oxi::Result<()> {
-    if let Some(win) = &state.win {
-        if win.is_valid() {
-            let title_text = format!(" {} {}/{} ", state.config.title, state.current + 1, state.len());
+    if let Some(win) = &state.win
+        && win.is_valid()
+    {
+        let title_text = format!(" {} {}/{} ", state.config.title, state.current + 1, state.len());
 
-            let title_pos = state.config.title_position();
+        let title_pos = state.config.title_position();
 
-            // Build a minimal config with only the title fields to update.
-            let mut update = WindowConfig::default();
-            update.title = Some(WindowTitle::SimpleString(title_text.into()));
-            update.title_pos = Some(title_pos);
+        // Build a minimal config with only the title fields to update.
+        let mut update = WindowConfig::default();
+        update.title = Some(WindowTitle::SimpleString(title_text.into()));
+        update.title_pos = Some(title_pos);
 
-            // Use `set_config` on the window handle directly (not the "current" window).
-            let mut win = win.clone();
-            win.set_config(&update)?;
-        }
+        // Use `set_config` on the window handle directly (not the "current" window).
+        let mut win = win.clone();
+        win.set_config(&update)?;
     }
     Ok(())
 }

@@ -65,7 +65,7 @@ fn new_terminal_internal() -> nvim_oxi::Result<()> {
         api::call_function::<_, i64>("termopen", (args,))?;
         api::command("startinsert")?;
 
-        // Removed `modifiable=false`. Terminal buffers natively reject standard text entry unless you are in Terminal mode. 
+        // Removed `modifiable=false`. Terminal buffers natively reject standard text entry unless you are in Terminal mode.
         // Setting it to false causes `startinsert` to throw E21, which forces Neovim to abort window focus during mouse clicks!
 
         // Bug 1: Auto-close buffer when terminal process exits
@@ -77,27 +77,27 @@ fn new_terminal_internal() -> nvim_oxi::Result<()> {
                 .nested(true)
                 .callback(move |_args| -> std::result::Result<bool, nvim_oxi::Error> {
                     // Check if Neovim is currently exiting. If so, do not try to open floats or startinsert.
-                    if let Ok(v_exiting) = api::get_vvar::<nvim_oxi::Object>("exiting") {
-                        if !v_exiting.is_nil() {
-                            return Ok(false);
-                        }
+                    if let Ok(v_exiting) = api::get_vvar::<nvim_oxi::Object>("exiting")
+                        && !v_exiting.is_nil()
+                    {
+                        return Ok(false);
                     }
 
                     let buf_handle = buf_clone.handle();
                     nvim_oxi::schedule(move |()| {
-                        if let Ok(v_exiting) = api::get_vvar::<nvim_oxi::Object>("exiting") {
-                            if !v_exiting.is_nil() {
-                                return;
-                            }
+                        if let Ok(v_exiting) = api::get_vvar::<nvim_oxi::Object>("exiting")
+                            && !v_exiting.is_nil()
+                        {
+                            return;
                         }
 
                         crate::state::with_state(|state| {
                             let is_current = state.current_buf().map(|b| b.handle() == buf_handle).unwrap_or(false);
-                            
+
                             let _ = api::command(&format!("bdelete! {}", buf_handle));
-                            
+
                             state.prune_buffers();
-                            
+
                             if state.is_empty() {
                                 state.close_float();
                             } else if is_current {
@@ -131,10 +131,10 @@ fn new_terminal_internal() -> nvim_oxi::Result<()> {
                 .nested(true)
                 .callback(|_args| -> std::result::Result<bool, nvim_oxi::Error> {
                     nvim_oxi::schedule(|()| {
-                        if let Ok(m) = api::get_mode() {
-                            if m.mode != "t" {
-                                let _ = api::command("startinsert");
-                            }
+                        if let Ok(m) = api::get_mode()
+                            && m.mode != "t"
+                        {
+                            let _ = api::command("startinsert");
                         }
                     });
                     Ok(false)

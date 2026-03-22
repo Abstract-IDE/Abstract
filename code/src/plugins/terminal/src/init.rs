@@ -16,7 +16,6 @@ use crate::{config::Config, keymaps, state, terminal};
 /// Setup with default options.
 pub fn setup() {
     setup_with_opts(Object::nil());
-    build_api();
 }
 
 /// Setup with a user-provided options table.
@@ -68,6 +67,10 @@ pub fn setup_with_opts(opts: Object) {
         },
         &cmd_opts,
     );
+
+    let api_dict = build_api();
+    let _ = api::set_var("_abstract_terminal_api", api_dict);
+    let _ = api::command("lua package.loaded['terminal'] = _G._abstract_terminal_api");
 }
 
 /// Build the dictionary of Lua-callable functions exposed by the plugin.

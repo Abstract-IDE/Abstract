@@ -258,12 +258,12 @@ M.abstract_terminal = --@abstract_terminal
 {
     mode = { "i", "n", "t" },
     { "<M-t>",      group = _G.ABSTRACT_PLUGIN_GROUP.terminal },
-    { "<M-t><M-t>", function() require("abs").terminal().toggle() end, desc = "Terminal /toggle" },
+    { "<M-t><M-t>", ":AbstractTerminal toggle<CR>",               desc = "Terminal /toggle" },
     {
         mode = { "t" },
-        { "<M-t>n",     function() require("abs").terminal().new() end,  desc = "Open new terminal" },
-        { "<M-t><M-h>", function() require("abs").terminal().prev() end, desc = "Goto previous terminal" },
-        { "<M-t><M-l>", function() require("abs").terminal().next() end, desc = "Goto next terminal" },
+        { "<M-t>n",     function() require("terminal").new() end,  desc = "Open new terminal" },
+        { "<M-t><M-h>", function() require("terminal").prev() end, desc = "Goto previous terminal" },
+        { "<M-t><M-l>", function() require("terminal").next() end, desc = "Goto next terminal" },
     },
 }
 --@end
