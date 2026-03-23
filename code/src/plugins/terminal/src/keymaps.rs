@@ -6,6 +6,7 @@ use nvim_oxi::{
         types::{LogLevel, Mode},
     },
 };
+use wl_utils::panic::SafeFunctionExt;
 
 use crate::config::Config;
 
@@ -20,7 +21,7 @@ pub fn register(config: &Config) {
         _ => return,
     };
 
-    let toggle_fn = Function::<(), ()>::from_fn(|()| {
+    let toggle_fn = Function::<(), ()>::from_safe_fn(|()| {
         // If we're in terminal mode, escape to normal first.
         if let Ok(mode) = api::get_mode()
             && mode.mode == "t"
@@ -33,6 +34,7 @@ pub fn register(config: &Config) {
         if let Err(e) = crate::terminal::toggle() {
             let _ = api::notify(&format!("AbstractTerminal Error: {}", e), LogLevel::Error, &Dictionary::new());
         }
+        Ok(())
     });
 
     let map_opts = SetKeymapOpts::builder().silent(true).desc("Toggle floating terminal").callback(toggle_fn).build();

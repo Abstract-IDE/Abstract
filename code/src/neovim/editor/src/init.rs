@@ -2,6 +2,7 @@ use std::panic;
 
 use nvim_oxi::{self};
 
+use wl_utils::{panic::panic_test, safe_wrap};
 use wp_autogood::{self};
 use wp_indent::{self};
 use wp_terminal::{self};
@@ -14,7 +15,7 @@ use crate::{
     plugins::lazy,
     utils::{
         runtime,
-        trace::{self, NotifyLevel}, //
+        trace::{self, NotifyLevel, setup_err_hook}, //
     },
 };
 
@@ -46,7 +47,8 @@ fn libabstract() -> nvim_oxi::Result<()> {
             } else {
                 "Unknown panic".to_string()
             };
-            let msg = format!("[Abstract] PANIC: {panic_msg}");
+            let log_path = trace::log_file_path();
+            let msg = format!("[Abstract] PANIC: {panic_msg}. Check log at {} for backtrace.", log_path.display());
             tracing::error!("{msg}");
             trace::vim_notify(&msg, NotifyLevel::Error);
             Ok(())
@@ -55,6 +57,7 @@ fn libabstract() -> nvim_oxi::Result<()> {
 }
 
 fn plugins_init() -> nvim_oxi::Result<()> {
+    setup_err_hook();
     Config::init()?;
     plugins_setup()?;
     runtime::spawn(async {
@@ -71,6 +74,8 @@ fn plugins_setup() -> nvim_oxi::Result<()> {
     wp_indent::setup_indent_autocmds()?;
     wp_terminal::setup();
 
+    // Registration for testing our panic handler
+    panic_test()?;
     // Register builtin keymaps
     keymaps::MAPPING.set_map(keymaps::Key::Builtin)?;
     // NOTE: this must be called after initilizing PluginManager as mapping depends on external plugin key-map

@@ -5,7 +5,7 @@ use nvim_oxi::api::{
     opts::{CreateAugroupOpts, CreateAutocmdOpts, OptionOpts},
 };
 
-use wl_utils::neovim::types::events::Events;
+use wl_utils::{neovim::types::events::Events, safe_wrap};
 
 use crate::core::{
     error::IndentError,
@@ -78,10 +78,10 @@ pub fn setup_indent_autocmds() -> Result<(), nvim_oxi::Error> {
 
     let autocmd_opts = CreateAutocmdOpts::builder()
         .group(group_id)
-        .callback(|_args| -> nvim_oxi::Result<bool> {
+        .callback(safe_wrap! (|_args| -> nvim_oxi::Result<bool> {
             auto_detect_and_apply();
             Ok(false)
-        })
+        }))
         .build();
 
     api::create_autocmd([Events::BufReadPost.as_ref()], &autocmd_opts)?;

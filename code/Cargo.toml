@@ -65,4 +65,3 @@ tracing-subscriber = { version = "0.3.22", features = ["env-filter"] }
 lto           = true
 codegen-units = 1
 strip         = true
-panic         = "abort"

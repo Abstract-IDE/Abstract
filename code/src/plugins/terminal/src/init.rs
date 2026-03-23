@@ -6,6 +6,7 @@ use nvim_oxi::{
         types::{CommandArgs, CommandNArgs, LogLevel},
     },
 };
+use wl_utils::{panic::SafeFunctionExt, safe_wrap};
 
 use crate::{config::Config, keymaps, state, terminal};
 
@@ -40,7 +41,7 @@ pub fn setup_with_opts(opts: Object) {
 
     let _ = api::create_user_command(
         "AbstractTerminal",
-        |args: CommandArgs| -> std::result::Result<(), nvim_oxi::Error> {
+        safe_wrap!(|args: CommandArgs| -> std::result::Result<(), nvim_oxi::Error> {
             let cmd = args.args.unwrap_or_default();
 
             let res = match cmd.as_str() {
@@ -64,7 +65,7 @@ pub fn setup_with_opts(opts: Object) {
             }
 
             Ok(())
-        },
+        }),
         &cmd_opts,
     );
 
@@ -77,35 +78,46 @@ pub fn setup_with_opts(opts: Object) {
 pub fn build_api() -> Dictionary {
     let mut dict = Dictionary::new();
 
-    dict.insert("setup", Object::from(Function::<Object, ()>::from_fn(setup_with_opts)));
+    dict.insert(
+        "setup",
+        Object::from(Function::<Object, ()>::from_safe_fn(|opts| {
+            setup_with_opts(opts);
+            Ok::<(), nvim_oxi::Error>(())
+        })),
+    );
     dict.insert(
         "toggle",
-        Object::from(Function::<(), ()>::from_fn(|()| {
+        Object::from(Function::<(), ()>::from_safe_fn(|()| {
             let _ = terminal::toggle();
+            Ok::<(), nvim_oxi::Error>(())
         })),
     );
     dict.insert(
         "new",
-        Object::from(Function::<(), ()>::from_fn(|()| {
+        Object::from(Function::<(), ()>::from_safe_fn(|()| {
             let _ = terminal::new_terminal();
+            Ok::<(), nvim_oxi::Error>(())
         })),
     );
     dict.insert(
         "next",
-        Object::from(Function::<(), ()>::from_fn(|()| {
+        Object::from(Function::<(), ()>::from_safe_fn(|()| {
             let _ = terminal::cycle(1, true);
+            Ok::<(), nvim_oxi::Error>(())
         })),
     );
     dict.insert(
         "prev",
-        Object::from(Function::<(), ()>::from_fn(|()| {
+        Object::from(Function::<(), ()>::from_safe_fn(|()| {
             let _ = terminal::cycle(-1, true);
+            Ok::<(), nvim_oxi::Error>(())
         })),
     );
     dict.insert(
         "close",
-        Object::from(Function::<(), ()>::from_fn(|()| {
+        Object::from(Function::<(), ()>::from_safe_fn(|()| {
             let _ = terminal::close();
+            Ok::<(), nvim_oxi::Error>(())
         })),
     );
 

@@ -9,6 +9,8 @@ use nvim_oxi::{
     },
 };
 
+use wl_utils::panic::SafeFunctionExt;
+
 pub struct Mapping;
 
 impl Mapping {
@@ -27,7 +29,7 @@ impl Mapping {
     }
 
     pub fn smart_dd() -> Result<()> {
-        let callback = Function::from_fn(move |_| -> Result<()> {
+        let callback = Function::from_safe_fn(move |_| -> Result<()> {
             let line = get_current_line()?;
 
             if line.trim().is_empty() {

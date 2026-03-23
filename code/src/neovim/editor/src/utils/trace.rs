@@ -1,6 +1,7 @@
-use std::{fs, path::PathBuf, sync::Once};
+use std::{fs, panic, path::PathBuf, sync::Once};
 
 use nvim_oxi::mlua;
+use tracing::{self};
 use tracing_subscriber::{EnvFilter, fmt, prelude::*};
 
 use crate::utils::constants;
@@ -95,4 +96,46 @@ pub fn vim_notify_error_report(report: &str) {
     chunks.push_str("}, true, {})");
 
     let _ = lua.load(&chunks).exec();
+}
+
+// Set a panic hook to capture and log panics before they kill Neovim
+pub fn setup_err_hook() {
+    panic::set_hook(Box::new(|panic_info| {
+        let loc = panic_info
+            .location()
+            .map(|l| format!("{}:{}", l.file(), l.line()))
+            .unwrap_or_else(|| "unknown".to_string());
+
+        let msg = if let Some(s) = panic_info.payload().downcast_ref::<&str>() {
+            s.to_string()
+        } else if let Some(s) = panic_info.payload().downcast_ref::<String>() {
+            s.clone()
+        } else {
+            "Unknown panic".to_string()
+        };
+
+        let backtrace = std::backtrace::Backtrace::force_capture();
+        let full_msg = format!(
+            "\n=== === ===\n\
+             PANIC at {loc}\n\
+             Message: {msg}\n\
+             \n\
+             Backtrace:\n\
+             {backtrace}\n\
+             === === ===\n"
+        );
+
+        // Log using tracing so it's in the standard log file
+        tracing::error!("{full_msg}");
+
+        // Write synchronously to a dedicated crash file in NVIM_DATA_HOME
+        let crash_path = constants::NVIM_DATA_HOME.as_str();
+        let crash_file = PathBuf::from(crash_path).join("abstract-crash.log");
+        if let Some(parent) = crash_file.parent() {
+            let _ = fs::create_dir_all(parent);
+        }
+        let _ = fs::write(&crash_file, &full_msg);
+
+        vim_notify_error_report(&full_msg)
+    }));
 }

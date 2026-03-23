@@ -3,6 +3,8 @@ use nvim_oxi::api::{
     opts::{ClearAutocmdsOpts, CreateAugroupOpts, CreateAutocmdOpts},
     types::AutocmdCallbackArgs,
 };
+use wl_utils::safe_wrap;
+
 
 use crate::state::State;
 
@@ -32,14 +34,14 @@ pub fn guard_buf(state: &mut State, buf: Buffer) -> nvim_oxi::Result<()> {
         let guard_opts = CreateAutocmdOpts::builder()
             .group(group)
             .nested(true)
-            .callback(move |args: AutocmdCallbackArgs| -> std::result::Result<bool, nvim_oxi::Error> {
+            .callback(safe_wrap!(move |args: AutocmdCallbackArgs| -> std::result::Result<bool, nvim_oxi::Error> {
                 let current_win = api::get_current_win();
                 if current_win == win_id && args.buffer != buf_id {
                     let mut win = win_id.clone();
                     let _ = win.set_buf(&buf_id);
                 }
                 Ok(false)
-            })
+            }))
             .build();
 
         api::create_autocmd(["BufWinEnter"], &guard_opts)?;
