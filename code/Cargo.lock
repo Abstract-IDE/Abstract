@@ -74,6 +74,7 @@ dependencies = [
 name = "abstract-utils"
 version = "0.1.0"
 dependencies = [
+ "nvim-oxi",
  "strum",
  "strum_macros",
 ]

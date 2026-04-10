@@ -18,7 +18,6 @@ wl_utils    = { workspace = true }
 wp_abspm    = { workspace = true }
 wp_autogood = { workspace = true }
 wp_indent   = { workspace = true }
-wp_seek     = { workspace = true }
 wp_terminal = { workspace = true }
 
 # 3rd parties libraries
