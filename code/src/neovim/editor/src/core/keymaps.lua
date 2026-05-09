@@ -27,8 +27,14 @@ _G.ABSTRACT_PLUGIN_GROUP = {
 
 local M = {}
 
-M.builtin = --@builtin
+M.which_key = --@which_key
 {
+    { "<leader>?", function() require('which-key').show({ global = false }) end, desc = "Buffer Local Keymaps /which-key" },
+
+    --
+    -- Plugin Independent mappings
+    --
+
     { "\\",         ":bnext<CR>",     desc = "Goto next buffer" },
     { "|",          ":bprevious<CR>", desc = "Goto previous buffer" },
     -- Window
@@ -43,12 +49,6 @@ M.builtin = --@builtin
     { "<M-S-.>",    ":+tabmove<CR>",  desc = "Move tab to previous position" },
     -- LOGS
     { "<Leader>Lm", ":messages<CR>",  desc = "Messages history" },
-}
---@end
-
-M.which_key = --@which_key
-{
-    { "<leader>?", function() require('which-key').show({ global = false }) end, desc = "Buffer Local Keymaps /which-key" },
 }
 --@end
 

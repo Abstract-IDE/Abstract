@@ -76,8 +76,6 @@ fn plugins_setup() -> nvim_oxi::Result<()> {
 
     // Registration for testing our panic handler
     panic_test()?;
-    // Register builtin keymaps
-    keymaps::MAPPING.set_map(keymaps::Key::Builtin)?;
     // NOTE: this must be called after initilizing PluginManager as mapping depends on external plugin key-map
     // setup which-key for builtin keymaps (keymaps that don't depends on 3rd parties plugins)
     keymaps::MAPPING.register_all()?;
