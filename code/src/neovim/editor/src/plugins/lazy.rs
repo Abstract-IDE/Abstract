@@ -273,7 +273,7 @@ impl PluginManager {
             ("configs/typst-preview.lua"),
             ("configs/vim-dadbod.lua"),
             ("configs/which-key.lua", &[("MAPPING", MAPPING.get_map(Key::WhichKey))]),
-            comment_nvim,
+            mini_comment,
             mason,
             snack,
         ];

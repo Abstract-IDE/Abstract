@@ -1,11 +1,11 @@
 /*
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ────────────────────────────────────────────────
-Plugin: Comment.nvim
-Source: https://github.com/numToStr/Comment.nvim
+Plugin: mini.comment
+Source: https://github.com/nvim-mini/mini.comment
 
-🧠 💪 // Smart and powerful comment plugin for neovim.
-Supports treesitter, dot repeat, left-right/up-down motions, hooks, and more
+Neovim Lua plugin for fast and familiar per-line commenting.
+Part of 'mini.nvim' library.
 ────────────────────────────────────────────────
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 */
@@ -17,7 +17,7 @@ pub struct Plugin;
 impl Plugin {
     pub fn spec() -> crate::plugins::spec::SpecInfo {
         lua_spec!(
-            "comment_nvim.lua",
+            "mini_comment.lua",
             &[
                 ("TS_CONTEXT_COMMENTSTRING", lua_section!("ts-context-commentstring.lua", "spec")),
                 ("HOOK_SETUP", lua_section!("ts-context-commentstring.lua", "setup")),
