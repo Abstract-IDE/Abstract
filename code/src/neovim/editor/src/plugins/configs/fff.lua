@@ -32,7 +32,7 @@ spec.opts = {
         preview_size = 0.5,
         show_scrollbar = false,     -- Show scrollbar for pagination
         flex = {                    -- set to false to disable flex layout
-            size = 80,              -- column threshold: if screen width >= size, use preview_position; otherwise use wrap
+            size = 70,              -- column threshold: if screen width >= size, use preview_position; otherwise use wrap
             wrap = 'bottom',        -- position to use when screen is narrower than size
         },
     },
