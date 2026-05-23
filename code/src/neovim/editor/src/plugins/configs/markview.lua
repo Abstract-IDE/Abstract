@@ -15,15 +15,15 @@ local spec = {
 
 spec.config = function()
     require("markview").setup({
-        experimental = {
-            check_rtp = false
-        },
-        html = { enable = false },
-        latex = { enable = false },
-        markdown = { enable = false },
-        markdown_inline = { enable = false },
-        typst = { enable = false },
-        yaml = { enable = false },
+        -- experimental = {
+        --     check_rtp = false
+        -- },
+        -- html = { enable = false },
+        -- latex = { enable = false },
+        -- markdown = { enable = false },
+        -- markdown_inline = { enable = false },
+        -- typst = { enable = false },
+        -- yaml = { enable = false },
     })
     --[[@rs $MAPPING_SET ]]
 end
