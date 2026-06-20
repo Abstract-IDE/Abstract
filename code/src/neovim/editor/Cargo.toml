@@ -15,6 +15,7 @@ crate-type = ["cdylib"]
 [dependencies]
 # local libraries
 wl_utils    = { workspace = true }
+wp_ui       = { workspace = true }
 wp_abspm    = { workspace = true }
 wp_autogood = { workspace = true }
 wp_indent   = { workspace = true }

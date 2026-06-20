@@ -3,6 +3,14 @@
 version = 4
 
 [[package]]
+name = "ab-nui"
+version = "0.1.0"
+dependencies = [
+ "mlua",
+ "thiserror",
+]
+
+[[package]]
 name = "abspm"
 version = "0.1.0"
 dependencies = [
@@ -23,6 +31,7 @@ dependencies = [
 name = "abstract"
 version = "0.1.0"
 dependencies = [
+ "ab-nui",
  "abspm",
  "abstract-autogood",
  "abstract-indent",

@@ -1,0 +1,19 @@
+[package]
+name         = "ab-nui"
+description  = "ab-nui — a reactive UI library for Neovim, built on mlua"
+version      = { workspace = true }
+edition      = { workspace = true }
+authors      = { workspace = true }
+license      = { workspace = true }
+rust-version = { workspace = true }
+
+# The workspace exposes this crate under the `wp_ui` alias, so consumers
+# `use wp_ui::...` (see `[workspace.dependencies]` in the root Cargo.toml).
+
+[dependencies]
+# NOTE: this crate deliberately does NOT depend on nvim-oxi.
+# It talks to Neovim purely through `vim.*` via mlua. The mlua version/feature
+# set here is chosen to match nvim-oxi's (mlua 0.10, `luajit`) so Cargo unifies
+# them into a single crate instance and the host can hand us its live `Lua`.
+mlua      = { version = "0.10", features = ["luajit"] }
+thiserror = { workspace = true }
