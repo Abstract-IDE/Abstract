@@ -17,6 +17,17 @@ pub mod groups {
     pub const MUTED: &str = "AbNuiMuted";
     pub const FIELD: &str = "AbNuiField";
     pub const FOCUS: &str = "AbNuiFocus";
+    pub const SCROLLBAR: &str = "AbNuiScrollbar";
+    pub const SCROLLBAR_THUMB: &str = "AbNuiScrollbarThumb";
+    pub const HEADER: &str = "AbNuiHeader";
+    pub const ACCENT: &str = "AbNuiAccent";
+    pub const SUCCESS: &str = "AbNuiSuccess";
+    pub const WARN: &str = "AbNuiWarn";
+    pub const ERROR: &str = "AbNuiError";
+    pub const INFO: &str = "AbNuiInfo";
+    pub const TAB_ACTIVE: &str = "AbNuiTabActive";
+    pub const TAB_INACTIVE: &str = "AbNuiTabInactive";
+    pub const CURSOR: &str = "AbNuiCursor";
 }
 
 /// Define (or override) a highlight group via `nvim_set_hl(0, name, opts)`.
@@ -46,5 +57,16 @@ pub fn setup() -> Result<()> {
     link(groups::MUTED, "Comment")?;
     link(groups::FIELD, "Pmenu")?;
     link(groups::FOCUS, "Visual")?;
+    link(groups::SCROLLBAR, "PmenuSbar")?;
+    link(groups::SCROLLBAR_THUMB, "PmenuThumb")?;
+    link(groups::HEADER, "Title")?;
+    link(groups::ACCENT, "Function")?;
+    link(groups::SUCCESS, "DiagnosticOk")?;
+    link(groups::WARN, "DiagnosticWarn")?;
+    link(groups::ERROR, "DiagnosticError")?;
+    link(groups::INFO, "DiagnosticInfo")?;
+    link(groups::TAB_ACTIVE, "TabLineSel")?;
+    link(groups::TAB_INACTIVE, "TabLine")?;
+    link(groups::CURSOR, "Cursor")?;
     Ok(())
 }

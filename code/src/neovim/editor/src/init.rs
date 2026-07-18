@@ -74,6 +74,12 @@ fn plugins_setup() -> nvim_oxi::Result<()> {
     wp_indent::setup_indent_autocmds()?;
     wp_terminal::setup();
 
+    // ab-nui: hand it the host's live Lua once, then the demo commands.
+    wp_ui::init(&nvim_oxi::mlua::lua());
+    if let Err(e) = crate::core::ui_demo::setup() {
+        trace::vim_notify(&format!("[Abstract] ui_demo: {e}"), NotifyLevel::Error);
+    }
+
     // Registration for testing our panic handler
     panic_test()?;
     // NOTE: this must be called after initilizing PluginManager as mapping depends on external plugin key-map

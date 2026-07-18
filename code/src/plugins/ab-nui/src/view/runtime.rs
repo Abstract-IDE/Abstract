@@ -36,13 +36,27 @@ struct SurfaceInner {
     focusables: Rc<RefCell<Vec<Focusable>>>,
     effect: RefCell<Option<EffectHandle>>,
     mounted: Cell<bool>,
+    /// Bumped on editor resize so the render effect re-measures the tree.
+    epoch: Signal<u64>,
+    /// The surface's autocmd group (cleanup + resize), deleted on free.
+    group: Cell<Option<i64>>,
+    /// The focus key of the focused widget (when it has one), so focus can
+    /// re-attach by identity after the tree changes shape. (`Rc` so the render
+    /// effect can hold it without holding the whole surface.)
+    focused_key: Rc<RefCell<Option<Rc<str>>>>,
+    /// Whether Tab at the last widget wraps to the first (default true).
+    focus_wrap: Cell<bool>,
 }
 
 impl SurfaceInner {
-    /// Fully tear down: dispose the effect, close the window, wipe the buffer.
+    /// Fully tear down: dispose the effect, delete the autocmd group, close the
+    /// window, wipe the buffer.
     fn free(&self) {
         if let Some(handle) = self.effect.borrow_mut().take() {
             handle.dispose();
+        }
+        if let Some(group) = self.group.take() {
+            let _ = nvim::del_augroup(group);
         }
         self.popup.close();
         let _ = self.popup.buffer().delete();
@@ -56,12 +70,17 @@ impl Drop for SurfaceInner {
 }
 
 impl Surface {
+    /// Create a surface in a split window (not shown yet). Same lifecycle as
+    /// [`Surface::float`]; Neovim manages the geometry.
+    pub fn split(cfg: crate::nvim::SplitConfig) -> Result<Self> {
+        Self::float(PopupOptions { host: crate::widget::popup::Host::Split(cfg), ..Default::default() })
+    }
+
     /// Create a floating surface from popup options (not shown yet).
     pub fn float(opts: PopupOptions) -> Result<Self> {
-        let popup = Popup::new(opts)?;
-        // `hide` (not `wipe`) so the buffer/state survive when the window closes;
-        // the buffer is wiped explicitly on close/drop.
-        popup.buffer().set_option("bufhidden", "hide")?;
+        // The buffer/state must survive when the window closes (hide/reopen);
+        // it is deleted explicitly on close/drop.
+        let popup = Popup::new(PopupOptions { persistent_buffer: true, ..opts })?;
         Ok(Self {
             inner: Rc::new(SurfaceInner {
                 popup,
@@ -69,6 +88,10 @@ impl Surface {
                 focusables: Rc::new(RefCell::new(Vec::new())),
                 effect: RefCell::new(None),
                 mounted: Cell::new(false),
+                epoch: Signal::new(0),
+                group: Cell::new(None),
+                focused_key: Rc::new(RefCell::new(None)),
+                focus_wrap: Cell::new(true),
             }),
         })
     }
@@ -76,6 +99,26 @@ impl Surface {
     /// The underlying popup (for extra styling).
     pub fn popup(&self) -> &Popup {
         &self.inner.popup
+    }
+
+    /// Which widget (by registration order) starts focused. Call before
+    /// [`Surface::show`].
+    pub fn initial_focus(self, index: usize) -> Self {
+        self.inner.focused.set_silent(index);
+        self
+    }
+
+    /// Whether Tab past the last widget wraps to the first (default `true`;
+    /// `false` stops at the ends).
+    pub fn focus_wrap(self, wrap: bool) -> Self {
+        self.inner.focus_wrap.set(wrap);
+        self
+    }
+
+    /// Bind an extra surface-level normal-mode key (checked by Neovim's maps,
+    /// independent of widget focus).
+    pub fn on_key(&self, lhs: &str, f: impl Fn() + 'static) -> Result<()> {
+        self.inner.popup.on_key("n", lhs, f)
     }
 
     /// Whether the window is currently open.
@@ -100,6 +143,8 @@ impl Surface {
             if let Some(win) = self.inner.popup.window() {
                 let _ = win.set_option("cursorline", false);
             }
+            // Re-measure at the real window size (splits only know it now).
+            self.inner.epoch.update(|n| *n += 1);
         }
         Ok(())
     }
@@ -107,7 +152,7 @@ impl Surface {
     /// Hide the window without destroying anything — state, effect and key maps
     /// all survive, so [`reopen`](Self::reopen) brings it back unchanged.
     pub fn hide(&self) {
-        self.inner.popup.close();
+        self.inner.popup.hide();
     }
 
     /// Toggle visibility (hide if shown, reopen if hidden).
@@ -143,17 +188,40 @@ impl Surface {
         let popup = self.inner.popup.clone();
         let focused = self.inner.focused.clone();
         let focusables = self.inner.focusables.clone();
+        let epoch = self.inner.epoch.clone();
+        let focused_key = self.inner.focused_key.clone();
 
         effect(move || {
+            epoch.get(); // subscribe: a resize bump re-measures at the new size
             let (w, h) = popup.inner_size().unwrap_or((1, 1));
             let mut canvas = Canvas::new(w, h);
             let mut cx = Cx::new(focused.get());
 
             let root = build(); // reads signals → this effect re-runs on change
             let area = Area { x: 0, y: 0, w, h };
-            root.measure(Constraints { max_w: w, max_h: h });
+            root.measure(Constraints::loose(w, h));
             root.paint(&mut cx, area, &mut canvas);
+            cx.run_overlays(area, &mut canvas); // dropdowns/tooltips on top
 
+            // Focus correction, silently (notifying would re-enter this
+            // running effect):
+            // 1. if the previously focused widget had a key and the same index
+            //    no longer carries it, follow the key to its new position;
+            // 2. clamp the index if the interactive set shrank.
+            let n = cx.focusables.len();
+            let i = focused.get_untracked();
+            if let Some(key) = focused_key.borrow().clone() {
+                let at_index = cx.focusables.get(i).and_then(|f| f.key.clone());
+                if at_index.as_deref() != Some(key.as_ref())
+                    && let Some(pos) =
+                        cx.focusables.iter().position(|f| f.key.as_deref() == Some(key.as_ref()))
+                {
+                    focused.set_silent(pos);
+                }
+            }
+            if n > 0 && focused.get_untracked() >= n {
+                focused.set_silent(n - 1);
+            }
             *focusables.borrow_mut() = cx.focusables;
 
             // Every printable key is mapped to our dispatcher, so the buffer
@@ -163,15 +231,43 @@ impl Surface {
         })
     }
 
-    /// Dispose the effect if the buffer is wiped externally (safety net; normal
-    /// teardown goes through `free`).
+    /// Install the surface's autocmds: dispose the effect if the buffer is
+    /// wiped externally (safety net; normal teardown goes through `free`), and
+    /// relayout + re-measure on editor resize.
     fn install_cleanup(&self, handle: EffectHandle) -> Result<()> {
         let id = handle.id();
-        let group = nvim::augroup(&format!("AbNuiSurface{id}"))?;
+        let group = nvim::unique_augroup("AbNuiSurface")?;
+        self.inner.group.set(Some(group));
         nvim::buf_autocmd(&["BufWipeout"], self.inner.popup.buffer(), Some(group), move || {
             dispose_effect(id);
         })?;
+        {
+            let popup = self.inner.popup.clone();
+            let epoch = self.inner.epoch.clone();
+            nvim::autocmd(&["VimResized", "WinResized"], None, Some(group), move |_| {
+                let _ = popup.relayout();
+                epoch.update(|n| *n += 1);
+            })?;
+        }
         Ok(())
+    }
+
+    /// Route a key to the currently focused widget (index clamped defensively).
+    /// Returns whether the widget consumed it.
+    fn route(
+        focusables: &RefCell<Vec<Focusable>>,
+        focused: &Signal<usize>,
+        key: Key,
+    ) -> bool {
+        let handle = {
+            let fc = focusables.borrow();
+            if fc.is_empty() {
+                return false;
+            }
+            let i = focused.get_untracked().min(fc.len() - 1);
+            fc[i].handle.clone()
+        };
+        handle(key)
     }
 
     /// A handler that routes a key to the currently focused widget.
@@ -179,11 +275,7 @@ impl Surface {
         let focusables = self.inner.focusables.clone();
         let focused = self.inner.focused.clone();
         move |key| {
-            let i = focused.get_untracked();
-            let handle = focusables.borrow().get(i).map(|f| f.handle.clone());
-            if let Some(h) = handle {
-                h(key);
-            }
+            Self::route(&focusables, &focused, key);
         }
     }
 
@@ -191,25 +283,33 @@ impl Surface {
     fn install_keys(&self) -> Result<()> {
         let popup = &self.inner.popup;
 
-        // Focus traversal.
-        {
+        // Focus traversal: offer Tab/S-Tab to the focused widget first (tables
+        // and text areas use them); move focus only when unconsumed.
+        for (lhs, key, forward) in [("<Tab>", Key::Tab, true), ("<S-Tab>", Key::BackTab, false)] {
             let f = self.inner.focused.clone();
             let fc = self.inner.focusables.clone();
-            popup.on_key("n", "<Tab>", move || {
-                let n = fc.borrow().len();
-                if n > 0 {
-                    f.update(|s| *s = (*s + 1) % n);
+            let fk = self.inner.focused_key.clone();
+            // Weak: a keymap closure must not keep the surface alive (cycle).
+            let inner = Rc::downgrade(&self.inner);
+            popup.on_key("n", lhs, move || {
+                if Self::route(&fc, &f, key) {
+                    return;
                 }
-            })?;
-        }
-        {
-            let f = self.inner.focused.clone();
-            let fc = self.inner.focusables.clone();
-            popup.on_key("n", "<S-Tab>", move || {
                 let n = fc.borrow().len();
-                if n > 0 {
-                    f.update(|s| *s = (*s + n - 1) % n);
+                if n == 0 {
+                    return;
                 }
+                let wrap = inner.upgrade().map(|s| s.focus_wrap.get()).unwrap_or(true);
+                let cur = f.get_untracked().min(n - 1);
+                let next = match (forward, wrap) {
+                    (true, true) => (cur + 1) % n,
+                    (true, false) => (cur + 1).min(n - 1),
+                    (false, true) => (cur + n - 1) % n,
+                    (false, false) => cur.saturating_sub(1),
+                };
+                // Remember the new widget's key so focus can follow it.
+                *fk.borrow_mut() = fc.borrow().get(next).and_then(|f| f.key.clone());
+                f.set(next);
             })?;
         }
 
@@ -219,10 +319,8 @@ impl Surface {
             let focused = self.inner.focused.clone();
             let p = popup.clone();
             popup.on_key("n", "<Esc>", move || {
-                let i = focused.get_untracked();
-                let handled = fc.borrow().get(i).map(|f| (f.handle)(Key::Esc)).unwrap_or(false);
-                if !handled {
-                    p.close();
+                if !Self::route(&fc, &focused, Key::Esc) {
+                    p.hide();
                 }
             })?;
         }
@@ -231,6 +329,7 @@ impl Surface {
         let named: &[(&str, Key)] = &[
             ("<CR>", Key::Enter),
             ("<BS>", Key::Backspace),
+            ("<Del>", Key::Delete),
             ("<Space>", Key::Char(' ')),
             ("<Left>", Key::Left),
             ("<Right>", Key::Right),
@@ -238,6 +337,8 @@ impl Surface {
             ("<Down>", Key::Down),
             ("<Home>", Key::Home),
             ("<End>", Key::End),
+            ("<PageUp>", Key::PageUp),
+            ("<PageDown>", Key::PageDown),
         ];
         for (lhs, key) in named {
             let key = *key;
@@ -250,6 +351,18 @@ impl Surface {
             let ch = byte as char;
             let lhs = if ch == '<' { "<lt>".to_string() } else { ch.to_string() };
             let key = Key::Char(ch);
+            let dispatch = self.dispatcher();
+            popup.on_key("n", &lhs, move || dispatch(key))?;
+        }
+
+        // Ctrl-letters (skip <C-c>: interrupt stays with Neovim).
+        for byte in b'a'..=b'z' {
+            let ch = byte as char;
+            if ch == 'c' {
+                continue;
+            }
+            let lhs = format!("<C-{ch}>");
+            let key = Key::Ctrl(ch);
             let dispatch = self.dispatcher();
             popup.on_key("n", &lhs, move || dispatch(key))?;
         }

@@ -182,6 +182,13 @@ impl<T: 'static> Signal<T> {
         }
         notify(self.id);
     }
+
+    /// Replace the value WITHOUT notifying subscribers. For runtime-internal
+    /// corrections (e.g. clamping focus during a repaint) where notifying
+    /// would re-run the effect that is currently running.
+    pub fn set_silent(&self, value: T) {
+        *self.value.borrow_mut() = value;
+    }
 }
 
 // -----------------------------------------------------------------------------
@@ -382,4 +389,111 @@ pub fn memo<T: Clone + 'static>(mut f: impl FnMut() -> T + 'static) -> Memo<T> {
     });
     let signal = cell.borrow().clone().expect("memo effect runs synchronously on creation");
     Memo { signal }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn effect_reruns_on_write_and_stops_after_dispose() {
+        let sig = Signal::new(0);
+        let seen = Rc::new(RefCell::new(Vec::new()));
+        let handle = {
+            let sig = sig.clone();
+            let seen = seen.clone();
+            effect(move || seen.borrow_mut().push(sig.get()))
+        };
+        sig.set(1);
+        sig.set(2);
+        assert_eq!(*seen.borrow(), vec![0, 1, 2]);
+
+        handle.dispose();
+        sig.set(3);
+        assert_eq!(*seen.borrow(), vec![0, 1, 2], "disposed effect must not re-run");
+    }
+
+    #[test]
+    fn set_silent_does_not_notify() {
+        let sig = Signal::new(0);
+        let runs = Rc::new(std::cell::Cell::new(0));
+        let handle = {
+            let sig = sig.clone();
+            let runs = runs.clone();
+            effect(move || {
+                sig.get();
+                runs.set(runs.get() + 1);
+            })
+        };
+        sig.set_silent(5);
+        assert_eq!(runs.get(), 1);
+        assert_eq!(sig.get_untracked(), 5);
+        handle.dispose();
+    }
+
+    #[test]
+    fn memo_recomputes_only_on_dependency_change() {
+        let a = Signal::new(2);
+        let computes = Rc::new(std::cell::Cell::new(0));
+        let m = {
+            let a = a.clone();
+            let computes = computes.clone();
+            memo(move || {
+                computes.set(computes.get() + 1);
+                a.get() * 10
+            })
+        };
+        assert_eq!(m.get(), 20);
+        assert_eq!(computes.get(), 1);
+        a.set(3);
+        assert_eq!(m.get(), 30);
+        assert_eq!(computes.get(), 2);
+        // Reading the memo again does not recompute.
+        let _ = m.get();
+        assert_eq!(computes.get(), 2);
+    }
+
+    #[test]
+    fn writing_a_signal_inside_its_own_effect_does_not_recurse() {
+        let sig = Signal::new(0);
+        let runs = Rc::new(std::cell::Cell::new(0));
+        let handle = {
+            let sig = sig.clone();
+            let runs = runs.clone();
+            effect(move || {
+                runs.set(runs.get() + 1);
+                let v = sig.get();
+                if v < 1 {
+                    sig.set(v + 1); // re-entrancy guard: must not loop forever
+                }
+            })
+        };
+        assert!(runs.get() >= 1);
+        handle.dispose();
+    }
+
+    #[test]
+    fn each_run_rebuilds_exact_dependencies() {
+        let cond = Signal::new(true);
+        let a = Signal::new(0);
+        let b = Signal::new(0);
+        let runs = Rc::new(std::cell::Cell::new(0));
+        let handle = {
+            let (cond, a, b, runs) = (cond.clone(), a.clone(), b.clone(), runs.clone());
+            effect(move || {
+                runs.set(runs.get() + 1);
+                if cond.get() { a.get() } else { b.get() };
+            })
+        };
+        assert_eq!(runs.get(), 1);
+        b.set(9); // not a dependency while cond is true
+        assert_eq!(runs.get(), 1);
+        cond.set(false); // now b is, a isn't
+        assert_eq!(runs.get(), 2);
+        a.set(9);
+        assert_eq!(runs.get(), 2);
+        b.set(10);
+        assert_eq!(runs.get(), 3);
+        handle.dispose();
+    }
 }

@@ -1,6 +1,6 @@
 //! Buffer handle and operations.
 
-use mlua::IntoLua;
+use mlua::{FromLua, IntoLua};
 
 use crate::error::Result;
 use crate::lua;
@@ -53,6 +53,32 @@ impl Buffer {
         Ok(self.get_lines(0, 1)?.into_iter().next().unwrap_or_default())
     }
 
+    /// Replace text within a line range, character-precise (`nvim_buf_set_text`;
+    /// `(row, col)` are 0-based, end-exclusive, cols in bytes).
+    pub fn set_text<S: Into<String>>(
+        self,
+        start_row: i64,
+        start_col: i64,
+        end_row: i64,
+        end_col: i64,
+        lines: impl IntoIterator<Item = S>,
+    ) -> Result<()> {
+        let lines: Vec<String> = lines.into_iter().map(Into::into).collect();
+        self.with_modifiable(|| {
+            lua::call_api::<()>("nvim_buf_set_text", (self.0, start_row, start_col, end_row, end_col, lines))
+        })
+    }
+
+    /// The buffer's full name (path).
+    pub fn name(self) -> Result<String> {
+        lua::call_api("nvim_buf_get_name", (self.0,))
+    }
+
+    /// Set the buffer's name.
+    pub fn set_name(self, name: &str) -> Result<()> {
+        lua::call_api("nvim_buf_set_name", (self.0, name.to_string()))
+    }
+
     /// Set a buffer-local option (e.g. `"modifiable"`, `"filetype"`).
     pub fn set_option(self, name: &str, value: impl IntoLua) -> Result<()> {
         let scope = lua::table()?;
@@ -60,18 +86,19 @@ impl Buffer {
         lua::set_option_scoped(name, value, scope)
     }
 
-    fn get_bool_option(self, name: &str) -> Result<bool> {
+    /// Read a buffer-local option.
+    pub fn get_option<R: FromLua>(self, name: &str) -> Result<R> {
         let scope = lua::table()?;
         scope.set("buf", self.0)?;
-        lua::call_api("nvim_get_option_value", (name.to_string(), scope))
+        lua::get_option_scoped(name, scope)
     }
 
     /// Run `f` with the buffer temporarily writable, restoring `modifiable` and
     /// `readonly` afterwards. UI buffers are usually locked; this lets writes
     /// through transparently without tripping the `W10` readonly warning.
     fn with_modifiable<R>(self, f: impl FnOnce() -> Result<R>) -> Result<R> {
-        let was_modifiable = self.get_bool_option("modifiable")?;
-        let was_readonly = self.get_bool_option("readonly")?;
+        let was_modifiable: bool = self.get_option("modifiable")?;
+        let was_readonly: bool = self.get_option("readonly")?;
         if !was_modifiable {
             self.set_option("modifiable", true)?;
         }

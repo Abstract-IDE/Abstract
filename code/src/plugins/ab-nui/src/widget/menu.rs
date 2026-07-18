@@ -74,6 +74,13 @@ impl<T: Clone + 'static> Menu<T> {
     /// Open the menu. `on_choose` fires with the chosen value when the user
     /// confirms; the menu closes first.
     pub fn open(self, on_choose: impl Fn(T) + 'static) -> Result<()> {
+        self.open_with(on_choose, || {})
+    }
+
+    /// Like [`Menu::open`], but `on_cancel` fires when the user dismisses the
+    /// menu (`<Esc>`/`q`) instead of choosing. Exactly one of the two callbacks
+    /// runs, at most once.
+    pub fn open_with(self, on_choose: impl Fn(T) + 'static, on_cancel: impl Fn() + 'static) -> Result<()> {
         self.popup.open()?;
 
         // Reactive rendering driven by the selection signal.
@@ -93,6 +100,17 @@ impl<T: Clone + 'static> Menu<T> {
                 })
                 .collect()
         });
+
+        // Keep the window cursor on the selected row, so `cursorline` agrees
+        // with the ▌ marker and long lists scroll to follow the selection.
+        {
+            let popup = self.popup.clone();
+            let sel = self.selected.clone();
+            self.popup.own_effect(crate::reactive::effect(move || {
+                let i = sel.get();
+                let _ = popup.set_cursor(i as i64 + 1, 0);
+            }));
+        }
 
         // The list is display-only; render_reactive already drew it once.
         self.popup.buffer().lock()?;
@@ -130,20 +148,40 @@ impl<T: Clone + 'static> Menu<T> {
             }
         })?;
 
+        // Choose/cancel are mutually exclusive and fire at most once.
+        let fired = std::rc::Rc::new(std::cell::Cell::new(false));
+
         // Confirm.
-        let close = self.popup.closer();
-        let sel = self.selected.clone();
-        self.popup.on_key("n", "<CR>", move || {
-            let idx = sel.get_untracked();
-            close();
-            if let Some(value) = values.get(idx) {
-                on_choose(value.clone());
-            }
-        })?;
+        {
+            let close = self.popup.closer();
+            let sel = self.selected.clone();
+            let fired = fired.clone();
+            self.popup.on_key("n", "<CR>", move || {
+                if fired.replace(true) {
+                    return;
+                }
+                let idx = sel.get_untracked();
+                close();
+                if let Some(value) = values.get(idx) {
+                    on_choose(value.clone());
+                }
+            })?;
+        }
 
         // Cancel.
-        self.popup.on_close_key("<Esc>")?;
-        self.popup.on_close_key("q")?;
+        let on_cancel = std::rc::Rc::new(on_cancel);
+        for key in ["<Esc>", "q"] {
+            let popup = self.popup.clone();
+            let on_cancel = on_cancel.clone();
+            let fired = fired.clone();
+            self.popup.on_key("n", key, move || {
+                if fired.replace(true) {
+                    return;
+                }
+                popup.close();
+                on_cancel();
+            })?;
+        }
         Ok(())
     }
 }

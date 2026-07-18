@@ -5,12 +5,19 @@
 pub mod buffer;
 pub mod event;
 pub mod extmark;
+pub mod timer;
 pub mod window;
 
 pub use buffer::Buffer;
-pub use event::{KeymapOpts, augroup, buf_autocmd, buf_keymap};
-pub use extmark::Namespace;
-pub use window::{Border, FloatConfig, TitlePos, Window};
+pub use event::{
+    AutocmdArgs, CommandArgs, CommandOpts, KeymapOpts, augroup, autocmd, autocmd_once, buf_autocmd,
+    buf_keymap, del_augroup, del_autocmd, del_keymap, del_user_command, unique_augroup, user_command,
+};
+pub use extmark::{ExtmarkInfo, ExtmarkOpts, Namespace, VirtTextPos};
+pub use timer::{Timer, defer, schedule};
+pub use window::{
+    Anchor, Border, FloatConfig, Relative, SplitConfig, SplitDir, TitlePos, WinConfigInfo, Window,
+};
 
 use crate::error::Result;
 use crate::text::Line;

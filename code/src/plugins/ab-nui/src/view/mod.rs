@@ -28,13 +28,22 @@
 
 pub mod canvas;
 pub mod macros;
+pub mod multi;
+pub mod notify;
 pub mod runtime;
 pub mod widget;
 pub mod widgets;
 
+pub use multi::{Layout, Pane};
+pub use notify::{Level, NotifyHandle, NotifyOptions, dismiss_all, notify};
 pub use runtime::Surface;
-pub use widget::{Alignment, Area, Constraints, CrossAxis, Cx, Element, Key, MainAxis, Size, Widget};
+pub use widget::{
+    Alignment, Area, Constraints, CrossAxis, Cx, Element, Focusable, Key, MainAxis, Size, Widget,
+};
 pub use widgets::{
-    Align, Button, BoxStyle, Center, Column, Container, Divider, Expanded, ListView, Padding, Row,
-    SizedBox, Spacer, Text, TextField,
+    Align, AreaState, BorderChars, BoxStyle, Button, Center, Checkbox, ColWidth, Column, Container,
+    Divider, EdgeAlign, Expanded, FieldState, Fraction, ItemCx, KeyHints, Keyed, List, ListState, ListView,
+    Overflow, Padding, Positioned, ProgressBar, RadioGroup, Row, SPINNER_DOTS, ScrollView, Scrollbar,
+    Select, SelectState, SizedBox, Spacer, Spinner, SpinnerState, Stack, TabBar, Table, TableColumn,
+    Text, TextAlign, TextArea, TextField, Toggle, Tree, TreeNode, TreeState,
 };

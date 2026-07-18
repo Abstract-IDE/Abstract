@@ -44,7 +44,10 @@ futures            = { version = "0.3.31" }
 git2               = { version = "0.20.3", default-features = false, features = ["ssh", "https"] }
 hex                = { version = "0.4.3" }
 memmap2            = { version = "0.9.10" }
-mlua               = { version = "0.11.5", default-features = false, features = ["luajit52", "async", "send", "anyhow", "serde", "macros"] }
+# mlua must stay on the exact version/feature set nvim-oxi resolves to, so Cargo
+# unifies them into ONE crate instance and ab-nui can reuse the host's live `Lua`.
+# No `send`/`async` (ab-nui is single-threaded Rc/RefCell) and plain `luajit`.
+mlua               = { version = "0.10", default-features = false, features = ["luajit"] }
 nvim-oxi           = { version = "0.6.0", features = ["neovim-nightly", "mlua", "test"] }
 once_cell          = { version = "1.21.3" }
 parking_lot        = { version = "0.12.5" }
@@ -60,6 +63,7 @@ thiserror          = { version = "2.0.17" }
 tokio              = { version = "1.48.0", features = ["sync", "macros", "rt-multi-thread", "fs", "time", "process"] }
 tokio-test         = { version = "0.4.4" }
 toml               = { version = "0.9.10" }
+unicode-width      = { version = "0.2" }
 tracing            = { version = "0.1.44" }
 tracing-subscriber = { version = "0.3.22", features = ["env-filter"] }
 

@@ -82,12 +82,13 @@ pub fn cmd(command: &str) -> Result<()> {
 /// Read a global option via `nvim_get_option_value(name, {})`.
 pub fn get_option<R: mlua::FromLua>(name: &str) -> Result<R> {
     let opts = table()?;
-    call_api(name_get(), (name.to_string(), opts))
+    call_api("nvim_get_option_value", (name.to_string(), opts))
 }
 
-#[inline]
-fn name_get() -> &'static str {
-    "nvim_get_option_value"
+/// Read an option with an explicit scope table (`{ buf = .. }`, `{ win = .. }`)
+/// via `nvim_get_option_value`.
+pub fn get_option_scoped<R: mlua::FromLua>(name: &str, scope: Table) -> Result<R> {
+    call_api("nvim_get_option_value", (name.to_string(), scope))
 }
 
 /// Set an option with an explicit scope table (`{ buf = .. }`, `{ win = .. }`,

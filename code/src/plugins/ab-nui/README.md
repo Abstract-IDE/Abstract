@@ -5,9 +5,11 @@ A small, composable **UI library for Neovim, written in Rust** and imported as
 interfaces — from one-line popups to full Flutter-style, reactive widget trees.
 
 It talks to Neovim purely through the `vim.*` API via **mlua** — it does **not**
-depend on `nvim-oxi`. (mlua here is pinned to the same version/feature set that
-`nvim-oxi` uses, so Cargo unifies them into one crate instance and we reuse the
-host's live `Lua`.)
+depend on `nvim-oxi`. (The workspace pins mlua to the exact version/feature set
+`nvim-oxi` requires — `0.10`, `luajit`, no `send` — so Cargo unifies them into
+one crate instance and we reuse the host's live `Lua`. Both this crate and the
+root `Cargo.toml` reference the same `[workspace.dependencies]` entry, so the
+pin can't drift.)
 
 ---
 
@@ -83,12 +85,13 @@ Two ways to build UI sit on a shared core. Pick the altitude you need:
 | ---------- | --------------------------------------------------------------- |
 | `lua`      | the one place that touches mlua; `vim.api`/`vim.fn`/`vim.cmd`   |
 | `reactive` | `Signal`, `effect`, `memo`, `Store`, `store!` — state management |
-| `text`     | `Span` / `Line` — styled content                                |
+| `text`     | `Span` / `Line` — styled content; `wrap_line`, `display_width`  |
 | `geometry` | `Dim`, `Size`, `Rect`, `Position` — float layout math           |
-| `nvim`     | `Buffer`, `Window`, `Namespace`, keymaps, autocmds, `render`    |
+| `nvim`     | `Buffer`, `Window` (floats + splits), extmarks (highlights, virt text/lines, signs), keymaps, autocmds, user commands, timers/`schedule` |
 | `theme`    | highlight groups (linked to standard groups by default)         |
 | `widget`   | `Popup`, `Menu`, `Input` — imperative components                |
-| `view`     | the declarative widget tree: `Widget`, `Surface`, widgets, macros |
+| `view`     | the declarative widget tree: `Widget`, `Surface`, 30+ widgets, macros, `notify` toasts, multi-window `Layout` |
+| `vim_ui`   | adapters installing `Menu`/`Input` as `vim.ui.select`/`vim.ui.input` |
 
 ---
 
@@ -263,14 +266,23 @@ Thin, safe handles over the API — all built on `lua::call_api`:
 
 Imperative components for quick UIs:
 
-- **`Popup`** — the workhorse: a scratch buffer shown in a float, with:
+- **`Popup`** — the workhorse: a scratch buffer shown in a float (or a split,
+  via `PopupOptions.host`), with:
   - `set_content(&[Line])` (static) or `render_reactive(|| Vec<Line>)` (an effect
-    that repaints when its signals change),
+    that repaints when its signals change — owned by the popup, disposed on close),
   - `on_key(mode, lhs, Fn)` for buffer-local Rust keymaps,
+  - `hide()` (window only — effects/keymaps survive) vs `close()` (full
+    teardown: effects disposed, per-instance augroup deleted, window closed),
   - `closer()` — a reusable close handle for callbacks,
+  - `set_position`/`set_size` — move/resize a live popup,
   - `inner_size()` — its content size in cells (used by `Surface`).
-- **`Menu`** — selectable list over `Popup` + a `Signal<usize>` selection.
-- **`Input`** — single-line prompt over `Popup`, value exposed as `Signal<String>`.
+  - Each popup owns a unique autocmd group; `WinClosed` keeps `is_open()`
+    truthful after an external `:q`, and `VimResized` re-anchors it.
+- **`Menu`** — selectable list over `Popup` + a `Signal<usize>` selection; the
+  window cursor follows the selection (long lists scroll). `open_with` adds an
+  `on_cancel` callback.
+- **`Input`** — single-line prompt over `Popup`, value exposed as
+  `Signal<String>`, with an `on_change` builder and `open_with(.., on_cancel)`.
 
 ### 7. The view layer (`view`)
 
@@ -289,10 +301,27 @@ pub type Element = Box<dyn Widget>;
 
 Layout containers (`Column`/`Row`) `measure` their children, distribute space
 (fixed children keep their size; `flex() > 0` children — `Spacer`, `Expanded` —
-share the leftover), then `paint` each child into its sub-`Area`. `Center`,
-`Align`, `Padding`, `SizedBox`, `Divider`, and `Container` (bordered/titled box)
-round out layout; `Text` is the leaf; `Button`, `ListView`, `TextField` are
-interactive.
+share the leftover), then `paint` each child into its sub-`Area`.
+
+The widget set:
+
+| Kind        | Widgets |
+| ----------- | ------- |
+| layout      | `Column` `Row` `Stack` `Positioned` `Center` `Align` `Padding` `SizedBox` `Spacer` `Expanded` `Fraction` `Divider` (h/v) `Container` (Single/Rounded/Double/Thick/Custom borders, title + footer, per-side padding) `ScrollView` `Scrollbar` |
+| content     | `Text` (multi-span, `wrap`, `align`, `ellipsis`, `max_lines`) `KeyHints` `ProgressBar` `Spinner` (timer-driven `SpinnerState`) |
+| interactive | `Button` `Checkbox` `Toggle` `RadioGroup` `Select` (dropdown via overlay) `TabBar` `List` (custom rows, filter, multi-select, scrollbar) `ListView` `Table` (Fixed/Fraction/Flex columns) `Tree` (collapsible, custom rendering) `TextField` (full cursor editing, mask, on_change/on_submit) `TextArea` |
+| wrappers    | `Keyed` — stable focus keys + per-widget custom key handlers for any child |
+
+Widget state that must survive rebuilds lives in clone-shareable bundles
+(`ListState`, `FieldState`, `AreaState`, `TreeState`, `SelectState`) created
+once, outside the build closure.
+
+Beyond single-window trees: `view::notify` shows stacked auto-dismissing toast
+floats, and `view::Layout`/`Pane` arrange several `Surface`s (telescope-style
+multi-pane UIs) that share state through common `Signal`s.
+
+The canvas is unicode-width-aware: double-width glyphs (CJK, emoji) occupy two
+cells (leader + continuation) so columns stay aligned with what Neovim renders.
 
 **Interactions are part of the tree.** During `paint`, an interactive widget:
 
@@ -489,14 +518,28 @@ Popup::new(opts)? -> .open()? .set_content(&[..])? .render_reactive(||..) .on_ke
 Menu::new(items, opts)?.open(on_choose)?;  Input::new(opts)?.open(on_submit)?
 
 // view: layout
-col![..] / row![..]   Column / Row (.main(..).cross(..))   Center / Align(alignment, child)
-Padding::all(n, c) / ::symmetric(h, v, c)   SizedBox::new(w,h) / ::w(n) / ::h(n)
-Spacer::new()   Expanded::new(c)   Divider::new()   Container::new(c).border(..).title(..).padding(..)
-// view: content & interactive
-Text::new(s).fg(group)   Button::new(s).on_press(||..)
-ListView::new(items, sel_signal).on_select(|i|..)   TextField::new(value_signal).placeholder(..)
-// view: runtime
-Surface::float(opts)?.show(build)? -> Surface   // .hide() .reopen() .toggle()? .close() .is_visible()
+col![..] / row![..] / stack![..]   Column / Row (.main(..).cross(..))   Stack / Positioned
+Center / Align(alignment, child)   Padding::all/symmetric/only/left/top/right/bottom
+SizedBox::new(w,h) / ::w(n) / ::h(n)   Spacer::new()   Expanded::new(c)   Fraction::w(0.5, c)
+Divider::new() / ::vertical()   ScrollView::new(offset_signal, c)   Scrollbar::new(total, view, off)
+Container::new(c).border(BoxStyle::Double).border_hl(..).title(..).title_pos(..).footer(..).padding(..)
+// view: content
+Text::new(s).fg(g) / ::from_line(line).span(s, g).wrap(Wrap::Word).align(..).ellipsis().max_lines(n)
+text!["plain ", ("styled", "Title")]   KeyHints::new(vec![("q", "quit")])
+ProgressBar::new(0.4).label("40%")   Spinner::new(&SpinnerState::start(80)?)
+// view: interactive (state bundles survive rebuilds — create them once)
+Button::new(s).on_press(||..)   Checkbox::new(s, bool_signal)   Toggle::new(s, bool_signal)
+RadioGroup::new(opts, sel_signal).horizontal()   Select::new(opts, &SelectState::new())
+TabBar::new(labels, active_signal)   List::new(items, &ListState::new()).render(..).filter(..).multi_select()
+Table::new(cols, rows, &state)   Tree::new(nodes, &TreeState::new()).render(..).on_activate(..)
+TextField::new(&FieldState::new("")).placeholder(..).mask('*').on_submit(..)   TextArea::new(&AreaState::new(""))
+Keyed::new(w).focus_key("id").on_key(Key::Char('x'), ||..)
+// view: runtime & beyond
+Surface::float(opts)?.show(build)?   // .hide() .reopen() .toggle() .close() .initial_focus(i) .focus_wrap(b) .on_key(..)
+Surface::split(SplitConfig::new(SplitDir::Right))?.show(build)?
+notify("msg", NotifyOptions { level: Level::Warn, ..Default::default() })? -> NotifyHandle
+Layout::new(size, pos, Pane::col(vec![..])).open()?   // multi-window arrangements
+wp_ui::vim_ui::register_all()?                          // become vim.ui.select / vim.ui.input
 ```
 
 ---
@@ -512,5 +555,9 @@ wp_ui::theme::setup().ok();
 ```
 
 After that, build UI from anywhere on the Lua thread. See
-`code/src/neovim/editor/src/core/ui_demo.rs` for working `:AbstractHello`,
-`:AbstractCounter`, and `:AbstractGlobal` commands.
+`code/src/neovim/editor/src/core/ui_demo.rs` for the working demo commands:
+`:AbstractHello`, `:AbstractCounter`, `:AbstractMenu`, `:AbstractInput`,
+`:AbstractSelect` (vim.ui round-trip), `:AbstractSpinner`, `:AbstractSplit`
+(split host + extmark decorations), `:AbstractNotify`, `:AbstractGallery`
+(every widget, tabbed), and `:AbstractPicker` (telescope-style multi-pane
+`Layout`).

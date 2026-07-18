@@ -51,6 +51,7 @@ pub mod reactive;
 pub mod text;
 pub mod theme;
 pub mod view;
+pub mod vim_ui;
 pub mod widget;
 
 pub use error::{Error, Result};
@@ -59,15 +60,22 @@ pub use lua::{init, is_initialized};
 /// The common imports for building UIs.
 pub mod prelude {
     pub use crate::geometry::{Dim, Position, Rect, Size};
-    pub use crate::nvim::{Border, Buffer, FloatConfig, TitlePos, Window};
+    pub use crate::nvim::{
+        Anchor, Border, Buffer, ExtmarkOpts, FloatConfig, Namespace, Relative, SplitConfig,
+        SplitDir, Timer, TitlePos, VirtTextPos, Window,
+    };
     pub use crate::reactive::{Memo, Signal, Store, effect, memo};
-    pub use crate::text::{Line, Span};
+    pub use crate::text::{Line, Span, Wrap};
     pub use crate::widget::{Input, InputOptions, Menu, MenuItem, MenuOptions, Popup, PopupOptions};
     // Declarative view layer (Flutter-style widget tree).
     pub use crate::view::{
-        Align, Alignment, BoxStyle, Button, Center, Column, Container, CrossAxis, Divider, Element,
-        Expanded, Key, ListView, MainAxis, Padding, Row, SizedBox, Spacer, Surface, Text, TextField,
-        Widget,
+        Align, Alignment, AreaState, BorderChars, BoxStyle, Button, Center, Checkbox, ColWidth,
+        Column, Container, CrossAxis, Divider, EdgeAlign, Element, Expanded, FieldState, Fraction,
+        ItemCx, Key, KeyHints, Keyed, Layout, Level, List, ListState, ListView, MainAxis,
+        NotifyHandle, NotifyOptions, Overflow, Padding, Pane, Positioned, ProgressBar, RadioGroup,
+        Row, ScrollView, Scrollbar, Select, SelectState, SizedBox, Spacer, Spinner, SpinnerState,
+        Stack, Surface, TabBar, Table, TableColumn, Text, TextAlign, TextArea, TextField, Toggle,
+        Tree, TreeNode, TreeState, Widget, dismiss_all, notify,
     };
-    pub use crate::{Error, Result, col, row, store};
+    pub use crate::{Error, Result, col, row, stack, store, text};
 }

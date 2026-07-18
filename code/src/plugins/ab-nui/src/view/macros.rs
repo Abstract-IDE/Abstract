@@ -26,3 +26,38 @@ macro_rules! row {
         $crate::view::Row::new(vec![ $( Box::new($child) as $crate::view::Element ),* ])
     };
 }
+
+/// Build a [`Stack`](crate::view::Stack) (z-layered; later children on top).
+#[macro_export]
+macro_rules! stack {
+    ($($child:expr),* $(,)?) => {
+        $crate::view::Stack::new(vec![ $( Box::new($child) as $crate::view::Element ),* ])
+    };
+}
+
+/// Build a [`Text`](crate::view::Text) from mixed spans: plain expressions are
+/// unstyled, `(text, "Group")` pairs are highlighted.
+///
+/// ```ignore
+/// text!["count: ", (n.to_string(), "Number"), " items"]
+/// ```
+#[macro_export]
+macro_rules! text {
+    ($($part:tt),* $(,)?) => {{
+        let t = $crate::view::Text::from_line($crate::text::Line::empty());
+        $( let t = $crate::text_part!(t, $part); )*
+        t
+    }};
+}
+
+/// Internal helper for [`text!`] — appends one part to a `Text`.
+#[doc(hidden)]
+#[macro_export]
+macro_rules! text_part {
+    ($t:expr, ($text:expr, $group:expr)) => {
+        $t.span($text, $group)
+    };
+    ($t:expr, $text:expr) => {
+        $t.raw($text)
+    };
+}

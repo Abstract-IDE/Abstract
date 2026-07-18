@@ -22,11 +22,35 @@ impl Size {
     }
 }
 
-/// Upper bounds a widget must lay out within.
+/// Bounds a widget must lay out within: `measure` results should satisfy
+/// `min <= size <= max` (enforce with [`Constraints::clamp`]).
 #[derive(Clone, Copy, Debug)]
 pub struct Constraints {
+    pub min_w: u16,
+    pub min_h: u16,
     pub max_w: u16,
     pub max_h: u16,
+}
+
+impl Constraints {
+    /// A practically-infinite bound, used by scrolling viewports to measure
+    /// their child's full extent. (Not `u16::MAX` so arithmetic can't overflow.)
+    pub const UNBOUNDED: u16 = u16::MAX / 2;
+
+    /// No minimum, the given maximum.
+    pub fn loose(max_w: u16, max_h: u16) -> Self {
+        Self { min_w: 0, min_h: 0, max_w, max_h }
+    }
+
+    /// Exactly the given size.
+    pub fn tight(s: Size) -> Self {
+        Self { min_w: s.w, min_h: s.h, max_w: s.w, max_h: s.h }
+    }
+
+    /// Clamp a size into these bounds.
+    pub fn clamp(&self, s: Size) -> Size {
+        Size::new(s.w.clamp(self.min_w, self.max_w), s.h.clamp(self.min_h, self.max_h))
+    }
 }
 
 /// A placed rectangle in canvas cells.
@@ -50,7 +74,7 @@ impl Area {
     }
 
     pub fn constraints(self) -> Constraints {
-        Constraints { max_w: self.w, max_h: self.h }
+        Constraints::loose(self.w, self.h)
     }
 
     pub fn contains(self, x: u16, y: u16) -> bool {
@@ -59,17 +83,28 @@ impl Area {
 }
 
 /// A key event routed to the focused widget.
+///
+/// Input coverage note: keys arrive through buffer-local normal-mode maps, so
+/// the reachable set is printable ASCII (33–126), the named keys below, and
+/// `<C-a>`..`<C-z>`. Arbitrary unicode input is not routable this way.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Key {
     Char(char),
+    /// Ctrl-modified letter, lowercase (e.g. `Ctrl('w')` for `<C-w>`).
+    Ctrl(char),
     Enter,
     Backspace,
+    Delete,
+    Tab,
+    BackTab,
     Left,
     Right,
     Up,
     Down,
     Home,
     End,
+    PageUp,
+    PageDown,
     Esc,
 }
 
@@ -130,7 +165,18 @@ impl Alignment {
 /// A registered interactive region: where it is and how it handles keys.
 pub struct Focusable {
     pub area: Area,
+    /// Optional stable identity (see [`crate::view::Keyed`]): when the tree
+    /// changes shape between rebuilds, focus follows the key, not the index.
+    pub key: Option<Rc<str>>,
     pub handle: Rc<dyn Fn(Key) -> bool>,
+}
+
+/// The deferred paint closure an [`Overlay`] runs after the main tree.
+type OverlayPaint = Box<dyn FnOnce(&mut Cx, Area, &mut Canvas)>;
+
+/// A deferred paint that runs after the main tree — drawn above everything.
+pub struct Overlay {
+    paint: OverlayPaint,
 }
 
 /// Paint-time context: tracks focus and collects interactions.
@@ -141,11 +187,12 @@ pub struct Focusable {
 pub struct Cx {
     pub focused: usize,
     pub focusables: Vec<Focusable>,
+    overlays: Vec<Overlay>,
 }
 
 impl Cx {
     pub fn new(focused: usize) -> Self {
-        Self { focused, focusables: Vec::new() }
+        Self { focused, focusables: Vec::new(), overlays: Vec::new() }
     }
 
     /// Whether the *next* widget to register will be the focused one.
@@ -156,8 +203,33 @@ impl Cx {
     /// Register an interactive region; returns its focus id.
     pub fn register(&mut self, area: Area, handle: Rc<dyn Fn(Key) -> bool>) -> usize {
         let id = self.focusables.len();
-        self.focusables.push(Focusable { area, handle });
+        self.focusables.push(Focusable { area, key: None, handle });
         id
+    }
+
+    /// Register an interactive region with a stable focus key.
+    pub fn register_keyed(&mut self, key: &str, area: Area, handle: Rc<dyn Fn(Key) -> bool>) -> usize {
+        let id = self.register(area, handle);
+        self.focusables[id].key = Some(Rc::from(key));
+        id
+    }
+
+    /// Defer a paint until after the main tree: it draws above everything
+    /// (dropdown lists, tooltips). The closure receives the full canvas area
+    /// and may register focusables of its own.
+    pub fn overlay(&mut self, paint: impl FnOnce(&mut Cx, Area, &mut Canvas) + 'static) {
+        self.overlays.push(Overlay { paint: Box::new(paint) });
+    }
+
+    /// Run all deferred overlay paints (the runtime calls this after the main
+    /// tree; overlays may enqueue further overlays, which also run).
+    pub fn run_overlays(&mut self, area: Area, canvas: &mut Canvas) {
+        while !self.overlays.is_empty() {
+            let batch = std::mem::take(&mut self.overlays);
+            for overlay in batch {
+                (overlay.paint)(self, area, canvas);
+            }
+        }
     }
 }
 
