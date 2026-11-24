@@ -12,6 +12,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "ab-nui-tests"
+version = "0.1.0"
+dependencies = [
+ "ab-nui",
+ "mlua",
+ "nvim-oxi",
+]
+
+[[package]]
 name = "abspm"
 version = "0.1.0"
 dependencies = [

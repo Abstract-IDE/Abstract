@@ -6,6 +6,7 @@ members = [
   "src/neovim/editor",
   # Plugins
   "src/plugins/ab-nui",
+  "src/plugins/ab-nui/nvim-tests",
   "src/plugins/abspm",
   "src/plugins/autogood",
   "src/plugins/indent",

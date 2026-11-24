@@ -1,0 +1,24 @@
+[package]
+name         = "ab-nui-tests"
+description  = "Integration tests for ab-nui, run inside a real Neovim"
+version      = { workspace = true }
+edition      = { workspace = true }
+authors      = { workspace = true }
+license      = { workspace = true }
+rust-version = { workspace = true }
+publish      = false
+
+# The tests are compiled into a dynamic library that `#[nvim_oxi::test]` loads
+# into a headless Neovim (see build.rs). Run them with:
+#
+#   cargo test -p ab-nui-tests
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+wp_ui    = { workspace = true }
+mlua     = { workspace = true }
+nvim-oxi = { workspace = true }
+
+[build-dependencies]
+nvim-oxi = { workspace = true }
