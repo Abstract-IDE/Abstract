@@ -31,9 +31,7 @@ pub struct Mark {
 
 impl PartialEq for Mark {
     fn eq(&self, other: &Self) -> bool {
-        self.start == other.start
-            && self.end == other.end
-            && (Rc::ptr_eq(&self.hl, &other.hl) || self.hl == other.hl)
+        self.start == other.start && self.end == other.end && (Rc::ptr_eq(&self.hl, &other.hl) || self.hl == other.hl)
     }
 }
 
@@ -48,7 +46,8 @@ impl Row {
     /// Flatten a styled [`Line`]: concatenate the span texts and turn each
     /// highlighted span into a [`Mark`] (adjacent spans sharing a group merge).
     pub fn from_line(line: &Line) -> Self {
-        let mut row = Row { text: String::with_capacity(line.spans.iter().map(|s| s.text.len()).sum()), marks: Vec::new() };
+        let mut row =
+            Row { text: String::with_capacity(line.spans.iter().map(|s| s.text.len()).sum()), marks: Vec::new() };
         for span in &line.spans {
             let start = row.text.len() as u32;
             row.text.push_str(&span.text);
@@ -123,7 +122,7 @@ impl Renderer {
                     -2 => return Err(Error::invalid("buffer is no longer valid")),
                     // -1: the buffer is not what we diffed against → repaint.
                     t if t >= 0 => painted = Some(t),
-                    _ => {}
+                    _ => {},
                 }
             }
         }
@@ -139,7 +138,7 @@ impl Renderer {
                     return Err(Error::invalid("buffer is no longer valid"));
                 }
                 tick
-            }
+            },
         };
 
         if let Ok(mut state) = self.state.try_borrow_mut() {
@@ -176,7 +175,7 @@ fn changed_runs(prev: &[Row], next: &[Row]) -> Vec<Run> {
             Some(run) if run.start + run.len == i => {
                 run.len += 1;
                 run.text_changed |= text_changed;
-            }
+            },
             _ => runs.push(Run { start: i, len: 1, text_changed }),
         }
     }

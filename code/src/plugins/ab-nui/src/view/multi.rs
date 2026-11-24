@@ -69,7 +69,7 @@ impl Pane {
                 popup.set_position(Position::At { row: rect.row, col: rect.col })?;
                 popup.set_size(Size::cells(w, h))?;
                 Ok(())
-            }
+            },
             Pane::Row(children, _) => Self::assign_axis(children, rect, true),
             Pane::Col(children, _) => Self::assign_axis(children, rect, false),
         }
@@ -104,7 +104,7 @@ impl Pane {
                 for c in children {
                     c.for_each_surface(f);
                 }
-            }
+            },
         }
     }
 }

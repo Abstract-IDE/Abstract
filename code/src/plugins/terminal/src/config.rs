@@ -48,27 +48,43 @@ impl Config {
             if let Some(w) = opts.get(&nvim_oxi::String::from("width")).and_then(|v| f64::from_object(v.clone()).ok()) {
                 config.width = w;
             }
-            if let Some(h) = opts.get(&nvim_oxi::String::from("height")).and_then(|v| f64::from_object(v.clone()).ok()) {
+            if let Some(h) = opts.get(&nvim_oxi::String::from("height")).and_then(|v| f64::from_object(v.clone()).ok())
+            {
                 config.height = h;
             }
-            if let Some(r) = opts.get(&nvim_oxi::String::from("offset_row")).and_then(|v| f64::from_object(v.clone()).ok()) {
+            if let Some(r) =
+                opts.get(&nvim_oxi::String::from("offset_row")).and_then(|v| f64::from_object(v.clone()).ok())
+            {
                 config.offset_row = r;
             }
-            if let Some(c) = opts.get(&nvim_oxi::String::from("offset_col")).and_then(|v| f64::from_object(v.clone()).ok()) {
+            if let Some(c) =
+                opts.get(&nvim_oxi::String::from("offset_col")).and_then(|v| f64::from_object(v.clone()).ok())
+            {
                 config.offset_col = c;
             }
-            if let Some(b) = opts.get(&nvim_oxi::String::from("border")).and_then(|v| String::from_object(v.clone()).ok()) {
+            if let Some(b) =
+                opts.get(&nvim_oxi::String::from("border")).and_then(|v| String::from_object(v.clone()).ok())
+            {
                 config.border = b;
             }
-            if let Some(t) = opts.get(&nvim_oxi::String::from("title")).and_then(|v| String::from_object(v.clone()).ok()) {
+            if let Some(t) =
+                opts.get(&nvim_oxi::String::from("title")).and_then(|v| String::from_object(v.clone()).ok())
+            {
                 config.title = t;
             }
-            if let Some(p) = opts.get(&nvim_oxi::String::from("title_pos")).and_then(|v| String::from_object(v.clone()).ok()) {
+            if let Some(p) =
+                opts.get(&nvim_oxi::String::from("title_pos")).and_then(|v| String::from_object(v.clone()).ok())
+            {
                 config.title_pos = p;
             }
-            if let Some(k) = opts.get(&nvim_oxi::String::from("keymap")).and_then(|v| nvim_oxi::Dictionary::from_object(v.clone()).ok()) {
+            if let Some(k) = opts
+                .get(&nvim_oxi::String::from("keymap"))
+                .and_then(|v| nvim_oxi::Dictionary::from_object(v.clone()).ok())
+            {
                 let mut keymap_config = KeymapConfig { toggle: None };
-                if let Some(t) = k.get(&nvim_oxi::String::from("toggle")).and_then(|v| String::from_object(v.clone()).ok()) {
+                if let Some(t) =
+                    k.get(&nvim_oxi::String::from("toggle")).and_then(|v| String::from_object(v.clone()).ok())
+                {
                     keymap_config.toggle = Some(t);
                 }
                 config.keymap = Some(keymap_config);

@@ -61,21 +61,20 @@ pub use lua::{init, is_initialized};
 pub mod prelude {
     pub use crate::geometry::{Dim, Position, Rect, Size};
     pub use crate::nvim::{
-        Anchor, Border, Buffer, ExtmarkOpts, FloatConfig, Namespace, Relative, SplitConfig,
-        SplitDir, Timer, TitlePos, VirtTextPos, Window,
+        Anchor, Border, Buffer, ExtmarkOpts, FloatConfig, Namespace, Relative, SplitConfig, SplitDir, Timer, TitlePos,
+        VirtTextPos, Window,
     };
     pub use crate::reactive::{Memo, Signal, Store, batch, effect, memo, untrack};
     pub use crate::text::{Line, Span, Wrap};
     pub use crate::widget::{Input, InputOptions, Menu, MenuItem, MenuOptions, Popup, PopupOptions};
     // Declarative view layer (Flutter-style widget tree).
     pub use crate::view::{
-        Align, Alignment, AreaState, BorderChars, BoxStyle, Button, Center, Checkbox, ColWidth,
-        Column, Container, CrossAxis, Divider, EdgeAlign, Element, Expanded, FieldState, Fraction,
-        ItemCx, Key, KeyHints, Keyed, Layout, Level, List, ListState, ListView, MainAxis,
-        NotifyHandle, NotifyOptions, Overflow, Padding, Pane, Positioned, ProgressBar, RadioGroup,
-        Row, ScrollView, Scrollbar, Select, SelectState, SizedBox, Spacer, Spinner, SpinnerState,
-        Stack, Surface, TabBar, Table, TableColumn, Text, TextAlign, TextArea, TextField, Toggle,
-        Tree, TreeNode, TreeState, Widget, dismiss_all, notify,
+        Align, Alignment, AreaState, BorderChars, BoxStyle, Button, Center, Checkbox, ColWidth, Column, Container,
+        CrossAxis, Divider, EdgeAlign, Element, Expanded, FieldState, Fraction, ItemCx, Key, KeyHints, Keyed, Layout,
+        Level, List, ListState, ListView, MainAxis, NotifyHandle, NotifyOptions, Overflow, Padding, Pane, Positioned,
+        ProgressBar, RadioGroup, Row, ScrollView, Scrollbar, Select, SelectState, SizedBox, Spacer, Spinner,
+        SpinnerState, Stack, Surface, TabBar, Table, TableColumn, Text, TextAlign, TextArea, TextField, Toggle, Tree,
+        TreeNode, TreeState, Widget, dismiss_all, notify,
     };
     pub use crate::{Error, Result, col, row, stack, store, text};
 }

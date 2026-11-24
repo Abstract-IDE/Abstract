@@ -136,7 +136,7 @@ impl FloatConfig {
                     pos.set(2, col)?;
                     t.set("bufpos", pos)?;
                 }
-            }
+            },
         }
         t.set("anchor", self.anchor.as_str())?;
         t.set("width", self.rect.width as i64)?;

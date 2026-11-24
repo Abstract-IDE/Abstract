@@ -181,13 +181,7 @@ impl<T: Clone + 'static> Widget for List<T> {
         for (row, vis_pos) in (offset..n.min(offset + h)).enumerate() {
             let index = visible[vis_pos];
             let is_sel = vis_pos == pos;
-            let icx = ItemCx {
-                index,
-                selected: is_sel,
-                marked: marked.contains(&index),
-                focused,
-                width: row_w,
-            };
+            let icx = ItemCx { index, selected: is_sel, marked: marked.contains(&index), focused, width: row_w };
             let mut line = Line::empty();
             let gutter = match (is_sel, icx.marked) {
                 (true, _) => Span::hl("▌ ", if focused { groups::SELECTION } else { groups::FOCUS }),
@@ -243,35 +237,35 @@ impl<T: Clone + 'static> Widget for List<T> {
                     Key::Char('j') | Key::Down => {
                         select_pos((pos + 1) % visible.len());
                         true
-                    }
+                    },
                     Key::Char('k') | Key::Up => {
                         select_pos((pos + visible.len() - 1) % visible.len());
                         true
-                    }
+                    },
                     Key::Char('g') | Key::Home => {
                         select_pos(0);
                         true
-                    }
+                    },
                     Key::Char('G') | Key::End => {
                         select_pos(visible.len() - 1);
                         true
-                    }
+                    },
                     Key::PageDown | Key::Ctrl('f') => {
                         select_pos((pos + page).min(visible.len() - 1));
                         true
-                    }
+                    },
                     Key::PageUp | Key::Ctrl('b') => {
                         select_pos(pos.saturating_sub(page));
                         true
-                    }
+                    },
                     Key::Ctrl('d') => {
                         select_pos((pos + page / 2).min(visible.len() - 1));
                         true
-                    }
+                    },
                     Key::Ctrl('u') => {
                         select_pos(pos.saturating_sub(page / 2));
                         true
-                    }
+                    },
                     Key::Char(' ') if multi => {
                         state.marked.update(|m| {
                             if let Some(at) = m.iter().position(|&i| i == cur) {
@@ -281,11 +275,11 @@ impl<T: Clone + 'static> Widget for List<T> {
                             }
                         });
                         true
-                    }
+                    },
                     Key::Enter => {
                         on_select(cur);
                         true
-                    }
+                    },
                     _ => false,
                 }
             }),

@@ -308,9 +308,7 @@ fn stale_text_highlights_are_removed_on_repaint() {
     setup();
     let styled = Signal::new(true);
     let s2 = styled.clone();
-    let (_s, buf) = surf(10, 1, move || {
-        if s2.get() { Text::new("hello").fg("Title") } else { Text::new("hello") }
-    });
+    let (_s, buf) = surf(10, 1, move || if s2.get() { Text::new("hello").fg("Title") } else { Text::new("hello") });
     assert_eq!(highlights(buf), vec![(0, 0, 5, "Title".into())]);
     styled.set(false);
     assert_eq!(highlights(buf), vec![]);
@@ -467,7 +465,10 @@ fn panes_share_state_through_signals() {
     let query = Signal::new(String::new());
     let (q1, q2) = (query.clone(), query.clone());
     let list = Surface::float(opts(10, 3)).unwrap().show(move || Text::new(format!("q:{}", q1.get()))).unwrap();
-    let preview = Surface::float(opts(10, 3)).unwrap().show(move || Text::new(format!("len:{}", q2.get().len()))).unwrap();
+    let preview = Surface::float(opts(10, 3))
+        .unwrap()
+        .show(move || Text::new(format!("len:{}", q2.get().len())))
+        .unwrap();
     let layout = Layout::new(
         Size::cells(40, 10),
         Position::Center,

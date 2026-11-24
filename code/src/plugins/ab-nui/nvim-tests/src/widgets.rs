@@ -16,12 +16,9 @@ fn log() -> Log {
 }
 
 fn popup_at(w: u32, h: u32, row: f64, col: f64) -> Popup {
-    let p = Popup::new(PopupOptions {
-        size: Size::cells(w, h),
-        position: Position::At { row, col },
-        ..Default::default()
-    })
-    .unwrap();
+    let p =
+        Popup::new(PopupOptions { size: Size::cells(w, h), position: Position::At { row, col }, ..Default::default() })
+            .unwrap();
     p.open().unwrap();
     p
 }
@@ -124,12 +121,8 @@ fn popup_hide_keeps_effects_and_close_disposes_them() {
     setup();
     let n = Signal::new(0);
     let n2 = n.clone();
-    let p = Popup::new(PopupOptions {
-        size: Size::cells(10, 1),
-        persistent_buffer: true,
-        ..Default::default()
-    })
-    .unwrap();
+    let p =
+        Popup::new(PopupOptions { size: Size::cells(10, 1), persistent_buffer: true, ..Default::default() }).unwrap();
     p.open().unwrap();
     p.render_reactive(move || vec![Line::raw(format!("n={}", n2.get()))]);
     p.hide();
@@ -175,10 +168,17 @@ fn menu_renders_selection_marker_and_moves() {
     assert_eq!(lines(buf), v(&["▌ one", "  two", "  three"]));
     assert_eq!(hl_at(buf, 0, 0).as_deref(), Some("AbNuiSelection"));
     feed("j");
-    assert_eq!(lines(buf), v(&["▌ one", "  two", "  three"]).iter().enumerate().map(|(i, s)| {
-        let label = s.trim_start_matches(['▌', ' ']);
-        if i == 1 { format!("▌ {label}") } else { format!("  {label}") }
-    }).collect::<Vec<_>>());
+    assert_eq!(
+        lines(buf),
+        v(&["▌ one", "  two", "  three"])
+            .iter()
+            .enumerate()
+            .map(|(i, s)| {
+                let label = s.trim_start_matches(['▌', ' ']);
+                if i == 1 { format!("▌ {label}") } else { format!("  {label}") }
+            })
+            .collect::<Vec<_>>()
+    );
     assert_eq!(hl_at(buf, 0, 0), None);
     assert_eq!(hl_at(buf, 1, 0).as_deref(), Some("AbNuiSelection"));
     // The window cursor follows the selection.
@@ -248,7 +248,10 @@ fn menu_long_list_scrolls_window_cursor() {
     feed("jjjjj");
     assert_eq!(sel.get_untracked(), 5);
     assert_eq!(popup.window().unwrap().cursor().unwrap().0, 6);
-    let top: i64 = lua_eval(&format!("return vim.api.nvim_win_call({}, function() return vim.fn.line('w0') end)", popup.window().unwrap().id()));
+    let top: i64 = lua_eval(&format!(
+        "return vim.api.nvim_win_call({}, function() return vim.fn.line('w0') end)",
+        popup.window().unwrap().id()
+    ));
     assert!(top > 1, "the view scrolled (top line {top})");
 }
 
@@ -320,12 +323,15 @@ fn input_on_change_and_value_signal_follow_buffer_edits() {
 #[nvim_oxi::test]
 fn input_window_is_a_one_row_float_with_title() {
     setup();
-    let input = Input::new(InputOptions { title: Some(" Name ".into()), width: Size::cells(30, 9), ..Default::default() }).unwrap();
+    let input =
+        Input::new(InputOptions { title: Some(" Name ".into()), width: Size::cells(30, 9), ..Default::default() })
+            .unwrap();
     let popup = input.popup().clone();
     let _ = input.open(|_| {});
     let c = popup.window().unwrap().config().unwrap();
     assert_eq!((c.width, c.height), (30, 1));
-    let title: String = lua_eval(&format!("return vim.api.nvim_win_get_config({}).title[1][1]", popup.window().unwrap().id()));
+    let title: String =
+        lua_eval(&format!("return vim.api.nvim_win_get_config({}).title[1][1]", popup.window().unwrap().id()));
     assert_eq!(title, " Name ");
     feed("<Esc>");
 }
@@ -430,7 +436,9 @@ fn vim_ui_select_uses_format_item_and_keeps_original_values() {
 fn vim_ui_input_submit_and_cancel() {
     setup();
     wp_ui::vim_ui::register_input().unwrap();
-    lua_run("_G.calls = 0; vim.ui.input({ prompt = 'Name:', default = 'x' }, function(v) _G.calls = _G.calls + 1; _G.v = v end)");
+    lua_run(
+        "_G.calls = 0; vim.ui.input({ prompt = 'Name:', default = 'x' }, function(v) _G.calls = _G.calls + 1; _G.v = v end)",
+    );
     feed("<CR>");
     assert_eq!(lua_eval::<i64>("return _G.calls"), 1);
     assert_eq!(lua_eval::<String>("return _G.v"), "x");
@@ -492,9 +500,7 @@ fn notify_stacks_newest_on_top_and_restacks_on_dismiss() {
     setup();
     let first = notify("first", sticky()).unwrap();
     let second = notify("second", sticky()).unwrap();
-    let by_text = |t: &str| -> Window {
-        floats().into_iter().find(|w| trimmed(w.buffer().unwrap())[0] == t).unwrap()
-    };
+    let by_text = |t: &str| -> Window { floats().into_iter().find(|w| trimmed(w.buffer().unwrap())[0] == t).unwrap() };
     let (rf, rs) = (by_text("first").config().unwrap(), by_text("second").config().unwrap());
     assert_eq!(rs.row, 1.0);
     assert_eq!(rf.row, 4.0, "older toast is pushed down by the newest one's height (1 row + border)");

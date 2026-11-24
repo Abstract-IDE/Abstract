@@ -149,12 +149,7 @@ fn create_autocmd(events: &[&str], target: Target, group: Option<i64>, once: boo
 
 /// Register a buffer-local autocommand calling a Rust callback. Returns the
 /// autocmd id.
-pub fn buf_autocmd(
-    events: &[&str],
-    buf: Buffer,
-    group: Option<i64>,
-    callback: impl Fn() + 'static,
-) -> Result<i64> {
+pub fn buf_autocmd(events: &[&str], buf: Buffer, group: Option<i64>, callback: impl Fn() + 'static) -> Result<i64> {
     // The callback's return value is discarded: returning a truthy value from
     // an autocmd callback would delete the autocommand.
     let func = lua::lua()?.create_function(move |_, _args: mlua::Variadic<mlua::Value>| {

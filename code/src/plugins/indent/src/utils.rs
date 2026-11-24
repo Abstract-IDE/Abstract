@@ -78,7 +78,7 @@ pub fn setup_indent_autocmds() -> Result<(), nvim_oxi::Error> {
 
     let autocmd_opts = CreateAutocmdOpts::builder()
         .group(group_id)
-        .callback(safe_wrap! (|_args| -> nvim_oxi::Result<bool> {
+        .callback(safe_wrap!(|_args| -> nvim_oxi::Result<bool> {
             auto_detect_and_apply();
             Ok(false)
         }))

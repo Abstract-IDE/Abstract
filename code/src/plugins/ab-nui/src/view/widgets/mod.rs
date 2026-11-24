@@ -20,8 +20,8 @@ pub use hints::KeyHints;
 pub use input::{AreaState, FieldState, TextArea, TextField};
 pub use keyed::Keyed;
 pub use layout::{
-    Align, BorderChars, BoxStyle, Center, Column, Container, Divider, EdgeAlign, Expanded, Fraction,
-    Padding, Positioned, Row, SizedBox, Spacer, Stack,
+    Align, BorderChars, BoxStyle, Center, Column, Container, Divider, EdgeAlign, Expanded, Fraction, Padding,
+    Positioned, Row, SizedBox, Spacer, Stack,
 };
 pub use list::{ItemCx, List, ListState, ListView};
 pub use progress::{ProgressBar, SPINNER_DOTS, Spinner, SpinnerState};

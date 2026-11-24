@@ -39,10 +39,7 @@ fn button_press_with_enter_and_space_and_custom_style() {
     let l1 = l.clone();
     let (_s, buf) = surf(12, 2, move || {
         let l1 = l1.clone();
-        col![
-            Button::new("Go").on_press(move || l1.borrow_mut().push("go".into())),
-            Button::new("Other").fg("ErrorMsg"),
-        ]
+        col![Button::new("Go").on_press(move || l1.borrow_mut().push("go".into())), Button::new("Other").fg("ErrorMsg"),]
     });
     feed("<CR>");
     feed("<Space>");
@@ -408,8 +405,10 @@ fn select_open_navigate_choose() {
     let (st2, c2) = (st.clone(), chosen.clone());
     let (s, buf) = surf(12, 5, move || {
         let c2 = c2.clone();
-        col![Select::new(vec!["red".into(), "green".into(), "blue".into()], &st2)
-            .on_change(move |i| c2.borrow_mut().push(i.to_string()))]
+        col![
+            Select::new(vec!["red".into(), "green".into(), "blue".into()], &st2)
+                .on_change(move |i| c2.borrow_mut().push(i.to_string()))
+        ]
     });
     assert_eq!(trimmed(buf), v(&["▾ red", "", "", "", ""]));
     feed("<CR>");
@@ -493,17 +492,10 @@ fn table_header_rows_and_selection() {
     let (st2, p2) = (st.clone(), picked.clone());
     let (_s, buf) = surf(14, 5, move || {
         let p2 = p2.clone();
-        Table::new(
-            vec![TableColumn::new("Id").width(ColWidth::Fixed(4)), TableColumn::new("Name")],
-            people(),
-            &st2,
-        )
-        .on_select(move |i| p2.borrow_mut().push(i.to_string()))
+        Table::new(vec![TableColumn::new("Id").width(ColWidth::Fixed(4)), TableColumn::new("Name")], people(), &st2)
+            .on_select(move |i| p2.borrow_mut().push(i.to_string()))
     });
-    assert_eq!(
-        trimmed(buf),
-        v(&["Id   Name", "─────────────", "1    alice", "2    bob", "3    carol"])
-    );
+    assert_eq!(trimmed(buf), v(&["Id   Name", "─────────────", "1    alice", "2    bob", "3    carol"]));
     assert_eq!(hl_at(buf, 0, 0).as_deref(), Some("AbNuiHeader"));
     assert_eq!(hl_at(buf, 1, 0).as_deref(), Some("AbNuiBorder"));
     assert_eq!(hl_at(buf, 2, 0).as_deref(), Some(SEL));
@@ -604,7 +596,10 @@ fn scroll_view_keys_drive_clamped_offset_signal() {
     let t2 = tick.clone();
     let (_s, buf) = surf(8, 3, move || {
         t2.get();
-        ScrollView::new(o2.clone(), col![Text::new("l0"), Text::new("l1"), Text::new("l2"), Text::new("l3"), Text::new("l4")])
+        ScrollView::new(
+            o2.clone(),
+            col![Text::new("l0"), Text::new("l1"), Text::new("l2"), Text::new("l3"), Text::new("l4")],
+        )
     });
     let heads = |buf: Buffer| -> Vec<String> { lines(buf).iter().map(|l| l.chars().take(2).collect()).collect() };
     let bar = |buf: Buffer| -> Vec<char> { lines(buf).iter().map(|l| l.chars().last().unwrap()).collect() };
@@ -650,7 +645,10 @@ fn scroll_view_keys_repaint_immediately() {
     let off = Signal::new(0u16);
     let o2 = off.clone();
     let (_s, buf) = surf(8, 3, move || {
-        ScrollView::new(o2.clone(), col![Text::new("l0"), Text::new("l1"), Text::new("l2"), Text::new("l3"), Text::new("l4")])
+        ScrollView::new(
+            o2.clone(),
+            col![Text::new("l0"), Text::new("l1"), Text::new("l2"), Text::new("l3"), Text::new("l4")],
+        )
     });
     feed("j");
     assert_eq!(trimmed(buf)[0].chars().take(2).collect::<String>(), "l1");
@@ -693,7 +691,9 @@ fn keyed_focus_follows_key_when_tree_changes_shape() {
             kids.push(Box::new(Button::new("extra")));
         }
         let (t, o) = (l2.clone(), l2.clone());
-        kids.push(Box::new(Keyed::new(Button::new("target").on_press(move || t.borrow_mut().push("target".into()))).focus_key("t")));
+        kids.push(Box::new(
+            Keyed::new(Button::new("target").on_press(move || t.borrow_mut().push("target".into()))).focus_key("t"),
+        ));
         kids.push(Box::new(Button::new("other").on_press(move || o.borrow_mut().push("other".into()))));
         Column::new(kids)
     });
@@ -724,7 +724,9 @@ fn keyed_focus_highlight_follows_key_immediately() {
     let se = show_extra.clone();
     let (_s, buf) = surf(12, 3, move || {
         let mut kids: Vec<Element> = Vec::new();
-        if se.get() { kids.push(Box::new(Button::new("extra"))); }
+        if se.get() {
+            kids.push(Box::new(Button::new("extra")));
+        }
         kids.push(Box::new(Keyed::new(Button::new("target")).focus_key("t")));
         kids.push(Box::new(Button::new("other")));
         Column::new(kids)
@@ -771,9 +773,8 @@ fn focus_clamp_highlights_immediately() {
     setup();
     let two = Signal::new(true);
     let t2 = two.clone();
-    let (_s, buf) = surf(12, 2, move || {
-        if t2.get() { col![Button::new("a"), Button::new("b")] } else { col![Button::new("a")] }
-    });
+    let (_s, buf) =
+        surf(12, 2, move || if t2.get() { col![Button::new("a"), Button::new("b")] } else { col![Button::new("a")] });
     feed("<Tab>");
     two.set(false);
     assert_eq!(highlights(buf), vec![(0, 0, 5, SEL.into())]); // actual: []

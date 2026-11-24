@@ -142,11 +142,7 @@ impl<T: Clone + 'static> Widget for Tree<T> {
     fn measure(&self, c: Constraints) -> Size {
         let rows = self.state.expanded.with(|e| self.flatten(e));
         let probe = ItemCx { index: 0, selected: false, marked: false, focused: false, width: c.max_w };
-        let w = rows
-            .iter()
-            .map(|r| (self.render)(&r.data, &probe).width() + r.depth * 2 + 4)
-            .max()
-            .unwrap_or(0);
+        let w = rows.iter().map(|r| (self.render)(&r.data, &probe).width() + r.depth * 2 + 4).max().unwrap_or(0);
         c.clamp(Size::new(w.min(c.max_w), (rows.len() as u16).min(c.max_h)))
     }
 
@@ -239,19 +235,19 @@ impl<T: Clone + 'static> Widget for Tree<T> {
                     Key::Char('j') | Key::Down => {
                         state.selected.set((cur + 1) % n);
                         true
-                    }
+                    },
                     Key::Char('k') | Key::Up => {
                         state.selected.set((cur + n - 1) % n);
                         true
-                    }
+                    },
                     Key::Char('g') | Key::Home => {
                         state.selected.set(0);
                         true
-                    }
+                    },
                     Key::Char('G') | Key::End => {
                         state.selected.set(n - 1);
                         true
-                    }
+                    },
                     Key::Char('l') | Key::Right => {
                         if row.has_children && !row.expanded {
                             toggle(true);
@@ -259,7 +255,7 @@ impl<T: Clone + 'static> Widget for Tree<T> {
                             on_activate(&row.data);
                         }
                         true
-                    }
+                    },
                     Key::Char('h') | Key::Left => {
                         if row.has_children && row.expanded {
                             toggle(false);
@@ -267,13 +263,13 @@ impl<T: Clone + 'static> Widget for Tree<T> {
                             state.selected.set(parent);
                         }
                         true
-                    }
+                    },
                     Key::Char(' ') => {
                         if row.has_children {
                             toggle(!row.expanded);
                         }
                         true
-                    }
+                    },
                     Key::Enter => {
                         if row.has_children {
                             toggle(!row.expanded);
@@ -281,7 +277,7 @@ impl<T: Clone + 'static> Widget for Tree<T> {
                             on_activate(&row.data);
                         }
                         true
-                    }
+                    },
                     _ => false,
                 }
             }),

@@ -56,16 +56,16 @@ fn resolve_widths(columns: &[TableColumn], avail: u16, gap: u16) -> Vec<u16> {
             ColWidth::Fixed(w) => {
                 widths.push(w);
                 fixed_total = fixed_total.saturating_add(w);
-            }
+            },
             ColWidth::Fraction(f) => {
                 let w = ((usable as f32) * f.clamp(0.0, 1.0)).round() as u16;
                 widths.push(w);
                 fixed_total = fixed_total.saturating_add(w);
-            }
+            },
             ColWidth::Flex(weight) => {
                 widths.push(0); // placeholder
                 flex_total += weight;
-            }
+            },
         }
     }
     let leftover = usable.saturating_sub(fixed_total);
@@ -212,12 +212,7 @@ impl Widget for Table {
         if self.show_scrollbar {
             draw_scrollbar(
                 canvas,
-                Area {
-                    x: area.x + area.w.saturating_sub(1),
-                    y,
-                    w: 1,
-                    h: area.h.saturating_sub(self.header_rows()),
-                },
+                Area { x: area.x + area.w.saturating_sub(1), y, w: 1, h: area.h.saturating_sub(self.header_rows()) },
                 n,
                 body_h,
                 offset,
@@ -239,31 +234,31 @@ impl Widget for Table {
                     Key::Char('j') | Key::Down => {
                         state.selected.set((cur + 1) % n);
                         true
-                    }
+                    },
                     Key::Char('k') | Key::Up => {
                         state.selected.set((cur + n - 1) % n);
                         true
-                    }
+                    },
                     Key::Char('g') | Key::Home => {
                         state.selected.set(0);
                         true
-                    }
+                    },
                     Key::Char('G') | Key::End => {
                         state.selected.set(n - 1);
                         true
-                    }
+                    },
                     Key::PageDown | Key::Ctrl('f') => {
                         state.selected.set((cur + page).min(n - 1));
                         true
-                    }
+                    },
                     Key::PageUp | Key::Ctrl('b') => {
                         state.selected.set(cur.saturating_sub(page));
                         true
-                    }
+                    },
                     Key::Enter => {
                         on_select(cur);
                         true
-                    }
+                    },
                     _ => false,
                 }
             }),

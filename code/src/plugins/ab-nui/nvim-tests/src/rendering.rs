@@ -89,10 +89,7 @@ fn a_changed_row_is_the_only_row_sent() {
     assert_eq!(calls("nvim_buf_set_extmark"), 0, "row 2 has no highlights to re-apply");
     assert_eq!(lines(popup.buffer()), vec!["one", "two", "THREE", "four", "five"]);
     // The highlights of the untouched rows are still in place.
-    assert_eq!(
-        highlights(popup.buffer()),
-        vec![(1, 0, 3, "Title".to_string()), (3, 2, 4, "ErrorMsg".to_string())]
-    );
+    assert_eq!(highlights(popup.buffer()), vec![(1, 0, 3, "Title".to_string()), (3, 2, 4, "ErrorMsg".to_string())]);
 }
 
 #[nvim_oxi::test]
@@ -217,10 +214,7 @@ fn a_toast_installs_no_key_table() {
     setup();
     notify("hello", NotifyOptions { timeout_ms: None, ..Default::default() }).unwrap();
     let toast = floats().into_iter().next().expect("the toast's window");
-    let maps: i64 = lua_eval(&format!(
-        "return #vim.api.nvim_buf_get_keymap({}, 'n')",
-        toast.buffer().unwrap().id()
-    ));
+    let maps: i64 = lua_eval(&format!("return #vim.api.nvim_buf_get_keymap({}, 'n')", toast.buffer().unwrap().id()));
     assert_eq!(maps, 0);
     dismiss_all();
 }

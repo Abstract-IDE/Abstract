@@ -8,8 +8,8 @@ use crate::geometry::{Position, Size, editor_size};
 use crate::nvim::{Border, Timer};
 use crate::text::{Line, Wrap, wrap_line};
 use crate::theme::groups;
-use crate::view::widgets::text::Text;
 use crate::view::runtime::Surface;
+use crate::view::widgets::text::Text;
 use crate::widget::popup::PopupOptions;
 
 /// Notification severity — controls the border/title highlight.
@@ -117,9 +117,7 @@ pub fn notify(msg: impl Into<String>, opts: NotifyOptions) -> Result<NotifyHandl
         zindex: 80,
         ..Default::default()
     })?
-    .show(move || {
-        Text::new(msg.clone()).wrap(Wrap::Word)
-    })?;
+    .show(move || Text::new(msg.clone()).wrap(Wrap::Word))?;
 
     // Level-colored border/title.
     if let Some(win) = surface.popup().window() {

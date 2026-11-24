@@ -180,5 +180,4 @@ mod tests {
         assert_eq!(line.spans.len(), 2);
         assert_eq!(line.spans[1].hl.as_deref(), Some("Title"));
     }
-
 }

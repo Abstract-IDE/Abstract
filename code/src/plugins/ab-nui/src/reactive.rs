@@ -761,7 +761,11 @@ mod tests {
             let (cond, a, b, runs) = (cond.clone(), a.clone(), b.clone(), runs.clone());
             effect(move || {
                 runs.set(runs.get() + 1);
-                if cond.get() { a.get() } else { b.get() };
+                if cond.get() {
+                    a.get()
+                } else {
+                    b.get()
+                };
             })
         };
         assert_eq!(runs.get(), 1);

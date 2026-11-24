@@ -278,11 +278,7 @@ impl Surface {
 
     /// Route a key to the currently focused widget (index clamped defensively).
     /// Returns whether the widget consumed it.
-    fn route(
-        focusables: &RefCell<Vec<Focusable>>,
-        focused: &Signal<usize>,
-        key: Key,
-    ) -> bool {
+    fn route(focusables: &RefCell<Vec<Focusable>>, focused: &Signal<usize>, key: Key) -> bool {
         let handle = {
             let fc = focusables.borrow();
             if fc.is_empty() {
@@ -335,9 +331,9 @@ impl Surface {
                     // Remember the new widget's key so focus can follow it.
                     *focused_key.borrow_mut() = focusables.borrow().get(next).and_then(|f| f.key.clone());
                     focused.set(next);
-                }
+                },
                 Key::Esc => hide.hide(),
-                _ => {}
+                _ => {},
             }
         })
     }

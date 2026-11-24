@@ -46,7 +46,7 @@ impl Widget for Checkbox {
                     sig.update(|v| *v = !*v);
                     on_change(sig.get_untracked());
                     true
-                }
+                },
                 _ => false,
             }),
         );
@@ -93,7 +93,7 @@ impl Widget for Toggle {
                     sig.update(|v| *v = !*v);
                     on_change(sig.get_untracked());
                     true
-                }
+                },
                 _ => false,
             }),
         );
@@ -146,15 +146,13 @@ impl Widget for RadioGroup {
             let mut x = area.x;
             for i in 0..self.options.len() {
                 let text = self.option_text(i, selected);
-                let hl: Option<Rc<str>> =
-                    (focused && i == selected).then(|| Rc::from(groups::SELECTION));
+                let hl: Option<Rc<str>> = (focused && i == selected).then(|| Rc::from(groups::SELECTION));
                 x += canvas.put_str(x, area.y, &text, hl) + 2;
             }
         } else {
             for i in 0..self.options.len().min(area.h as usize) {
                 let text = self.option_text(i, selected);
-                let hl: Option<Rc<str>> =
-                    (focused && i == selected).then(|| Rc::from(groups::SELECTION));
+                let hl: Option<Rc<str>> = (focused && i == selected).then(|| Rc::from(groups::SELECTION));
                 canvas.put_str(area.x, area.y + i as u16, &text, hl);
             }
         }

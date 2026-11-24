@@ -176,8 +176,7 @@ impl Namespace {
         let e = lua::table()?;
         e.set(1, end.0)?;
         e.set(2, end.1)?;
-        let marks: Vec<Vec<i64>> =
-            lua::call_api("nvim_buf_get_extmarks", (buf.id(), self.0, s, e, lua::table()?))?;
+        let marks: Vec<Vec<i64>> = lua::call_api("nvim_buf_get_extmarks", (buf.id(), self.0, s, e, lua::table()?))?;
         Ok(marks
             .into_iter()
             .filter(|m| m.len() >= 3)
@@ -187,11 +186,7 @@ impl Namespace {
 
     /// Highlight a byte range on `row` (0-based) with `group`.
     pub fn highlight(self, buf: Buffer, row: i64, start_col: i64, end_col: i64, group: &str) -> Result<()> {
-        let opts = ExtmarkOpts {
-            end_col: Some(end_col),
-            hl_group: Some(group.to_string()),
-            ..Default::default()
-        };
+        let opts = ExtmarkOpts { end_col: Some(end_col), hl_group: Some(group.to_string()), ..Default::default() };
         self.set_extmark(buf, row, start_col, &opts)?;
         Ok(())
     }

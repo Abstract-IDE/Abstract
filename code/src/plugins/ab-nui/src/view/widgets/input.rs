@@ -138,9 +138,8 @@ impl Widget for TextField {
             if cursor < scroll {
                 scroll = cursor;
             }
-            let width_between = |from: usize, to: usize| -> u16 {
-                chars[from..to].iter().map(|&c| char_width(c)).sum()
-            };
+            let width_between =
+                |from: usize, to: usize| -> u16 { chars[from..to].iter().map(|&c| char_width(c)).sum() };
             while width_between(scroll, cursor) + 1 > w {
                 scroll += 1;
             }
@@ -183,7 +182,7 @@ impl Widget for TextField {
                         state.cursor.set(cur + 1);
                         changed(&state, &on_change);
                         true
-                    }
+                    },
                     Key::Backspace if cur > 0 => {
                         state.value.update(|s| {
                             let start = byte_at(s, cur - 1);
@@ -193,7 +192,7 @@ impl Widget for TextField {
                         state.cursor.set(cur - 1);
                         changed(&state, &on_change);
                         true
-                    }
+                    },
                     Key::Backspace => true, // consumed, nothing to delete
                     Key::Delete if cur < len => {
                         state.value.update(|s| {
@@ -203,31 +202,31 @@ impl Widget for TextField {
                         });
                         changed(&state, &on_change);
                         true
-                    }
+                    },
                     Key::Delete => true,
                     Key::Left => {
                         state.cursor.set(cur.saturating_sub(1));
                         true
-                    }
+                    },
                     Key::Right => {
                         state.cursor.set((cur + 1).min(len));
                         true
-                    }
+                    },
                     Key::Home => {
                         state.cursor.set(0);
                         true
-                    }
+                    },
                     Key::End => {
                         state.cursor.set(len);
                         true
-                    }
+                    },
                     Key::Ctrl('w') => {
                         let mut new_cur = cur;
                         state.value.update(|s| new_cur = delete_word_back(s, cur));
                         state.cursor.set(new_cur);
                         changed(&state, &on_change);
                         true
-                    }
+                    },
                     Key::Ctrl('u') => {
                         state.value.update(|s| {
                             let end = byte_at(s, cur);
@@ -236,11 +235,11 @@ impl Widget for TextField {
                         state.cursor.set(0);
                         changed(&state, &on_change);
                         true
-                    }
+                    },
                     Key::Enter => {
                         on_submit(&state.value.get_untracked());
                         true
-                    }
+                    },
                     _ => false,
                 }
             }),
@@ -382,7 +381,7 @@ impl Widget for TextArea {
                         state.cursor.set((row, col + 1));
                         changed(&state, &on_change);
                         true
-                    }
+                    },
                     Key::Enter => {
                         state.lines.update(|ls| {
                             let at = byte_at(&ls[row], col);
@@ -392,7 +391,7 @@ impl Widget for TextArea {
                         state.cursor.set((row + 1, 0));
                         changed(&state, &on_change);
                         true
-                    }
+                    },
                     Key::Backspace => {
                         if col > 0 {
                             state.lines.update(|ls| {
@@ -412,7 +411,7 @@ impl Widget for TextArea {
                             changed(&state, &on_change);
                         }
                         true
-                    }
+                    },
                     Key::Delete => {
                         if col < line_len(row) {
                             state.lines.update(|ls| {
@@ -429,7 +428,7 @@ impl Widget for TextArea {
                             changed(&state, &on_change);
                         }
                         true
-                    }
+                    },
                     Key::Left => {
                         if col > 0 {
                             state.cursor.set((row, col - 1));
@@ -437,7 +436,7 @@ impl Widget for TextArea {
                             state.cursor.set((row - 1, line_len(row - 1)));
                         }
                         true
-                    }
+                    },
                     Key::Right => {
                         if col < line_len(row) {
                             state.cursor.set((row, col + 1));
@@ -445,37 +444,37 @@ impl Widget for TextArea {
                             state.cursor.set((row + 1, 0));
                         }
                         true
-                    }
+                    },
                     Key::Up => {
                         if row > 0 {
                             state.cursor.set((row - 1, col.min(line_len(row - 1))));
                         }
                         true
-                    }
+                    },
                     Key::Down => {
                         if row + 1 < lines.len() {
                             state.cursor.set((row + 1, col.min(line_len(row + 1))));
                         }
                         true
-                    }
+                    },
                     Key::Home => {
                         state.cursor.set((row, 0));
                         true
-                    }
+                    },
                     Key::End => {
                         state.cursor.set((row, line_len(row)));
                         true
-                    }
+                    },
                     Key::PageDown => {
                         let r = (row + page).min(lines.len() - 1);
                         state.cursor.set((r, col.min(line_len(r))));
                         true
-                    }
+                    },
                     Key::PageUp => {
                         let r = row.saturating_sub(page);
                         state.cursor.set((r, col.min(line_len(r))));
                         true
-                    }
+                    },
                     _ => false,
                 }
             }),

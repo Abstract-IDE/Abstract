@@ -5,7 +5,6 @@ use nvim_oxi::api::{
 };
 use wl_utils::safe_wrap;
 
-
 use crate::state::State;
 
 // -----------------------------------------------------------------------------

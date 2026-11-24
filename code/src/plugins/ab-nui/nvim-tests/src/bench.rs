@@ -49,7 +49,10 @@ fn counters() -> Vec<(String, i64)> {
 }
 
 fn reset_counters() {
-    nvim_oxi::mlua::lua().load("for k in pairs(_G.ab_bench) do _G.ab_bench[k] = 0 end").exec().expect("reset");
+    nvim_oxi::mlua::lua()
+        .load("for k in pairs(_G.ab_bench) do _G.ab_bench[k] = 0 end")
+        .exec()
+        .expect("reset");
 }
 
 fn report(name: &str, iterations: u32, elapsed: std::time::Duration) {
@@ -184,7 +187,8 @@ fn bench_notify() {
     reset_counters();
     let start = Instant::now();
     for i in 0..iterations {
-        let handle = notify(format!("toast number {i}"), NotifyOptions { timeout_ms: None, ..Default::default() }).unwrap();
+        let handle =
+            notify(format!("toast number {i}"), NotifyOptions { timeout_ms: None, ..Default::default() }).unwrap();
         handle.dismiss();
     }
     report("notify", iterations, start.elapsed());

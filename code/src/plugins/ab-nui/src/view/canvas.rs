@@ -57,11 +57,7 @@ impl Canvas {
     }
 
     fn index(&self, x: u16, y: u16) -> Option<usize> {
-        if x < self.w && y < self.h {
-            Some(y as usize * self.w as usize + x as usize)
-        } else {
-            None
-        }
+        if x < self.w && y < self.h { Some(y as usize * self.w as usize + x as usize) } else { None }
     }
 
     /// Intern a highlight group by name. Widgets tend to paint the same group
@@ -224,7 +220,7 @@ impl Canvas {
                         let style = self.intern(src.style_name(cell.style));
                         remap[cell.style as usize] = Some(style);
                         style
-                    }
+                    },
                 };
                 if cell.cont {
                     // Continuation of a leader outside the source rect: blank.
@@ -292,7 +288,7 @@ impl Canvas {
                             spans.push(self.make_span(style, text));
                         }
                         run = Some((cell.style, cell.ch.to_string()));
-                    }
+                    },
                 }
             }
             if let Some((style, text)) = run {

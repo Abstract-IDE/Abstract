@@ -69,7 +69,7 @@ impl Rect {
                 let row = (lines.saturating_sub(height)) as f64 / 2.0;
                 let col = (cols.saturating_sub(width)) as f64 / 2.0;
                 (row, col)
-            }
+            },
             Position::At { row, col } => (row, col),
         };
         Ok(Rect { row, col, width, height })

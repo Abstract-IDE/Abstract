@@ -104,12 +104,8 @@ pub fn wrap_line(line: &Line, width: u16, wrap: Wrap) -> Vec<Line> {
 
     // Flatten to (char, hl-index) units, remembering each span's group.
     let groups: Vec<Option<String>> = line.spans.iter().map(|s| s.hl.clone()).collect();
-    let chars: Vec<(char, usize)> = line
-        .spans
-        .iter()
-        .enumerate()
-        .flat_map(|(i, s)| s.text.chars().map(move |c| (c, i)))
-        .collect();
+    let chars: Vec<(char, usize)> =
+        line.spans.iter().enumerate().flat_map(|(i, s)| s.text.chars().map(move |c| (c, i))).collect();
 
     // Compute break points as ranges of the chars vec.
     let mut rows: Vec<(usize, usize)> = Vec::new(); // [start, end)
@@ -170,11 +166,11 @@ pub fn wrap_line(line: &Line, width: u16, wrap: Wrap) -> Vec<Line> {
                         out.spans.push(Span { text: std::mem::take(&mut run), hl: groups[cur].clone() });
                         run.push(ch);
                         run_group = Some(g);
-                    }
+                    },
                     None => {
                         run.push(ch);
                         run_group = Some(g);
-                    }
+                    },
                 }
             }
             if let Some(cur) = run_group {

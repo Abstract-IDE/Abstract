@@ -64,9 +64,7 @@ fn text_styled_spans_via_macro() {
 #[nvim_oxi::test]
 fn text_fg_and_builder_spans() {
     setup();
-    let (_s, buf) = surf(10, 2, || {
-        col![Text::new("all").fg("Title"), Text::new("a").span("b", "Comment").raw("c")]
-    });
+    let (_s, buf) = surf(10, 2, || col![Text::new("all").fg("Title"), Text::new("a").span("b", "Comment").raw("c")]);
     assert_eq!(trimmed(buf), v(&["all", "abc"]));
     assert_eq!(highlights(buf), vec![(0, 0, 3, "Title".into()), (1, 1, 2, "Comment".into())]);
 }
@@ -105,9 +103,8 @@ fn row_spacer_pushes_apart() {
 #[nvim_oxi::test]
 fn spacer_weights_share_leftover() {
     setup();
-    let rows = render(12, 1, || {
-        row![Text::new("a"), Spacer::new(), Text::new("b"), Spacer::new().weight(3), Text::new("c")]
-    });
+    let rows =
+        render(12, 1, || row![Text::new("a"), Spacer::new(), Text::new("b"), Spacer::new().weight(3), Text::new("c")]);
     assert_eq!(rows, v(&["a  b      c"]));
 }
 
@@ -132,7 +129,9 @@ fn column_main_axis_modes() {
 #[nvim_oxi::test]
 fn cross_axis_modes() {
     setup();
-    let rows = render(6, 5, || row![Text::new("x"), col![Text::new("a"), Text::new("b"), Text::new("c")]].cross(CrossAxis::Center));
+    let rows = render(6, 5, || {
+        row![Text::new("x"), col![Text::new("a"), Text::new("b"), Text::new("c")]].cross(CrossAxis::Center)
+    });
     assert_eq!(rows, v(&["", " a", "xb", " c", ""]));
     let rows = render(5, 2, || col![Text::new("ab"), Text::new("c")].cross(CrossAxis::End));
     assert_eq!(rows, v(&["   ab", "    c"]));
@@ -143,18 +142,14 @@ fn cross_axis_modes() {
 #[nvim_oxi::test]
 fn expanded_fills_remaining_space() {
     setup();
-    let rows = render(9, 5, || {
-        col![Text::new("top"), Expanded::new(Center::new(Text::new("mid"))), Text::new("bot")]
-    });
+    let rows = render(9, 5, || col![Text::new("top"), Expanded::new(Center::new(Text::new("mid"))), Text::new("bot")]);
     assert_eq!(rows, v(&["top", "", "   mid", "", "bot"]));
 }
 
 #[nvim_oxi::test]
 fn expanded_weights() {
     setup();
-    let rows = render(9, 1, || {
-        row![Expanded::new(Text::new("a")), Expanded::new(Text::new("b")).weight(2)]
-    });
+    let rows = render(9, 1, || row![Expanded::new(Text::new("a")), Expanded::new(Text::new("b")).weight(2)]);
     assert_eq!(rows, v(&["a  b"]));
 }
 
@@ -192,7 +187,10 @@ fn sized_box_gaps() {
     setup();
     assert_eq!(render(8, 1, || row![SizedBox::w(3), Text::new("x")]), v(&["   x"]));
     assert_eq!(render(8, 4, || col![Text::new("a"), SizedBox::h(2), Text::new("b")]), v(&["a", "", "", "b"]));
-    assert_eq!(render(8, 2, || row![SizedBox::new(2, 1), Text::new("a"), SizedBox::new(2, 1), Text::new("b")]), v(&["  a  b", ""]));
+    assert_eq!(
+        render(8, 2, || row![SizedBox::new(2, 1), Text::new("a"), SizedBox::new(2, 1), Text::new("b")]),
+        v(&["  a  b", ""])
+    );
 }
 
 // ---- Container / Divider ----------------------------------------------------
@@ -302,7 +300,10 @@ fn progress_bar_and_key_hints_text() {
     assert_eq!(render(6, 1, || ProgressBar::new(1.0).chars('#', '-')), v(&["######"]));
     assert_eq!(render(30, 2, || KeyHints::new(vec![("q", "quit"), ("Tab", "focus")])), v(&["q quit · Tab focus", ""]));
     // Hints wrap on word boundaries when narrow.
-    assert_eq!(render(10, 3, || KeyHints::new(vec![("q", "quit"), ("Tab", "focus")])), v(&["q quit ·", "Tab focus", ""]));
+    assert_eq!(
+        render(10, 3, || KeyHints::new(vec![("q", "quit"), ("Tab", "focus")])),
+        v(&["q quit ·", "Tab focus", ""])
+    );
 }
 
 #[nvim_oxi::test]

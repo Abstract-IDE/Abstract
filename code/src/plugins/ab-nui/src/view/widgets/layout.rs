@@ -322,10 +322,8 @@ impl Padding {
 
 impl Widget for Padding {
     fn measure(&self, c: Constraints) -> Size {
-        let inner = Constraints::loose(
-            c.max_w.saturating_sub(self.l + self.r),
-            c.max_h.saturating_sub(self.t + self.b),
-        );
+        let inner =
+            Constraints::loose(c.max_w.saturating_sub(self.l + self.r), c.max_h.saturating_sub(self.t + self.b));
         let s = self.child.measure(inner);
         Size::new(s.w + self.l + self.r, s.h + self.t + self.b)
     }
@@ -508,12 +506,12 @@ impl Widget for Divider {
                 for x in area.x..area.x.saturating_add(area.w) {
                     canvas.set(x, area.y, self.ch, self.hl.clone());
                 }
-            }
+            },
             DividerDir::Vertical => {
                 for y in area.y..area.y.saturating_add(area.h) {
                     canvas.set(area.x, y, self.ch, self.hl.clone());
                 }
-            }
+            },
         }
     }
 }
@@ -549,18 +547,10 @@ impl BoxStyle {
     fn chars(self) -> Option<BorderChars> {
         match self {
             BoxStyle::None => None,
-            BoxStyle::Single => {
-                Some(BorderChars { tl: '┌', tr: '┐', bl: '└', br: '┘', h: '─', v: '│' })
-            }
-            BoxStyle::Rounded => {
-                Some(BorderChars { tl: '╭', tr: '╮', bl: '╰', br: '╯', h: '─', v: '│' })
-            }
-            BoxStyle::Double => {
-                Some(BorderChars { tl: '╔', tr: '╗', bl: '╚', br: '╝', h: '═', v: '║' })
-            }
-            BoxStyle::Thick => {
-                Some(BorderChars { tl: '┏', tr: '┓', bl: '┗', br: '┛', h: '━', v: '┃' })
-            }
+            BoxStyle::Single => Some(BorderChars { tl: '┌', tr: '┐', bl: '└', br: '┘', h: '─', v: '│' }),
+            BoxStyle::Rounded => Some(BorderChars { tl: '╭', tr: '╮', bl: '╰', br: '╯', h: '─', v: '│' }),
+            BoxStyle::Double => Some(BorderChars { tl: '╔', tr: '╗', bl: '╚', br: '╝', h: '═', v: '║' }),
+            BoxStyle::Thick => Some(BorderChars { tl: '┏', tr: '┓', bl: '┗', br: '┛', h: '━', v: '┃' }),
             BoxStyle::Custom(chars) => Some(chars),
         }
     }

@@ -101,7 +101,7 @@ impl Widget for Select {
                             state.selected.set(cur);
                             state.open.set(false);
                             on_change(cur);
-                        }
+                        },
                         Key::Esc => state.open.set(false),
                         _ => return false,
                     }
@@ -112,7 +112,7 @@ impl Widget for Select {
                             state.hover.set(state.selected.get_untracked().min(n - 1));
                             state.open.set(true);
                             true
-                        }
+                        },
                         _ => false,
                     }
                 }

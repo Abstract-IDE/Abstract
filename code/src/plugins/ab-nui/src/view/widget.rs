@@ -140,7 +140,7 @@ impl Key {
             named => {
                 let index = NAMED_KEYS.iter().position(|(_, k)| *k == named).expect("every named key is listed");
                 NAMED_BASE + index as i64
-            }
+            },
         }
     }
 
@@ -159,8 +159,7 @@ impl Key {
     /// `<Space>`, printable ASCII, and `<C-a>`..`<C-z>` (minus `<C-c>`, which
     /// stays Neovim's interrupt).
     pub(crate) fn bindings() -> Vec<(String, i64)> {
-        let mut keys: Vec<(String, i64)> =
-            NAMED_KEYS.iter().map(|(lhs, key)| (lhs.to_string(), key.code())).collect();
+        let mut keys: Vec<(String, i64)> = NAMED_KEYS.iter().map(|(lhs, key)| (lhs.to_string(), key.code())).collect();
         keys.push(("<Space>".into(), Key::Char(' ').code()));
         for ch in '!'..='~' {
             let lhs = match ch {

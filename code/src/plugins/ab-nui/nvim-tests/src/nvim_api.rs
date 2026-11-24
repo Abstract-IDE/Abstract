@@ -109,7 +109,9 @@ fn window_enter_focus_cursor_and_options() {
     let buf = Buffer::scratch().unwrap();
     buf.set_all(["abc", "def", "ghi"]).unwrap();
     let main = current_win();
-    let win = Window::open_float(buf, &FloatConfig::new(wp_ui::geometry::Rect { row: 1.0, col: 1.0, width: 10, height: 3 })).unwrap();
+    let win =
+        Window::open_float(buf, &FloatConfig::new(wp_ui::geometry::Rect { row: 1.0, col: 1.0, width: 10, height: 3 }))
+            .unwrap();
     assert_eq!(current_win(), win, "enter defaults to true");
     win.set_cursor(2, 1).unwrap();
     assert_eq!(win.cursor().unwrap(), (2, 1));
@@ -245,8 +247,13 @@ fn extmark_sign_text_conceal_and_line_hl() {
         },
     )
     .unwrap();
-    ns.set_extmark(buf, 1, 0, &ExtmarkOpts { end_row: Some(1), end_col: Some(6), conceal: Some("*".into()), ..Default::default() })
-        .unwrap();
+    ns.set_extmark(
+        buf,
+        1,
+        0,
+        &ExtmarkOpts { end_row: Some(1), end_col: Some(6), conceal: Some("*".into()), ..Default::default() },
+    )
+    .unwrap();
     let sign: String = lua_eval(&format!(
         "return vim.api.nvim_buf_get_extmarks({}, {}, 0, -1, {{ details = true }})[1][4].sign_text",
         buf.id(),

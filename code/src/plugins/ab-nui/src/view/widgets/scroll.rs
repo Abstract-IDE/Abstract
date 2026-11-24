@@ -90,10 +90,7 @@ impl ScrollView {
 impl Widget for ScrollView {
     fn measure(&self, c: Constraints) -> Size {
         let content = self.content_size(c.max_w.saturating_sub(self.bar_w()));
-        c.clamp(Size::new(
-            (content.w + self.bar_w()).min(c.max_w),
-            content.h.min(c.max_h),
-        ))
+        c.clamp(Size::new((content.w + self.bar_w()).min(c.max_w), content.h.min(c.max_h)))
     }
 
     fn paint(&self, cx: &mut Cx, area: Area, canvas: &mut Canvas) {
@@ -148,11 +145,11 @@ impl Widget for ScrollView {
                     Key::Home | Key::Char('g') => {
                         sig.set(0);
                         return true;
-                    }
+                    },
                     Key::End | Key::Char('G') => {
                         sig.set(max_offset);
                         return true;
-                    }
+                    },
                     _ => return false,
                 };
                 sig.update(|o| {

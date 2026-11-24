@@ -13,5 +13,5 @@ mod lifecycle;
 mod nvim_api;
 mod popup;
 mod rendering;
-mod widgets;
 mod surface;
+mod widgets;

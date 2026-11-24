@@ -57,12 +57,7 @@ pub fn highlights(buf: Buffer) -> Vec<(i64, i64, i64, String)> {
     let rows: Vec<mlua::Table> = f.call(buf.id()).expect("get_extmarks");
     rows.into_iter()
         .map(|t| {
-            (
-                t.get::<i64>(1).unwrap(),
-                t.get::<i64>(2).unwrap(),
-                t.get::<i64>(3).unwrap(),
-                t.get::<String>(4).unwrap(),
-            )
+            (t.get::<i64>(1).unwrap(), t.get::<i64>(2).unwrap(), t.get::<i64>(3).unwrap(), t.get::<String>(4).unwrap())
         })
         .collect()
 }

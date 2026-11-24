@@ -76,7 +76,7 @@ fn new_terminal_internal() -> nvim_oxi::Result<()> {
             &nvim_oxi::api::opts::CreateAutocmdOpts::builder()
                 .buffer(buf.clone())
                 .nested(true)
-                .callback(safe_wrap! (move |_args| -> std::result::Result<bool, nvim_oxi::Error> {
+                .callback(safe_wrap!(move |_args| -> std::result::Result<bool, nvim_oxi::Error> {
                     // Check if Neovim is currently exiting. If so, do not try to open floats or startinsert.
                     if let Ok(v_exiting) = api::get_vvar::<nvim_oxi::Object>("exiting")
                         && !v_exiting.is_nil()

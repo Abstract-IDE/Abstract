@@ -31,12 +31,7 @@ pub struct MenuOptions {
 
 impl Default for MenuOptions {
     fn default() -> Self {
-        Self {
-            title: None,
-            size: Size::ratio(0.4, 0.4),
-            position: Position::Center,
-            border: Border::Rounded,
-        }
+        Self { title: None, size: Size::ratio(0.4, 0.4), position: Position::Center, border: Border::Rounded }
     }
 }
 

@@ -37,11 +37,7 @@ impl Widget for Button {
     fn paint(&self, cx: &mut Cx, area: Area, canvas: &mut Canvas) {
         let focused = cx.will_focus();
         let text = format!("[ {} ]", self.label);
-        let hl = if focused {
-            Some(Rc::from(groups::SELECTION))
-        } else {
-            self.hl.clone()
-        };
+        let hl = if focused { Some(Rc::from(groups::SELECTION)) } else { self.hl.clone() };
         canvas.put_str(area.x, area.y, &text, hl);
 
         let press = self.on_press.clone();
@@ -51,7 +47,7 @@ impl Widget for Button {
                 Key::Enter | Key::Char(' ') => {
                     press();
                     true
-                }
+                },
                 _ => false,
             }),
         );
