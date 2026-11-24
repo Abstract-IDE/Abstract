@@ -89,11 +89,17 @@ where
     impl<'de> de::Visitor<'de> for CompleteVisitor {
         type Value = Option<String>;
 
-        fn expecting(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
+        fn expecting(
+            &self,
+            f: &mut core::fmt::Formatter,
+        ) -> core::fmt::Result {
             f.write_str("a completion name, a Lua function or nil")
         }
 
-        fn visit_str<E: de::Error>(self, name: &str) -> Result<Self::Value, E> {
+        fn visit_str<E: de::Error>(
+            self,
+            name: &str,
+        ) -> Result<Self::Value, E> {
             Ok(Some(name.to_owned()))
         }
 
@@ -117,7 +123,10 @@ where
             Ok(None)
         }
 
-        fn visit_some<D2>(self, deserializer: D2) -> Result<Self::Value, D2::Error>
+        fn visit_some<D2>(
+            self,
+            deserializer: D2,
+        ) -> Result<Self::Value, D2::Error>
         where
             D2: de::Deserializer<'de>,
         {

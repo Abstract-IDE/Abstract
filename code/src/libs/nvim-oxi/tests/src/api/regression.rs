@@ -165,8 +165,12 @@ fn set_get_hl_link() {
 #[nvim_oxi::test]
 #[cfg(feature = "neovim-0-12")]
 fn set_hl_update_merges() {
-    api::set_hl(0, "RegrUpdate", &SetHighlightOpts::builder().bold(true).build())
-        .unwrap();
+    api::set_hl(
+        0,
+        "RegrUpdate",
+        &SetHighlightOpts::builder().bold(true).build(),
+    )
+    .unwrap();
     let opts = SetHighlightOpts::builder().italic(true).update(true).build();
     api::set_hl(0, "RegrUpdate", &opts).unwrap();
 
@@ -234,8 +238,11 @@ fn put_inserts_lines() {
         false,
     )
     .unwrap();
-    let lines =
-        buf.get_lines(.., true).unwrap().map(|l| l.to_string()).collect::<Vec<_>>();
+    let lines = buf
+        .get_lines(.., true)
+        .unwrap()
+        .map(|l| l.to_string())
+        .collect::<Vec<_>>();
     assert!(lines.contains(&"first".to_owned()), "{lines:?}");
     assert!(lines.contains(&"second".to_owned()), "{lines:?}");
 }
@@ -245,8 +252,11 @@ fn paste_single_call_inserts_text() {
     let buf = Buffer::current();
     let ok = api::paste("pasted text", false, PastePhase::SingleCall).unwrap();
     assert!(ok);
-    let lines =
-        buf.get_lines(.., true).unwrap().map(|l| l.to_string()).collect::<Vec<_>>();
+    let lines = buf
+        .get_lines(.., true)
+        .unwrap()
+        .map(|l| l.to_string())
+        .collect::<Vec<_>>();
     assert!(lines.iter().any(|l| l.contains("pasted text")), "{lines:?}");
 }
 
@@ -284,9 +294,8 @@ fn user_command_opts_read_back() {
     let opts = CreateCommandOpts::builder().nargs(CommandNArgs::One).build();
     api::create_user_command("RegrPlain", ":", &opts).unwrap();
 
-    let cmds = api::get_commands(&Default::default())
-        .unwrap()
-        .collect::<Vec<_>>();
+    let cmds =
+        api::get_commands(&Default::default()).unwrap().collect::<Vec<_>>();
     let cmd = cmds.iter().find(|c| c.name == "RegrCmd").unwrap();
     assert!(cmd.register);
     assert!(cmd.bang);
@@ -344,9 +353,10 @@ fn echo_opts_variants() {
         &EchoOpts::builder().err(true).build(),
     )
     .unwrap();
-    let out = api::exec2(":messages", &ExecOpts::builder().output(true).build())
-        .unwrap()
-        .map(|s| s.to_string())
-        .unwrap_or_default();
+    let out =
+        api::exec2(":messages", &ExecOpts::builder().output(true).build())
+            .unwrap()
+            .map(|s| s.to_string())
+            .unwrap_or_default();
     assert!(out.contains("regr-err-message"), "{out:?}");
 }

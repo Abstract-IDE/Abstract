@@ -15,7 +15,13 @@
           overlays = [ rust-overlay.overlays.default ];
         };
 
-        rust = pkgs.rust-bin.stable."1.91.1".default;
+        # `rust-src` is what rust-analyzer reads the standard library from;
+        # without it every use of `std`/`core` shows up as an error in the
+        # editor even though cargo builds fine. `rust-analyzer` gives the
+        # shell a language server that matches this exact toolchain.
+        rust = pkgs.rust-bin.stable."1.91.1".default.override {
+          extensions = [ "rust-src" "rust-analyzer" ];
+        };
       in {
         devShells.default = pkgs.mkShell {
           packages = [
