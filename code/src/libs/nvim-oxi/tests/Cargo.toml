@@ -1,0 +1,28 @@
+[package]
+name = "tests"
+version = "0.0.0"
+edition.workspace = true
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[features]
+default = ["neovim-0-11"]
+neovim-0-11 = ["nvim-oxi/neovim-0-11"]
+neovim-0-12 = ["neovim-0-11", "nvim-oxi/neovim-0-12"]
+neovim-nightly = ["neovim-0-12", "nvim-oxi/neovim-nightly"]
+
+[dependencies]
+all_asserts = "2.3"
+thiserror = { workspace = true }
+
+[target.'cfg(not(any(target_os = "windows", target_env = "msvc")))'.dependencies]
+nvim-oxi = { path = "..", features = ["libuv", "mlua", "test"] }
+
+# Enabling libuv will cause the build to fail on Windows.
+[target.'cfg(any(target_os = "windows", target_env = "msvc"))'.dependencies]
+nvim-oxi = { path = "..", features = ["mlua", "test"] }
+
+[build-dependencies]
+nvim-oxi = { path = "..", features = ["test"] }

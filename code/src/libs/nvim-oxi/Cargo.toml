@@ -1,0 +1,117 @@
+[workspace]
+members = ["crates/*", "examples/*", "tests"]
+resolver = "2"
+
+[workspace.package]
+version = "0.6.0"
+edition = "2024"
+authors = ["Riccardo Mazzarini <me@noib3.dev>"]
+rust-version = "1.91.0"
+documentation = "https://docs.rs/nvim-oxi"
+repository = "https://github.com/noib3/nvim-oxi"
+license = "MIT"
+keywords = ["bindings", "neovim", "nvim"]
+
+[workspace.dependencies]
+# 3rd-party dependencies.
+cargo_metadata = "0.23"
+libc = "0.2"
+mlua = { version = "0.11", features = ["luajit"] }
+proc-macro2 = "1"
+quote = "1"
+serde = "1"
+serde_repr = "0.1"
+syn = "2"
+thiserror = "2"
+tokio = "1"
+
+# Internal dependencies.
+api = { path = "./crates/api", package = "nvim-oxi-api" }
+libuv = { path = "./crates/libuv", package = "nvim-oxi-libuv" }
+luajit = { path = "./crates/luajit", package = "nvim-oxi-luajit" }
+macros = { path = "./crates/macros", package = "nvim-oxi-macros" }
+types = { path = "./crates/types", package = "nvim-oxi-types" }
+
+[workspace.lints.clippy]
+mixed_attributes_style = "allow"
+
+[workspace.lints.rust]
+unsafe_op_in_unsafe_fn = "allow"
+
+[workspace.lints.rustdoc]
+broken_intra_doc_links = "deny"
+private_intra_doc_links = "deny"
+
+[package]
+name = "nvim-oxi"
+description = "Rust bindings to all things Neovim"
+readme = "./README.md"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+documentation.workspace = true
+repository.workspace = true
+license.workspace = true
+keywords.workspace = true
+
+[package.metadata.docs.rs]
+default-features = false
+features = ["__docsrs", "neovim-nightly", "libuv", "mlua", "test"]
+rustdoc-args = ["--cfg", "docsrs"]
+
+[features]
+default = ["__no_docsrs"]
+neovim-0-11 = ["api/neovim-0-11"]
+neovim-0-12 = ["neovim-0-11", "api/neovim-0-12"]
+neovim-nightly = ["neovim-0-12", "api/neovim-nightly"]
+
+__docsrs = ["mlua?/vendored"]
+__no_docsrs = ["mlua?/module"]
+
+libuv = ["dep:libuv"]
+mlua = ["api/mlua", "dep:mlua"]
+test = ["macros/test", "dep:cargo_metadata"]
+test-terminator = ["test", "libuv", "macros/test-terminator"]
+
+[dependencies]
+api = { workspace = true }
+libuv = { workspace = true, optional = true }
+luajit = { workspace = true }
+macros = { workspace = true, features = ["plugin"] }
+types = { workspace = true, features = ["serde"] }
+
+cargo_metadata = { workspace = true, optional = true }
+mlua = { workspace = true, optional = true }
+thiserror = { workspace = true }
+
+[dev-dependencies]
+serde = { workspace = true, features = ["derive"] }
+tokio = { workspace = true, features = ["full"] }
+
+[[example]]
+name = "api"
+path = "./examples/api.rs"
+crate-type = ["cdylib"]
+
+[[example]]
+name = "calc"
+path = "./examples/calc.rs"
+crate-type = ["cdylib"]
+
+[[example]]
+name = "libuv"
+path = "./examples/libuv.rs"
+crate-type = ["cdylib"]
+required-features = ["libuv"]
+
+[[example]]
+name = "mechanic"
+path = "./examples/mechanic.rs"
+crate-type = ["cdylib"]
+
+[[example]]
+name = "mlua"
+path = "./examples/mlua.rs"
+crate-type = ["cdylib"]
+required-features = ["mlua"]

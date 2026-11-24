@@ -1,0 +1,57 @@
+use crate::Buffer;
+use crate::{StringOrInt, StringOrListOfStrings};
+
+/// Options passed to [`exec_autocmds()`](crate::exec_autocmds).
+#[derive(Clone, Debug, Default, macros::OptsBuilder)]
+#[repr(C)]
+pub struct ExecAutocmdsOpts {
+    #[builder(mask)]
+    mask: u64,
+
+    #[cfg(not(feature = "neovim-0-12"))] // Only on 0.11.
+    /// A specific [`Buffer`] for buffer-local autocommands. Cannot be used
+    /// together with [`patterns`](ExecAutocmdsOptsBuilder::patterns).
+    #[builder(argtype = "Buffer", inline = "{0}.0")]
+    buffer: types::BufHandle,
+
+    // Neovim 0.12.2 added `buf` next to the (now deprecated) `buffer` key.
+    // Both fields must exist for the layout and the mask to match.
+    #[cfg(feature = "neovim-0-12")] // On 0.12 and Nightly.
+    #[builder(skip)]
+    buffer: types::BufHandle,
+
+    #[cfg(feature = "neovim-0-12")] // On 0.12 and Nightly.
+    /// A specific [`Buffer`] for buffer-local autocommands. Cannot be used
+    /// together with [`patterns`](ExecAutocmdsOptsBuilder::patterns).
+    #[builder(method = "buffer", argtype = "Buffer", inline = "{0}.0")]
+    buf: types::BufHandle,
+
+    /// The autocommand group name or id to match against.
+    #[builder(
+        generics = "G: StringOrInt",
+        argtype = "G",
+        inline = "{0}.to_object()"
+    )]
+    group: types::Object,
+
+    /// Whether to process the modeline after the autocommands.
+    #[builder(argtype = "bool")]
+    modeline: types::Boolean,
+
+    /// Patterns to match against. Cannot be used together with
+    /// [`buffer`](ExecAutocmdsOptsBuilder::buffer).
+    #[builder(
+        generics = "P: StringOrListOfStrings",
+        method = "patterns",
+        argtype = "P",
+        inline = "{0}.to_object()"
+    )]
+    pattern: types::Object,
+
+    #[builder(
+        generics = "D: Into<types::Object>",
+        argtype = "D",
+        inline = "{0}.into()"
+    )]
+    data: types::Object,
+}

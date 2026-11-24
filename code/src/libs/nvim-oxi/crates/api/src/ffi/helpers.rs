@@ -1,0 +1,12 @@
+#[cfg_attr(
+    all(target_os = "windows", target_env = "msvc"),
+    link(name = "nvim.exe", kind = "raw-dylib", modifiers = "+verbatim")
+)]
+unsafe extern "C" {
+    // https://github.com/neovim/neovim/blob/v0.10.0/src/nvim/api/private/helpers.c#L776
+    pub(crate) fn object_to_hl_id(
+        obj: types::Object,
+        what: *const core::ffi::c_char,
+        err: *mut types::Error,
+    ) -> core::ffi::c_int;
+}

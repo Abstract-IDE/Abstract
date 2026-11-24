@@ -1,0 +1,39 @@
+[package]
+name = "nvim-oxi-api"
+description = "Rust bindings to Neovim's C API for nvim-oxi"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+documentation.workspace = true
+repository.workspace = true
+license.workspace = true
+keywords.workspace = true
+
+[package.metadata.docs.rs]
+default-features = false
+features = ["__docsrs", "neovim-nightly", "mlua"]
+rustdoc-args = ["--cfg", "docsrs"]
+
+[features]
+default = ["__no_docsrs"]
+neovim-0-11 = []
+neovim-0-12 = ["neovim-0-11"]
+neovim-nightly = ["neovim-0-12"]
+mlua = ["dep:mlua"]
+
+__docsrs = ["mlua?/vendored"]
+__no_docsrs = ["mlua?/module"]
+
+[dependencies]
+luajit = { workspace = true }
+macros = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_repr = { workspace = true }
+thiserror = { workspace = true }
+types = { workspace = true, features = ["serde"] }
+
+mlua = { workspace = true, optional = true }
+
+[lints]
+workspace = true

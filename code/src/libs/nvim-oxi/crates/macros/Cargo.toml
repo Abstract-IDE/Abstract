@@ -1,0 +1,27 @@
+[package]
+name = "nvim-oxi-macros"
+description = "Proc macros for nvim-oxi"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+documentation.workspace = true
+repository.workspace = true
+license.workspace = true
+keywords.workspace = true
+
+[lib]
+proc-macro = true
+
+[features]
+plugin = []
+test = ["plugin"]
+test-terminator = ["test"]
+
+[dependencies]
+quote = { workspace = true }
+proc-macro2 = { workspace = true }
+syn = { workspace = true, features = ["full"] }
+
+[lints]
+workspace = true

@@ -6,7 +6,7 @@ use nvim_oxi::{
         types::{CommandArgs, CommandNArgs, LogLevel},
     },
 };
-use wl_utils::{panic::SafeFunctionExt, safe_wrap};
+use wl_utils::{neovim::notify, panic::SafeFunctionExt, safe_wrap};
 
 use crate::{config::Config, keymaps, state, terminal};
 
@@ -51,17 +51,13 @@ pub fn setup_with_opts(opts: Object) {
                 "prev" => terminal::cycle(-1, true),
                 "close" => terminal::close(),
                 _ => {
-                    let _ = api::notify(
-                        &format!("AbstractTerminal: unknown command \"{}\"", cmd),
-                        LogLevel::Error,
-                        &Dictionary::new(),
-                    );
+                    let _ = notify(&format!("AbstractTerminal: unknown command \"{}\"", cmd), LogLevel::Error);
                     Ok(())
                 },
             };
 
             if let Err(e) = res {
-                let _ = api::notify(&format!("AbstractTerminal Error: {}", e), LogLevel::Error, &Dictionary::new());
+                let _ = notify(&format!("AbstractTerminal Error: {}", e), LogLevel::Error);
             }
 
             Ok(())

@@ -11,6 +11,9 @@ members = [
   "src/plugins/indent",
   "src/plugins/terminal",
 ]
+# The vendored nvim-oxi fork is its own workspace (it keeps upstream's layout so
+# upstream changes can be merged in); it is consumed as a path dependency.
+exclude = ["src/libs/nvim-oxi"]
 
 [workspace.package]
 version       = "0.1.0"
@@ -47,8 +50,11 @@ memmap2            = { version = "0.9.10" }
 # mlua must stay on the exact version/feature set nvim-oxi resolves to, so Cargo
 # unifies them into ONE crate instance and ab-nui can reuse the host's live `Lua`.
 # No `send`/`async` (ab-nui is single-threaded Rc/RefCell) and plain `luajit`.
-mlua               = { version = "0.10", default-features = false, features = ["luajit"] }
-nvim-oxi           = { version = "0.6.0", features = ["neovim-nightly", "mlua", "test"] }
+mlua               = { version = "0.11", default-features = false, features = ["luajit"] }
+# Local fork (see src/libs/nvim-oxi/FORK.md): upstream main + fixes for Neovim
+# 0.12.2+. `neovim-0-12` matches the stable 0.12 series; switch to
+# `neovim-nightly` only when running a nightly build.
+nvim-oxi           = { path = "./src/libs/nvim-oxi", features = ["neovim-0-12", "mlua", "test"] }
 once_cell          = { version = "1.21.3" }
 parking_lot        = { version = "0.12.5" }
 rayon              = { version = "1.11.0", default-features = false }

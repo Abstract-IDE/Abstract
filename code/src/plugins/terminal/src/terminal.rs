@@ -45,7 +45,7 @@ fn new_terminal_internal() -> nvim_oxi::Result<()> {
 
         // Create a fresh unlisted scratch buffer.
         let buf = api::create_buf(false, true)?;
-        api::set_option_value("bufhidden", "hide", &OptionOpts::builder().buffer(buf.clone()).build())?;
+        api::set_option_value("bufhidden", "hide", &OptionOpts::builder().buf(buf.clone()).build())?;
 
         // Track it.
         state.bufs.push(buf.clone());
@@ -132,9 +132,7 @@ fn new_terminal_internal() -> nvim_oxi::Result<()> {
                 .nested(true)
                 .callback(safe_wrap!(|_args| -> std::result::Result<bool, nvim_oxi::Error> {
                     nvim_oxi::schedule(|()| {
-                        if let Ok(m) = api::get_mode()
-                            && m.mode != "t"
-                        {
+                        if api::get_mode().mode != "t" {
                             let _ = api::command("startinsert");
                         }
                     });
@@ -165,7 +163,7 @@ pub fn toggle() -> nvim_oxi::Result<()> {
         if let Some(win) = &state.win
             && win.is_valid()
         {
-            let mode = api::get_mode()?.mode;
+            let mode = api::get_mode().mode;
             state.modes[state.current] = mode.to_string();
             state.close_float();
             return Ok(());
@@ -204,7 +202,7 @@ pub fn cycle(direction: isize, wrap: bool) -> nvim_oxi::Result<()> {
             return Ok::<(), nvim_oxi::Error>(());
         }
 
-        let mode = api::get_mode()?.mode;
+        let mode = api::get_mode().mode;
         state.modes[state.current] = mode.to_string();
 
         if mode == "t" {
@@ -272,7 +270,7 @@ pub fn close() -> nvim_oxi::Result<()> {
             && win.is_valid()
         {
             api::set_current_win(win)?;
-            if api::get_mode()?.mode == "t" {
+            if api::get_mode().mode == "t" {
                 api::command("stopinsert")?;
             }
         }

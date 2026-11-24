@@ -1,0 +1,10 @@
+mod autocmd;
+mod buffer;
+mod command;
+mod extmark;
+mod global;
+mod tabpage;
+mod vimscript;
+mod win_config;
+mod window;
+mod regression;

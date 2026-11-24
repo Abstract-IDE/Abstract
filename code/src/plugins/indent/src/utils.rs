@@ -33,7 +33,7 @@ pub fn detect_buffer_indent(buffer: &Buffer, config: IndentConfig) -> Result<Ind
 
 /// Applies the detected indentation style to the given Neovim buffer.
 pub fn apply_buffer_indent(buffer: &Buffer, style: IndentStyle) -> Result<(), nvim_oxi::Error> {
-    let opts = OptionOpts::builder().buffer(buffer.clone()).build();
+    let opts = OptionOpts::builder().buf(buffer.clone()).build();
 
     match style {
         IndentStyle::Space(n) => {

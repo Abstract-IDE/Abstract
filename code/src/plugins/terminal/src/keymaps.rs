@@ -1,12 +1,12 @@
 use nvim_oxi::{
-    Dictionary, Function,
+    Function,
     api::{
         self,
         opts::SetKeymapOpts,
         types::{LogLevel, Mode},
     },
 };
-use wl_utils::panic::SafeFunctionExt;
+use wl_utils::{neovim::notify, panic::SafeFunctionExt};
 
 use crate::config::Config;
 
@@ -23,16 +23,14 @@ pub fn register(config: &Config) {
 
     let toggle_fn = Function::<(), ()>::from_safe_fn(|()| {
         // If we're in terminal mode, escape to normal first.
-        if let Ok(mode) = api::get_mode()
-            && mode.mode == "t"
-        {
+        if api::get_mode().mode == "t" {
             let keys = api::replace_termcodes("<C-\\><C-n>", true, false, true);
             let n_mode = nvim_oxi::String::from("n");
             api::feedkeys(&keys, &n_mode, true);
         }
 
         if let Err(e) = crate::terminal::toggle() {
-            let _ = api::notify(&format!("AbstractTerminal Error: {}", e), LogLevel::Error, &Dictionary::new());
+            let _ = notify(&format!("AbstractTerminal Error: {}", e), LogLevel::Error);
         }
         Ok(())
     });
