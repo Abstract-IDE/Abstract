@@ -7,7 +7,7 @@ use std::rc::Rc;
 
 use crate::error::{Error, Result};
 use crate::geometry::{Position, Rect, Size};
-use crate::nvim::{self, Border, Buffer, FloatConfig, KeymapOpts, Namespace, TitlePos, Window};
+use crate::nvim::{self, Border, Buffer, FloatConfig, KeymapOpts, Namespace, Renderer, Row, TitlePos, Window};
 use crate::reactive::{EffectHandle, effect};
 use crate::text::Line;
 
@@ -71,6 +71,9 @@ impl Default for PopupOptions {
 pub struct Popup {
     buf: Buffer,
     ns: Namespace,
+    /// Paints into `buf`, remembering the last frame so repaints only send
+    /// what changed.
+    renderer: Rc<Renderer>,
     win: Rc<RefCell<Option<Window>>>,
     /// Reactive effects owned by this popup, disposed on [`Popup::close`].
     effects: Rc<RefCell<Vec<EffectHandle>>>,
@@ -91,6 +94,7 @@ impl Popup {
         Ok(Self {
             buf,
             ns,
+            renderer: Rc::new(Renderer::new(buf, ns)),
             win: Rc::new(RefCell::new(None)),
             effects: Rc::new(RefCell::new(Vec::new())),
             group: Rc::new(Cell::new(None)),
@@ -268,9 +272,35 @@ impl Popup {
         move || this.close()
     }
 
-    /// Set static content once.
+    /// The highlight namespace the popup paints with.
+    pub fn namespace(&self) -> Namespace {
+        self.ns
+    }
+
+    /// Whether a user can end up with the cursor in this popup's window (it
+    /// is focusable, or opens with the cursor in it).
+    pub(crate) fn takes_input(&self) -> bool {
+        let opts = self.opts.borrow();
+        opts.focusable || opts.enter
+    }
+
+    /// Replace the popup's content. Only the rows that differ from what the
+    /// popup last painted are sent to Neovim.
     pub fn set_content(&self, lines: &[Line]) -> Result<()> {
-        nvim::render(self.buf, self.ns, lines)
+        self.render_rows(lines.iter().map(Row::from_line).collect())
+    }
+
+    /// Replace the popup's content with pre-flattened rows (what a
+    /// [`Canvas`](crate::view::canvas::Canvas) produces).
+    pub fn render_rows(&self, rows: Vec<Row>) -> Result<()> {
+        self.renderer.render(rows)
+    }
+
+    /// Tell the popup its buffer was written to by other means (directly
+    /// through [`Popup::buffer`], say), so the next paint starts from scratch
+    /// instead of diffing against content that is no longer there.
+    pub fn invalidate(&self) {
+        self.renderer.invalidate();
     }
 
     /// Bind content to reactive state: `f` is re-run (and the buffer re-rendered)
@@ -280,11 +310,10 @@ impl Popup {
     /// The effect is owned by the popup and disposed on [`Popup::close`]; the
     /// handle is also returned for callers that manage it themselves.
     pub fn render_reactive(&self, f: impl Fn() -> Vec<Line> + 'static) -> EffectHandle {
-        let buf = self.buf;
-        let ns = self.ns;
+        let renderer = self.renderer.clone();
         let handle = effect(move || {
             let lines = f();
-            let _ = nvim::render(buf, ns, &lines);
+            let _ = renderer.render(lines.iter().map(Row::from_line).collect());
         });
         self.effects.borrow_mut().push(handle);
         handle

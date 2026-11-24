@@ -1,13 +1,17 @@
-//! Keymaps and autocommands that call back into Rust.
+//! Keymaps, autocommands and user commands that call back into Rust.
 //!
 //! mlua (without the `send` feature) wants `Fn` callbacks, so handlers are
 //! `Fn() + 'static`; capture `Rc`/`Signal`s for any mutable state.
+//!
+//! Every callback registered here runs inside a [`batch`], so a handler that
+//! writes several signals triggers one repaint rather than one per write.
 
-use mlua::Function;
+use mlua::{Function, Table};
 
 use crate::error::Result;
 use crate::lua;
 use crate::nvim::buffer::Buffer;
+use crate::reactive::batch;
 
 /// Options for a buffer-local keymap.
 #[derive(Clone, Copy, Debug)]
@@ -27,7 +31,7 @@ impl Default for KeymapOpts {
 pub fn buf_keymap(buf: Buffer, mode: &str, lhs: &str, opts: KeymapOpts, callback: impl Fn() + 'static) -> Result<()> {
     let l = lua::lua()?;
     let func: Function = l.create_function(move |_, ()| {
-        callback();
+        batch(&callback);
         Ok(())
     })?;
 
@@ -37,8 +41,33 @@ pub fn buf_keymap(buf: Buffer, mode: &str, lhs: &str, opts: KeymapOpts, callback
     o.set("silent", opts.silent)?;
     o.set("nowait", opts.nowait)?;
 
-    let set: Function = lua::vim()?.get::<mlua::Table>("keymap")?.get("set")?;
-    set.call::<()>((mode.to_string(), lhs.to_string(), func, o))?;
+    lua::vim_fn("keymap.set")?.call::<()>((mode, lhs, func, o))?;
+    Ok(())
+}
+
+/// Bind many keys of `buf` (in `mode`) to a single Rust dispatcher: pressing
+/// `lhs` calls `dispatch(code)` with the code paired with it.
+///
+/// This is what a [`Surface`](crate::view::Surface) uses for its key table —
+/// one Rust callback and one trip into Lua for the whole set, instead of a
+/// callback and a `vim.keymap.set` call per key.
+pub fn buf_keymap_table(
+    buf: Buffer,
+    mode: &str,
+    keys: impl IntoIterator<Item = (String, i64)>,
+    dispatch: impl Fn(i64) + 'static,
+) -> Result<()> {
+    let l = lua::lua()?;
+    let func: Function = l.create_function(move |_, code: i64| {
+        batch(|| dispatch(code));
+        Ok(())
+    })?;
+    let table = l.create_table()?;
+    for (lhs, code) in keys {
+        table.raw_push(lhs)?;
+        table.raw_push(code)?;
+    }
+    lua::driver_fn("map_keys")?.call::<()>((buf.id(), mode, table, func))?;
     Ok(())
 }
 
@@ -47,7 +76,7 @@ pub fn buf_keymap(buf: Buffer, mode: &str, lhs: &str, opts: KeymapOpts, callback
 pub fn augroup(name: &str) -> Result<i64> {
     let opts = lua::table()?;
     opts.set("clear", true)?;
-    lua::call_api("nvim_create_augroup", (name.to_string(), opts))
+    lua::call_api("nvim_create_augroup", (name, opts))
 }
 
 /// Create a per-instance autocommand group (`"{prefix}_{n}"` with a
@@ -70,31 +99,6 @@ pub fn del_augroup(id: i64) -> Result<()> {
     lua::call_api("nvim_del_augroup_by_id", id)
 }
 
-/// Register a buffer-local autocommand calling a Rust callback. Returns the
-/// autocmd id.
-pub fn buf_autocmd(
-    events: &[&str],
-    buf: Buffer,
-    group: Option<i64>,
-    callback: impl Fn() + 'static,
-) -> Result<i64> {
-    let l = lua::lua()?;
-    let func: Function = l.create_function(move |_, _args: mlua::Variadic<mlua::Value>| {
-        callback();
-        Ok(())
-    })?;
-
-    let events: Vec<String> = events.iter().map(|s| s.to_string()).collect();
-    let opts = l.create_table()?;
-    opts.set("buffer", buf.id())?;
-    opts.set("callback", func)?;
-    if let Some(g) = group {
-        opts.set("group", g)?;
-    }
-
-    lua::call_api("nvim_create_autocmd", (events, opts))
-}
-
 /// What Neovim passed to an autocommand callback.
 #[derive(Clone, Debug, Default)]
 pub struct AutocmdArgs {
@@ -108,6 +112,58 @@ pub struct AutocmdArgs {
     pub matched: String,
 }
 
+impl AutocmdArgs {
+    fn parse(args: &Table) -> Self {
+        Self {
+            event: args.get("event").unwrap_or_default(),
+            buf: args.get("buf").ok(),
+            file: args.get("file").unwrap_or_default(),
+            matched: args.get("match").unwrap_or_default(),
+        }
+    }
+}
+
+/// What an autocommand is attached to.
+enum Target<'a> {
+    Buffer(Buffer),
+    Pattern(&'a str),
+}
+
+/// The one place autocommands are created.
+fn create_autocmd(events: &[&str], target: Target, group: Option<i64>, once: bool, func: Function) -> Result<i64> {
+    let l = lua::lua()?;
+    let opts = l.create_table()?;
+    match target {
+        Target::Buffer(buf) => opts.set("buffer", buf.id())?,
+        Target::Pattern(pattern) => opts.set("pattern", pattern)?,
+    }
+    opts.set("callback", func)?;
+    if once {
+        opts.set("once", true)?;
+    }
+    if let Some(g) = group {
+        opts.set("group", g)?;
+    }
+    lua::call_api("nvim_create_autocmd", (l.create_sequence_from(events.iter().copied())?, opts))
+}
+
+/// Register a buffer-local autocommand calling a Rust callback. Returns the
+/// autocmd id.
+pub fn buf_autocmd(
+    events: &[&str],
+    buf: Buffer,
+    group: Option<i64>,
+    callback: impl Fn() + 'static,
+) -> Result<i64> {
+    // The callback's return value is discarded: returning a truthy value from
+    // an autocmd callback would delete the autocommand.
+    let func = lua::lua()?.create_function(move |_, _args: mlua::Variadic<mlua::Value>| {
+        batch(&callback);
+        Ok(())
+    })?;
+    create_autocmd(events, Target::Buffer(buf), group, false, func)
+}
+
 /// Register a global (non-buffer) autocommand calling a Rust callback with the
 /// event's args. Returns the autocmd id.
 ///
@@ -118,27 +174,12 @@ pub fn autocmd(
     group: Option<i64>,
     callback: impl Fn(&AutocmdArgs) + 'static,
 ) -> Result<i64> {
-    let l = lua::lua()?;
-    let func: Function = l.create_function(move |_, args: mlua::Table| {
-        let parsed = AutocmdArgs {
-            event: args.get("event").unwrap_or_default(),
-            buf: args.get("buf").ok(),
-            file: args.get("file").unwrap_or_default(),
-            matched: args.get("match").unwrap_or_default(),
-        };
-        callback(&parsed);
+    let func = lua::lua()?.create_function(move |_, args: Table| {
+        let args = AutocmdArgs::parse(&args);
+        batch(|| callback(&args));
         Ok(())
     })?;
-
-    let events: Vec<String> = events.iter().map(|s| s.to_string()).collect();
-    let opts = l.create_table()?;
-    opts.set("pattern", pattern.unwrap_or("*").to_string())?;
-    opts.set("callback", func)?;
-    if let Some(g) = group {
-        opts.set("group", g)?;
-    }
-
-    lua::call_api("nvim_create_autocmd", (events, opts))
+    create_autocmd(events, Target::Pattern(pattern.unwrap_or("*")), group, false, func)
 }
 
 /// Like [`autocmd`], but the autocommand removes itself after firing once.
@@ -148,28 +189,12 @@ pub fn autocmd_once(
     group: Option<i64>,
     callback: impl Fn(&AutocmdArgs) + 'static,
 ) -> Result<i64> {
-    let l = lua::lua()?;
-    let func: Function = l.create_function(move |_, args: mlua::Table| {
-        let parsed = AutocmdArgs {
-            event: args.get("event").unwrap_or_default(),
-            buf: args.get("buf").ok(),
-            file: args.get("file").unwrap_or_default(),
-            matched: args.get("match").unwrap_or_default(),
-        };
-        callback(&parsed);
+    let func = lua::lua()?.create_function(move |_, args: Table| {
+        let args = AutocmdArgs::parse(&args);
+        batch(|| callback(&args));
         Ok(())
     })?;
-
-    let events: Vec<String> = events.iter().map(|s| s.to_string()).collect();
-    let opts = l.create_table()?;
-    opts.set("pattern", pattern.unwrap_or("*").to_string())?;
-    opts.set("callback", func)?;
-    opts.set("once", true)?;
-    if let Some(g) = group {
-        opts.set("group", g)?;
-    }
-
-    lua::call_api("nvim_create_autocmd", (events, opts))
+    create_autocmd(events, Target::Pattern(pattern.unwrap_or("*")), group, true, func)
 }
 
 /// Delete one autocommand by id.
@@ -179,13 +204,11 @@ pub fn del_autocmd(id: i64) -> Result<()> {
 
 /// Remove a keymap set with [`buf_keymap`] (or any `vim.keymap.set` map).
 pub fn del_keymap(buf: Option<Buffer>, mode: &str, lhs: &str) -> Result<()> {
-    let l = lua::lua()?;
-    let opts = l.create_table()?;
+    let opts = lua::table()?;
     if let Some(b) = buf {
         opts.set("buffer", b.id())?;
     }
-    let del: Function = lua::vim()?.get::<mlua::Table>("keymap")?.get("del")?;
-    del.call::<()>((mode.to_string(), lhs.to_string(), opts))?;
+    lua::vim_fn("keymap.del")?.call::<()>((mode, lhs, opts))?;
     Ok(())
 }
 
@@ -216,7 +239,7 @@ pub struct CommandArgs {
 /// Create a user command (`:Name ...`) backed by a Rust callback.
 pub fn user_command(name: &str, opts: &CommandOpts, callback: impl Fn(CommandArgs) + 'static) -> Result<()> {
     let l = lua::lua()?;
-    let func: Function = l.create_function(move |_, args: mlua::Table| {
+    let func: Function = l.create_function(move |_, args: Table| {
         let parsed = CommandArgs {
             args: args.get("args").unwrap_or_default(),
             fargs: args.get("fargs").unwrap_or_default(),
@@ -224,7 +247,7 @@ pub fn user_command(name: &str, opts: &CommandOpts, callback: impl Fn(CommandArg
             line1: args.get("line1").unwrap_or(0),
             line2: args.get("line2").unwrap_or(0),
         };
-        callback(parsed);
+        batch(|| callback(parsed));
         Ok(())
     })?;
 
@@ -233,7 +256,7 @@ pub fn user_command(name: &str, opts: &CommandOpts, callback: impl Fn(CommandArg
         o.set("nargs", nargs)?;
     }
     if let Some(desc) = &opts.desc {
-        o.set("desc", desc.clone())?;
+        o.set("desc", desc.as_str())?;
     }
     if opts.bang {
         o.set("bang", true)?;
@@ -242,13 +265,13 @@ pub fn user_command(name: &str, opts: &CommandOpts, callback: impl Fn(CommandArg
         o.set("range", true)?;
     }
     if let Some(complete) = &opts.complete {
-        o.set("complete", complete.clone())?;
+        o.set("complete", complete.as_str())?;
     }
 
-    lua::call_api("nvim_create_user_command", (name.to_string(), func, o))
+    lua::call_api("nvim_create_user_command", (name, func, o))
 }
 
 /// Delete a user command by name.
 pub fn del_user_command(name: &str) -> Result<()> {
-    lua::call_api("nvim_del_user_command", name.to_string())
+    lua::call_api("nvim_del_user_command", name)
 }

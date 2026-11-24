@@ -108,6 +108,77 @@ pub enum Key {
     Esc,
 }
 
+/// The named (non-character) keys and the Neovim notation that produces them.
+const NAMED_KEYS: &[(&str, Key)] = &[
+    ("<CR>", Key::Enter),
+    ("<BS>", Key::Backspace),
+    ("<Del>", Key::Delete),
+    ("<Tab>", Key::Tab),
+    ("<S-Tab>", Key::BackTab),
+    ("<Left>", Key::Left),
+    ("<Right>", Key::Right),
+    ("<Up>", Key::Up),
+    ("<Down>", Key::Down),
+    ("<Home>", Key::Home),
+    ("<End>", Key::End),
+    ("<PageUp>", Key::PageUp),
+    ("<PageDown>", Key::PageDown),
+    ("<Esc>", Key::Esc),
+];
+
+/// Offsets that keep the three kinds of key apart in the integer encoding
+/// used to carry a key through a Lua keymap (chars are below `0x110000`).
+const CTRL_BASE: i64 = 0x20_0000;
+const NAMED_BASE: i64 = 0x40_0000;
+
+impl Key {
+    /// Encode as an integer (the inverse of [`Key::from_code`]).
+    pub(crate) fn code(self) -> i64 {
+        match self {
+            Key::Char(c) => c as i64,
+            Key::Ctrl(c) => CTRL_BASE + c as i64,
+            named => {
+                let index = NAMED_KEYS.iter().position(|(_, k)| *k == named).expect("every named key is listed");
+                NAMED_BASE + index as i64
+            }
+        }
+    }
+
+    /// Decode an integer produced by [`Key::code`].
+    pub(crate) fn from_code(code: i64) -> Option<Key> {
+        if code >= NAMED_BASE {
+            NAMED_KEYS.get((code - NAMED_BASE) as usize).map(|(_, k)| *k)
+        } else if code >= CTRL_BASE {
+            char::from_u32((code - CTRL_BASE) as u32).map(Key::Ctrl)
+        } else {
+            char::from_u32(code as u32).map(Key::Char)
+        }
+    }
+
+    /// Every key a surface captures, as `(keymap lhs, code)`: the named keys,
+    /// `<Space>`, printable ASCII, and `<C-a>`..`<C-z>` (minus `<C-c>`, which
+    /// stays Neovim's interrupt).
+    pub(crate) fn bindings() -> Vec<(String, i64)> {
+        let mut keys: Vec<(String, i64)> =
+            NAMED_KEYS.iter().map(|(lhs, key)| (lhs.to_string(), key.code())).collect();
+        keys.push(("<Space>".into(), Key::Char(' ').code()));
+        for ch in '!'..='~' {
+            let lhs = match ch {
+                '<' => "<lt>".to_string(),
+                // A bare `|` or `\` is not a valid keymap lhs.
+                '|' => "<Bar>".to_string(),
+                '\\' => "<Bslash>".to_string(),
+                _ => ch.to_string(),
+            };
+            keys.push((lhs, Key::Char(ch).code()));
+        }
+        for ch in ('a'..='z').filter(|&c| c != 'c') {
+            keys.push((format!("<C-{ch}>"), Key::Ctrl(ch).code()));
+        }
+        keys
+    }
+}
+
 /// Main-axis (along the layout direction) distribution.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub enum MainAxis {
@@ -252,3 +323,51 @@ pub type Element = Box<dyn Widget>;
 
 // Calling trait methods on `Element` (Box<dyn Widget>) works through deref, so
 // no explicit impl is needed.
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn key_codes_round_trip() {
+        let keys = [
+            Key::Char('a'),
+            Key::Char(' '),
+            Key::Char('~'),
+            Key::Char('日'),
+            Key::Ctrl('w'),
+            Key::Enter,
+            Key::Backspace,
+            Key::Delete,
+            Key::Tab,
+            Key::BackTab,
+            Key::Left,
+            Key::Right,
+            Key::Up,
+            Key::Down,
+            Key::Home,
+            Key::End,
+            Key::PageUp,
+            Key::PageDown,
+            Key::Esc,
+        ];
+        for key in keys {
+            assert_eq!(Key::from_code(key.code()), Some(key), "{key:?}");
+        }
+    }
+
+    #[test]
+    fn bindings_are_unique_and_decodable() {
+        let bindings = Key::bindings();
+        let mut lhs: Vec<&str> = bindings.iter().map(|(lhs, _)| lhs.as_str()).collect();
+        lhs.sort_unstable();
+        let before = lhs.len();
+        lhs.dedup();
+        assert_eq!(lhs.len(), before, "duplicate lhs");
+        assert!(bindings.iter().all(|(_, code)| Key::from_code(*code).is_some()));
+        // Every printable ASCII char is reachable.
+        for ch in ' '..='~' {
+            assert!(bindings.iter().any(|(_, code)| *code == Key::Char(ch).code()), "{ch:?}");
+        }
+    }
+}

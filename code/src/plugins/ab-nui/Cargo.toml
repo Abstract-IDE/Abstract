@@ -1,6 +1,6 @@
 [package]
 name         = "ab-nui"
-description  = "ab-nui — a reactive UI library for Neovim, built on mlua"
+description  = "a reactive UI library for Neovim"
 version      = { workspace = true }
 edition      = { workspace = true }
 authors      = { workspace = true }
@@ -13,9 +13,12 @@ rust-version = { workspace = true }
 [dependencies]
 # NOTE: this crate deliberately does NOT depend on nvim-oxi.
 # It talks to Neovim purely through `vim.*` via mlua. The workspace pins mlua to
-# the version/feature set nvim-oxi requires (mlua 0.10, `luajit`) so Cargo
+# the version/feature set nvim-oxi requires (mlua 0.11, `luajit`) so Cargo
 # unifies them into a single crate instance and the host can hand us its live
 # `Lua`.
+#
+# (The integration tests in ./nvim-tests do use nvim-oxi — only for its test
+# harness, which runs each test inside a real Neovim.)
 mlua          = { workspace = true }
 thiserror     = { workspace = true }
 unicode-width = { workspace = true }

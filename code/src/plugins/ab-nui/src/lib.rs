@@ -9,7 +9,7 @@
 //!
 //! | Layer            | What it gives you                                        |
 //! |------------------|---------------------------------------------------------|
-//! | [`reactive`]     | `Signal`, `effect`, `memo` — automatic state management  |
+//! | [`reactive`]     | `Signal`, `effect`, `memo`, `batch` — state management   |
 //! | [`text`]         | `Span`/`Line` — styled content                           |
 //! | [`geometry`]     | `Size`, `Rect`, `Position` — layout math                 |
 //! | [`nvim`]         | `Buffer`, `Window`, keymaps, autocmds, extmarks          |
@@ -64,7 +64,7 @@ pub mod prelude {
         Anchor, Border, Buffer, ExtmarkOpts, FloatConfig, Namespace, Relative, SplitConfig,
         SplitDir, Timer, TitlePos, VirtTextPos, Window,
     };
-    pub use crate::reactive::{Memo, Signal, Store, effect, memo};
+    pub use crate::reactive::{Memo, Signal, Store, batch, effect, memo, untrack};
     pub use crate::text::{Line, Span, Wrap};
     pub use crate::widget::{Input, InputOptions, Menu, MenuItem, MenuOptions, Popup, PopupOptions};
     // Declarative view layer (Flutter-style widget tree).

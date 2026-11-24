@@ -68,7 +68,10 @@ struct Toast {
 }
 
 thread_local! {
-    static TOASTS: RefCell<Vec<Toast>> = const { RefCell::new(Vec::new()) };
+    // `ManuallyDrop`: toasts still showing when Neovim exits must not try to
+    // close their windows from a thread-exit destructor.
+    static TOASTS: std::mem::ManuallyDrop<RefCell<Vec<Toast>>> =
+        const { std::mem::ManuallyDrop::new(RefCell::new(Vec::new())) };
     static NEXT_ID: Cell<u64> = const { Cell::new(0) };
 }
 

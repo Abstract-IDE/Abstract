@@ -9,6 +9,8 @@
 //!
 //! The tree is rebuilt reactively: the `build` closure runs inside an
 //! [`effect`], so any `Signal`/`Store` it reads triggers a repaint on change.
+//! A repaint only sends Neovim the rows that actually changed, and several
+//! state changes made by one key press or timer tick produce a single repaint.
 //! Keys are captured by buffer-local maps set once and routed to the focused
 //! widget; `<Tab>`/`<S-Tab>` move focus, `<Esc>` hides (non-destructive).
 
@@ -19,7 +21,7 @@ use crate::error::Result;
 use crate::nvim;
 use crate::reactive::{EffectHandle, Signal, dispose_effect, effect};
 use crate::view::canvas::Canvas;
-use crate::view::widget::{Area, Constraints, Cx, Focusable, Key, Widget};
+use crate::view::widget::{Area, Cx, Focusable, Key, Widget};
 use crate::widget::popup::{Popup, PopupOptions};
 
 /// A live UI surface: a floating window driven by a widget tree. Cloning yields
@@ -46,6 +48,27 @@ struct SurfaceInner {
     focused_key: Rc<RefCell<Option<Rc<str>>>>,
     /// Whether Tab at the last widget wraps to the first (default true).
     focus_wrap: Cell<bool>,
+}
+
+/// Where focus should be, given the interactive widgets a paint produced:
+///
+/// 1. if the focused widget had a key and the same index no longer carries
+///    it, follow the key to its new position;
+/// 2. clamp the index if the interactive set shrank.
+fn corrected_focus(focusables: &[Focusable], index: usize, key: Option<&str>) -> usize {
+    let mut index = index;
+    if let Some(key) = key {
+        let at_index = focusables.get(index).and_then(|f| f.key.as_deref());
+        if at_index != Some(key)
+            && let Some(pos) = focusables.iter().position(|f| f.key.as_deref() == Some(key))
+        {
+            index = pos;
+        }
+    }
+    if !focusables.is_empty() && index >= focusables.len() {
+        index = focusables.len() - 1;
+    }
+    index
 }
 
 impl SurfaceInner {
@@ -191,43 +214,44 @@ impl Surface {
         let epoch = self.inner.epoch.clone();
         let focused_key = self.inner.focused_key.clone();
 
+        // One canvas for the surface's whole life: each frame resets it
+        // rather than allocating a new grid.
+        let mut canvas = Canvas::new(0, 0);
+
         effect(move || {
             epoch.get(); // subscribe: a resize bump re-measures at the new size
             let (w, h) = popup.inner_size().unwrap_or((1, 1));
-            let mut canvas = Canvas::new(w, h);
-            let mut cx = Cx::new(focused.get());
-
             let root = build(); // reads signals → this effect re-runs on change
             let area = Area { x: 0, y: 0, w, h };
-            root.measure(Constraints::loose(w, h));
-            root.paint(&mut cx, area, &mut canvas);
-            cx.run_overlays(area, &mut canvas); // dropdowns/tooltips on top
 
-            // Focus correction, silently (notifying would re-enter this
-            // running effect):
-            // 1. if the previously focused widget had a key and the same index
-            //    no longer carries it, follow the key to its new position;
-            // 2. clamp the index if the interactive set shrank.
-            let n = cx.focusables.len();
-            let i = focused.get_untracked();
-            if let Some(key) = focused_key.borrow().clone() {
-                let at_index = cx.focusables.get(i).and_then(|f| f.key.clone());
-                if at_index.as_deref() != Some(key.as_ref())
-                    && let Some(pos) =
-                        cx.focusables.iter().position(|f| f.key.as_deref() == Some(key.as_ref()))
-                {
-                    focused.set_silent(pos);
+            // Paint, then check that the focus index still points at the
+            // widget it should. If the tree changed shape it may not — then
+            // paint once more with the corrected index, so the frame that
+            // reaches the screen highlights the widget that receives the keys.
+            let mut focus = focused.get();
+            let mut cx;
+            let mut pass = 0;
+            loop {
+                canvas.reset(w, h);
+                cx = Cx::new(focus);
+                root.paint(&mut cx, area, &mut canvas);
+                cx.run_overlays(area, &mut canvas); // dropdowns/tooltips on top
+
+                let corrected = corrected_focus(&cx.focusables, focus, focused_key.borrow().as_deref());
+                pass += 1;
+                if corrected == focus || pass == 2 {
+                    break;
                 }
+                focus = corrected;
             }
-            if n > 0 && focused.get_untracked() >= n {
-                focused.set_silent(n - 1);
-            }
+            // Silently: notifying would only re-run this effect to paint the
+            // frame it has just painted.
+            focused.set_silent(focus);
             *focusables.borrow_mut() = cx.focusables;
 
-            // Every printable key is mapped to our dispatcher, so the buffer
-            // can't be edited; no need to toggle it read-only each frame.
-            let lines = canvas.to_lines();
-            let _ = popup.set_content(&lines);
+            // Diffed against the previous frame: only changed rows reach
+            // Neovim, in one call.
+            let _ = popup.render_rows(canvas.to_rows());
         })
     }
 
@@ -270,103 +294,51 @@ impl Surface {
         handle(key)
     }
 
-    /// A handler that routes a key to the currently focused widget.
-    fn dispatcher(&self) -> impl Fn(Key) + 'static {
-        let focusables = self.inner.focusables.clone();
-        let focused = self.inner.focused.clone();
-        move |key| {
-            Self::route(&focusables, &focused, key);
-        }
-    }
-
-    /// Install focus traversal + the key dispatch table (once).
+    /// Install the key table (once): every key a widget can receive is bound
+    /// to one dispatcher, which routes it to the focused widget and falls back
+    /// to focus traversal (`<Tab>`/`<S-Tab>`) or hiding (`<Esc>`).
     fn install_keys(&self) -> Result<()> {
         let popup = &self.inner.popup;
-
-        // Focus traversal: offer Tab/S-Tab to the focused widget first (tables
-        // and text areas use them); move focus only when unconsumed.
-        for (lhs, key, forward) in [("<Tab>", Key::Tab, true), ("<S-Tab>", Key::BackTab, false)] {
-            let f = self.inner.focused.clone();
-            let fc = self.inner.focusables.clone();
-            let fk = self.inner.focused_key.clone();
-            // Weak: a keymap closure must not keep the surface alive (cycle).
-            let inner = Rc::downgrade(&self.inner);
-            popup.on_key("n", lhs, move || {
-                if Self::route(&fc, &f, key) {
-                    return;
-                }
-                let n = fc.borrow().len();
-                if n == 0 {
-                    return;
-                }
-                let wrap = inner.upgrade().map(|s| s.focus_wrap.get()).unwrap_or(true);
-                let cur = f.get_untracked().min(n - 1);
-                let next = match (forward, wrap) {
-                    (true, true) => (cur + 1) % n,
-                    (true, false) => (cur + 1).min(n - 1),
-                    (false, true) => (cur + n - 1) % n,
-                    (false, false) => cur.saturating_sub(1),
-                };
-                // Remember the new widget's key so focus can follow it.
-                *fk.borrow_mut() = fc.borrow().get(next).and_then(|f| f.key.clone());
-                f.set(next);
-            })?;
+        // Nothing can be typed into a window the cursor never enters (a toast).
+        if !popup.takes_input() {
+            return Ok(());
         }
 
-        // Esc: let the focused widget consume it, otherwise hide the surface.
-        {
-            let fc = self.inner.focusables.clone();
-            let focused = self.inner.focused.clone();
-            let p = popup.clone();
-            popup.on_key("n", "<Esc>", move || {
-                if !Self::route(&fc, &focused, Key::Esc) {
-                    p.hide();
-                }
-            })?;
-        }
+        let focusables = self.inner.focusables.clone();
+        let focused = self.inner.focused.clone();
+        let focused_key = self.inner.focused_key.clone();
+        let hide = popup.clone();
+        // Weak: a keymap closure must not keep the surface alive (cycle).
+        let inner = Rc::downgrade(&self.inner);
 
-        // Named keys.
-        let named: &[(&str, Key)] = &[
-            ("<CR>", Key::Enter),
-            ("<BS>", Key::Backspace),
-            ("<Del>", Key::Delete),
-            ("<Space>", Key::Char(' ')),
-            ("<Left>", Key::Left),
-            ("<Right>", Key::Right),
-            ("<Up>", Key::Up),
-            ("<Down>", Key::Down),
-            ("<Home>", Key::Home),
-            ("<End>", Key::End),
-            ("<PageUp>", Key::PageUp),
-            ("<PageDown>", Key::PageDown),
-        ];
-        for (lhs, key) in named {
-            let key = *key;
-            let dispatch = self.dispatcher();
-            popup.on_key("n", lhs, move || dispatch(key))?;
-        }
-
-        // Printable ASCII, so text fields and char-driven widgets work.
-        for byte in 33u8..=126 {
-            let ch = byte as char;
-            let lhs = if ch == '<' { "<lt>".to_string() } else { ch.to_string() };
-            let key = Key::Char(ch);
-            let dispatch = self.dispatcher();
-            popup.on_key("n", &lhs, move || dispatch(key))?;
-        }
-
-        // Ctrl-letters (skip <C-c>: interrupt stays with Neovim).
-        for byte in b'a'..=b'z' {
-            let ch = byte as char;
-            if ch == 'c' {
-                continue;
+        nvim::buf_keymap_table(popup.buffer(), "n", Key::bindings(), move |code| {
+            let Some(key) = Key::from_code(code) else { return };
+            // The focused widget gets first refusal on every key (tables and
+            // text areas use Tab; dropdowns use Esc).
+            if Self::route(&focusables, &focused, key) {
+                return;
             }
-            let lhs = format!("<C-{ch}>");
-            let key = Key::Ctrl(ch);
-            let dispatch = self.dispatcher();
-            popup.on_key("n", &lhs, move || dispatch(key))?;
-        }
-
-        Ok(())
+            match key {
+                Key::Tab | Key::BackTab => {
+                    let n = focusables.borrow().len();
+                    if n == 0 {
+                        return;
+                    }
+                    let wrap = inner.upgrade().map(|s| s.focus_wrap.get()).unwrap_or(true);
+                    let cur = focused.get_untracked().min(n - 1);
+                    let next = match (key == Key::Tab, wrap) {
+                        (true, true) => (cur + 1) % n,
+                        (true, false) => (cur + 1).min(n - 1),
+                        (false, true) => (cur + n - 1) % n,
+                        (false, false) => cur.saturating_sub(1),
+                    };
+                    // Remember the new widget's key so focus can follow it.
+                    *focused_key.borrow_mut() = focusables.borrow().get(next).and_then(|f| f.key.clone());
+                    focused.set(next);
+                }
+                Key::Esc => hide.hide(),
+                _ => {}
+            }
+        })
     }
 }

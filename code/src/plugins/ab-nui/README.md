@@ -6,7 +6,7 @@ interfaces — from one-line popups to full Flutter-style, reactive widget trees
 
 It talks to Neovim purely through the `vim.*` API via **mlua** — it does **not**
 depend on `nvim-oxi`. (The workspace pins mlua to the exact version/feature set
-`nvim-oxi` requires — `0.10`, `luajit`, no `send` — so Cargo unifies them into
+`nvim-oxi` requires — `0.11`, `luajit`, no `send` — so Cargo unifies them into
 one crate instance and we reuse the host's live `Lua`. Both this crate and the
 root `Cargo.toml` reference the same `[workspace.dependencies]` entry, so the
 pin can't drift.)
@@ -31,6 +31,7 @@ pin can't drift.)
 - [State management](#state-management)
 - [Examples](#examples)
 - [API quick reference](#api-quick-reference)
+- [Testing](#testing)
 - [Setup](#setup)
 
 ---
@@ -42,7 +43,8 @@ pin can't drift.)
 2. **Single-threaded.** Neovim's Lua runs on one thread, so the reactive graph
    uses `Rc`/`RefCell` and all callbacks are `Fn` — no locks, no `Send` bounds.
 3. **Reactive by default.** UI is described as a function of state. Reads
-   subscribe; writes repaint. You never manually redraw.
+   subscribe; writes repaint (once per callback, however many signals it
+   writes). You never manually redraw.
 4. **Everything is a widget.** In the view layer, text, layout, spacing,
    buttons, lists — all implement one `Widget` trait and compose freely.
 5. **Lifetime = handle.** A live UI is owned by a handle. Keep it → it persists
@@ -61,7 +63,7 @@ Two ways to build UI sit on a shared core. Pick the altitude you need:
    high     │  Surface · Widget · Column/Row/Center/... · Button/...   │
    level    │          · col!/row! macros                              │
             └───────────────┬─────────────────────────────────────────┘
-                            │ compiles a tree → Canvas → Vec<Line>
+                            │ compiles a tree → Canvas → Vec<Row> (diffed)
             ┌───────────────┴─────────────────────────────────────────┐
             │  widget — imperative components                          │
    mid      │  Popup (float + buffer + reactive render + keymaps)      │
@@ -83,11 +85,11 @@ Two ways to build UI sit on a shared core. Pick the altitude you need:
 
 | Module     | Purpose                                                          |
 | ---------- | --------------------------------------------------------------- |
-| `lua`      | the one place that touches mlua; `vim.api`/`vim.fn`/`vim.cmd`   |
-| `reactive` | `Signal`, `effect`, `memo`, `Store`, `store!` — state management |
+| `lua`      | the one place that touches mlua; cached `vim.api`/`vim.fn` handles, `cmd`, and the embedded Lua driver |
+| `reactive` | `Signal`, `effect`, `memo`, `batch`, `untrack`, `Store`, `store!` — state management |
 | `text`     | `Span` / `Line` — styled content; `wrap_line`, `display_width`  |
 | `geometry` | `Dim`, `Size`, `Rect`, `Position` — float layout math           |
-| `nvim`     | `Buffer`, `Window` (floats + splits), extmarks (highlights, virt text/lines, signs), keymaps, autocmds, user commands, timers/`schedule` |
+| `nvim`     | `Buffer`, `Window` (floats + splits), extmarks (highlights, virt text/lines, signs), keymaps, autocmds, user commands, timers/`schedule`, the diffing `Renderer` |
 | `theme`    | highlight groups (linked to standard groups by default)         |
 | `widget`   | `Popup`, `Menu`, `Input` — imperative components                |
 | `view`     | the declarative widget tree: `Widget`, `Surface`, 30+ widgets, macros, `notify` toasts, multi-window `Layout` |
@@ -101,31 +103,47 @@ For the view layer, one "frame" is one run of the reactive effect that drives a
 `Surface`. End to end:
 
 ```
-            build()                 measure + paint                to_lines()
- Signals ──────────────▶ Widget ───────────────────▶ Canvas ───────────────▶ Vec<Line>
-   ▲       (tree built     tree    (lay out children    (cell    (merge cells   + spans
-   │        fresh,                  within Area;          grid)    by hl group)
-   │        reads tracked)          register Focusables)                │
-   │                                                                     ▼
-   │                                                         Popup.set_content()
-   │                                                                     │
-   │                                                       nvim_buf_set_lines +
-   │                                                       extmark highlights
-   │                                                                     │
-   └──────────────── signal.set() re-runs this effect ◀──── key routed to focused
-                                                              widget's handler
+            build()                    paint                  to_rows()
+ Signals ──────────────▶ Widget ───────────────────▶ Canvas ───────────────▶ Vec<Row>
+   ▲       (tree built     tree    (children measured   (cell    (merge cells   { text, marks }
+   │        fresh,                  during paint;        grid)    by hl group)        │
+   │        reads tracked)          register Focusables)                              ▼
+   │                                                                    Popup::render_rows()
+   │                                                                                 │
+   │                                                                      nvim::Renderer: diff vs
+   │                                                                      previous frame, changed
+   │                                                                      runs of rows only
+   │                                                                                 │
+   │                                                                      ONE call into the Lua
+   │                                                                      driver (set_lines +
+   │                                                                      extmarks for those rows)
+   │                                                                                 │
+   └──────── signal.set() re-runs this effect ◀──── key routed to focused widget's handler
 ```
 
 1. The effect calls `build()`, which constructs a fresh widget tree. Any
    `Signal`/`Store` read during `build()` (or inside a widget's `paint`) is
    recorded as a dependency of this effect.
-2. `measure(constraints)` computes desired sizes; `paint(cx, area, canvas)` draws
-   onto a cell `Canvas` and registers interactive regions (`Focusable`s) on `cx`.
-3. The `Canvas` is flattened to `Vec<Line>` (adjacent cells with the same
-   highlight merge into one `Span`) and pushed to the buffer.
-4. A key press hits a buffer-local map → the runtime routes it to the focused
-   widget's handler → the handler mutates a `Signal` → the effect re-runs →
-   back to step 1. **No explicit redraw call exists.**
+2. `paint(cx, area, canvas)` draws onto a cell `Canvas` and registers
+   interactive regions (`Focusable`s) on `cx`. The surface does not call
+   `root.measure(..)` first; widgets that need their children's sizes measure
+   them during `paint`. After painting, the focus index is corrected (it
+   follows the focused widget's key if the tree changed shape, and is clamped
+   if the interactive set shrank). If it changed, the tree is painted once more
+   in the same frame, so the highlight is never one frame late.
+3. `Canvas::to_rows()` flattens the grid to `Vec<nvim::Row>` (`Row { text,
+   marks }`; adjacent cells with the same highlight merge into one `Mark`).
+   `Popup::render_rows()` hands them to the popup's `nvim::Renderer`, which
+   compares them with the previous frame and sends only the changed runs of
+   consecutive rows to Neovim, in one call into the Lua-side driver. Rows
+   whose text is unchanged but whose highlights changed are re-highlighted
+   without resending the text; an identical frame sends nothing.
+4. A key press hits the surface's buffer-local key table → the runtime routes
+   it to the focused widget's handler → the handler mutates one or more
+   `Signal`s → the effect re-runs → back to step 1. The handler runs inside a
+   `batch`, so its signal writes are queued and the effect runs once after the
+   handler returns: one repaint per key press however many signals it writes.
+   **No explicit redraw call exists.**
 
 ---
 
@@ -137,18 +155,40 @@ The only module that imports mlua. The host calls `wp_ui::init(&lua)` once; the
 handle is stored in a thread-local and cloned (cheaply — it's reference-counted)
 whenever needed.
 
+Crossing from Rust into Lua is the expensive part of every operation, so the
+bridge keeps crossings few:
+
+- **Cached handles.** `vim.api.*` and `vim.fn.*` functions are resolved once and
+  kept; so are functions reachable by a dotted `vim` path
+  (`lua::vim_fn("keymap.set")`).
+- **An embedded Lua driver** (the `DRIVER` constant, compiled once) with
+  `render`, `map_keys` and `timer_start`/`timer_stop`/`timer_close`. Rust hands
+  it data and it makes the API calls on the Lua side, so painting a frame or
+  installing a surface's key table is one crossing rather than one per extmark
+  or per key.
+- **`ManuallyDrop` thread-locals.** The `Lua` handle and the bridge are never
+  dropped at thread exit, so nothing calls into Lua while Neovim is shutting
+  down.
+
 ```rust
-thread_local! { static LUA: RefCell<Option<Lua>> = const { RefCell::new(None) }; }
+thread_local! {
+    static LUA: ManuallyDrop<RefCell<Option<Lua>>> = const { ManuallyDrop::new(RefCell::new(None)) };
+    static BRIDGE: ManuallyDrop<RefCell<Option<Rc<Bridge>>>> = const { ManuallyDrop::new(RefCell::new(None)) };
+}
 ```
 
 Everything else in the crate calls helpers here instead of mlua directly:
 
 ```rust
-lua::call_api::<i64>("nvim_create_buf", (false, true))?;  // vim.api.*
-lua::call_fn::<String>("expand", ("%:p",))?;              // vim.fn.*
-lua::cmd("startinsert")?;                                  // vim.cmd(...)
+lua::call_api::<i64>("nvim_create_buf", (false, true))?;  // vim.api.* (cached)
+lua::call_fn::<String>("expand", ("%:p",))?;              // vim.fn.*  (cached)
+lua::vim_fn("keymap.set")?;                                // any vim.<dotted.path> function
+lua::cmd("startinsert")?;                                  // nvim_exec2
 lua::get_option::<i64>("columns")?;                        // nvim_get_option_value
 ```
+
+`lua::cmd` calls `nvim_exec2` rather than `vim.cmd`: on current Neovim `vim.cmd`
+is a callable table, not a function, so fetching it as a function fails.
 
 This isolation is what keeps the rest of the crate nvim-oxi-free and makes it
 trivial to see (and audit) every Neovim call.
@@ -157,48 +197,75 @@ trivial to see (and audit) every Neovim call.
 
 A tiny synchronous reactive graph, modeled on Solid/Leptos. Three primitives:
 `Signal` (mutable reactive value), `effect` (auto-tracked side effect), `memo`
-(cached derived value), plus `Store`/`store!` for shared/global values.
+(cached derived value), plus `batch`/`untrack` and `Store`/`store!` for
+shared/global values.
 
-**The graph.** A thread-local `Runtime` holds everything, keyed by integer ids:
+**The graph.** There are no integer-keyed tables of edges. A `Signal` owns its
+subscriber list (behind an `Rc`), and an effect is a node that holds the lists
+of the signals it read during its last run:
 
 ```rust
-struct Runtime {
-    next: Id,                                  // id allocator
-    observer: Option<Id>,                      // effect currently running
-    effects: HashMap<Id, Rc<RefCell<dyn FnMut()>>>,
-    sources: HashMap<Id, HashSet<Id>>,         // effect -> signals it read
-    subscribers: HashMap<Id, HashSet<Id>>,     // signal -> effects watching it
-    running: HashSet<Id>,                       // re-entrancy guard
+struct EffectNode {
+    id: Id,
+    kind: Kind,                                  // Effect | Memo
+    f: RefCell<Option<Box<dyn FnMut()>>>,        // taken out while it runs
+    sources: RefCell<Vec<Rc<Subscribers>>>,      // signals read in the last run
+    queued: Cell<bool>,
+    disposed: Cell<bool>,
 }
 ```
 
-**Automatic dependency tracking.** A `Signal` is `{ id, Rc<RefCell<T>> }`.
+A thread-local `Runtime` keeps a registry of every live effect (that is what
+keeps an effect alive until it is disposed), the current observer, two queues
+(memos and ordinary effects), and the batch depth.
 
-- `get()` calls `track(id)`: if an effect is currently running (`observer` is
-  set), it records the edge both ways (`subscribers[signal] += observer`,
-  `sources[observer] += signal`).
-- `set()`/`update()` mutate the value, then `notify(id)`: every subscribed effect
-  is re-run.
+**Automatic dependency tracking.**
+
+- `get()`/`with()` call `track`: if an effect is currently running, it records
+  the edge both ways (the signal's subscriber list gets a weak reference to the
+  effect, the effect's `sources` gets the list). `get_untracked()` and
+  `with_untracked()` read without subscribing, and `untrack(|| ..)` runs a
+  closure with tracking switched off.
+- `set()`/`update()` mutate the value, then queue every subscriber. A write
+  never runs subscribers recursively: the queue is drained when the outermost
+  write (or `batch`) finishes. Outside a batch, `set` has re-run its
+  subscribers by the time it returns.
 
 **Running an effect** detaches its old dependencies first, so each run rebuilds
-an exact, minimal dependency set (no stale edges):
+an exact, minimal dependency set (no stale edges). The closure is taken out of
+the node while it runs, so no `RefCell` borrow is held across user code and an
+effect may dispose itself.
 
-```rust
-fn run_effect(id) {
-    // 1. (graph locked) skip if already running; drop old `sources[id]` edges;
-    //    take the closure; set observer = id.
-    // 2. (graph UNLOCKED) call the closure — its get()s re-subscribe via track().
-    // 3. (graph locked) restore previous observer.
-}
-```
+**Ordering and settling.**
 
-The borrow of the runtime is always released **before** user code runs, and a
-`running` set prevents a write→run→write cycle from recursing into the same
-effect. That's what makes `signal.set()` safe to call from inside an effect or a
-key handler.
+- Memos drain before ordinary effects, so an effect never sees a memo that is
+  stale relative to the signals it was computed from.
+- Subscribers run in the order they subscribed.
+- An effect that writes a signal it also reads is re-run after it finishes,
+  until it settles (it is not silently skipped). A hard cap per flush
+  (100 000 runs) drops what is left of a cycle that never settles, instead of
+  hanging Neovim.
+- `batch(|| ..)` holds propagation back: effects that depend on any signal
+  written inside run once, after the outermost `batch` returns. Every Neovim
+  callback the library registers (keymaps, autocmds, timers, `schedule`/`defer`,
+  user commands) already runs in a batch, so a handler that writes several
+  signals causes one repaint. You only need `batch` when writing signals from
+  somewhere else.
+- A new effect's first run happens immediately, even inside a batch; anything it
+  writes is propagated once it finishes.
 
-**`memo(f)`** is an effect that writes its result into a private signal, so it
-recomputes only when its inputs change and notifies its own readers.
+**Extras.** `Signal::set_if_changed(v)` skips the write (and returns `false`)
+when `v` equals the current value; `Signal::with_untracked(f)` and
+`Memo::get_untracked()` are the non-subscribing reads.
+
+**`memo(f)`** is an effect (drained ahead of ordinary ones) that writes its
+result into a private signal, so it recomputes only when its inputs change and
+notifies its own readers. Its computation is disposed when the last clone of the
+`Memo` is dropped.
+
+**Lifetimes.** Signals are reference counted: when the last clone goes away, the
+value and its bookkeeping are freed. The runtime itself lives in a
+`ManuallyDrop` thread-local and is left alone at thread exit.
 
 **Disposal.** `effect()` returns an `EffectHandle`. Dropping it does *nothing*
 (so `effect(..)` stays fire-and-forget); calling `handle.dispose()` (or
@@ -225,15 +292,23 @@ Span { text: String, hl: Option<String> }   // a run of text + highlight group
 Line { spans: Vec<Span> }                    // one rendered line
 ```
 
-The **core** (`Popup`) renders `&[Line]` directly: it writes the plain text with
-`nvim_buf_set_lines`, then lays one extmark per styled span (highlight columns
-are byte offsets, matching the text). See `nvim::render`.
+The **core** (`Popup`) turns `&[Line]` into `nvim::Row`s (the line's text plus
+one `Mark` per highlighted run; marks are byte offsets, matching the text) and
+renders them through the diffing `Renderer` (see §5): `Popup::set_content(&[Line])`
+flattens the lines to rows and only the rows that differ from the last frame are
+sent to Neovim.
 
 The **view** layer paints onto a `Canvas` instead — a `width × height` grid of
-`Cell { ch, hl }`. After painting, `Canvas::to_lines()` walks each row and merges
-adjacent cells that share a highlight into a single `Span`, producing the exact
-same `Vec<Line>` the core renders. So the fancy widget tree and the humble popup
-bottom out in the identical rendering path.
+`Cell { ch, style }`. Highlight groups are interned per canvas: a cell holds a
+small id into the canvas's style table, so cells are `Copy` and "same highlight
+as the previous cell" is an integer comparison. `Canvas::reset(w, h)` clears the
+grid and resizes it while reusing its allocations (a `Surface` keeps one canvas
+for its whole life). After painting, `Canvas::to_rows()` walks each row and
+merges adjacent cells that share a highlight into a single `Mark`; this is what
+the view layer renders from. `Canvas::to_lines()` still exists and produces
+the equivalent `Vec<Line>` (adjacent same-highlight cells merged into one
+`Span`). Either way the widget tree and the humble popup end in the same
+renderer.
 
 ### 4. Geometry (`geometry`)
 
@@ -259,8 +334,25 @@ Thin, safe handles over the API — all built on `lua::call_api`:
 - **`Namespace(i64)`** — `create`, `clear`, `highlight(row, start, end, group)`
   via extmarks.
 - **events** — `buf_keymap(buf, mode, lhs, opts, Fn)` (a Rust callback as a Lua
-  function via `vim.keymap.set`), `augroup`, `buf_autocmd`.
-- **`render(buf, ns, &[Line])`** — the core line+highlight renderer.
+  function via `vim.keymap.set`), `buf_keymap_table(buf, mode, keys, dispatch)`
+  (many keys bound to one Rust dispatcher in a single trip into Lua; each key
+  is an `(lhs, code)` pair and `dispatch(code)` is called), `augroup`,
+  `buf_autocmd`, `autocmd`, `user_command`. Every callback registered here runs
+  inside a `batch`.
+- **`Renderer`, `Row`, `Mark`** — a `Row` is one buffer line (`text` plus
+  `marks`, byte ranges with a highlight group). A `Renderer` is tied to one
+  buffer + namespace and remembers the last frame it painted; `render(rows)`
+  sends only the changed runs of rows, in one call into the Lua driver, and
+  falls back to a full repaint when it does not know the buffer's contents
+  (first frame, row count changed, `invalidate()` called, or the buffer's
+  `changedtick` no longer matches because someone else edited it).
+  `Row::from_line(&Line)` converts styled lines.
+- **`render(buf, ns, &[Line])`** — the stateless form: replaces the whole buffer
+  and every extmark of the namespace. Anything that repaints the same buffer
+  repeatedly should keep a `Renderer` instead.
+- **`Timer`** (`start`/`once`/`interval`), `schedule`, `defer` — callbacks run
+  on the main loop inside a `batch`. A `Timer` never invokes its callback after
+  `stop`/`close`/drop, not even for a tick that was already queued.
 
 ### 6. Core components (`widget`)
 
@@ -269,7 +361,14 @@ Imperative components for quick UIs:
 - **`Popup`** — the workhorse: a scratch buffer shown in a float (or a split,
   via `PopupOptions.host`), with:
   - `set_content(&[Line])` (static) or `render_reactive(|| Vec<Line>)` (an effect
-    that repaints when its signals change — owned by the popup, disposed on close),
+    that repaints when its signals change — owned by the popup, disposed on close);
+    both go through the popup's diffing `Renderer`,
+  - `render_rows(Vec<Row>)` — the same, for pre-flattened rows (what
+    `Canvas::to_rows()` produces; used by `Surface`),
+  - `invalidate()` — call after writing to the popup's buffer by other means
+    (e.g. through `buffer()`), so the next paint starts from scratch instead of
+    diffing against content that is no longer there,
+  - `namespace()` — the highlight namespace the popup paints with,
   - `on_key(mode, lhs, Fn)` for buffer-local Rust keymaps,
   - `hide()` (window only — effects/keymaps survive) vs `close()` (full
     teardown: effects disposed, per-instance augroup deleted, window closed),
@@ -283,6 +382,8 @@ Imperative components for quick UIs:
   `on_cancel` callback.
 - **`Input`** — single-line prompt over `Popup`, value exposed as
   `Signal<String>`, with an `on_change` builder and `open_with(.., on_cancel)`.
+  `Input` (and so `vim.ui.input`) works on current Neovim again; it had been
+  failing because of `lua::cmd`.
 
 ### 7. The view layer (`view`)
 
@@ -299,9 +400,10 @@ pub trait Widget {
 pub type Element = Box<dyn Widget>;
 ```
 
-Layout containers (`Column`/`Row`) `measure` their children, distribute space
-(fixed children keep their size; `flex() > 0` children — `Spacer`, `Expanded` —
-share the leftover), then `paint` each child into its sub-`Area`.
+Layout containers (`Column`/`Row`) `measure` their children while painting,
+distribute space (fixed children keep their size; `flex() > 0` children —
+`Spacer`, `Expanded` — share the leftover), then `paint` each child into its
+sub-`Area`. (`Surface` itself only calls `paint` on the root.)
 
 The widget set:
 
@@ -315,6 +417,9 @@ The widget set:
 Widget state that must survive rebuilds lives in clone-shareable bundles
 (`ListState`, `FieldState`, `AreaState`, `TreeState`, `SelectState`) created
 once, outside the build closure.
+
+`ScrollView` repaints when its offset signal changes (it used to read it
+untracked).
 
 Beyond single-window trees: `view::notify` shows stacked auto-dismissing toast
 floats, and `view::Layout`/`Pane` arrange several `Surface`s (telescope-style
@@ -336,13 +441,20 @@ Focus ids are assigned by **registration order**, which is stable across rebuild
 (the tree is rebuilt identically each frame), so focus stays put without manual
 keys. The current focus index is a `Signal<usize>` — so moving focus repaints.
 
-**Key routing (`Surface`).** Buffer-local maps are installed **once** for
-`<Tab>`/`<S-Tab>` (focus next/prev), the named keys (`<CR>`, `<BS>`, arrows, …),
-and every printable ASCII char. Each map calls a dispatcher that looks up the
-*currently focused* widget (from a `RefCell<Vec<Focusable>>` refreshed every
-frame) and hands it the `Key`. Because all keys funnel through the focused
-widget, the same `j` means "move down" to a `ListView` and "type j" to a
-`TextField` — no modal Neovim insert mode involved.
+**Key routing (`Surface`).** One buffer-local key table is installed **once**
+through `buf_keymap_table`: `<Tab>`/`<S-Tab>`, the named keys (`<CR>`, `<BS>`,
+arrows, …), `<Space>`, every printable ASCII char and `<C-a>`..`<C-z>` (except
+`<C-c>`) are bound to a single Rust dispatcher (one callback and one trip into
+Lua, instead of ~135 separate keymap callbacks). The dispatcher decodes the key
+and first offers it to the *currently focused* widget (looked up in a
+`RefCell<Vec<Focusable>>` refreshed every frame); if the widget does not consume
+it, `<Tab>`/`<S-Tab>` move focus and `<Esc>` hides. Because all keys funnel
+through the focused widget, the same `j` means "move down" to a `ListView` and
+"type j" to a `TextField` — no modal Neovim insert mode involved. The dispatcher
+runs in a `batch`, so a handler's signal writes cause one repaint.
+
+The key table is not installed at all for a surface whose window the cursor can
+never be in — `focusable: false` and `enter: false`, e.g. a toast.
 
 ### 8. Surface lifecycle
 
@@ -359,7 +471,7 @@ lifetime**:
   the buffer (and thus the rendered state); the buffer is wiped explicitly on
   free.
 - `mount` runs once: it starts the render effect (storing the `EffectHandle`) and
-  installs the key maps. `show(build)` mounts then opens; `reopen`/`hide`/
+  installs the key table. `show(build)` mounts then opens; `reopen`/`hide`/
   `toggle` just move the window.
 - `Drop for SurfaceInner` (and `close()`) calls `free()`: dispose the effect,
   close the window, delete the buffer — releasing the captured state. A
@@ -501,11 +613,20 @@ impl Widget for Dot {
 
 ```rust
 // reactive
-Signal::new(v) -> Signal<T>           // .get() .with(f) .get_untracked() .set(v) .update(f)
+Signal::new(v) -> Signal<T>           // .get() .with(f) .get_untracked() .with_untracked(f) .set(v) .set_if_changed(v) .update(f)
 effect(|| { .. }) -> EffectHandle     // .dispose();  dispose_effect(id)
-memo(|| expr) -> Memo<T>              // .get() .with(f)
+memo(|| expr) -> Memo<T>              // .get() .get_untracked() .with(f)
+batch(|| { .. }) / untrack(|| expr)   // group writes into one repaint / read without subscribing
 Store::new(v) -> Store<T>             // same surface as Signal + .signal()
 store!(pub static NAME: T = init);    // NAME::get/set/update/signal
+
+// nvim (wp_ui::nvim; Renderer/Row/Mark/buf_keymap_table are not in the prelude)
+Renderer::new(buf, ns) -> .render(Vec<Row>)? .invalidate()    Row { text, marks: Vec<Mark> }   Row::from_line(&line)
+Mark { start, end, hl }   nvim::render(buf, ns, &[Line])?     // stateless full repaint
+buf_keymap_table(buf, "n", [(lhs, code)], |code| ..)?         // many keys, one dispatcher
+Timer::start / ::once / ::interval                            // never fires after stop/close/drop
+// canvas
+Canvas::new(w, h) / .reset(w, h) / .to_rows() / .to_lines()   // wp_ui::view::canvas::Canvas
 
 // text
 Span::raw(s) / Span::hl(s, group);  Line::raw(s) / Line::from_spans([..]) / Line::empty()
@@ -514,7 +635,8 @@ Span::raw(s) / Span::hl(s, group);  Line::raw(s) / Line::from_spans([..]) / Line
 Size::cells(w, h) / Size::ratio(w, h);  Position::Center / Position::At { row, col }
 
 // core components
-Popup::new(opts)? -> .open()? .set_content(&[..])? .render_reactive(||..) .on_key(..)? .close()
+Popup::new(opts)? -> .open()? .set_content(&[..])? .render_rows(rows)? .invalidate() .namespace()
+                     .render_reactive(||..) .on_key(..)? .close()
 Menu::new(items, opts)?.open(on_choose)?;  Input::new(opts)?.open(on_submit)?
 
 // view: layout
@@ -544,6 +666,36 @@ wp_ui::vim_ui::register_all()?                          // become vim.ui.select 
 
 ---
 
+## Testing
+
+- **Unit tests**: `cargo test -p ab-nui`.
+- **Integration tests** run inside a real headless Neovim: `cargo test -p ab-nui-tests`.
+  The crate lives in `nvim-tests/` and uses nvim-oxi's test harness
+  (`#[nvim_oxi::test]`, one Neovim per test) purely as a dev tool; the library
+  itself still does not depend on nvim-oxi. `nvim-tests/src/support.rs` has the
+  shared helpers: `setup()` (init the library and install the theme), readers for
+  what Neovim shows (`lines`, `trimmed`, `highlights`, `hl_at`, `floats`),
+  `feed(keys)` to type keys, `wait(ms, pred)` to let scheduled callbacks and
+  timers run, and `surf`/`render` to mount a widget tree on a `Surface` of a
+  given size.
+- **Benchmarks** are opt-in and run only when `AB_NUI_BENCH_OUT` names a file;
+  they append wall time and per-iteration Neovim API call counts to it:
+
+  ```sh
+  AB_NUI_BENCH_OUT=/tmp/ab-nui-bench.txt cargo test -p ab-nui-tests --release bench
+  ```
+
+Measured against the previous implementation (release build, Neovim 0.12.6):
+
+| Scenario                                      | Before    | After     | Note |
+| --------------------------------------------- | --------- | --------- | ---- |
+| key press that changes 3 signals              | 68.8 µs   | 15.2 µs   | 3 tree rebuilds → 1 |
+| show + dismiss a toast                        | 1226 µs   | 172 µs    | 134 keymaps → 0 |
+| create + show + close a surface               | 1258 µs   | 525 µs    | |
+| scroll a 500-item list by one row             | 154.7 µs  | 113.5 µs  | every visible row changes, so diffing helps least here |
+
+---
+
 ## Setup
 
 Call `wp_ui::init` once during plugin setup with the host's `Lua` handle, then
@@ -554,10 +706,6 @@ wp_ui::init(&nvim_oxi::mlua::lua());
 wp_ui::theme::setup().ok();
 ```
 
-After that, build UI from anywhere on the Lua thread. See
-`code/src/neovim/editor/src/core/ui_demo.rs` for the working demo commands:
-`:AbstractHello`, `:AbstractCounter`, `:AbstractMenu`, `:AbstractInput`,
-`:AbstractSelect` (vim.ui round-trip), `:AbstractSpinner`, `:AbstractSplit`
-(split host + extmark decorations), `:AbstractNotify`, `:AbstractGallery`
-(every widget, tabbed), and `:AbstractPicker` (telescope-style multi-pane
-`Layout`).
+After that, build UI from anywhere on the Lua thread. The tests in `nvim-tests/src/`
+(for example `widgets.rs`, `interactive.rs`, `lifecycle.rs`) are working examples of
+every widget.

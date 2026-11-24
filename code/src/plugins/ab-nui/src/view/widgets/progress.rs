@@ -42,13 +42,10 @@ impl Widget for ProgressBar {
 
     fn paint(&self, _cx: &mut Cx, area: Area, canvas: &mut Canvas) {
         let filled = ((area.w as f32) * self.fraction).round() as u16;
+        let (done, todo): (Rc<str>, Rc<str>) = (Rc::from(groups::ACCENT), Rc::from(groups::MUTED));
         for x in 0..area.w {
-            let (ch, hl) = if x < filled {
-                (self.filled, groups::ACCENT)
-            } else {
-                (self.empty, groups::MUTED)
-            };
-            canvas.set(area.x + x, area.y, ch, Some(Rc::from(hl)));
+            let (ch, hl) = if x < filled { (self.filled, &done) } else { (self.empty, &todo) };
+            canvas.set(area.x + x, area.y, ch, Some(hl.clone()));
         }
         if let Some(label) = &self.label {
             let lw = crate::text::display_width(label);

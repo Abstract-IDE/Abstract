@@ -101,9 +101,11 @@ impl Widget for ScrollView {
         let content = self.content_size(view_w);
         let content_h = content.h.max(1);
 
-        // Clamp the offset (silently: we're inside the render effect).
+        // A tracked read: scrolling (or any outside write to the offset) must
+        // repaint the surface. The clamp is written back silently, since this
+        // frame already shows the clamped value.
         let max_offset = content_h.saturating_sub(area.h);
-        let offset = self.offset.get_untracked().min(max_offset);
+        let offset = self.offset.get().min(max_offset);
         self.offset.set_silent(offset);
 
         // Paint the child in full on an offscreen canvas...
