@@ -1,148 +1,144 @@
-use nvim_oxi::api::{self, opts::OptionOpts};
-use wl_utils::safe_wrap;
+use mlua::{Table, Value};
+use wp_ui::nvim::{self, Buffer, Window};
+use wp_ui::view::{Level, NotifyOptions, notify};
+use wp_ui::widget::Popup;
+use wp_ui::{Error, Result, lua};
 
-use crate::{state::with_state, window};
+use crate::state::{State, Term, with_state};
 
 // -----------------------------------------------------------------------------
-// Shell Resolution
+// Neovim helpers
 // -----------------------------------------------------------------------------
 
-/// Determine the shell to use for terminal spawning.
-/// Priority: vim `shell` option → `$SHELL` env var → fallback to `"sh"`.
+fn in_terminal_mode() -> bool {
+    lua::call_api::<Table>("nvim_get_mode", ())
+        .and_then(|t| Ok(t.get::<String>("mode")?))
+        .is_ok_and(|mode| mode == "t")
+}
+
+fn current_win() -> Option<Window> {
+    lua::call_api::<i64>("nvim_get_current_win", ()).ok().map(Window)
+}
+
+fn current_buf() -> Option<Buffer> {
+    lua::call_api::<i64>("nvim_get_current_buf", ()).ok().map(Buffer)
+}
+
+/// Whether Neovim is shutting down (`v:exiting` is set).
+fn exiting() -> bool {
+    lua::call_api::<Value>("nvim_get_vvar", ("exiting",)).is_ok_and(|v| !v.is_nil())
+}
+
+/// Shell to run: the `shell` option, then `$SHELL`, then `sh`.
 fn resolve_shell() -> String {
-    // Try vim's &shell option first.
-    if let Ok(shell) = api::get_option_value::<String>("shell", &OptionOpts::default())
-        && !shell.is_empty()
-        && api::call_function::<_, i64>("executable", (nvim_oxi::Object::from(nvim_oxi::String::from(shell.clone())),))
-            .unwrap_or(0)
-            == 1
+    let usable = |s: &str| !s.is_empty() && lua::call_fn::<i64>("executable", (s,)).unwrap_or(0) == 1;
+    if let Ok(shell) = lua::get_option::<String>("shell")
+        && usable(&shell)
     {
         return shell;
     }
-
-    // Fall back to $SHELL.
     if let Ok(shell) = std::env::var("SHELL")
-        && !shell.is_empty()
-        && api::call_function::<_, i64>("executable", (nvim_oxi::Object::from(nvim_oxi::String::from(shell.clone())),))
-            .unwrap_or(0)
-            == 1
+        && usable(&shell)
     {
         return shell;
     }
-
-    // Ultimate fallback.
     "sh".to_string()
 }
 
-// -----------------------------------------------------------------------------
-// Internal: Create a New Terminal Buffer
-// -----------------------------------------------------------------------------
-
-fn new_terminal_internal() -> nvim_oxi::Result<()> {
-    with_state(|state| {
-        // Close any existing float.
-        state.close_float();
-
-        // Create a fresh unlisted scratch buffer.
-        let buf = api::create_buf(false, true)?;
-        api::set_option_value("bufhidden", "hide", &OptionOpts::builder().buf(buf.clone()).build())?;
-
-        // Track it.
-        state.bufs.push(buf.clone());
-        state.current = state.bufs.len() - 1;
-        state.modes.push("t".to_string());
-
-        // Open the float.
-        window::open_floating(state, &buf)?;
-
-        if let Some(win) = &state.win {
-            api::set_current_win(win)?;
+/// Show an error from a callback, where there is no caller to return it to.
+pub fn report(res: Result<()>) {
+    if let Err(e) = res {
+        let opts = NotifyOptions { title: Some("Terminal".into()), level: Level::Error, ..Default::default() };
+        if notify(e.to_string(), opts).is_err() {
+            eprintln!("AbstractTerminal: {e}");
         }
-        api::set_current_buf(&buf)?;
+    }
+}
 
-        // Spawn a shell in the buffer.
-        let shell = resolve_shell();
-        let args = vec![nvim_oxi::Object::from(nvim_oxi::String::from(shell))].into_iter().collect::<nvim_oxi::Array>();
-        api::call_function::<_, i64>("termopen", (args,))?;
-        api::command("startinsert")?;
+// -----------------------------------------------------------------------------
+// Internals
+// -----------------------------------------------------------------------------
 
-        // Removed `modifiable=false`. Terminal buffers natively reject standard text entry unless you are in Terminal mode.
-        // Setting it to false causes `startinsert` to throw E21, which forces Neovim to abort window focus during mouse clicks!
+/// Record whether terminal `idx` is in terminal mode. Only meaningful while
+/// its float is the current window, so otherwise the old value is kept.
+fn remember_mode(state: &mut State, idx: usize) {
+    let term = &mut state.terms[idx];
+    if term.popup.window().is_some_and(|w| Some(w) == current_win()) {
+        term.insert = in_terminal_mode();
+    }
+}
 
-        // Bug 1: Auto-close buffer when terminal process exits
-        let buf_clone = buf.clone();
-        api::create_autocmd(
-            ["TermClose"],
-            &nvim_oxi::api::opts::CreateAutocmdOpts::builder()
-                .buffer(buf.clone())
-                .nested(true)
-                .callback(safe_wrap!(move |_args| -> std::result::Result<bool, nvim_oxi::Error> {
-                    // Check if Neovim is currently exiting. If so, do not try to open floats or startinsert.
-                    if let Ok(v_exiting) = api::get_vvar::<nvim_oxi::Object>("exiting")
-                        && !v_exiting.is_nil()
-                    {
-                        return Ok(false);
-                    }
+/// Show terminal `idx` (hiding any other) and focus it.
+fn show(state: &mut State, idx: usize) -> Result<()> {
+    for (i, term) in state.terms.iter().enumerate() {
+        if i != idx {
+            term.popup.hide();
+        }
+    }
+    state.current = idx;
+    let title = state.title();
+    let term = &state.terms[idx];
+    term.popup.set_title(title)?;
+    term.popup.open()?;
+    if let Some(win) = term.popup.window() {
+        win.focus()?;
+    }
+    if term.insert {
+        lua::cmd("startinsert")?;
+    }
+    Ok(())
+}
 
-                    let buf_handle = buf_clone.handle();
-                    nvim_oxi::schedule(move |()| {
-                        if let Ok(v_exiting) = api::get_vvar::<nvim_oxi::Object>("exiting")
-                            && !v_exiting.is_nil()
-                        {
-                            return;
-                        }
+/// Buffer-local autocmds for a new terminal. They only schedule work, so they
+/// never run while the state is borrowed.
+fn watch(buf: Buffer) -> Result<()> {
+    nvim::buf_autocmd(&["TermClose"], buf, None, move || {
+        let _ = nvim::schedule(move || report(on_exit(buf)));
+    })?;
+    nvim::buf_autocmd(&["BufEnter", "WinEnter"], buf, None, move || {
+        let _ = nvim::schedule(move || report(on_enter(buf)));
+    })?;
+    Ok(())
+}
 
-                        crate::state::with_state(|state| {
-                            let is_current = state.current_buf().map(|b| b.handle() == buf_handle).unwrap_or(false);
-
-                            let _ = api::command(&format!("bdelete! {}", buf_handle));
-
-                            state.prune_buffers();
-
-                            if state.is_empty() {
-                                state.close_float();
-                            } else if is_current {
-                                if state.current >= state.len() {
-                                    state.current = state.len() - 1;
-                                }
-                                let next_buf = state.bufs[state.current].clone();
-                                let _ = crate::window::open_floating(state, &next_buf);
-                                if let Some(win) = &state.win {
-                                    let _ = api::set_current_win(win);
-                                }
-                                let _ = crate::window::update_title(state);
-                                if state.current_mode() == "t" {
-                                    let _ = api::command("startinsert");
-                                }
-                            } else {
-                                let _ = crate::window::update_title(state);
-                            }
-                        });
-                    });
-                    Ok(false)
-                }))
-                .build(),
-        )?;
-
-        // Enter insert mode when terminal window gains focus
-        api::create_autocmd(
-            ["BufEnter", "WinEnter"],
-            &nvim_oxi::api::opts::CreateAutocmdOpts::builder()
-                .buffer(buf.clone())
-                .nested(true)
-                .callback(safe_wrap!(|_args| -> std::result::Result<bool, nvim_oxi::Error> {
-                    nvim_oxi::schedule(|()| {
-                        if api::get_mode().mode != "t" {
-                            let _ = api::command("startinsert");
-                        }
-                    });
-                    Ok(false)
-                }))
-                .build(),
-        )?;
-
-        Ok(())
+/// The shell exited: drop the terminal and, if it was on screen, show the next one.
+fn on_exit(buf: Buffer) -> Result<()> {
+    if exiting() {
+        return Ok(());
+    }
+    with_state(|state| {
+        // Already gone if it was closed with `close()`.
+        let Some(idx) = state.index_of(buf) else { return Ok(()) };
+        let was_visible = state.terms[idx].popup.is_open();
+        state.remove(idx);
+        if buf.is_valid() {
+            buf.delete()?;
+        }
+        state.prune();
+        if state.terms.is_empty() {
+            return Ok(());
+        }
+        if was_visible {
+            show(state, state.current)
+        } else {
+            // The count in the title changed.
+            let title = state.title();
+            state.terms[state.current].popup.set_title(title)
+        }
     })
+}
+
+/// Entering a terminal window (a click, `<C-w>w`): resume terminal mode if
+/// that is how the terminal was left.
+fn on_enter(buf: Buffer) -> Result<()> {
+    if current_buf() != Some(buf) || in_terminal_mode() {
+        return Ok(());
+    }
+    let insert = with_state(|state| Ok(state.index_of(buf).is_some_and(|i| state.terms[i].insert)))?;
+    if insert {
+        lua::cmd("startinsert")?;
+    }
+    Ok(())
 }
 
 // -----------------------------------------------------------------------------
@@ -150,165 +146,97 @@ fn new_terminal_internal() -> nvim_oxi::Result<()> {
 // -----------------------------------------------------------------------------
 
 /// Toggle the floating terminal. Creates one if none exist.
-pub fn toggle() -> nvim_oxi::Result<()> {
-    with_state(|state| {
-        state.prune_buffers();
-
-        if state.is_empty() {
-            // State borrow is naturally released when this closure returns
-            return Err(nvim_oxi::Error::from(nvim_oxi::lua::Error::RuntimeError("__create_new__".into())));
+pub fn toggle() -> Result<()> {
+    let none = with_state(|state| {
+        state.prune();
+        if state.terms.is_empty() {
+            return Ok(true);
         }
-
-        // If the float is currently open, save mode and close it.
-        if let Some(win) = &state.win
-            && win.is_valid()
-        {
-            let mode = api::get_mode().mode;
-            state.modes[state.current] = mode.to_string();
-            state.close_float();
-            return Ok(());
+        match state.visible() {
+            Some(i) => {
+                remember_mode(state, i);
+                state.terms[i].popup.hide();
+            },
+            None => show(state, state.current)?,
         }
-
-        // Float is closed — re-open it with the current buffer.
-        let buf = state.bufs[state.current].clone();
-        window::open_floating(state, &buf)?;
-
-        if let Some(win) = &state.win {
-            api::set_current_win(win)?;
-        }
-
-        if state.current_mode() == "t" {
-            api::command("startinsert")?;
-        }
-
-        Ok(())
-    })
-    .or_else(|e| if e.to_string().contains("__create_new__") { new_terminal_internal() } else { Err(e) })
-}
-
-/// Create a new terminal buffer and display it in a float.
-pub fn new_terminal() -> nvim_oxi::Result<()> {
-    with_state(|state| state.prune_buffers());
-    new_terminal_internal()
-}
-
-/// Cycle to the next or previous terminal.
-pub fn cycle(direction: isize, wrap: bool) -> nvim_oxi::Result<()> {
-    // Phase 1: save current mode and issue stopinsert if needed.
-    with_state(|state| {
-        state.prune_buffers();
-
-        if state.len() <= 1 {
-            return Ok::<(), nvim_oxi::Error>(());
-        }
-
-        let mode = api::get_mode().mode;
-        state.modes[state.current] = mode.to_string();
-
-        if mode == "t" {
-            api::command("stopinsert")?;
-        }
-
-        Ok(())
+        Ok(false)
     })?;
-
-    // Phase 2: schedule the actual buffer swap (needed after mode change).
-    nvim_oxi::schedule(move |()| {
-        with_state(|state| {
-            if state.win.as_ref().is_none_or(|w| !w.is_valid()) {
-                return;
-            }
-
-            let len = state.len() as isize;
-            let mut idx = state.current as isize + direction;
-
-            if idx >= len {
-                if !wrap {
-                    return;
-                }
-                idx = 0;
-            } else if idx < 0 {
-                if !wrap {
-                    return;
-                }
-                idx = len - 1;
-            }
-
-            // Close old float and open new one.
-            state.close_float();
-            state.current = idx as usize;
-
-            let buf = state.bufs[state.current].clone();
-            let _ = window::open_floating(state, &buf);
-
-            if let Some(win) = &state.win {
-                let _ = api::set_current_win(win);
-            }
-            let _ = window::update_title(state);
-
-            if state.current_mode() == "t" {
-                let _ = api::command("startinsert");
-            }
-        });
-    });
-
-    Ok(())
+    if none { new_terminal() } else { Ok(()) }
 }
 
-/// Close the current terminal buffer. Shows the next one, or hides the float
-/// if it was the last terminal.
-pub fn close() -> nvim_oxi::Result<()> {
+/// Create a new terminal and show it.
+pub fn new_terminal() -> Result<()> {
     with_state(|state| {
-        state.prune_buffers();
+        state.prune();
+        if let Some(i) = state.visible() {
+            remember_mode(state, i);
+        }
 
-        if state.is_empty() {
+        let buf = Buffer::scratch()?;
+        // Keep the terminal running while its float is hidden.
+        buf.set_option("bufhidden", "hide")?;
+        let popup = Popup::with_buffer(buf, state.config.popup_options())?;
+        state.terms.push(Term { buf, popup, insert: false });
+        let idx = state.terms.len() - 1;
+        show(state, idx)?;
+
+        // `jobstart(.., { term = true })` turns the current buffer into a terminal.
+        let opts = lua::table()?;
+        opts.set("term", true)?;
+        let job = lua::call_fn::<i64>("jobstart", (vec![resolve_shell()], opts));
+        if !matches!(job, Ok(id) if id > 0) {
+            state.remove(idx);
+            let _ = buf.delete();
+            return Err(match job {
+                Err(e) => e,
+                Ok(_) => Error::invalid("could not start the shell"),
+            });
+        }
+
+        watch(buf)?;
+        state.terms[idx].insert = true;
+        lua::cmd("startinsert")
+    })
+}
+
+/// Show the next (`step = 1`) or previous (`step = -1`) terminal. Does
+/// nothing unless a terminal float is on screen.
+pub fn cycle(step: isize, wrap: bool) -> Result<()> {
+    with_state(|state| {
+        state.prune();
+        let len = state.terms.len() as isize;
+        let Some(visible) = state.visible() else { return Ok(()) };
+        if len < 2 {
             return Ok(());
         }
+        let next = visible as isize + step;
+        let next = if wrap {
+            next.rem_euclid(len)
+        } else if (0..len).contains(&next) {
+            next
+        } else {
+            return Ok(());
+        };
+        remember_mode(state, visible);
+        show(state, next as usize)
+    })
+}
 
-        // Exit terminal mode if we're in it.
-        if let Some(win) = &state.win
-            && win.is_valid()
-        {
-            api::set_current_win(win)?;
-            if api::get_mode().mode == "t" {
-                api::command("stopinsert")?;
-            }
-        }
-
-        // Delete the buffer.
-        let buf = state.bufs[state.current].clone();
-        if buf.is_valid() {
-            api::set_current_buf(&buf)?;
-            api::command("bdelete!")?;
-        }
-
-        state.bufs.remove(state.current);
-        state.modes.remove(state.current);
-
-        // No more terminals → close everything.
-        if state.is_empty() {
-            state.close_float();
-            state.current = 0;
+/// Close the current terminal (killing its shell). If it was on screen, the
+/// next terminal takes its place.
+pub fn close() -> Result<()> {
+    with_state(|state| {
+        state.prune();
+        if state.terms.is_empty() {
             return Ok(());
         }
-
-        // Adjust index and show the next terminal.
-        if state.current >= state.len() {
-            state.current = state.len() - 1;
+        let was_visible = state.terms[state.current].popup.is_open();
+        let term = state.remove(state.current);
+        // Kills the job; its TermClose handler then finds nothing left to do.
+        term.buf.delete()?;
+        if was_visible && !state.terms.is_empty() {
+            show(state, state.current)?;
         }
-
-        let buf = state.bufs[state.current].clone();
-        window::open_floating(state, &buf)?;
-
-        if let Some(win) = &state.win {
-            api::set_current_win(win)?;
-        }
-        window::update_title(state)?;
-
-        if state.current_mode() == "t" {
-            api::command("startinsert")?;
-        }
-
         Ok(())
     })
 }

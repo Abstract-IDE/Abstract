@@ -1,78 +1,69 @@
 use std::cell::RefCell;
+use std::mem::ManuallyDrop;
 
-use nvim_oxi::api::{self, Buffer, Window, opts::ClearAutocmdsOpts};
+use wp_ui::nvim::Buffer;
+use wp_ui::widget::Popup;
+use wp_ui::{Error, Result};
 
 use crate::config::Config;
 
 // -----------------------------------------------------------------------------
-// State Management
+// State
 // -----------------------------------------------------------------------------
 
+/// One terminal: its buffer and the popup that shows it.
+pub struct Term {
+    pub buf: Buffer,
+    pub popup: Popup,
+    /// Resume terminal (insert) mode when this terminal is shown again.
+    pub insert: bool,
+}
+
 pub struct State {
-    pub bufs: Vec<Buffer>,
-    pub win: Option<Window>,
+    pub terms: Vec<Term>,
+    /// The terminal that `toggle` shows; always a valid index unless `terms` is empty.
     pub current: usize,
-    pub modes: Vec<String>,
-    pub float_guard_group: Option<u32>,
     pub config: Config,
 }
 
 impl State {
-    pub fn new(config: Config) -> Self {
-        Self { bufs: Vec::new(), win: None, current: 0, modes: Vec::new(), float_guard_group: None, config }
-    }
-
-    /// Remove dead (invalid) buffers and adjust the current index.
-    pub fn prune_buffers(&mut self) {
-        let mut live_bufs = Vec::new();
-        let mut live_modes = Vec::new();
-
-        for (i, buf) in self.bufs.iter().enumerate() {
-            if buf.is_valid() {
-                live_bufs.push(buf.clone());
-                live_modes.push(self.modes[i].clone());
+    /// Forget terminals whose buffer is gone.
+    pub fn prune(&mut self) {
+        let mut i = 0;
+        while i < self.terms.len() {
+            if self.terms[i].buf.is_valid() {
+                i += 1;
+            } else {
+                self.remove(i);
             }
         }
+    }
 
-        self.bufs = live_bufs;
-        self.modes = live_modes;
-
-        if self.bufs.is_empty() {
-            self.current = 0;
-        } else {
-            self.current = self.current.min(self.bufs.len() - 1);
+    /// Remove terminal `idx` and close its popup. The buffer is left to the
+    /// caller. `current` keeps pointing at the same terminal, or at the one
+    /// that took the removed terminal's place.
+    pub fn remove(&mut self, idx: usize) -> Term {
+        let term = self.terms.remove(idx);
+        term.popup.close();
+        if idx < self.current {
+            self.current -= 1;
         }
+        self.current = self.current.min(self.terms.len().saturating_sub(1));
+        term
     }
 
-    /// Get the currently selected buffer, if any.
-    pub fn current_buf(&self) -> Option<&Buffer> {
-        self.bufs.get(self.current)
+    /// The terminal whose float is open, if any.
+    pub fn visible(&self) -> Option<usize> {
+        self.terms.iter().position(|t| t.popup.is_open())
     }
 
-    /// Get the mode string for the current terminal.
-    pub fn current_mode(&self) -> &str {
-        self.modes.get(self.current).map_or("n", |m| m.as_str())
+    pub fn index_of(&self, buf: Buffer) -> Option<usize> {
+        self.terms.iter().position(|t| t.buf == buf)
     }
 
-    /// Close the floating window and clear its guard autocmds.
-    pub fn close_float(&mut self) {
-        if let Some(win) = self.win.take()
-            && win.is_valid()
-        {
-            let _ = win.close(true);
-        }
-        if let Some(group) = self.float_guard_group {
-            let _ = api::clear_autocmds(&ClearAutocmdsOpts::builder().group(group).build());
-        }
-    }
-
-    /// Total number of terminal buffers.
-    pub fn len(&self) -> usize {
-        self.bufs.len()
-    }
-
-    pub fn is_empty(&self) -> bool {
-        self.bufs.is_empty()
+    /// Border title for the current terminal.
+    pub fn title(&self) -> String {
+        self.config.title(self.current, self.terms.len())
     }
 }
 
@@ -81,25 +72,27 @@ impl State {
 // -----------------------------------------------------------------------------
 
 thread_local! {
-    pub static STATE: RefCell<Option<State>> = const { RefCell::new(None) };
+    // `ManuallyDrop`: never tear terminals down from a thread-exit destructor,
+    // after Neovim has shut Lua down.
+    static STATE: ManuallyDrop<RefCell<Option<State>>> = const { ManuallyDrop::new(RefCell::new(None)) };
 }
 
-/// Run a closure with mutable access to the global state.
-/// Panics if `setup()` has not been called.
-pub fn with_state<F, R>(f: F) -> R
-where
-    F: FnOnce(&mut State) -> R,
-{
+/// Run `f` with the plugin state.
+pub fn with_state<R>(f: impl FnOnce(&mut State) -> Result<R>) -> Result<R> {
     STATE.with(|cell| {
-        let mut borrow = cell.borrow_mut();
-        let state = borrow.as_mut().expect("AbstractTerminal: setup() was not called");
+        let mut borrow = cell.try_borrow_mut().map_err(|_| Error::invalid("terminal state is already in use"))?;
+        let state = borrow.as_mut().ok_or_else(|| Error::invalid("setup() was not called"))?;
         f(state)
     })
 }
 
-/// Initialise the global state with the given config.
-pub fn init_state(config: Config) {
+/// Create the state, or swap in a new config while keeping open terminals.
+pub fn install(config: Config) {
     STATE.with(|cell| {
-        *cell.borrow_mut() = Some(State::new(config));
+        let mut borrow = cell.borrow_mut();
+        match borrow.as_mut() {
+            Some(state) => state.config = config,
+            None => *borrow = Some(State { terms: Vec::new(), current: 0, config }),
+        }
     });
 }

@@ -1,121 +1,110 @@
-use nvim_oxi::{
-    Dictionary, Function, Object,
-    api::{
-        self,
-        opts::CreateCommandOpts,
-        types::{CommandArgs, CommandNArgs, LogLevel},
-    },
-};
-use wl_utils::{neovim::notify, panic::SafeFunctionExt, safe_wrap};
+use mlua::{Table, Value};
+use wp_ui::nvim::{self, CommandOpts};
+use wp_ui::{Error, Result, lua};
 
-use crate::{config::Config, keymaps, state, terminal};
+use crate::config::Config;
+use crate::state;
+use crate::terminal::{self, report};
+
+/// A `:AbstractTerminal` action, as exposed to Lua.
+type Action = fn() -> Result<()>;
 
 // -----------------------------------------------------------------------------
 // Setup & Initialization
 // -----------------------------------------------------------------------------
 
-/// Setup with default options.
+/// Setup with default options. ab-nui must already be initialised
+/// (`wp_ui::init`).
 pub fn setup() {
-    setup_with_opts(Object::nil());
+    setup_with_opts(Value::Nil);
 }
 
-/// Setup with a user-provided options table.
-pub fn setup_with_opts(opts: Object) {
-    // Store opts in vim.g so Lua-side code can also read them if needed.
-    let _ = api::set_var("abstract_terminal_opts", opts);
+/// Setup with a user-provided options table (or `nil`). Calling it again
+/// applies the new options to terminals opened afterwards.
+pub fn setup_with_opts(opts: Value) {
+    report(try_setup(opts));
+}
 
-    // Load the typed config.
-    let config = Config::load();
+fn try_setup(opts: Value) -> Result<()> {
+    // Kept in vim.g so Lua-side code can read the options too.
+    Config::store(opts)?;
+    let config = Config::load()?;
+    if let Some(key) = &config.toggle_key {
+        map_toggle(key)?;
+    }
+    state::install(config);
 
-    // Register keymaps before initialising state (keymaps reference terminal::toggle).
-    keymaps::register(&config);
-
-    // Initialise the global state.
-    state::init_state(config);
-
-    // Register the `:AbstractTerminal` command.
-    let cmd_opts = CreateCommandOpts::builder()
-        .nargs(CommandNArgs::One)
-        .desc("AbstractTerminal plugin: use subcommands (e.g. toggle)")
-        .build();
-
-    let _ = api::create_user_command(
+    nvim::user_command(
         "AbstractTerminal",
-        safe_wrap!(|args: CommandArgs| -> std::result::Result<(), nvim_oxi::Error> {
-            let cmd = args.args.unwrap_or_default();
+        &CommandOpts {
+            nargs: Some("1"),
+            desc: Some("AbstractTerminal: toggle | new | next | prev | close".into()),
+            ..Default::default()
+        },
+        |args| report(run(args.args.trim())),
+    )?;
 
-            let res = match cmd.as_str() {
-                "toggle" => terminal::toggle(),
-                "new" => terminal::new_terminal(),
-                "next" => terminal::cycle(1, true),
-                "prev" => terminal::cycle(-1, true),
-                "close" => terminal::close(),
-                _ => {
-                    let _ = notify(&format!("AbstractTerminal: unknown command \"{}\"", cmd), LogLevel::Error);
-                    Ok(())
-                },
-            };
-
-            if let Err(e) = res {
-                let _ = notify(&format!("AbstractTerminal Error: {}", e), LogLevel::Error);
-            }
-
-            Ok(())
-        }),
-        &cmd_opts,
-    );
-
-    let api_dict = build_api();
-    let _ = api::set_var("_abstract_terminal_api", api_dict);
-    let _ = api::command("lua package.loaded['terminal'] = _G._abstract_terminal_api");
+    export_api()
 }
 
-/// Build the dictionary of Lua-callable functions exposed by the plugin.
-pub fn build_api() -> Dictionary {
-    let mut dict = Dictionary::new();
+/// `:AbstractTerminal <cmd>`.
+fn run(cmd: &str) -> Result<()> {
+    match cmd {
+        "toggle" => terminal::toggle(),
+        "new" => terminal::new_terminal(),
+        "next" => terminal::cycle(1, true),
+        "prev" => terminal::cycle(-1, true),
+        "close" => terminal::close(),
+        other => Err(Error::invalid(format!("unknown command \"{other}\""))),
+    }
+}
 
-    dict.insert(
+/// Bind the configured toggle key in normal, insert and terminal mode.
+fn map_toggle(key: &str) -> Result<()> {
+    let l = lua::lua()?;
+    let modes = l.create_sequence_from(["n", "i", "t"])?;
+    let callback = l.create_function(|_, ()| {
+        report(terminal::toggle());
+        Ok(())
+    })?;
+    let opts = l.create_table()?;
+    opts.set("silent", true)?;
+    opts.set("desc", "Toggle floating terminal")?;
+    lua::vim_fn("keymap.set")?.call::<()>((modes, key, callback, opts))?;
+    Ok(())
+}
+
+/// Make the plugin available as `require("terminal")`.
+fn export_api() -> Result<()> {
+    let l = lua::lua()?;
+    let api = l.create_table()?;
+
+    api.set(
         "setup",
-        Object::from(Function::<Object, ()>::from_safe_fn(|opts| {
+        l.create_function(|_, opts: Value| {
             setup_with_opts(opts);
-            Ok::<(), nvim_oxi::Error>(())
-        })),
-    );
-    dict.insert(
-        "toggle",
-        Object::from(Function::<(), ()>::from_safe_fn(|()| {
-            let _ = terminal::toggle();
-            Ok::<(), nvim_oxi::Error>(())
-        })),
-    );
-    dict.insert(
-        "new",
-        Object::from(Function::<(), ()>::from_safe_fn(|()| {
-            let _ = terminal::new_terminal();
-            Ok::<(), nvim_oxi::Error>(())
-        })),
-    );
-    dict.insert(
-        "next",
-        Object::from(Function::<(), ()>::from_safe_fn(|()| {
-            let _ = terminal::cycle(1, true);
-            Ok::<(), nvim_oxi::Error>(())
-        })),
-    );
-    dict.insert(
-        "prev",
-        Object::from(Function::<(), ()>::from_safe_fn(|()| {
-            let _ = terminal::cycle(-1, true);
-            Ok::<(), nvim_oxi::Error>(())
-        })),
-    );
-    dict.insert(
-        "close",
-        Object::from(Function::<(), ()>::from_safe_fn(|()| {
-            let _ = terminal::close();
-            Ok::<(), nvim_oxi::Error>(())
-        })),
-    );
+            Ok(())
+        })?,
+    )?;
 
-    dict
+    let actions: [(&str, Action); 5] = [
+        ("toggle", terminal::toggle),
+        ("new", terminal::new_terminal),
+        ("next", || terminal::cycle(1, true)),
+        ("prev", || terminal::cycle(-1, true)),
+        ("close", terminal::close),
+    ];
+    for (name, action) in actions {
+        api.set(
+            name,
+            l.create_function(move |_, ()| {
+                report(action());
+                Ok(())
+            })?,
+        )?;
+    }
+
+    let loaded: Table = l.globals().get::<Table>("package")?.get("loaded")?;
+    loaded.set("terminal", api)?;
+    Ok(())
 }

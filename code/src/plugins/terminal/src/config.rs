@@ -1,27 +1,31 @@
-use nvim_oxi::api::{self, types::WindowBorder, types::WindowTitlePosition};
-use nvim_oxi::conversion::FromObject;
-use serde::Deserialize;
+use mlua::{Table, Value};
+use wp_ui::geometry::{Position, Size};
+use wp_ui::nvim::{Border, TitlePos};
+use wp_ui::widget::PopupOptions;
+use wp_ui::{Result, lua};
 
 // -----------------------------------------------------------------------------
 // Configuration
 // -----------------------------------------------------------------------------
 
-#[derive(Debug, Clone, Deserialize)]
-#[serde(default)]
-pub struct Config {
-    pub width: f64,
-    pub height: f64,
-    pub offset_row: f64,
-    pub offset_col: f64,
-    pub border: String,
-    pub title: String,
-    pub title_pos: String,
-    pub keymap: Option<KeymapConfig>,
-}
+/// The `vim.g` variable holding the user's options table.
+const OPTS_VAR: &str = "abstract_terminal_opts";
 
-#[derive(Debug, Clone, Deserialize)]
-pub struct KeymapConfig {
-    pub toggle: Option<String>,
+#[derive(Clone, Debug)]
+pub struct Config {
+    /// Float width as a fraction of the editor.
+    pub width: f64,
+    /// Float height as a fraction of the editor.
+    pub height: f64,
+    /// Vertical placement within the free space: 0.0 top, 1.0 bottom.
+    pub offset_row: f64,
+    /// Horizontal placement within the free space: 0.0 left, 1.0 right.
+    pub offset_col: f64,
+    pub border: Border,
+    pub title: String,
+    pub title_pos: TitlePos,
+    /// Optional global key (normal, insert and terminal mode) that toggles the float.
+    pub toggle_key: Option<String>,
 }
 
 impl Default for Config {
@@ -31,84 +35,93 @@ impl Default for Config {
             height: 0.4,
             offset_row: 1.0,
             offset_col: 0.5,
-            border: "rounded".to_string(),
+            border: Border::Rounded,
             title: "Terminal".to_string(),
-            title_pos: "right".to_string(),
-            keymap: None,
+            title_pos: TitlePos::Right,
+            toggle_key: None,
         }
     }
 }
 
 impl Config {
-    /// Load config from `vim.g.abstract_terminal_opts`.
-    /// Falls back to defaults if the variable is not set or cannot be decoded.
-    pub fn load() -> Self {
+    /// Save the user's options table (or `nil`) to `vim.g.abstract_terminal_opts`.
+    pub fn store(opts: Value) -> Result<()> {
+        let g: Table = lua::vim()?.get("g")?;
+        g.set(OPTS_VAR, opts)?;
+        Ok(())
+    }
+
+    /// Load from `vim.g.abstract_terminal_opts`. Missing or mistyped fields
+    /// keep their defaults.
+    pub fn load() -> Result<Self> {
         let mut config = Self::default();
-        if let Ok(opts) = api::get_var::<nvim_oxi::Dictionary>("abstract_terminal_opts") {
-            if let Some(w) = opts.get(&nvim_oxi::String::from("width")).and_then(|v| f64::from_object(v.clone()).ok()) {
-                config.width = w;
-            }
-            if let Some(h) = opts.get(&nvim_oxi::String::from("height")).and_then(|v| f64::from_object(v.clone()).ok())
-            {
-                config.height = h;
-            }
-            if let Some(r) =
-                opts.get(&nvim_oxi::String::from("offset_row")).and_then(|v| f64::from_object(v.clone()).ok())
-            {
-                config.offset_row = r;
-            }
-            if let Some(c) =
-                opts.get(&nvim_oxi::String::from("offset_col")).and_then(|v| f64::from_object(v.clone()).ok())
-            {
-                config.offset_col = c;
-            }
-            if let Some(b) =
-                opts.get(&nvim_oxi::String::from("border")).and_then(|v| String::from_object(v.clone()).ok())
-            {
-                config.border = b;
-            }
-            if let Some(t) =
-                opts.get(&nvim_oxi::String::from("title")).and_then(|v| String::from_object(v.clone()).ok())
-            {
-                config.title = t;
-            }
-            if let Some(p) =
-                opts.get(&nvim_oxi::String::from("title_pos")).and_then(|v| String::from_object(v.clone()).ok())
-            {
-                config.title_pos = p;
-            }
-            if let Some(k) = opts
-                .get(&nvim_oxi::String::from("keymap"))
-                .and_then(|v| nvim_oxi::Dictionary::from_object(v.clone()).ok())
-            {
-                let mut keymap_config = KeymapConfig { toggle: None };
-                if let Some(t) =
-                    k.get(&nvim_oxi::String::from("toggle")).and_then(|v| String::from_object(v.clone()).ok())
-                {
-                    keymap_config.toggle = Some(t);
-                }
-                config.keymap = Some(keymap_config);
-            }
+        let g: Table = lua::vim()?.get("g")?;
+        let Value::Table(opts) = g.get::<Value>(OPTS_VAR)? else {
+            return Ok(config);
+        };
+
+        let num = |key: &str| opts.get::<Option<f64>>(key).ok().flatten();
+        let text = |key: &str| opts.get::<Option<String>>(key).ok().flatten();
+
+        if let Some(v) = num("width") {
+            config.width = v;
         }
-        config
+        if let Some(v) = num("height") {
+            config.height = v;
+        }
+        if let Some(v) = num("offset_row") {
+            config.offset_row = v;
+        }
+        if let Some(v) = num("offset_col") {
+            config.offset_col = v;
+        }
+        if let Some(v) = text("border") {
+            config.border = parse_border(&v);
+        }
+        if let Some(v) = text("title") {
+            config.title = v;
+        }
+        if let Some(v) = text("title_pos") {
+            config.title_pos = parse_title_pos(&v);
+        }
+        if let Ok(Value::Table(keymap)) = opts.get::<Value>("keymap") {
+            config.toggle_key = keymap.get::<Option<String>>("toggle").ok().flatten().filter(|k| !k.is_empty());
+        }
+        Ok(config)
     }
 
-    pub fn border(&self) -> WindowBorder {
-        match self.border.as_str() {
-            "single" => WindowBorder::Single,
-            "double" => WindowBorder::Double,
-            "rounded" => WindowBorder::Rounded,
-            "shadow" => WindowBorder::Shadow,
-            "solid" => WindowBorder::Solid,
-            _ => WindowBorder::None,
+    /// The popup options every terminal float is created with.
+    pub fn popup_options(&self) -> PopupOptions {
+        PopupOptions {
+            size: Size::ratio(self.width, self.height),
+            position: Position::Ratio { row: self.offset_row, col: self.offset_col },
+            border: self.border,
+            title_pos: self.title_pos,
+            ..Default::default()
         }
     }
 
-    pub fn title_position(&self) -> WindowTitlePosition {
-        match self.title_pos.as_str() {
-            "left" => WindowTitlePosition::Left,
-            "center" => WindowTitlePosition::Center,
-            _ => WindowTitlePosition::Right,
-        }
+    /// Border title for terminal `index` (0-based) of `count`.
+    pub fn title(&self, index: usize, count: usize) -> String {
+        format!(" {} {}/{} ", self.title, index + 1, count)
+    }
+}
+
+fn parse_border(s: &str) -> Border {
+    match s {
+        "single" => Border::Single,
+        "double" => Border::Double,
+        "rounded" => Border::Rounded,
+        "solid" => Border::Solid,
+        "shadow" => Border::Shadow,
+        _ => Border::None,
+    }
+}
+
+fn parse_title_pos(s: &str) -> TitlePos {
+    match s {
+        "left" => TitlePos::Left,
+        "center" => TitlePos::Center,
+        _ => TitlePos::Right,
     }
 }

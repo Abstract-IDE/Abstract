@@ -7,10 +7,7 @@ license      = { workspace = true }
 rust-version = { workspace = true }
 
 [dependencies]
-# local libraries
-wl_utils = { workspace = true }
-
-# 3rd parties libraries
-nvim-oxi = { workspace = true }
-serde.workspace = true
-serde_json.workspace = true
+# Everything Neovim-facing (floats, buffers, autocmds, commands) goes through
+# our UI library; mlua is only for the few Lua values the plugin hands around.
+wp_ui = { workspace = true }
+mlua  = { workspace = true }
