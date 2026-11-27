@@ -83,7 +83,12 @@ fn plugins_setup() -> nvim_oxi::Result<()> {
 
     wp_indent::setup_indent_autocmds()?;
     wp_terminal::setup();
+    // Abstract's defaults for Seek (options the user set win).
+    let _ = nvim_oxi::mlua::lua()
+        .load(r#"vim.g.abstract_seek_opts = vim.tbl_deep_extend("keep", vim.g.abstract_seek_opts or {}, { preview = { media = true } })"#)
+        .exec();
     wp_seek::setup();
+    keymaps::MAPPING.signal(keymaps::Key::AbstractSeek);
 
     // Registration for testing our panic handler
     panic_test()?;

@@ -209,16 +209,9 @@ M.snacks_gitbrowse = --@snacks_gitbrowse
 
 M.snacks_picker = --@snacks_picker
 {
-    {
-        { "<M-b>", "<CMD>lua Snacks.picker.buffers()<CR>",                               desc = "Buffers" },
-        { "<M-f>", "<CMD>lua Snacks.picker.files()<CR>",                                 desc = "Find Files /project" },
-        { "<M-F>", "<CMD>lua Snacks.picker.files({ cwd = vim.fn.expand('%:p:h') })<CR>", desc = "Find Files /current", mode = { "n", "x" } },
-    },
+    -- Files, buffers, grep and buffer lines are Seek's (M.abstract_seek).
     {
         { "<M-g>",  group = _G.ABSTRACT_PLUGIN_GROUP.find },
-        { "<M-g>g", "<CMD>lua Snacks.picker.grep()<CR>",      desc = "Find word /project" },
-        { "<M-g>w", "<CMD>lua Snacks.picker.grep_word()<CR>", desc = "Find under Visual selection or word" },
-        { "<M-g>l", "<CMD>lua Snacks.picker.lines()<CR>",     desc = "Search Buffer Lines" },
         { "<M-g>c", "<CMD>lua Snacks.picker.commands()<CR>",  desc = "Commands" },
         { "<M-g>m", "<CMD>lua Snacks.picker.keymaps()<CR>",   desc = "Mappings" },
         { "<M-g>h", "<CMD>lua Snacks.picker.help()<CR>",      desc = "Help" },
@@ -233,13 +226,24 @@ M.snacks_picker = --@snacks_picker
 
 M.fff = --@fff
 {
+    -- Files, buffers and grep are Seek's (M.abstract_seek).
+    { "<M-g>", group = _G.ABSTRACT_PLUGIN_GROUP.find },
+}
+--@end
+
+M.abstract_seek = --@abstract_seek
+{
+    -- Also in insert mode: pressing a key again from Seek's prompt closes it.
+    mode = { "n", "i" },
+    { "<M-f>",      function() require("seek").open({ mode = "files" }) end,                               desc = "Find Files /project" },
+    { "<M-F>",      function() require("seek").open({ mode = "files", cwd = vim.fn.expand("%:p:h") }) end, desc = "Find Files /current" },
+    { "<M-b>",      function() require("seek").open({ mode = "buffers" }) end,                             desc = "Buffers" },
     { "<M-g>",      group = _G.ABSTRACT_PLUGIN_GROUP.find },
-    { "<M-f>",      function() require('fff').find_files() end,                              desc = "Find Files /project" },
-    { "<M-F>",      function() require('fff').find_files_in_dir(vim.fn.expand('%:p:h')) end, desc = "Find Files /current",                mode = { "n", "x" } },
-    { "<M-b>",      "<CMD>lua Snacks.picker.buffers()<CR>",                                  desc = "Buffers" },
-    { "<M-g><M-g>", "<CMD>lua Snacks.picker.grep()<CR>",                                     desc = "Find word /project" },
-    { "<M-g><M-w>", "<CMD>lua Snacks.picker.grep_word()<CR>",                                desc = "Find under Visual selection or word" },
-    -- { "<M-g><M-g>", function() require('fff').live_grep() end,                               desc = "Find word /project" },
+    { "<M-g><M-g>", function() require("seek").open({ mode = "grep" }) end,                                desc = "Find word /project" },
+    { "<M-g>g",     function() require("seek").open({ mode = "grep" }) end,                                desc = "Find word /project" },
+    { "<M-g><M-w>", function() require("seek").grep_word() end,                                            desc = "Find under Visual selection or word", mode = { "n", "x", "i" } },
+    { "<M-g>w",     function() require("seek").grep_word() end,                                            desc = "Find under Visual selection or word", mode = { "n", "x", "i" } },
+    { "<M-g>l",     function() require("seek").open({ mode = "lines" }) end,                               desc = "Search Buffer Lines" },
 }
 --@end
 

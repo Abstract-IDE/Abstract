@@ -13,6 +13,7 @@ const KEYMAPS: &str = include_str!("keymaps.lua");
 pub enum Key {
     Builtin,
     //
+    AbstractSeek,
     AbstractTerminal,
     AbstractWindow,
     CodeRunner,

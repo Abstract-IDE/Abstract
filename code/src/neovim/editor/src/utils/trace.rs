@@ -1,4 +1,9 @@
-use std::{fs, panic, path::PathBuf, sync::Once};
+use std::{
+    fs, panic,
+    path::PathBuf,
+    sync::{Once, OnceLock},
+    thread::{self, ThreadId},
+};
 
 use nvim_oxi::mlua;
 use tracing::{self};
@@ -7,6 +12,14 @@ use tracing_subscriber::{EnvFilter, fmt, prelude::*};
 use crate::utils::constants;
 
 static INIT: Once = Once::new();
+
+/// Neovim's main thread: the only one that may touch the Lua state.
+static MAIN_THREAD: OnceLock<ThreadId> = OnceLock::new();
+
+/// (Before the hook is set up, nothing runs on other threads yet.)
+fn on_main_thread() -> bool {
+    MAIN_THREAD.get().is_none_or(|id| *id == thread::current().id())
+}
 
 /// Initialize the tracing/logging system.
 ///
@@ -59,16 +72,24 @@ pub fn log_file_path() -> PathBuf {
 /// Falls back to `vim.notify` when ab-nui is not initialised yet (an error
 /// during the earliest part of startup) or the toast cannot be shown.
 pub fn vim_notify(msg: &str, level: NotifyLevel) {
+    if !on_main_thread() {
+        // Lua belongs to the main thread: from anywhere else, only the log.
+        tracing::warn!("{msg}");
+        return;
+    }
     if toast(msg, &level) {
         return;
     }
-    let lua = mlua::lua();
-    let level_str = match level {
-        NotifyLevel::Error => "vim.log.levels.ERROR",
-        NotifyLevel::Warn => "vim.log.levels.WARN",
-        NotifyLevel::Info => "vim.log.levels.INFO",
+    let level = match level {
+        NotifyLevel::Error => 4,
+        NotifyLevel::Warn => 3,
+        NotifyLevel::Info => 2,
     };
-    let _ = lua.load(format!("vim.notify([==[{msg}]==], {level_str})")).exec();
+    // The message is passed as a value, never spliced into Lua source.
+    let notify = mlua::lua().globals().get::<mlua::Table>("vim").and_then(|vim| vim.get::<mlua::Function>("notify"));
+    if let Ok(notify) = notify {
+        let _ = notify.call::<()>((msg, level));
+    }
 }
 
 /// Show `msg` as an ab-nui toast. Returns whether it was shown.
@@ -98,11 +119,12 @@ pub enum NotifyLevel {
 
 /// Send a colored error report to Neovim using nvim_echo with highlight groups.
 pub fn vim_notify_error_report(report: &str) {
+    if !on_main_thread() {
+        return;
+    }
     let lua = mlua::lua();
-
-    let mut chunks = String::from("vim.api.nvim_echo({");
+    let Ok(chunks) = lua.create_table() else { return };
     for line in report.lines() {
-        let escaped = line.replace('\\', "\\\\").replace('"', "\\\"");
         let hl = if line.starts_with("[Abstract]") {
             "ErrorMsg"
         } else if line.contains("-->") {
@@ -114,15 +136,23 @@ pub fn vim_notify_error_report(report: &str) {
         } else {
             "Comment"
         };
-        chunks.push_str(&format!("{{\"{escaped}\\n\", \"{hl}\"}},"));
+        if let Ok(chunk) = lua.create_sequence_from([format!("{line}\n"), hl.to_string()]) {
+            let _ = chunks.push(chunk);
+        }
     }
-    chunks.push_str("}, true, {})");
-
-    let _ = lua.load(&chunks).exec();
+    let echo = lua
+        .globals()
+        .get::<mlua::Table>("vim")
+        .and_then(|vim| vim.get::<mlua::Table>("api"))
+        .and_then(|api| api.get::<mlua::Function>("nvim_echo"));
+    if let (Ok(echo), Ok(opts)) = (echo, lua.create_table()) {
+        let _ = echo.call::<()>((chunks, true, opts));
+    }
 }
 
 // Set a panic hook to capture and log panics before they kill Neovim
 pub fn setup_err_hook() {
+    let _ = MAIN_THREAD.set(thread::current().id());
     panic::set_hook(Box::new(|panic_info| {
         let loc = panic_info
             .location()
@@ -162,6 +192,11 @@ pub fn setup_err_hook() {
         // The full report goes to `:messages`; a short toast points at it. The
         // toast is shown on the next tick rather than from inside the hook:
         // a second panic while this one is being handled would abort Neovim.
+        // Only Neovim's main thread may use Lua; a panic elsewhere (a
+        // background worker) stays in the log and the crash file.
+        if !on_main_thread() {
+            return;
+        }
         vim_notify_error_report(&full_msg);
         if wp_ui::is_initialized() {
             let summary = format!("PANIC at {loc}: {msg}\nFull report in :messages and {}", crash_file.display());
