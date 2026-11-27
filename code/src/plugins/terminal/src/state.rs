@@ -52,9 +52,10 @@ impl State {
         term
     }
 
-    /// The terminal whose float is open, if any.
+    /// The terminal whose float is open on this tab page, if any (floats
+    /// belong to one tab page: one open on another isn't seen here).
     pub fn visible(&self) -> Option<usize> {
-        self.terms.iter().position(|t| t.popup.is_open())
+        self.terms.iter().position(|t| on_this_tab(&t.popup))
     }
 
     pub fn index_of(&self, buf: Buffer) -> Option<usize> {
@@ -78,6 +79,14 @@ thread_local! {
 }
 
 /// Run `f` with the plugin state.
+/// Whether `popup`'s window is open on the current tab page.
+pub fn on_this_tab(popup: &Popup) -> bool {
+    let Some(win) = popup.window().filter(|w| w.is_valid()) else { return false };
+    let tab = wp_ui::lua::call_api::<i64>("nvim_win_get_tabpage", (win.id(),));
+    let current = wp_ui::lua::call_api::<i64>("nvim_get_current_tabpage", ());
+    matches!((tab, current), (Ok(a), Ok(b)) if a == b)
+}
+
 pub fn with_state<R>(f: impl FnOnce(&mut State) -> Result<R>) -> Result<R> {
     STATE.with(|cell| {
         let mut borrow = cell.try_borrow_mut().map_err(|_| Error::invalid("terminal state is already in use"))?;

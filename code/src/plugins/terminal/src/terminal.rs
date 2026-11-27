@@ -4,7 +4,7 @@ use wp_ui::view::{Level, NotifyOptions, notify};
 use wp_ui::widget::Popup;
 use wp_ui::{Error, Result, lua};
 
-use crate::state::{State, Term, with_state};
+use crate::state::{State, Term, on_this_tab, with_state};
 
 // -----------------------------------------------------------------------------
 // Neovim helpers
@@ -78,6 +78,10 @@ fn show(state: &mut State, idx: usize) -> Result<()> {
     state.current = idx;
     let title = state.title();
     let term = &state.terms[idx];
+    // Open on another tab page: bring it here.
+    if term.popup.is_open() && !on_this_tab(&term.popup) {
+        term.popup.hide();
+    }
     term.popup.set_title(title)?;
     term.popup.open()?;
     if let Some(win) = term.popup.window() {
@@ -93,7 +97,15 @@ fn show(state: &mut State, idx: usize) -> Result<()> {
 /// never run while the state is borrowed.
 fn watch(buf: Buffer) -> Result<()> {
     nvim::buf_autocmd(&["TermClose"], buf, None, move || {
-        let _ = nvim::schedule(move || report(on_exit(buf)));
+        let _ = nvim::schedule(move || report(on_exit(buf, None)));
+    })?;
+    // A shell that exits cleanly has its buffer deleted by Neovim's own
+    // `TermClose` handler (which runs first, so ours above never does): see
+    // it here, as the buffer leaves its (on-screen) window.
+    nvim::buf_autocmd(&["BufWinLeave"], buf, None, move || {
+        if job_exited(buf) {
+            let _ = nvim::schedule(move || report(on_exit(buf, Some(true))));
+        }
     })?;
     nvim::buf_autocmd(&["BufEnter", "WinEnter"], buf, None, move || {
         let _ = nvim::schedule(move || report(on_enter(buf)));
@@ -101,15 +113,28 @@ fn watch(buf: Buffer) -> Result<()> {
     Ok(())
 }
 
-/// The shell exited: drop the terminal and, if it was on screen, show the next one.
-fn on_exit(buf: Buffer) -> Result<()> {
+/// Whether the shell of terminal buffer `buf` has exited.
+fn job_exited(buf: Buffer) -> bool {
+    let Ok(chan) = lua::call_api::<i64>("nvim_get_option_value", ("channel", lua_buf_opts(buf))) else { return false };
+    chan <= 0 || lua::call_fn::<Vec<i64>>("jobwait", (vec![chan], 0)).is_ok_and(|r| r.first() != Some(&-1))
+}
+
+fn lua_buf_opts(buf: Buffer) -> Option<Table> {
+    let t = lua::table().ok()?;
+    t.set("buf", buf.id()).ok()?;
+    Some(t)
+}
+
+/// The shell exited: drop the terminal and, if it was on screen (`visible`,
+/// when already known), show the next one.
+fn on_exit(buf: Buffer, visible: Option<bool>) -> Result<()> {
     if exiting() {
         return Ok(());
     }
     with_state(|state| {
         // Already gone if it was closed with `close()`.
         let Some(idx) = state.index_of(buf) else { return Ok(()) };
-        let was_visible = state.terms[idx].popup.is_open();
+        let was_visible = visible.unwrap_or_else(|| on_this_tab(&state.terms[idx].popup));
         state.remove(idx);
         if buf.is_valid() {
             buf.delete()?;
