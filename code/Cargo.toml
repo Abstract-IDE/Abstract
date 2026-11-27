@@ -10,6 +10,7 @@ members = [
   "src/plugins/abspm",
   "src/plugins/autogood",
   "src/plugins/indent",
+  "src/plugins/seek",
   "src/plugins/terminal",
 ]
 # The vendored nvim-oxi fork is its own workspace (it keeps upstream's layout so
@@ -38,6 +39,7 @@ wp_ui       = { package = "ab-nui", path = "./src/plugins/ab-nui" }
 wp_abspm    = { package = "abspm", path = "./src/plugins/abspm" }
 wp_autogood = { package = "abstract-autogood", path = "./src/plugins/autogood" }
 wp_indent   = { package = "abstract-indent", path = "./src/plugins/indent" }
+wp_seek     = { package = "abstract-seek", path = "./src/plugins/seek" }
 wp_terminal = { package = "abstract-terminal", path = "./src/plugins/terminal" }
 
 # === 3rd Parties === #

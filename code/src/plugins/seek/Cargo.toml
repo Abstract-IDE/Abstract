@@ -1,15 +1,11 @@
 [package]
-name    = "abstract-seek"
-version = "0.1.0"
-edition = "2024"
-
-[lib]
-crate-type = ["rlib", "cdylib"]
+name         = "abstract-seek"
+version      = { workspace = true }
+edition      = { workspace = true }
+authors      = { workspace = true }
+license      = { workspace = true }
+rust-version = { workspace = true }
 
 [dependencies]
-wl_utils = { workspace = true }
-#
-nvim-oxi = { workspace = true }
-rayon    = { workspace = true }
-serde    = { workspace = true }
-tracing  = { workspace = true }
+# All UI goes through our UI library.
+wp_ui = { workspace = true }

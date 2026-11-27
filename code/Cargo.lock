@@ -45,6 +45,7 @@ dependencies = [
  "abspm",
  "abstract-autogood",
  "abstract-indent",
+ "abstract-seek",
  "abstract-terminal",
  "abstract-utils",
  "anyhow",
@@ -80,13 +81,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "abstract-seek"
+version = "0.1.0"
+dependencies = [
+ "ab-nui",
+]
+
+[[package]]
 name = "abstract-terminal"
 version = "0.1.0"
 dependencies = [
- "abstract-utils",
- "nvim-oxi",
- "serde",
- "serde_json",
+ "ab-nui",
+ "mlua",
 ]
 
 [[package]]
