@@ -1,229 +1,165 @@
-//! Seek: a search hub (prompt, results, preview) built on ab-nui (`wp_ui`).
+//! Seek: a search hub for files, file contents, buffers and buffer lines,
+//! built on ab-nui (`wp_ui`).
 //!
-//! The whole UI is one ab-nui [`Surface`]: a [`TextField`] prompt, a [`List`]
-//! of results and a scrolling preview, laid out by [`frame::Frame`]. The
-//! results and preview are placeholder data for now.
+//! One window, one mode at a time:
 //!
-//! Keys (all handled by the prompt, which keeps focus):
-//! `<Tab>`/`<S-Tab>` move through results, `<C-d>`/`<C-u>` scroll the
-//! preview, `<C-p>` toggles the preview, `<C-m>` maximizes it, `<CR>` /
-//! `<C-s>` / `<C-v>` open the selected file (edit / split / vsplit),
-//! `<Esc>` or `<C-c>` close.
+//! | mode    | searches                            | prefix | key     |
+//! | ------- | ----------------------------------- | ------ | ------- |
+//! | files   | project files (fuzzy)               |        | `<C-f>` |
+//! | grep    | file contents (literal or regex)    | `>`    | `<C-g>` |
+//! | buffers | open buffers (fuzzy)                | `#`    | `<C-b>` |
+//! | lines   | lines of the current buffer (fuzzy) | `/`    | `<C-l>` |
+//!
+//! Searching runs on background threads (ripgrep's `.gitignore`-aware walker,
+//! fzf-style scoring in parallel), so large projects never block Neovim. The
+//! preview is a real buffer with syntax highlighting.
+//!
+//! - `:AbstractSeek [mode] [query]` (again while open: closes it, or with
+//!   `on_reopen = "keep"` leaves it; another mode/query switches to it)
+//! - `:AbstractSeekToggle [mode] [query]`, `require("seek").toggle({ .. })`
+//! - `require("seek").open({ mode = "grep", query = "TODO", cwd = "~/src" })`
+//! - `require("seek").grep_word()` — grep the visual selection or the word
+//!   under the cursor
+//! - `require("seek").setup({ .. })` — see `config.rs` for every option.
 
-mod frame;
+mod actions;
+mod config;
+mod engine;
+mod entry;
+mod fuzzy;
+mod nvim;
+mod preview;
+mod session;
 
 use std::cell::RefCell;
 use std::mem::ManuallyDrop;
+use std::path::PathBuf;
 use std::rc::Rc;
 
-use wp_ui::geometry::editor_size;
-use wp_ui::nvim::{self, CommandOpts};
-use wp_ui::prelude::*;
-use wp_ui::theme::groups;
+use mlua::{Table, Value};
+use wp_ui::nvim::{self as ui, CommandOpts};
+use wp_ui::view::{Level, NotifyOptions, notify};
+use wp_ui::{Error, Result, lua};
 
-use crate::frame::Frame;
-
-// ============================================================================
-// Configuration
-// ============================================================================
-
-pub struct SeekConfig {
-    /// Below this many editor columns the preview is hidden.
-    pub min_width_for_preview: u32,
-    /// Width share of the preview column.
-    pub preview_ratio: f64,
-    pub width_ratio: f64,
-    pub height_ratio: f64,
-}
-
-impl Default for SeekConfig {
-    fn default() -> Self {
-        Self { min_width_for_preview: 100, preview_ratio: 0.6, width_ratio: 0.8, height_ratio: 0.8 }
-    }
-}
-
-// ============================================================================
-// Placeholder data
-// ============================================================================
-
-const FILES: &[&str] = &["src/main.rs", "src/ui/seek/internal/layout.rs", "src/ui/theme.rs", "flake.nix"];
-
-const PREVIEW: &[&str] = &[
-    "pub fn build_ui(app: &mut App) -> Result<()> {",
-    "    let block = Block::default()",
-    "        .borders(Borders::ALL)",
-    "        .title(\"Search Hub\");",
-    "",
-    "    let area = f.size();",
-    "    f.render_widget(block, area);",
-    "",
-    "    Ok(())",
-    "}",
-];
-
-/// How far `<C-d>`/`<C-u>` scroll the preview.
-const PREVIEW_STEP: i32 = 10;
-
-const ICON_SEARCH: &str = "\u{f002}";
-const ICON_FILE: &str = "\u{f15b}";
-const ICON_FOLDER_OPEN: &str = "\u{f07c}";
-
-// ============================================================================
-// State
-// ============================================================================
+pub use config::Config;
+pub use entry::Mode;
+use session::{OpenOpts, Session};
 
 thread_local! {
-    /// The open seek window. Dropping the surface frees it.
+    /// The open seek window.
     ///
     /// `ManuallyDrop`: a seek window still open when Neovim exits must not be
-    /// freed from a thread-exit destructor — that would call into Lua after
-    /// Neovim has torn it down (and crash on quit).
-    static SEEK: ManuallyDrop<RefCell<Option<Surface>>> = const { ManuallyDrop::new(RefCell::new(None)) };
+    /// torn down from a thread-exit destructor — that would call into Lua
+    /// after Neovim has shut it down (and crash on quit).
+    static SEEK: ManuallyDrop<RefCell<Option<Rc<Session>>>> = const { ManuallyDrop::new(RefCell::new(None)) };
 }
 
-/// The state one seek window shares across rebuilds.
-#[derive(Clone)]
-struct Ui {
-    config: Rc<SeekConfig>,
-    query: FieldState,
-    results: ListState,
-    preview_offset: Signal<u16>,
-    show_preview: Signal<bool>,
-    maximize: Signal<bool>,
+// ============================================================================
+// Public API
+// ============================================================================
+
+/// Register `:AbstractSeek` and `require("seek")`. ab-nui must already be
+/// initialised (`wp_ui::init`). Options already in `vim.g.abstract_seek_opts`
+/// are kept.
+pub fn setup() {
+    setup_with_opts(Value::Nil);
 }
 
-#[derive(Clone, Copy)]
-enum OpenMode {
-    Edit,
-    Split,
-    VSplit,
+/// Like [`setup`], replacing the options with `opts` (a Lua table) unless it is `nil`.
+pub fn setup_with_opts(opts: Value) {
+    report(try_setup(opts));
 }
 
-impl OpenMode {
-    fn command(self) -> &'static str {
-        match self {
-            OpenMode::Edit => "edit",
-            OpenMode::Split => "split",
-            OpenMode::VSplit => "vsplit",
-        }
+fn try_setup(opts: Value) -> Result<()> {
+    if !opts.is_nil() {
+        Config::store(opts)?;
     }
+    nvim::call::<()>("highlights", ())?;
+    // Colorschemes clear highlight links; put ours back.
+    let group = ui::augroup("AbstractSeek")?;
+    ui::autocmd(&["ColorScheme"], None, Some(group), |_| {
+        let _ = nvim::call::<()>("highlights", ());
+    })?;
+    let opts = |desc: &str| CommandOpts {
+        nargs: Some("*"),
+        desc: Some(desc.into()),
+        complete: Some("customlist,v:lua.require'seek'.complete".into()),
+        ..Default::default()
+    };
+    ui::user_command("AbstractSeek", &opts("Seek: [files|grep|buffers|lines] [query]"), |args| {
+        let (mode, query) = parse_args(&args.fargs);
+        report(open(mode, query, None));
+    })?;
+    ui::user_command("AbstractSeekToggle", &opts("Seek, open or close: [mode] [query]"), |args| {
+        let (mode, query) = parse_args(&args.fargs);
+        report(toggle(mode, query, None));
+    })?;
+    export_api()
 }
 
-impl Ui {
-    fn new(config: SeekConfig) -> Self {
-        Self {
-            config: Rc::new(config),
-            query: FieldState::new(""),
-            results: ListState::new(),
-            preview_offset: Signal::new(0),
-            show_preview: Signal::new(true),
-            maximize: Signal::new(false),
-        }
-    }
+fn open_session() -> Option<Rc<Session>> {
+    SEEK.with(|s| s.borrow().clone()).filter(|s| s.is_visible())
+}
 
-    /// The whole window. Rebuilt whenever a signal it reads changes, and on
-    /// editor resize (which can show or hide the preview).
-    fn build(&self) -> Frame {
-        let (columns, _) = editor_size().unwrap_or((0, 0));
-        let has_preview = self.show_preview.get() && columns >= self.config.min_width_for_preview;
-        let maximized = has_preview && self.maximize.get();
-
-        let columns = if maximized {
-            vec![frame::Column { header: self.prompt(), body: self.preview(), footer: None }]
-        } else if has_preview {
-            vec![
-                frame::Column { header: self.prompt(), body: self.results(), footer: Some(label(" Results")) },
-                frame::Column {
-                    header: label(&format!(" {ICON_FOLDER_OPEN}  Preview")),
-                    body: self.preview(),
-                    footer: Some(label(" Info")),
-                },
-            ]
-        } else {
-            vec![frame::Column { header: self.prompt(), body: self.results(), footer: Some(label(" Results")) }]
-        };
-        Frame::new(columns, self.config.preview_ratio)
-    }
-
-    /// The search prompt. It keeps focus, so every seek key is bound here.
-    fn prompt(&self) -> Element {
-        let field = Keyed::new(TextField::new(&self.query))
-            .focus_key("prompt")
-            .on_key(Key::Tab, self.act(|ui| ui.step_results(1)))
-            .on_key(Key::BackTab, self.act(|ui| ui.step_results(-1)))
-            .on_key(Key::Ctrl('d'), self.act(|ui| ui.scroll_preview(PREVIEW_STEP)))
-            .on_key(Key::Ctrl('u'), self.act(|ui| ui.scroll_preview(-PREVIEW_STEP)))
-            .on_key(Key::Ctrl('p'), self.act(|ui| ui.show_preview.update(|v| *v = !*v)))
-            .on_key(Key::Ctrl('m'), self.act(|ui| ui.maximize.update(|v| *v = !*v)))
-            .on_key(Key::Enter, self.act(|ui| ui.open_selected(OpenMode::Edit)))
-            .on_key(Key::Ctrl('s'), self.act(|ui| ui.open_selected(OpenMode::Split)))
-            .on_key(Key::Ctrl('v'), self.act(|ui| ui.open_selected(OpenMode::VSplit)))
-            .on_key(Key::Esc, close_later);
-        Box::new(row![Text::new(format!(" {ICON_SEARCH}  ")).fg(groups::ACCENT), Expanded::new(field)])
-    }
-
-    fn results(&self) -> Element {
-        let list = List::with_render(FILES.to_vec(), &self.results, |path, _| {
-            Line::from_spans([Span::hl(format!("{ICON_FILE} "), groups::ACCENT), Span::raw(*path)])
-        });
-        Box::new(col![Text::new("FILES").fg(groups::HEADER), Expanded::new(list)])
-    }
-
-    fn preview(&self) -> Element {
-        let width = PREVIEW.len().to_string().len().max(3);
-        let rows: Vec<Element> = PREVIEW
-            .iter()
-            .enumerate()
-            .map(|(i, code)| {
-                let line = Line::from_spans([Span::hl(format!("{:>width$} ", i + 1), "LineNr"), Span::raw(*code)]);
-                Box::new(Text::from_line(line)) as Element
-            })
-            .collect();
-        Box::new(ScrollView::new(self.preview_offset.clone(), Column::new(rows)).scrollbar(false))
-    }
-
-    /// A key handler running `f` on this window's state.
-    fn act(&self, f: impl Fn(&Ui) + 'static) -> impl Fn() + 'static {
-        let ui = self.clone();
-        move || f(&ui)
-    }
-
-    /// Move the result selection, wrapping at both ends.
-    fn step_results(&self, step: isize) {
-        let n = FILES.len() as isize;
-        self.results.selected.update(|sel| *sel = (*sel as isize + step).rem_euclid(n) as usize);
-    }
-
-    fn scroll_preview(&self, by: i32) {
-        let max = PREVIEW.len().saturating_sub(1) as i32;
-        self.preview_offset.update(|o| *o = (*o as i32 + by).clamp(0, max) as u16);
-    }
-
-    /// Close seek and open the selected file. Deferred to the next tick so the
-    /// window is not freed from inside its own key handler.
-    fn open_selected(&self, mode: OpenMode) {
-        let path = FILES.get(self.results.selected.get_untracked()).copied();
-        let _ = nvim::schedule(move || {
-            close();
-            if let Some(path) = path {
-                report(open_file(path, mode));
+/// Open seek. When it is already open:
+/// - asked for another mode or a query: switch the open window to it;
+/// - asked for another directory: start afresh there;
+/// - otherwise (opening it again): close it (`on_reopen = "toggle"`, the
+///   default) or leave it as it is (`on_reopen = "keep"`).
+pub fn open(mode: Option<Mode>, query: Option<String>, cwd: Option<PathBuf>) -> Result<()> {
+    if let Some(session) = open_session()
+        // A directory worked out inside seek's own prompt (`%:p:h` there
+        // is just the cwd) means "where seek is", not a new place.
+        && cwd.as_deref().is_none_or(|dir| session.has_root(dir) || session.has_focus())
+    {
+        if mode.is_some_and(|m| m != session.mode()) || query.is_some() {
+            if let Some(m) = mode {
+                session.set_mode(m);
             }
-        });
+            if let Some(q) = query {
+                session.set_query(&q)?;
+            }
+            return session.focus();
+        }
+        return match Config::load()?.on_reopen {
+            config::Reopen::Toggle => {
+                close();
+                Ok(())
+            },
+            config::Reopen::Keep => session.focus(),
+        };
+    }
+    close();
+    let session = Session::open(Config::load()?, OpenOpts { mode, query, cwd })?;
+    SEEK.with(|s| *s.borrow_mut() = Some(session));
+    Ok(())
+}
+
+/// Close seek if it is open, open it (like [`open`]) if not.
+pub fn toggle(mode: Option<Mode>, query: Option<String>, cwd: Option<PathBuf>) -> Result<()> {
+    if open_session().is_some() {
+        close();
+        Ok(())
+    } else {
+        open(mode, query, cwd)
     }
 }
 
-/// A one-line frame label (header/footer).
-fn label(text: &str) -> Element {
-    Box::new(Text::new(text).fg(groups::TITLE).ellipsis())
+/// Close seek, if open.
+pub fn close() {
+    if let Some(session) = SEEK.with(|s| s.borrow_mut().take()) {
+        session.shutdown();
+    }
 }
 
-fn open_file(path: &str, mode: OpenMode) -> Result<()> {
-    let escaped: String = wp_ui::lua::call_fn("fnameescape", (path,))?;
-    wp_ui::lua::cmd(&format!("{} {escaped}", mode.command()))
+/// Grep for the visual selection, or the word under the cursor.
+pub fn grep_word() -> Result<()> {
+    let word: String = nvim::call("selection_or_word", ())?;
+    open(Some(Mode::Grep), Some(word), None)
 }
 
 /// Show an error where there is no caller to return it to.
-fn report(res: Result<()>) {
+pub(crate) fn report(res: Result<()>) {
     if let Err(e) = res {
         let opts = NotifyOptions { title: Some("Seek".into()), level: Level::Error, ..Default::default() };
         if notify(e.to_string(), opts).is_err() {
@@ -232,57 +168,86 @@ fn report(res: Result<()>) {
     }
 }
 
-// ============================================================================
-// Public API
-// ============================================================================
-
-/// Register `:AbstractSeek`. ab-nui must already be initialised (`wp_ui::init`).
-pub fn setup() {
-    report(nvim::user_command(
-        "AbstractSeek",
-        &CommandOpts { nargs: Some("0"), desc: Some("Open the Seek search hub".into()), ..Default::default() },
-        |_| report(open()),
-    ));
+/// `[mode] [query...]` command arguments.
+fn parse_args(args: &[String]) -> (Option<Mode>, Option<String>) {
+    let (mode, rest) = match args.first().and_then(|a| Mode::parse(a)) {
+        Some(m) => (Some(m), &args[1..]),
+        None => (None, args),
+    };
+    (mode, (!rest.is_empty()).then(|| rest.join(" ")))
 }
 
-/// Open seek, or focus it if it is already open.
-pub fn open() -> Result<()> {
-    let existing = SEEK.with(|s| s.borrow().clone());
-    if let Some(surface) = existing {
-        if let Some(win) = surface.popup().window().filter(|_| surface.is_visible()) {
-            return win.focus();
-        }
-        // Its window was closed some other way (`:q`); start over.
-        close();
-    }
+/// `require("seek")`.
+fn export_api() -> Result<()> {
+    let l = lua::lua()?;
+    let api = l.create_table()?;
 
-    let config = SeekConfig::default();
-    let size = wp_ui::geometry::Size::ratio(config.width_ratio, config.height_ratio);
-    let ui = Ui::new(config);
-    let surface = Surface::float(PopupOptions {
-        size,
-        position: Position::Center,
-        // The frame draws its own border.
-        border: Border::None,
-        ..Default::default()
-    })?
-    .initial_focus(0);
-    // `<C-c>` is left out of the surface's key table (it stays Neovim's interrupt).
-    surface.on_key("<C-c>", close_later)?;
-    let surface = surface.show(move || ui.build())?;
+    api.set(
+        "open",
+        l.create_function(|_, opts: Option<Table>| {
+            report(lua_opts(opts).and_then(|(m, q, d)| open(m, q, d)));
+            Ok(())
+        })?,
+    )?;
+    api.set(
+        "toggle",
+        l.create_function(|_, opts: Option<Table>| {
+            report(lua_opts(opts).and_then(|(m, q, d)| toggle(m, q, d)));
+            Ok(())
+        })?,
+    )?;
+    api.set(
+        "close",
+        l.create_function(|_, ()| {
+            close();
+            Ok(())
+        })?,
+    )?;
+    api.set(
+        "grep_word",
+        l.create_function(|_, ()| {
+            report(grep_word());
+            Ok(())
+        })?,
+    )?;
+    api.set(
+        "setup",
+        l.create_function(|_, opts: Value| {
+            setup_with_opts(opts);
+            Ok(())
+        })?,
+    )?;
+    // Command-line completion: mode names for the first argument.
+    api.set(
+        "complete",
+        l.create_function(|_, (lead, line): (String, String)| {
+            let words = line.split_whitespace().count();
+            let first_arg = words <= 1 || (words == 2 && !line.ends_with(' '));
+            let names: Vec<String> = if first_arg {
+                Mode::ALL.iter().map(|m| m.name().to_string()).filter(|n| n.starts_with(&lead)).collect()
+            } else {
+                Vec::new()
+            };
+            Ok(names)
+        })?,
+    )?;
 
-    SEEK.with(|s| *s.borrow_mut() = Some(surface));
+    let loaded: Table = l.globals().get::<Table>("package")?.get("loaded")?;
+    loaded.set("seek", api)?;
     Ok(())
 }
 
-/// Close seek (frees the window and its state).
-pub fn close() {
-    if let Some(surface) = SEEK.with(|s| s.borrow_mut().take()) {
-        surface.close();
-    }
-}
-
-/// [`close`] on the next tick — for key handlers of the seek window itself.
-fn close_later() {
-    let _ = nvim::schedule(close);
+/// `{ mode = .., query = .., cwd = .. }` from Lua.
+fn lua_opts(opts: Option<Table>) -> Result<(Option<Mode>, Option<String>, Option<PathBuf>)> {
+    let Some(opts) = opts else { return Ok((None, None, None)) };
+    let mode = match opts.get::<Option<String>>("mode")? {
+        Some(name) => Some(Mode::parse(&name).ok_or_else(|| Error::invalid(format!("unknown mode \"{name}\"")))?),
+        None => None,
+    };
+    let query = opts.get::<Option<String>>("query")?;
+    let cwd = opts.get::<Option<String>>("cwd")?.filter(|d| !d.is_empty()).map(|d| {
+        let expanded: String = lua::call_fn("expand", (d.clone(),)).unwrap_or(d);
+        PathBuf::from(expanded)
+    });
+    Ok((mode, query, cwd))
 }

@@ -8,4 +8,10 @@ rust-version = { workspace = true }
 
 [dependencies]
 # All UI goes through our UI library.
-wp_ui = { workspace = true }
+wp_ui  = { workspace = true }
+mlua   = { workspace = true }
+# Search engine: ripgrep's directory walker (.gitignore aware), regex for
+# grep, rayon for parallel fuzzy scoring.
+ignore = { workspace = true }
+regex  = { workspace = true }
+rayon  = { workspace = true }
