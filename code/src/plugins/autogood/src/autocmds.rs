@@ -49,7 +49,11 @@ impl AutoCmds {
             .group(group_id)
             .desc("jump to the last position when reopening a file")
             .patterns(["*"])
-            .command(r#"if line("'\"") > 0 && line("'\"") <= line("$") | exe "normal! g`\"" | endif"#)
+            // Files only (`buftype` empty): terminals and other special buffers have no
+            // position worth restoring, and `:normal` fails while in terminal mode.
+            .command(
+                r#"if &buftype ==# '' && line("'\"") > 0 && line("'\"") <= line("$") | exe "normal! g`\"" | endif"#,
+            )
             .build();
 
         create_autocmd([Events::BufWinEnter.as_ref()], &opts)?;

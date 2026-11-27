@@ -5,6 +5,7 @@ use nvim_oxi::{self};
 use wl_utils::panic::panic_test;
 use wp_autogood::{self};
 use wp_indent::{self};
+use wp_seek::{self};
 use wp_terminal::{self};
 
 use crate::{
@@ -59,6 +60,15 @@ fn libabstract() -> nvim_oxi::Result<()> {
 fn plugins_init() -> nvim_oxi::Result<()> {
     setup_err_hook();
     Config::init()?;
+    // ab-nui (our UI library) needs the host's Lua before any plugin builds UI with it.
+    wp_ui::init(&nvim_oxi::mlua::lua());
+    if let Err(e) = wp_ui::theme::setup() {
+        tracing::warn!("ab-nui theme setup failed: {e}");
+    }
+    // ab-nui provides vim.ui.select / vim.ui.input (snacks' versions are disabled in snack.lua).
+    if let Err(e) = wp_ui::vim_ui::register_all() {
+        tracing::warn!("ab-nui vim.ui registration failed: {e}");
+    }
     plugins_setup()?;
     runtime::spawn(async {
         let _ = async_setup().await;
@@ -73,6 +83,7 @@ fn plugins_setup() -> nvim_oxi::Result<()> {
 
     wp_indent::setup_indent_autocmds()?;
     wp_terminal::setup();
+    wp_seek::setup();
 
     // Registration for testing our panic handler
     panic_test()?;

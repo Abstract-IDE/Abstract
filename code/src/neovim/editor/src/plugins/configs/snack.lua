@@ -121,7 +121,7 @@ configs.picker = function()
             fields = { "score:desc", "#text", "idx" },
         },
 
-        ui_select = true, -- replace `vim.ui.select` with the snacks picker
+        ui_select = false, -- `vim.ui.select` is provided by ab-nui (our UI library)
         ---@class snacks.picker.formatters.Config
         formatters = {
             text = {
@@ -559,11 +559,11 @@ configs.bigfile = {
 
 
 -- === Input === --
--- Better vim.ui.input
+-- Disabled: `vim.ui.input` is provided by ab-nui (our UI library).
 -- https://github.com/folke/snacks.nvim/blob/main/docs/input.md
 ---@class snacks.input.Config
 configs.input = {
-    enabled = true,
+    enabled = false,
 }
 
 

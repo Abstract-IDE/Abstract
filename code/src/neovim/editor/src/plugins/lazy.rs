@@ -228,7 +228,13 @@ impl PluginManager {
             ("configs/abstract-cs.lua"),
             ("configs/abstract-cursor.lua"),
             ("configs/abstract-line.lua"),
-            ("configs/abstract-plugs.lua", &[("TERMINAL_MAPPING_SET", MAPPING.set_map_str(Key::AbstractTerminal))]),
+            (
+                "configs/abstract-plugs.lua",
+                &[
+                    ("TERMINAL_MAPPING_SET", MAPPING.set_map_str(Key::AbstractTerminal)),
+                    ("WINDOW_MAPPING_SET", MAPPING.set_map_str(Key::AbstractWindow))
+                ]
+            ),
             ("configs/autopairs.lua"),
             ("configs/blink.lua"),
             ("configs/bqf.lua"),

@@ -258,7 +258,7 @@ M.abstract_terminal = --@abstract_terminal
 {
     mode = { "i", "n", "t" },
     { "<M-t>",      group = _G.ABSTRACT_PLUGIN_GROUP.terminal },
-    { "<M-t><M-t>", ":AbstractTerminal toggle<CR>",               desc = "Terminal /toggle" },
+    { "<M-t><M-t>", "<CMD>AbstractTerminal toggle<CR>",            desc = "Terminal /toggle" },
     {
         mode = { "t" },
         { "<M-t>n",     function() require("terminal").new() end,  desc = "Open new terminal" },

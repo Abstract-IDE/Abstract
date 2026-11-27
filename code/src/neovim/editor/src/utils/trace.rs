@@ -54,9 +54,14 @@ pub fn log_file_path() -> PathBuf {
     PathBuf::from(constants::NVIM_DATA_HOME.as_str()).join("abstract.log")
 }
 
-/// Send a notification to Neovim's `vim.notify`.
-/// Uses Lua long strings `[==[...]==]` to safely handle any content.
+/// Show one of Abstract's own messages as an ab-nui toast.
+///
+/// Falls back to `vim.notify` when ab-nui is not initialised yet (an error
+/// during the earliest part of startup) or the toast cannot be shown.
 pub fn vim_notify(msg: &str, level: NotifyLevel) {
+    if toast(msg, &level) {
+        return;
+    }
     let lua = mlua::lua();
     let level_str = match level {
         NotifyLevel::Error => "vim.log.levels.ERROR",
@@ -64,6 +69,24 @@ pub fn vim_notify(msg: &str, level: NotifyLevel) {
         NotifyLevel::Info => "vim.log.levels.INFO",
     };
     let _ = lua.load(format!("vim.notify([==[{msg}]==], {level_str})")).exec();
+}
+
+/// Show `msg` as an ab-nui toast. Returns whether it was shown.
+fn toast(msg: &str, level: &NotifyLevel) -> bool {
+    use wp_ui::view::{Level, NotifyOptions, notify};
+
+    if !wp_ui::is_initialized() {
+        return false;
+    }
+    let (level, timeout_ms) = match level {
+        NotifyLevel::Error => (Level::Error, 10_000),
+        NotifyLevel::Warn => (Level::Warn, 6_000),
+        NotifyLevel::Info => (Level::Info, 4_000),
+    };
+    // The toast is already titled "Abstract".
+    let msg = msg.trim().strip_prefix("[Abstract]").unwrap_or(msg).trim();
+    let opts = NotifyOptions { title: Some("Abstract".into()), level, timeout_ms: Some(timeout_ms), width: 60 };
+    notify(msg, opts).is_ok()
 }
 
 #[allow(unused)]
@@ -136,6 +159,13 @@ pub fn setup_err_hook() {
         }
         let _ = fs::write(&crash_file, &full_msg);
 
-        vim_notify_error_report(&full_msg)
+        // The full report goes to `:messages`; a short toast points at it. The
+        // toast is shown on the next tick rather than from inside the hook:
+        // a second panic while this one is being handled would abort Neovim.
+        vim_notify_error_report(&full_msg);
+        if wp_ui::is_initialized() {
+            let summary = format!("PANIC at {loc}: {msg}\nFull report in :messages and {}", crash_file.display());
+            let _ = wp_ui::nvim::schedule(move || vim_notify(&summary, NotifyLevel::Error));
+        }
     }));
 }

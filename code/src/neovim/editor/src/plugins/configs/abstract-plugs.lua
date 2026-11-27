@@ -26,6 +26,7 @@ spec.config = function()
     abstract.whitespace().setup()
 
     --[[@rs $TERMINAL_MAPPING_SET ]]
+    --[[@rs $WINDOW_MAPPING_SET ]]
 end
 
 return spec
