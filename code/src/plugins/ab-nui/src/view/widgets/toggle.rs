@@ -27,7 +27,7 @@ impl Checkbox {
 
 impl Widget for Checkbox {
     fn measure(&self, c: Constraints) -> Size {
-        Size::new((display_width(&self.label) + 4).min(c.max_w), 1)
+        c.clamp(Size::new(display_width(&self.label).saturating_add(4), 1))
     }
 
     fn paint(&self, cx: &mut Cx, area: Area, canvas: &mut Canvas) {
@@ -35,7 +35,7 @@ impl Widget for Checkbox {
         let checked = self.checked.get();
         let text = format!("[{}] {}", if checked { "x" } else { " " }, self.label);
         let hl = if focused { Some(Rc::from(groups::SELECTION)) } else { None };
-        canvas.put_str(area.x, area.y, &text, hl);
+        canvas.put_str_clipped(area.x, area.y, area.w, &text, hl);
 
         let sig = self.checked.clone();
         let on_change = self.on_change.clone();
@@ -72,7 +72,7 @@ impl Toggle {
 
 impl Widget for Toggle {
     fn measure(&self, c: Constraints) -> Size {
-        Size::new((display_width(&self.label) + 5).min(c.max_w), 1)
+        c.clamp(Size::new(display_width(&self.label).saturating_add(5), 1))
     }
 
     fn paint(&self, cx: &mut Cx, area: Area, canvas: &mut Canvas) {
@@ -81,8 +81,9 @@ impl Widget for Toggle {
         let pill = if on { "──●" } else { "●──" };
         let pill_hl = if on { groups::SUCCESS } else { groups::MUTED };
         let label_hl: Option<Rc<str>> = if focused { Some(Rc::from(groups::SELECTION)) } else { None };
-        let consumed = canvas.put_str(area.x, area.y, pill, Some(Rc::from(pill_hl)));
-        canvas.put_str(area.x + consumed + 1, area.y, &self.label, label_hl);
+        let consumed = canvas.put_str_clipped(area.x, area.y, area.w, pill, Some(Rc::from(pill_hl)));
+        let label_x = consumed.saturating_add(1).min(area.w);
+        canvas.put_str_clipped(area.x + label_x, area.y, area.w - label_x, &self.label, label_hl);
 
         let sig = self.on.clone();
         let on_change = self.on_change.clone();
@@ -129,33 +130,42 @@ impl RadioGroup {
 
 impl Widget for RadioGroup {
     fn measure(&self, c: Constraints) -> Size {
-        if self.horizontal {
-            let w: u16 = self.options.iter().map(|o| display_width(o) + 6).sum();
-            Size::new(w.min(c.max_w), 1)
+        let size = if self.horizontal {
+            let w = self.options.iter().fold(0u16, |acc, o| acc.saturating_add(display_width(o).saturating_add(6)));
+            Size::new(w, 1)
         } else {
-            let w = self.options.iter().map(|o| display_width(o) + 4).max().unwrap_or(0);
-            Size::new(w.min(c.max_w), (self.options.len() as u16).min(c.max_h))
-        }
+            let w = self.options.iter().map(|o| display_width(o).saturating_add(4)).max().unwrap_or(0);
+            Size::new(w, self.options.len().min(u16::MAX as usize) as u16)
+        };
+        c.clamp(size)
     }
 
     fn paint(&self, cx: &mut Cx, area: Area, canvas: &mut Canvas) {
         let focused = cx.will_focus();
         let selected = self.selected.get().min(self.options.len().saturating_sub(1));
 
+        let saved_clip = canvas.push_clip(area);
         if self.horizontal {
             let mut x = area.x;
             for i in 0..self.options.len() {
+                if x >= area.x.saturating_add(area.w) {
+                    break;
+                }
                 let text = self.option_text(i, selected);
                 let hl: Option<Rc<str>> = (focused && i == selected).then(|| Rc::from(groups::SELECTION));
-                x += canvas.put_str(x, area.y, &text, hl) + 2;
+                x = x.saturating_add(canvas.put_str(x, area.y, &text, hl)).saturating_add(2);
             }
         } else {
-            for i in 0..self.options.len().min(area.h as usize) {
+            // Scroll so the selected option stays visible when they don't all fit.
+            let h = area.h as usize;
+            let top = if h == 0 { 0 } else { selected.saturating_sub(h - 1) };
+            for (row, i) in (top..self.options.len().min(top + h)).enumerate() {
                 let text = self.option_text(i, selected);
                 let hl: Option<Rc<str>> = (focused && i == selected).then(|| Rc::from(groups::SELECTION));
-                canvas.put_str(area.x, area.y + i as u16, &text, hl);
+                canvas.put_str(area.x, area.y + row as u16, &text, hl);
             }
         }
+        canvas.restore_clip(saved_clip);
 
         let sig = self.selected.clone();
         let on_change = self.on_change.clone();

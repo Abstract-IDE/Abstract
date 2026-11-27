@@ -14,6 +14,27 @@ use crate::theme::groups;
 use crate::view::canvas::Canvas;
 use crate::view::widget::{Area, Constraints, Cx, Key, Size, Widget};
 
+/// The first visible char index (horizontal scroll) that keeps `cursor`
+/// visible in `w` display cells, leaving one cell for the cursor itself.
+/// Starts from the previous `scroll` so the view only moves when it must.
+fn scroll_to_cursor(chars: &[char], scroll: usize, cursor: usize, w: u16) -> usize {
+    let cursor = cursor.min(chars.len());
+    let mut scroll = scroll.min(cursor);
+    let mut width: u32 = chars[scroll..cursor].iter().map(|&c| char_width(c) as u32).sum();
+    while width + 1 > w.max(1) as u32 && scroll < cursor {
+        width -= char_width(chars[scroll]) as u32;
+        scroll += 1;
+    }
+    scroll
+}
+
+/// Make sure the lines hold at least one (empty) line to edit.
+fn ensure_line(lines: &mut Vec<String>) {
+    if lines.is_empty() {
+        lines.push(String::new());
+    }
+}
+
 /// Byte index of char `i` in `s` (or `s.len()` past the end).
 fn byte_at(s: &str, i: usize) -> usize {
     s.char_indices().nth(i).map(|(b, _)| b).unwrap_or(s.len())
@@ -114,7 +135,7 @@ impl TextField {
 
 impl Widget for TextField {
     fn measure(&self, c: Constraints) -> Size {
-        Size::new(c.max_w, 1)
+        c.clamp(Size::new(c.max_w, 1))
     }
 
     fn paint(&self, cx: &mut Cx, area: Area, canvas: &mut Canvas) {
@@ -129,7 +150,7 @@ impl Widget for TextField {
         canvas.fill(area, ' ', Some(Rc::from(groups::FIELD)));
 
         if chars.is_empty() && !focused && !self.placeholder.is_empty() {
-            canvas.put_str(area.x, area.y, &self.placeholder, Some(Rc::from(groups::MUTED)));
+            canvas.put_str_clipped(area.x, area.y, area.w, &self.placeholder, Some(Rc::from(groups::MUTED)));
         } else {
             // Horizontal scroll so the cursor stays visible (display-width aware,
             // leaving one cell for the cursor itself).
@@ -138,11 +159,7 @@ impl Widget for TextField {
             if cursor < scroll {
                 scroll = cursor;
             }
-            let width_between =
-                |from: usize, to: usize| -> u16 { chars[from..to].iter().map(|&c| char_width(c)).sum() };
-            while width_between(scroll, cursor) + 1 > w {
-                scroll += 1;
-            }
+            scroll = scroll_to_cursor(&chars, scroll, cursor, w);
             self.state.scroll.set_silent(scroll);
 
             let mut x = area.x;
@@ -274,6 +291,13 @@ impl AreaState {
     pub fn text(&self) -> String {
         self.lines.get_untracked().join("\n")
     }
+
+    /// Empty the editor (one empty line) and reset cursor and scroll.
+    pub fn clear(&self) {
+        self.cursor.set_silent((0, 0));
+        self.scroll.set_silent((0, 0));
+        self.lines.set(vec![String::new()]);
+    }
 }
 
 /// A callback invoked with the current lines on every edit.
@@ -304,7 +328,7 @@ impl TextArea {
 
 impl Widget for TextArea {
     fn measure(&self, c: Constraints) -> Size {
-        Size::new(c.max_w, c.max_h)
+        c.clamp(Size::new(c.max_w, c.max_h))
     }
 
     fn paint(&self, cx: &mut Cx, area: Area, canvas: &mut Canvas) {
@@ -318,24 +342,21 @@ impl Widget for TextArea {
 
         canvas.fill(area, ' ', Some(Rc::from(groups::FIELD)));
 
-        let empty = lines.len() == 1 && lines[0].is_empty();
+        let empty = lines.iter().all(String::is_empty) && lines.len() <= 1;
         if empty && !focused && !self.placeholder.is_empty() {
-            canvas.put_str(area.x, area.y, &self.placeholder, Some(Rc::from(groups::MUTED)));
+            canvas.put_str_clipped(area.x, area.y, area.w, &self.placeholder, Some(Rc::from(groups::MUTED)));
         } else {
             // Scroll to keep the cursor visible.
-            let (mut top, mut left) = self.state.scroll.get_untracked();
+            let (mut top, left) = self.state.scroll.get_untracked();
             let h = area.h.max(1) as usize;
-            let w = area.w.max(1) as usize;
             if crow < top {
                 top = crow;
             } else if crow >= top + h {
                 top = crow - h + 1;
             }
-            if ccol < left {
-                left = ccol;
-            } else if ccol >= left + w {
-                left = ccol - w + 1;
-            }
+            // Horizontal scroll in display cells (wide chars count double).
+            let cur_line: Vec<char> = lines.get(crow).map(|l| l.chars().collect()).unwrap_or_default();
+            let left = scroll_to_cursor(&cur_line, left, ccol, area.w);
             self.state.scroll.set_silent((top, left));
 
             for (row, line) in lines.iter().enumerate().skip(top).take(h) {
@@ -375,6 +396,7 @@ impl Widget for TextArea {
                 match k {
                     Key::Char(c) => {
                         state.lines.update(|ls| {
+                            ensure_line(ls);
                             let at = byte_at(&ls[row], col);
                             ls[row].insert(at, c);
                         });
@@ -384,6 +406,7 @@ impl Widget for TextArea {
                     },
                     Key::Enter => {
                         state.lines.update(|ls| {
+                            ensure_line(ls);
                             let at = byte_at(&ls[row], col);
                             let rest = ls[row].split_off(at);
                             ls.insert(row + 1, rest);
@@ -466,7 +489,7 @@ impl Widget for TextArea {
                         true
                     },
                     Key::PageDown => {
-                        let r = (row + page).min(lines.len() - 1);
+                        let r = (row + page).min(lines.len().saturating_sub(1));
                         state.cursor.set((r, col.min(line_len(r))));
                         true
                     },

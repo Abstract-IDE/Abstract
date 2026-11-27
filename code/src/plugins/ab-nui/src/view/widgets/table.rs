@@ -44,34 +44,37 @@ impl TableColumn {
 }
 
 /// Resolve column widths for a total of `avail` cells with `gap` between them.
+/// Fixed and fraction columns are clamped (in order) to the space still left,
+/// so the columns never add up to more than `avail`.
 fn resolve_widths(columns: &[TableColumn], avail: u16, gap: u16) -> Vec<u16> {
-    let gaps = gap * columns.len().saturating_sub(1) as u16;
+    let gaps = (gap as u64 * columns.len().saturating_sub(1) as u64).min(u16::MAX as u64) as u16;
     let usable = avail.saturating_sub(gaps);
 
     let mut widths: Vec<u16> = Vec::with_capacity(columns.len());
-    let mut fixed_total: u16 = 0;
-    let mut flex_total: u16 = 0;
+    let mut remaining: u16 = usable;
+    let mut flex_total: u64 = 0;
     for col in columns {
         match col.width {
             ColWidth::Fixed(w) => {
+                let w = w.min(remaining);
                 widths.push(w);
-                fixed_total = fixed_total.saturating_add(w);
+                remaining -= w;
             },
             ColWidth::Fraction(f) => {
-                let w = ((usable as f32) * f.clamp(0.0, 1.0)).round() as u16;
+                let w = (((usable as f32) * f.clamp(0.0, 1.0)).round() as u16).min(remaining);
                 widths.push(w);
-                fixed_total = fixed_total.saturating_add(w);
+                remaining -= w;
             },
             ColWidth::Flex(weight) => {
                 widths.push(0); // placeholder
-                flex_total += weight;
+                flex_total += weight as u64;
             },
         }
     }
-    let leftover = usable.saturating_sub(fixed_total);
+    let leftover = remaining as u64;
     for (i, col) in columns.iter().enumerate() {
         if let ColWidth::Flex(weight) = col.width {
-            widths[i] = (leftover * weight).checked_div(flex_total).unwrap_or(0);
+            widths[i] = (leftover * weight as u64).checked_div(flex_total).unwrap_or(0) as u16;
         }
     }
     widths
@@ -136,8 +139,12 @@ impl Table {
         widths: &[u16],
         hl_override: Option<&str>,
     ) {
-        let mut x = area.x;
+        let right = area.x as u32 + area.w as u32;
+        let mut x = area.x as u32;
         for (i, w) in widths.iter().enumerate() {
+            if x >= right {
+                break;
+            }
             let empty = Line::empty();
             let cell = cells.get(i).unwrap_or(&empty);
             let mut cell = truncate_line(cell, *w);
@@ -152,23 +159,23 @@ impl Table {
                 TextAlign::Center => (*w - cw) / 2,
                 TextAlign::Right => *w - cw,
             };
-            canvas.put_line(x + dx, y, &cell);
-            x += w + self.gap;
-            if x >= area.x + area.w {
-                break;
-            }
+            // Confined to the column (and the table's area).
+            let col_w = (*w as u32).min(right - x) as u16;
+            canvas.with_clip(Area { x: x as u16, y, w: col_w, h: 1 }, |c| c.put_line(x as u16 + dx, y, &cell));
+            x += *w as u32 + self.gap as u32;
         }
     }
 }
 
 impl Widget for Table {
     fn measure(&self, c: Constraints) -> Size {
-        let h = self.rows.len() as u16 + self.header_rows();
-        c.clamp(Size::new(c.max_w, h.min(c.max_h)))
+        let h = (self.rows.len().min(u16::MAX as usize) as u16).saturating_add(self.header_rows());
+        c.clamp(Size::new(c.max_w, h))
     }
 
     fn paint(&self, cx: &mut Cx, area: Area, canvas: &mut Canvas) {
         let focused = cx.will_focus();
+        let saved_clip = canvas.push_clip(area);
         let bar_w: u16 = if self.show_scrollbar { 1 } else { 0 };
         let widths = resolve_widths(&self.columns, area.w.saturating_sub(bar_w), self.gap);
         let n = self.rows.len();
@@ -189,7 +196,7 @@ impl Widget for Table {
         let body_h = (area.h.saturating_sub(self.header_rows())) as usize;
         let selected = self.state.selected.get().min(n.saturating_sub(1));
         self.state.selected.set_silent(selected);
-        let mut offset = self.state.offset.get_untracked().min(n.saturating_sub(1));
+        let mut offset = self.state.offset.get_untracked().min(n.saturating_sub(body_h));
         if selected < offset {
             offset = selected;
         } else if body_h > 0 && selected >= offset + body_h {
@@ -218,6 +225,7 @@ impl Widget for Table {
                 offset,
             );
         }
+        canvas.restore_clip(saved_clip);
 
         // Keys.
         let state = self.state.clone();

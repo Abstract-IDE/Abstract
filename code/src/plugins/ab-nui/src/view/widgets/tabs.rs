@@ -28,13 +28,12 @@ impl TabBar {
 
 impl Widget for TabBar {
     fn measure(&self, c: Constraints) -> Size {
-        let w: u16 = self
+        let w = self
             .labels
             .iter()
-            .map(|l| display_width(l) + 2)
-            .sum::<u16>()
-            .saturating_add(self.labels.len().saturating_sub(1) as u16);
-        Size::new(w.min(c.max_w), 1)
+            .fold(0u16, |acc, l| acc.saturating_add(display_width(l).saturating_add(2)))
+            .saturating_add(self.labels.len().saturating_sub(1).min(u16::MAX as usize) as u16);
+        c.clamp(Size::new(w, 1))
     }
 
     fn paint(&self, cx: &mut Cx, area: Area, canvas: &mut Canvas) {
@@ -42,21 +41,23 @@ impl Widget for TabBar {
         let n = self.labels.len();
         let active = self.active.get().min(n.saturating_sub(1));
 
+        let saved_clip = canvas.push_clip(area);
         let mut x = area.x;
         for (i, label) in self.labels.iter().enumerate() {
             if i > 0 {
-                x += canvas.put_str(x, area.y, "│", Some(Rc::from(groups::BORDER)));
+                x = x.saturating_add(canvas.put_str(x, area.y, "│", Some(Rc::from(groups::BORDER))));
             }
             let hl = if i == active {
                 if focused { groups::SELECTION } else { groups::TAB_ACTIVE }
             } else {
                 groups::TAB_INACTIVE
             };
-            x += canvas.put_str(x, area.y, &format!(" {label} "), Some(Rc::from(hl)));
-            if x >= area.x + area.w {
+            x = x.saturating_add(canvas.put_str(x, area.y, &format!(" {label} "), Some(Rc::from(hl))));
+            if x >= area.x.saturating_add(area.w) {
                 break;
             }
         }
+        canvas.restore_clip(saved_clip);
 
         let sig = self.active.clone();
         let on_change = self.on_change.clone();

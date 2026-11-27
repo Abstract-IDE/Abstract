@@ -20,7 +20,7 @@ pub enum TextAlign {
 /// What happens to a row that exceeds the width when not wrapping.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub enum Overflow {
-    /// Hard clip at the edge (the canvas clips anyway).
+    /// Hard clip at the edge of the widget's area.
     #[default]
     Clip,
     /// Truncate with a trailing `…`.
@@ -103,13 +103,11 @@ impl Text {
 impl Widget for Text {
     fn measure(&self, c: Constraints) -> Size {
         if self.wrap == Wrap::None {
-            let w = self.line.width().min(c.max_w);
-            return Size::new(w.max(c.min_w), 1.clamp(c.min_h, c.max_h.max(1)));
+            return c.clamp(Size::new(self.line.width(), 1));
         }
         let rows = self.rows(c.max_w);
-        let w = rows.iter().map(Line::width).max().unwrap_or(0).min(c.max_w);
-        let h = (rows.len() as u16).min(c.max_h);
-        c.clamp(Size::new(w, h))
+        let w = rows.iter().map(Line::width).max().unwrap_or(0);
+        c.clamp(Size::new(w, rows.len().min(u16::MAX as usize) as u16))
     }
 
     fn paint(&self, _cx: &mut Cx, area: Area, canvas: &mut Canvas) {
@@ -128,7 +126,7 @@ impl Widget for Text {
                 TextAlign::Center => (area.w - rw) / 2,
                 TextAlign::Right => area.w - rw,
             };
-            canvas.put_line(area.x + dx, area.y + i as u16, &row);
+            canvas.put_line_clipped(area.x + dx, area.y + i as u16, area.w - dx, &row);
         }
     }
 }

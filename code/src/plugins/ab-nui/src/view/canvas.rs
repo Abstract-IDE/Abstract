@@ -5,12 +5,18 @@
 //! The grid is display-cell-correct: a double-width glyph (CJK, emoji) claims
 //! two cells — a leader holding the char and a continuation cell — so column
 //! math stays aligned with what Neovim actually renders. Overwriting either
-//! half of a wide char blanks the orphaned other half.
+//! half of a wide char blanks the orphaned other half. A tab is painted as a
+//! single space (and measured as one cell by [`crate::text::char_width`]).
+//!
+//! Painting is confined to a clip rectangle (initially the whole canvas):
+//! layout widgets narrow it to each child's area with [`Canvas::with_clip`],
+//! so a child can never draw over its siblings or its parent's border.
 //!
 //! Highlight groups are interned per canvas: a cell stores a small index
 //! rather than a reference-counted string, which keeps cells `Copy` and makes
 //! "same highlight as the previous cell" an integer comparison.
 
+use std::cell::Cell as StdCell;
 use std::rc::Rc;
 
 use crate::nvim::render::{Mark, Row};
@@ -32,6 +38,66 @@ struct Cell {
 
 const BLANK: Cell = Cell { ch: ' ', style: 0, cont: false };
 
+/// Intersection of two rectangles (empty rectangles keep the clamped origin).
+fn intersect(a: Area, b: Area) -> Area {
+    let x0 = a.x.max(b.x) as u32;
+    let y0 = a.y.max(b.y) as u32;
+    let x1 = (a.x as u32 + a.w as u32).min(b.x as u32 + b.w as u32);
+    let y1 = (a.y as u32 + a.h as u32).min(b.y as u32 + b.h as u32);
+    Area { x: x0 as u16, y: y0 as u16, w: x1.saturating_sub(x0) as u16, h: y1.saturating_sub(y0) as u16 }
+}
+
+/// Where an offscreen canvas (a scrolling viewport's content) ends up on the
+/// canvas it is blitted onto: its origin there, and the visible window (in
+/// the parent's coordinates). Filled in by the viewport once it knows its
+/// final scroll offset.
+pub(crate) struct Placement {
+    parent: Option<Rc<Placement>>,
+    dx: StdCell<i32>,
+    dy: StdCell<i32>,
+    view: StdCell<Area>,
+}
+
+impl Placement {
+    /// Record that `(0, 0)` of the offscreen canvas lands at `(dx, dy)` of
+    /// its parent, and that only `view` (parent coordinates) is visible.
+    pub(crate) fn set(&self, dx: i32, dy: i32, view: Area) {
+        self.dx.set(dx);
+        self.dy.set(dy);
+        self.view.set(view);
+    }
+}
+
+/// Maps rectangles of one canvas to the root (on-screen) canvas. Obtained with
+/// [`Canvas::screen_map`] during paint and resolved later — e.g. inside a
+/// [`crate::view::Cx::overlay`], which always paints on the root canvas.
+#[derive(Clone, Default)]
+pub struct ScreenMap(Option<Rc<Placement>>);
+
+impl ScreenMap {
+    /// `area` (in the coordinates of the canvas this map came from) on the
+    /// root canvas, clipped to every enclosing viewport; `None` when none of
+    /// it is visible (e.g. scrolled out of a `ScrollView`).
+    pub fn map(&self, area: Area) -> Option<Area> {
+        let (mut x, mut y, mut w, mut h) = (area.x as i32, area.y as i32, area.w as i32, area.h as i32);
+        let mut node = self.0.clone();
+        while let Some(p) = node {
+            x += p.dx.get();
+            y += p.dy.get();
+            let v = p.view.get();
+            let (x0, y0) = (x.max(v.x as i32), y.max(v.y as i32));
+            let x1 = (x + w).min(v.x as i32 + v.w as i32);
+            let y1 = (y + h).min(v.y as i32 + v.h as i32);
+            if x1 <= x0 || y1 <= y0 {
+                return None;
+            }
+            (x, y, w, h) = (x0, y0, x1 - x0, y1 - y0);
+            node = p.parent.clone();
+        }
+        Some(Area { x: x.max(0) as u16, y: y.max(0) as u16, w: w.max(0) as u16, h: h.max(0) as u16 })
+    }
+}
+
 /// A fixed-size grid of cells (row-major).
 pub struct Canvas {
     pub w: u16,
@@ -39,12 +105,16 @@ pub struct Canvas {
     cells: Vec<Cell>,
     /// The highlight groups used so far; a cell's `style` is its index + 1.
     styles: Vec<Rc<str>>,
+    /// Writes outside this rectangle are dropped.
+    clip: Area,
+    /// Set on an offscreen canvas: where it is shown (see [`ScreenMap`]).
+    placement: Option<Rc<Placement>>,
 }
 
 impl Canvas {
     pub fn new(w: u16, h: u16) -> Self {
         let len = (w as usize) * (h as usize);
-        Self { w, h, cells: vec![BLANK; len], styles: Vec::new() }
+        Self { w, h, cells: vec![BLANK; len], styles: Vec::new(), clip: Area { x: 0, y: 0, w, h }, placement: None }
     }
 
     /// Clear the canvas and give it a new size, reusing its allocations.
@@ -54,10 +124,69 @@ impl Canvas {
         self.cells.clear();
         self.cells.resize((w as usize) * (h as usize), BLANK);
         self.styles.clear();
+        self.clip = Area { x: 0, y: 0, w, h };
     }
 
     fn index(&self, x: u16, y: u16) -> Option<usize> {
         if x < self.w && y < self.h { Some(y as usize * self.w as usize + x as usize) } else { None }
+    }
+
+    /// Whether `(x, y)` is on the canvas and inside the clip rectangle.
+    fn writable(&self, x: u16, y: u16) -> bool {
+        let c = self.clip;
+        x < self.w
+            && y < self.h
+            && x >= c.x
+            && y >= c.y
+            && (x as u32) < c.x as u32 + c.w as u32
+            && (y as u32) < c.y as u32 + c.h as u32
+    }
+
+    /// The rectangle painting is currently confined to.
+    pub fn clip(&self) -> Area {
+        self.clip
+    }
+
+    /// Narrow the clip rectangle to `area` (intersected with the current
+    /// clip) and return the previous one, to hand back to
+    /// [`Canvas::restore_clip`]. Prefer [`Canvas::with_clip`].
+    pub fn push_clip(&mut self, area: Area) -> Area {
+        let prev = self.clip;
+        self.clip = intersect(prev, area);
+        prev
+    }
+
+    /// Restore a clip rectangle returned by [`Canvas::push_clip`].
+    pub fn restore_clip(&mut self, prev: Area) {
+        self.clip = prev;
+    }
+
+    /// Run `f` with painting confined to `area` (within the current clip).
+    pub fn with_clip<R>(&mut self, area: Area, f: impl FnOnce(&mut Canvas) -> R) -> R {
+        let prev = self.push_clip(area);
+        let out = f(self);
+        self.restore_clip(prev);
+        out
+    }
+
+    /// Where this canvas is shown on screen; see [`ScreenMap`].
+    pub fn screen_map(&self) -> ScreenMap {
+        ScreenMap(self.placement.clone())
+    }
+
+    /// A blank `w` x `h` canvas whose content will be blitted onto `self`
+    /// (a viewport's content). Fill in the returned placement once the final
+    /// position is known.
+    pub(crate) fn offscreen(&self, w: u16, h: u16) -> (Canvas, Rc<Placement>) {
+        let placement = Rc::new(Placement {
+            parent: self.placement.clone(),
+            dx: StdCell::new(0),
+            dy: StdCell::new(0),
+            view: StdCell::new(Area::default()),
+        });
+        let mut canvas = Canvas::new(w, h);
+        canvas.placement = Some(placement.clone());
+        (canvas, placement)
     }
 
     /// Intern a highlight group by name. Widgets tend to paint the same group
@@ -112,16 +241,23 @@ impl Canvas {
         }
     }
 
-    /// Paint one glyph with an already-interned style.
+    /// Paint one glyph with an already-interned style. Returns the display
+    /// cells the glyph advances (also when it is clipped away, so callers'
+    /// column math stays right; a wide glyph cut by the right edge paints a
+    /// blank and advances 1).
     fn set_styled(&mut self, x: u16, y: u16, ch: char, style: StyleId) -> u16 {
+        let ch = if ch == '\t' { ' ' } else { ch };
         let width = char_width(ch);
         if width == 0 {
             return 0;
         }
-        let Some(i) = self.index(x, y) else { return 0 };
+        if !self.writable(x, y) {
+            return width;
+        }
+        let Some(i) = self.index(x, y) else { return width };
 
         if width == 2 {
-            if x + 1 >= self.w {
+            if !self.writable(x + 1, y) {
                 // Wide char clipped at the edge: paint a blank in the last column.
                 self.clear_wide(x, y);
                 self.cells[i] = Cell { ch: ' ', style, cont: false };
@@ -147,22 +283,28 @@ impl Canvas {
         self.set_styled(x, y, ch, style)
     }
 
+    /// The first column past the writable region.
+    fn right_edge(&self) -> u16 {
+        (self.clip.x as u32 + self.clip.w as u32).min(self.w as u32) as u16
+    }
+
     fn put_str_styled(&mut self, x: u16, y: u16, s: &str, style: StyleId) -> u16 {
         if y >= self.h {
             return 0;
         }
+        let edge = self.right_edge();
         let mut col = x;
         for ch in s.chars() {
-            if col >= self.w {
+            if col >= edge {
                 break;
             }
-            col += self.set_styled(col, y, ch, style);
+            col = col.saturating_add(self.set_styled(col, y, ch, style));
         }
-        col - x
+        col.min(edge.max(x)) - x
     }
 
-    /// Paint a string starting at `(x, y)`, clipped to the canvas width.
-    /// Returns the display cells consumed.
+    /// Paint a string starting at `(x, y)`, clipped to the canvas width (and
+    /// the clip rectangle). Returns the display cells consumed.
     pub fn put_str(&mut self, x: u16, y: u16, s: &str, hl: Option<Rc<str>>) -> u16 {
         let style = self.intern(hl.as_ref());
         self.put_str_styled(x, y, s, style)
@@ -171,25 +313,39 @@ impl Canvas {
     /// Paint a styled [`Line`] (each span with its own highlight). Returns the
     /// display cells consumed.
     pub fn put_line(&mut self, x: u16, y: u16, line: &Line) -> u16 {
+        let edge = self.right_edge();
         let mut col = x;
         for span in &line.spans {
-            let style = span.hl.as_deref().map_or(0, |name| self.intern_name(name));
-            col += self.put_str_styled(col, y, &span.text, style);
-            if col >= self.w {
+            if col >= edge {
                 break;
             }
+            let style = span.hl.as_deref().map_or(0, |name| self.intern_name(name));
+            col = col.saturating_add(self.put_str_styled(col, y, &span.text, style));
         }
         col - x
+    }
+
+    /// [`Canvas::put_str`], hard-clipped to the `max_w` cells starting at `x`
+    /// (a wide glyph cut by the limit becomes a blank).
+    pub fn put_str_clipped(&mut self, x: u16, y: u16, max_w: u16, s: &str, hl: Option<Rc<str>>) -> u16 {
+        self.with_clip(Area { x, y, w: max_w, h: 1 }, |c| c.put_str(x, y, s, hl))
+    }
+
+    /// [`Canvas::put_line`], hard-clipped to the `max_w` cells starting at `x`
+    /// (a wide glyph cut by the limit becomes a blank).
+    pub fn put_line_clipped(&mut self, x: u16, y: u16, max_w: u16, line: &Line) -> u16 {
+        self.with_clip(Area { x, y, w: max_w, h: 1 }, |c| c.put_line(x, y, line))
     }
 
     /// Fill a rectangular area with a character.
     pub fn fill(&mut self, area: Area, ch: char, hl: Option<Rc<str>>) {
         let style = self.intern(hl.as_ref());
+        let area = intersect(area, self.clip);
         for y in area.y..area.y.saturating_add(area.h) {
             let mut x = area.x;
             while x < area.x.saturating_add(area.w) {
                 let consumed = self.set_styled(x, y, ch, style);
-                x += consumed.max(1);
+                x = x.saturating_add(consumed.max(1));
             }
         }
     }
@@ -380,6 +536,59 @@ mod tests {
         let marks: Vec<(u32, u32, String)> =
             dst.to_rows()[0].marks.iter().map(|m| (m.start, m.end, m.hl.to_string())).collect();
         assert_eq!(marks, vec![(0, 2, "Src".to_string()), (3, 4, "Dst".to_string())]);
+    }
+
+    #[test]
+    fn clip_confines_painting() {
+        let mut c = Canvas::new(8, 2);
+        c.with_clip(Area { x: 1, y: 0, w: 3, h: 1 }, |c| {
+            c.put_str(0, 0, "abcdef", None);
+            c.put_str(0, 1, "zzz", None); // row outside the clip
+            c.fill(Area { x: 0, y: 0, w: 8, h: 2 }, '.', None);
+        });
+        assert_eq!(c.to_lines()[0].text(), " ...    ");
+        assert_eq!(c.to_lines()[1].text(), "        ");
+        // Restored afterwards.
+        c.put_str(0, 1, "ok", None);
+        assert_eq!(c.to_lines()[1].text(), "ok      ");
+    }
+
+    #[test]
+    fn put_line_clipped_stops_at_max_w() {
+        let mut c = Canvas::new(8, 1);
+        c.put_str(0, 0, "........", None);
+        assert_eq!(c.put_line_clipped(1, 0, 4, &Line::raw("hello world")), 4);
+        assert_eq!(c.to_lines()[0].text(), ".hell...");
+        // A wide glyph cut by the limit becomes a blank.
+        let mut c = Canvas::new(6, 1);
+        c.put_str(0, 0, "......", None);
+        c.put_str_clipped(0, 0, 3, "a日本", None);
+        assert_eq!(c.to_lines()[0].text(), "a日...");
+        c.put_str_clipped(0, 0, 2, "日本", None);
+        assert_eq!(c.to_lines()[0].text(), "日 ...");
+        c.put_str_clipped(0, 0, 0, "xyz", None);
+        assert_eq!(c.to_lines()[0].text(), "日 ...");
+    }
+
+    #[test]
+    fn tab_paints_as_one_space() {
+        let mut c = Canvas::new(4, 1);
+        assert_eq!(c.put_str(0, 0, "a\tb", None), 3);
+        assert_eq!(c.to_rows()[0].text, "a b ");
+    }
+
+    #[test]
+    fn screen_map_follows_offscreen_placement() {
+        let root = Canvas::new(20, 10);
+        assert_eq!(root.screen_map().map(Area { x: 2, y: 3, w: 4, h: 1 }).map(|a| (a.x, a.y)), Some((2, 3)));
+        let (off, place) = root.offscreen(10, 50);
+        // Viewport at (5, 2), 10x4, scrolled down by 20 rows.
+        place.set(5, 2 - 20, Area { x: 5, y: 2, w: 10, h: 4 });
+        let map = off.screen_map();
+        let a = map.map(Area { x: 1, y: 21, w: 3, h: 1 }).expect("visible");
+        assert_eq!((a.x, a.y, a.w, a.h), (6, 3, 3, 1));
+        assert!(map.map(Area { x: 1, y: 2, w: 3, h: 1 }).is_none(), "scrolled out above");
+        assert!(map.map(Area { x: 1, y: 30, w: 3, h: 1 }).is_none(), "below the viewport");
     }
 
     #[test]

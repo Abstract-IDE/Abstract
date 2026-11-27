@@ -90,7 +90,8 @@ impl Area {
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Key {
     Char(char),
-    /// Ctrl-modified letter, lowercase (e.g. `Ctrl('w')` for `<C-w>`).
+    /// Ctrl-modified letter, lowercase (e.g. `Ctrl('w')` for `<C-w>`). Never
+    /// `Ctrl('h')`: `<C-h>` arrives as [`Key::Backspace`].
     Ctrl(char),
     Enter,
     Backspace,
@@ -158,6 +159,11 @@ impl Key {
     /// Every key a surface captures, as `(keymap lhs, code)`: the named keys,
     /// `<Space>`, printable ASCII, and `<C-a>`..`<C-z>` (minus `<C-c>`, which
     /// stays Neovim's interrupt).
+    ///
+    /// `<C-h>` is delivered as [`Key::Backspace`], not `Ctrl('h')`: many
+    /// terminals send `^H` for the Backspace key. (`<C-i>`, `<C-m>` and `<C-[>`
+    /// are the same keys as `<Tab>`, `<CR>` and `<Esc>` to Neovim, so they
+    /// already arrive as those.)
     pub(crate) fn bindings() -> Vec<(String, i64)> {
         let mut keys: Vec<(String, i64)> = NAMED_KEYS.iter().map(|(lhs, key)| (lhs.to_string(), key.code())).collect();
         keys.push(("<Space>".into(), Key::Char(' ').code()));
@@ -172,7 +178,8 @@ impl Key {
             keys.push((lhs, Key::Char(ch).code()));
         }
         for ch in ('a'..='z').filter(|&c| c != 'c') {
-            keys.push((format!("<C-{ch}>"), Key::Ctrl(ch).code()));
+            let key = if ch == 'h' { Key::Backspace } else { Key::Ctrl(ch) };
+            keys.push((format!("<C-{ch}>"), key.code()));
         }
         keys
     }
@@ -368,5 +375,7 @@ mod tests {
         for ch in ' '..='~' {
             assert!(bindings.iter().any(|(_, code)| *code == Key::Char(ch).code()), "{ch:?}");
         }
+        // `<C-h>` is Backspace (terminals send ^H for it).
+        assert!(bindings.iter().any(|(lhs, code)| lhs == "<C-h>" && *code == Key::Backspace.code()));
     }
 }

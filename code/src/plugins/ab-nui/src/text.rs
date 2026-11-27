@@ -7,13 +7,27 @@
 use unicode_width::{UnicodeWidthChar, UnicodeWidthStr};
 
 /// Display width of one char in terminal cells (0, 1, or 2).
+///
+/// A tab counts as ONE cell: the canvas paints it as a single space (see
+/// [`crate::view::canvas::Canvas`]), so measuring and painting agree. (A
+/// literal tab in a buffer line would be drawn `tabstop` cells wide by Neovim
+/// and misalign every column after it.)
 pub fn char_width(ch: char) -> u16 {
+    if ch == '\t' {
+        return 1;
+    }
     UnicodeWidthChar::width(ch).unwrap_or(0) as u16
 }
 
-/// Display width of a string in terminal cells (unicode-aware).
+/// Display width of a string in terminal cells (unicode-aware; a tab counts as
+/// one cell, like [`char_width`]).
 pub fn display_width(s: &str) -> u16 {
-    UnicodeWidthStr::width(s).min(u16::MAX as usize) as u16
+    let w = if s.contains('\t') {
+        UnicodeWidthStr::width(s.replace('\t', " ").as_str())
+    } else {
+        UnicodeWidthStr::width(s)
+    };
+    w.min(u16::MAX as usize) as u16
 }
 
 /// A run of text optionally painted with a highlight group.
@@ -79,7 +93,7 @@ impl Line {
 
     /// Display width in terminal cells.
     pub fn width(&self) -> u16 {
-        self.spans.iter().map(Span::width).sum()
+        self.spans.iter().fold(0u16, |acc, span| acc.saturating_add(span.width()))
     }
 }
 
@@ -97,7 +111,13 @@ pub enum Wrap {
 
 /// Wrap a styled line to `width` display cells, preserving span highlights
 /// (a span that straddles a break is split). `width == 0` yields the input.
+///
+/// When wrapping, a `\n` in the text is a hard break: each piece is wrapped
+/// on its own (with `Wrap::None` the line is still returned as-is).
 pub fn wrap_line(line: &Line, width: u16, wrap: Wrap) -> Vec<Line> {
+    if wrap != Wrap::None && line.spans.iter().any(|s| s.text.contains('\n')) {
+        return split_hard_breaks(line).iter().flat_map(|piece| wrap_line(piece, width, wrap)).collect();
+    }
     if width == 0 || wrap == Wrap::None || line.width() <= width {
         return vec![line.clone()];
     }
@@ -181,11 +201,35 @@ pub fn wrap_line(line: &Line, width: u16, wrap: Wrap) -> Vec<Line> {
         .collect()
 }
 
+/// Split a line at every `\n`, keeping each span's highlight on both sides
+/// of a break (the `\n` itself is dropped; empty spans are left out).
+fn split_hard_breaks(line: &Line) -> Vec<Line> {
+    let mut out = vec![Line::empty()];
+    for span in &line.spans {
+        for (i, part) in span.text.split('\n').enumerate() {
+            if i > 0 {
+                out.push(Line::empty());
+            }
+            if !part.is_empty() {
+                out.last_mut()
+                    .expect("never empty")
+                    .spans
+                    .push(Span { text: part.to_string(), hl: span.hl.clone() });
+            }
+        }
+    }
+    out
+}
+
 /// Truncate a styled line to `width` display cells, appending `…` when
-/// anything was cut (the ellipsis fits within `width`).
+/// anything was cut (the ellipsis fits within `width`; `width == 0` yields an
+/// empty line).
 pub fn truncate_line(line: &Line, width: u16) -> Line {
     if line.width() <= width {
         return line.clone();
+    }
+    if width == 0 {
+        return Line::empty();
     }
     let budget = width.saturating_sub(1); // room for the ellipsis
     let mut out = Line::empty();
@@ -275,5 +319,27 @@ mod tests {
         assert!(t.width() <= 7);
         // No-op when it fits.
         assert_eq!(truncate_line(&line, 20).text(), "hello world");
+    }
+
+    #[test]
+    fn truncate_to_zero_is_empty() {
+        let t = truncate_line(&Line::raw("hello"), 0);
+        assert_eq!(t.text(), "");
+        assert_eq!(t.width(), 0);
+        assert_eq!(truncate_line(&Line::raw("hello"), 1).text(), "…");
+    }
+
+    #[test]
+    fn line_width_saturates() {
+        let big = "x".repeat(40_000);
+        let line = Line::from_spans([Span::raw(big.clone()), Span::raw(big)]);
+        assert_eq!(line.width(), u16::MAX);
+    }
+
+    #[test]
+    fn tab_is_one_cell() {
+        assert_eq!(char_width('\t'), 1);
+        assert_eq!(display_width("a\tb"), 3);
+        assert_eq!(Line::raw("\t\t").width(), 2);
     }
 }

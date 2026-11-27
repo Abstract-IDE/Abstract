@@ -1,9 +1,12 @@
 //! `Menu` — a selectable list. Reactive selection state drives the rendering;
-//! `j`/`k` move, `<CR>` confirms, `<Esc>`/`q` cancel.
+//! `j`/`k` (or any motion) move, `<CR>` confirms, `<Esc>`/`q` cancel.
+
+use std::cell::Cell;
+use std::rc::Rc;
 
 use crate::error::Result;
 use crate::geometry::{Position, Size};
-use crate::nvim::{Border, TitlePos};
+use crate::nvim::{self, Border, TitlePos};
 use crate::reactive::Signal;
 use crate::text::{Line, Span};
 use crate::theme::groups;
@@ -51,6 +54,8 @@ impl<T: Clone + 'static> Menu<T> {
             size: opts.size,
             position: opts.position,
             border: opts.border,
+            // Focus leaving the menu dismisses it (see `Menu::open`).
+            close_on_leave: true,
             ..Default::default()
         })?;
         Ok(Self { popup, items, selected: Signal::new(0) })
@@ -66,17 +71,34 @@ impl<T: Clone + 'static> Menu<T> {
         &self.popup
     }
 
-    /// Open the menu. `on_choose` fires with the chosen value when the user
-    /// confirms; the menu closes first.
-    pub fn open(self, on_choose: impl Fn(T) + 'static) -> Result<()> {
-        self.open_with(on_choose, || {})
+    /// Open the menu. `on_done` is called exactly once: with the chosen value
+    /// on `<CR>`, or with `None` when the menu is dismissed — `<Esc>`/`q`,
+    /// `<CR>` on an empty list, the cursor leaving the menu window, or the
+    /// window being closed by anything else (`:q`, `<C-w>c`, another plugin).
+    /// The menu is fully closed before `on_done` runs. (If `open` itself
+    /// fails, `on_done` is never called.)
+    ///
+    /// The cursor row is the selection: `j`/`k`/arrows move it (wrapping, with
+    /// counts), and any other motion (`G`, `gg`, search, the mouse) selects
+    /// the row it lands on.
+    pub fn open(self, on_done: impl Fn(Option<T>) + 'static) -> Result<()> {
+        let popup = self.popup.clone();
+        let result = self.open_inner(on_done);
+        if result.is_err() {
+            popup.close();
+        }
+        result
     }
 
-    /// Like [`Menu::open`], but `on_cancel` fires when the user dismisses the
-    /// menu (`<Esc>`/`q`) instead of choosing. Exactly one of the two callbacks
-    /// runs, at most once.
-    pub fn open_with(self, on_choose: impl Fn(T) + 'static, on_cancel: impl Fn() + 'static) -> Result<()> {
+    fn open_inner(self, on_done: impl Fn(Option<T>) + 'static) -> Result<()> {
+        // Opened from insert mode (an insert-mode mapping, an LSP reply while
+        // typing), the cursor would land in the list still inserting: leave
+        // insert mode so the normal-mode keys below work.
+        let mode = nvim::mode()?;
         self.popup.open()?;
+        if mode.starts_with('i') || mode.starts_with('R') {
+            crate::lua::cmd("stopinsert")?;
+        }
 
         // Reactive rendering driven by the selection signal.
         let labels: Vec<String> = self.items.iter().map(|i| i.label.clone()).collect();
@@ -101,9 +123,11 @@ impl<T: Clone + 'static> Menu<T> {
         {
             let popup = self.popup.clone();
             let sel = self.selected.clone();
-            self.popup.own_effect(crate::reactive::effect(move || {
-                let i = sel.get();
-                let _ = popup.set_cursor(i as i64 + 1, 0);
+            self.popup.own_effect(crate::reactive::unowned(|| {
+                crate::reactive::effect(move || {
+                    let i = sel.get();
+                    let _ = popup.set_cursor(i as i64 + 1, 0);
+                })
             }));
         }
 
@@ -113,70 +137,69 @@ impl<T: Clone + 'static> Menu<T> {
         let count = self.items.len();
         let values: Vec<T> = self.items.into_iter().map(|i| i.value).collect();
 
-        // Navigation.
-        let down = self.selected.clone();
-        self.popup.on_key("n", "j", move || {
-            if count > 0 {
-                down.update(|s| *s = (*s + 1) % count);
-            }
-        })?;
-        let up = self.selected.clone();
-        self.popup.on_key("n", "k", move || {
-            if count > 0 {
-                up.update(|s| *s = (*s + count - 1) % count);
-            }
-        })?;
-        self.popup.on_key("n", "<Down>", {
-            let s = self.selected.clone();
-            move || {
-                if count > 0 {
-                    s.update(|s| *s = (*s + 1) % count);
-                }
-            }
-        })?;
-        self.popup.on_key("n", "<Up>", {
-            let s = self.selected.clone();
-            move || {
-                if count > 0 {
-                    s.update(|s| *s = (*s + count - 1) % count);
-                }
-            }
-        })?;
-
-        // Choose/cancel are mutually exclusive and fire at most once.
-        let fired = std::rc::Rc::new(std::cell::Cell::new(false));
-
-        // Confirm.
+        // ...and the other way round: wherever the cursor goes, the selection
+        // follows.
         {
-            let close = self.popup.closer();
+            let popup = self.popup.clone();
             let sel = self.selected.clone();
-            let fired = fired.clone();
-            self.popup.on_key("n", "<CR>", move || {
-                if fired.replace(true) {
-                    return;
-                }
-                let idx = sel.get_untracked();
-                close();
-                if let Some(value) = values.get(idx) {
-                    on_choose(value.clone());
+            let group = self.popup.augroup()?;
+            nvim::buf_autocmd(&["CursorMoved"], self.popup.buffer(), Some(group), move || {
+                if let Some(row) = popup.cursor_row()
+                    && count > 0
+                {
+                    sel.set_if_changed(row.min(count - 1));
                 }
             })?;
         }
 
-        // Cancel.
-        let on_cancel = std::rc::Rc::new(on_cancel);
-        for key in ["<Esc>", "q"] {
-            let popup = self.popup.clone();
-            let on_cancel = on_cancel.clone();
-            let fired = fired.clone();
+        // Navigation (wrapping; `3j` moves three).
+        for (key, forward) in [("j", true), ("<Down>", true), ("k", false), ("<Up>", false)] {
+            let sel = self.selected.clone();
             self.popup.on_key("n", key, move || {
+                if count == 0 {
+                    return;
+                }
+                let step = nvim::count1().unwrap_or(1) % count;
+                sel.update(|s| *s = if forward { (*s + step) % count } else { (*s + count - step) % count });
+            })?;
+        }
+
+        // Exactly once: whichever way the menu ends first wins.
+        let fired = Rc::new(Cell::new(false));
+        let finish: Rc<dyn Fn(Option<usize>)> = {
+            let popup = self.popup.clone();
+            Rc::new(move |idx: Option<usize>| {
                 if fired.replace(true) {
                     return;
                 }
                 popup.close();
-                on_cancel();
+                on_done(idx.and_then(|i| values.get(i).cloned()));
+            })
+        };
+
+        // Confirm the row under the cursor (the source of truth, even if no
+        // `CursorMoved` has synced the signal yet).
+        {
+            let popup = self.popup.clone();
+            let sel = self.selected.clone();
+            let finish = finish.clone();
+            self.popup.on_key("n", "<CR>", move || {
+                if count == 0 {
+                    return finish(None);
+                }
+                let idx = popup.cursor_row().unwrap_or_else(|| sel.get_untracked());
+                finish(Some(idx.min(count - 1)));
             })?;
         }
+
+        // Cancel.
+        for key in ["<Esc>", "q"] {
+            let finish = finish.clone();
+            self.popup.on_key("n", key, move || finish(None))?;
+        }
+
+        // Closed or left some other way: that is a cancel too.
+        self.popup.set_on_dismiss(move || finish(None));
         Ok(())
     }
 }

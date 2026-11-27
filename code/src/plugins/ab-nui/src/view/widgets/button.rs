@@ -30,15 +30,14 @@ impl Button {
 
 impl Widget for Button {
     fn measure(&self, c: Constraints) -> Size {
-        let w = (crate::text::display_width(&self.label) + 4).min(c.max_w);
-        Size::new(w, 1)
+        c.clamp(Size::new(crate::text::display_width(&self.label).saturating_add(4), 1))
     }
 
     fn paint(&self, cx: &mut Cx, area: Area, canvas: &mut Canvas) {
         let focused = cx.will_focus();
         let text = format!("[ {} ]", self.label);
         let hl = if focused { Some(Rc::from(groups::SELECTION)) } else { self.hl.clone() };
-        canvas.put_str(area.x, area.y, &text, hl);
+        canvas.put_str_clipped(area.x, area.y, area.w, &text, hl);
 
         let press = self.on_press.clone();
         cx.register(

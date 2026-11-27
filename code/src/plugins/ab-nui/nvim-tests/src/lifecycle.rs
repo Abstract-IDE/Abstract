@@ -249,10 +249,10 @@ fn esc_in_keyed_handler_can_be_consumed() {
 // ---- reactivity ---------------------------------------------------------------
 
 #[nvim_oxi::test]
-fn signal_and_store_reads_repaint() {
+fn signal_reads_repaint() {
     setup();
     let sig = Signal::new(1);
-    let store = Store::new(10);
+    let store = Signal::new(10);
     let (s2, t2) = (sig.clone(), store.clone());
     let (_s, buf) = surf(12, 1, move || Text::new(format!("{} {}", s2.get(), t2.get())));
     assert_eq!(trimmed(buf), v(&["1 10"]));
@@ -478,4 +478,32 @@ fn panes_share_state_through_signals() {
     query.set("abc".into());
     assert_eq!(trimmed(list.popup().buffer())[0], "q:abc");
     assert_eq!(trimmed(preview.popup().buffer())[0], "len:3");
+}
+
+#[nvim_oxi::test]
+fn a_surface_opened_inside_an_effect_outlives_the_effects_reruns() {
+    setup();
+    let tick = Signal::new(0);
+    let label = Signal::new("one".to_string());
+    let slot: Rc<RefCell<Option<Surface>>> = Rc::default();
+
+    let (t, l, s) = (tick.clone(), label.clone(), slot.clone());
+    let _parent = effect(move || {
+        t.get();
+        if s.borrow().is_none() {
+            let l = l.clone();
+            let surface = Surface::float(PopupOptions { size: Size::cells(10, 1), ..Default::default() })
+                .unwrap()
+                .show(move || Text::new(l.get()))
+                .unwrap();
+            *s.borrow_mut() = Some(surface);
+        }
+    });
+
+    // The parent re-runs; the surface it created must keep rendering: its
+    // lifetime belongs to its handle, not to the effect that built it.
+    tick.set(1);
+    label.set("two".into());
+    let buf = slot.borrow().as_ref().unwrap().popup().buffer();
+    assert_eq!(trimmed(buf), v(&["two"]));
 }

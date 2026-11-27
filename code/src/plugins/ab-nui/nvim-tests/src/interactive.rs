@@ -134,7 +134,7 @@ fn radio_group_horizontal() {
     assert_eq!(sel.get_untracked(), 0);
 }
 
-// ---- List / ListView ----------------------------------------------------------
+// ---- List ----------------------------------------------------------------
 
 #[nvim_oxi::test]
 fn list_navigation_and_selection_callback() {
@@ -247,14 +247,16 @@ fn list_multi_select_and_filter() {
 }
 
 #[nvim_oxi::test]
-fn list_view_selects_through_signal() {
+fn list_selects_through_a_shared_signal() {
     setup();
     let sel = Signal::new(0usize);
+    let state = ListState::from_selected(sel.clone());
     let picked = log();
-    let (s2, p2) = (sel.clone(), picked.clone());
+    let p2 = picked.clone();
     let (_s, buf) = surf(10, 3, move || {
         let p2 = p2.clone();
-        ListView::new(vec!["x".into(), "y".into(), "z".into()], s2.clone())
+        List::new(vec!["x", "y", "z"], &state)
+            .scrollbar(false)
             .on_select(move |i| p2.borrow_mut().push(i.to_string()))
     });
     assert_eq!(trimmed(buf), v(&["▌ x", "  y", "  z"]));

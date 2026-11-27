@@ -13,17 +13,17 @@ use crate::lua;
 use crate::nvim::buffer::Buffer;
 use crate::reactive::batch;
 
-/// Options for a buffer-local keymap.
+/// Options for a buffer-local keymap. (There is no `noremap`: the right-hand
+/// side is a Rust callback, which is never remapped.)
 #[derive(Clone, Copy, Debug)]
 pub struct KeymapOpts {
-    pub noremap: bool,
     pub silent: bool,
     pub nowait: bool,
 }
 
 impl Default for KeymapOpts {
     fn default() -> Self {
-        Self { noremap: true, silent: true, nowait: true }
+        Self { silent: true, nowait: true }
     }
 }
 
@@ -37,7 +37,6 @@ pub fn buf_keymap(buf: Buffer, mode: &str, lhs: &str, opts: KeymapOpts, callback
 
     let o = l.create_table()?;
     o.set("buffer", buf.id())?;
-    o.set("noremap", opts.noremap)?;
     o.set("silent", opts.silent)?;
     o.set("nowait", opts.nowait)?;
 
@@ -210,7 +209,9 @@ pub fn del_keymap(buf: Option<Buffer>, mode: &str, lhs: &str) -> Result<()> {
 /// Options for a user command created with [`user_command`].
 #[derive(Clone, Debug, Default)]
 pub struct CommandOpts {
-    /// `nargs` spec: `"0"`, `"1"`, `"*"`, `"?"`, or `"+"`.
+    /// `nargs` spec: `"0"`, `"1"`, `"*"`, `"?"`, or `"+"`. Unset means no
+    /// arguments, or `"*"` when `complete` is set (Neovim rejects completion
+    /// for a command that takes none).
     pub nargs: Option<&'static str>,
     pub desc: Option<String>,
     pub bang: bool,
@@ -247,8 +248,13 @@ pub fn user_command(name: &str, opts: &CommandOpts, callback: impl Fn(CommandArg
     })?;
 
     let o = l.create_table()?;
-    if let Some(nargs) = opts.nargs {
-        o.set("nargs", nargs)?;
+    let nargs = opts.nargs.or(opts.complete.as_ref().map(|_| "*"));
+    if let Some(nargs) = nargs {
+        // Neovim takes a count as a number (0 or 1) and a wildcard as a string.
+        match nargs.parse::<i64>() {
+            Ok(n) => o.set("nargs", n)?,
+            Err(_) => o.set("nargs", nargs)?,
+        }
     }
     if let Some(desc) = &opts.desc {
         o.set("desc", desc.as_str())?;

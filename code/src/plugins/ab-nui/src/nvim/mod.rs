@@ -15,6 +15,19 @@ pub use event::{
     buf_keymap_table, del_augroup, del_autocmd, del_keymap, del_user_command, unique_augroup, user_command,
 };
 pub use extmark::{ExtmarkInfo, ExtmarkOpts, Namespace, VirtTextPos};
-pub use render::{Mark, Renderer, Row, render};
+pub use render::{LINE_BREAK, Mark, Renderer, Row, render, single_line};
 pub use timer::{Timer, defer, schedule};
 pub use window::{Anchor, Border, FloatConfig, Relative, SplitConfig, SplitDir, TitlePos, WinConfigInfo, Window};
+
+/// The current mode, as `nvim_get_mode().mode` reports it (`"n"`, `"i"`,
+/// `"no"`, ...).
+pub fn mode() -> crate::Result<String> {
+    let info: mlua::Table = crate::lua::call_api("nvim_get_mode", ())?;
+    Ok(info.get("mode")?)
+}
+
+/// `v:count1`: the count typed before the key being handled (1 without one).
+pub fn count1() -> crate::Result<usize> {
+    let v: mlua::Table = crate::lua::vim()?.get("v")?;
+    Ok(v.get::<i64>("count1")?.max(1) as usize)
+}

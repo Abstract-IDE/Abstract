@@ -37,7 +37,7 @@ impl ProgressBar {
 
 impl Widget for ProgressBar {
     fn measure(&self, c: Constraints) -> Size {
-        Size::new(c.max_w, 1)
+        c.clamp(Size::new(c.max_w, 1))
     }
 
     fn paint(&self, _cx: &mut Cx, area: Area, canvas: &mut Canvas) {
@@ -45,7 +45,7 @@ impl Widget for ProgressBar {
         let (done, todo): (Rc<str>, Rc<str>) = (Rc::from(groups::ACCENT), Rc::from(groups::MUTED));
         for x in 0..area.w {
             let (ch, hl) = if x < filled { (self.filled, &done) } else { (self.empty, &todo) };
-            canvas.set(area.x + x, area.y, ch, Some(hl.clone()));
+            canvas.set(area.x.saturating_add(x), area.y, ch, Some(hl.clone()));
         }
         if let Some(label) = &self.label {
             let lw = crate::text::display_width(label);
@@ -115,7 +115,7 @@ impl Spinner {
 impl Widget for Spinner {
     fn measure(&self, c: Constraints) -> Size {
         let w = self.frames.iter().map(|f| crate::text::display_width(f)).max().unwrap_or(1);
-        Size::new(w.min(c.max_w), 1)
+        c.clamp(Size::new(w, 1))
     }
 
     fn paint(&self, _cx: &mut Cx, area: Area, canvas: &mut Canvas) {
@@ -123,6 +123,6 @@ impl Widget for Spinner {
             return;
         }
         let i = self.state.frame.get() % self.frames.len(); // tracked: repaint per tick
-        canvas.put_str(area.x, area.y, self.frames[i], Some(Rc::from(self.hl)));
+        canvas.put_str_clipped(area.x, area.y, area.w, self.frames[i], Some(Rc::from(self.hl)));
     }
 }

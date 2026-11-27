@@ -4,7 +4,7 @@
 use std::rc::Rc;
 
 use crate::reactive::Signal;
-use crate::text::display_width;
+use crate::text::{Line, display_width, truncate_line};
 use crate::theme::groups;
 use crate::view::canvas::Canvas;
 use crate::view::widget::{Area, Constraints, Cx, Key, Size, Widget};
@@ -47,9 +47,33 @@ impl Select {
     }
 }
 
+/// Where the open dropdown goes for an anchor at `anchor` (root-canvas
+/// coordinates) on a `full` canvas: `(x0, y0, w, h)`. Below the anchor when the
+/// options fit there (or there is at least as much room below as above),
+/// otherwise above it.
+fn dropdown_rect(anchor: Area, full: Area, n: usize, widest: u16) -> (u16, u16, u16, u16) {
+    let n = n.min(u16::MAX as usize) as u16;
+    let w = widest.saturating_add(4).min(full.w);
+    let room_below = full.h.saturating_sub(anchor.y.saturating_add(1));
+    let room_above = anchor.y.min(full.h);
+    let (y0, h) = if n <= room_below || room_below >= room_above {
+        (anchor.y.saturating_add(1), n.min(room_below))
+    } else {
+        let h = n.min(room_above);
+        (anchor.y - h, h)
+    };
+    let x0 = anchor.x.min(full.w.saturating_sub(w));
+    (x0, y0, w, h)
+}
+
+/// The first option shown in a dropdown `h` rows tall so `hover` is visible.
+fn dropdown_top(hover: usize, n: usize, h: usize) -> usize {
+    if h == 0 { 0 } else { hover.saturating_sub(h - 1).min(n.saturating_sub(h)) }
+}
+
 impl Widget for Select {
     fn measure(&self, c: Constraints) -> Size {
-        Size::new((self.widest() + 2).min(c.max_w), 1)
+        c.clamp(Size::new(self.widest().saturating_add(2), 1))
     }
 
     fn paint(&self, cx: &mut Cx, area: Area, canvas: &mut Canvas) {
@@ -60,25 +84,30 @@ impl Widget for Select {
 
         let label = self.options.get(selected).cloned().unwrap_or_default();
         let hl = if focused { groups::SELECTION } else { groups::FIELD };
-        canvas.put_str(area.x, area.y, &format!("▾ {label}"), Some(Rc::from(hl)));
+        canvas.put_str_clipped(area.x, area.y, area.w, &format!("▾ {label}"), Some(Rc::from(hl)));
 
         // The dropdown list, painted above everything after the main tree.
+        // Overlays paint on the root canvas, so the anchor is mapped to
+        // on-screen coordinates (it may sit on a scrolled, offscreen canvas).
         if open && n > 0 {
             let options = self.options.clone();
             let hover = self.state.hover.clone();
             let widest = self.widest();
+            let screen = canvas.screen_map();
             cx.overlay(move |_, full, canvas| {
-                let w = (widest + 4).min(full.w);
-                let h = (n as u16).min(full.h.saturating_sub(1));
-                // Below the anchor if there's room, else above.
-                let below = area.y + 1 + h <= full.h;
-                let y0 = if below { area.y + 1 } else { area.y.saturating_sub(h) };
-                let x0 = area.x.min(full.w.saturating_sub(w));
-                let cur = hover.get_untracked().min(n - 1);
-                for (row, option) in options.iter().enumerate().take(h as usize) {
-                    let hl = if row == cur { groups::SELECTION } else { groups::FIELD };
-                    let text = format!(" {option:<width$} ", width = (w as usize).saturating_sub(2));
-                    canvas.put_str(x0, y0 + row as u16, &text, Some(Rc::from(hl)));
+                // Scrolled out of view: no dropdown either.
+                let Some(anchor) = screen.map(area) else { return };
+                let (x0, y0, w, h) = dropdown_rect(anchor, full, n, widest);
+                let cur = hover.get().min(n - 1); // tracked: moving the hover repaints
+                let top = dropdown_top(cur, n, h as usize);
+                let inner = w.saturating_sub(2);
+                for (row, i) in (top..n.min(top + h as usize)).enumerate() {
+                    let hl = if i == cur { groups::SELECTION } else { groups::FIELD };
+                    // Pad/truncate by display width, not chars.
+                    let label = truncate_line(&Line::raw(options[i].as_str()), inner);
+                    let pad = " ".repeat(inner.saturating_sub(label.width()) as usize);
+                    let text = format!(" {}{pad} ", label.text());
+                    canvas.put_str_clipped(x0, y0 + row as u16, w, &text, Some(Rc::from(hl)));
                 }
             });
         }

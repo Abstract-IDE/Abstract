@@ -1,11 +1,17 @@
 //! Toast notifications: short-lived floats stacked in the top-right corner,
 //! auto-dismissed on a timer (or sticky until dismissed).
+//!
+//! The stack re-anchors on every notify/dismiss and on editor resize. Toasts
+//! that don't fit above the command line are kept hidden (their timers keep
+//! running) and appear as soon as there is room; the newest toast is always
+//! shown.
 
 use std::cell::{Cell, RefCell};
 
 use crate::error::Result;
 use crate::geometry::{Position, Size, editor_size};
-use crate::nvim::{Border, Timer};
+use crate::lua;
+use crate::nvim::{self, Border, Timer};
 use crate::text::{Line, Wrap, wrap_line};
 use crate::theme::groups;
 use crate::view::runtime::Surface;
@@ -62,6 +68,7 @@ impl Default for NotifyOptions {
 struct Toast {
     id: u64,
     surface: Surface,
+    level: Level,
     /// Rows the toast occupies including its border.
     rows: u32,
     _timer: Option<Timer>,
@@ -73,6 +80,8 @@ thread_local! {
     static TOASTS: std::mem::ManuallyDrop<RefCell<Vec<Toast>>> =
         const { std::mem::ManuallyDrop::new(RefCell::new(Vec::new())) };
     static NEXT_ID: Cell<u64> = const { Cell::new(0) };
+    /// Whether the (single, shared) `VimResized` restack hook is installed.
+    static RESIZE_HOOK: Cell<bool> = const { Cell::new(false) };
 }
 
 /// A handle to a shown toast.
@@ -93,10 +102,10 @@ impl NotifyHandle {
 pub fn notify(msg: impl Into<String>, opts: NotifyOptions) -> Result<NotifyHandle> {
     let msg = msg.into();
     let width = opts.width.clamp(16, 120);
-    let inner_w = width.saturating_sub(2); // horizontal padding
 
-    // Height from the wrapped message (cap so one toast can't fill the screen).
-    let rows = wrap_line(&Line::raw(&msg), inner_w, Wrap::Word).len().clamp(1, 10) as u32;
+    // Height from the message wrapped exactly as the `Text` below wraps it (at
+    // the full width), capped so one toast can't fill the screen.
+    let rows = wrap_line(&Line::raw(&msg), width, Wrap::Word).len().clamp(1, 10) as u32;
     let total_rows = rows + 2; // border
 
     let id = NEXT_ID.with(|c| {
@@ -119,7 +128,22 @@ pub fn notify(msg: impl Into<String>, opts: NotifyOptions) -> Result<NotifyHandl
     })?
     .show(move || Text::new(msg.clone()).wrap(Wrap::Word))?;
 
-    // Level-colored border/title.
+    style(&surface, level);
+
+    let timer = match opts.timeout_ms {
+        Some(ms) => Some(Timer::once(ms.max(100), move || dismiss_id(id))?),
+        None => None,
+    };
+
+    install_resize_hook();
+    TOASTS.with(|t| t.borrow_mut().push(Toast { id, surface, level, rows: total_rows, _timer: timer }));
+    restack();
+    Ok(NotifyHandle { id })
+}
+
+/// Level-colored border/title on the toast's current window (re-applied
+/// whenever a hidden toast gets a new window).
+fn style(surface: &Surface, level: Level) {
     if let Some(win) = surface.popup().window() {
         let hl = level.hl();
         let _ = win.set_option(
@@ -127,40 +151,69 @@ pub fn notify(msg: impl Into<String>, opts: NotifyOptions) -> Result<NotifyHandl
             format!("Normal:{n},NormalFloat:{n},FloatBorder:{b},FloatTitle:{b}", n = groups::NORMAL, b = hl),
         );
     }
+}
 
-    let timer = match opts.timeout_ms {
-        Some(ms) => Some(Timer::once(ms.max(100), move || dismiss_id(id))?),
-        None => None,
-    };
-
-    TOASTS.with(|t| t.borrow_mut().push(Toast { id, surface, rows: total_rows, _timer: timer }));
-    restack();
-    Ok(NotifyHandle { id })
+/// Re-anchor the stack whenever the editor is resized (one hook for all
+/// toasts, installed with the first one).
+fn install_resize_hook() {
+    if RESIZE_HOOK.with(|h| h.replace(true)) {
+        return;
+    }
+    if nvim::autocmd(&["VimResized"], None, None, |_| restack()).is_err() {
+        RESIZE_HOOK.with(|h| h.set(false));
+    }
 }
 
 /// Dismiss every visible toast.
 pub fn dismiss_all() {
-    TOASTS.with(|t| t.borrow_mut().clear()); // drop = close + free
+    // Take the toasts out before dropping them: closing a toast runs
+    // `WinClosed`/`BufWipeout` autocmds synchronously, and those may call
+    // `notify` (which needs the list).
+    let gone = TOASTS.with(|t| std::mem::take(&mut *t.borrow_mut()));
+    drop(gone); // drop = close + free
 }
 
 fn dismiss_id(id: u64) {
-    TOASTS.with(|t| t.borrow_mut().retain(|toast| toast.id != id));
+    let gone: Vec<Toast> = TOASTS.with(|t| {
+        let mut toasts = t.borrow_mut();
+        let (gone, keep) = std::mem::take(&mut *toasts).into_iter().partition(|toast| toast.id == id);
+        *toasts = keep;
+        gone
+    });
+    if gone.is_empty() {
+        return;
+    }
+    drop(gone); // outside the borrow, as in `dismiss_all`
     restack();
 }
 
-/// Re-anchor the stack in the top-right corner, newest at the top.
+/// Re-anchor the stack in the top-right corner, newest at the top. Toasts
+/// that would reach past the bottom (the command line) are hidden until
+/// there is room; the newest one is always shown.
 fn restack() {
-    let Ok((cols, _)) = editor_size() else { return };
-    TOASTS.with(|t| {
-        let toasts = t.borrow();
-        let mut row = 1.0;
-        for toast in toasts.iter().rev() {
-            let popup = toast.surface.popup();
-            if let Ok((w, _)) = popup.inner_size() {
-                let col = (cols as f64 - w as f64 - 3.0).max(0.0);
-                let _ = popup.set_position(Position::At { row, col });
-            }
-            row += toast.rows as f64;
+    let Ok((cols, lines)) = editor_size() else { return };
+    let cmdheight: i64 = lua::get_option("cmdheight").unwrap_or(1);
+    let bottom = (lines as i64 - cmdheight.max(0)) as f64;
+    // Snapshot, then release the borrow: moving/hiding/opening windows runs
+    // autocmds that may re-enter `notify`/`dismiss`.
+    let stack: Vec<(Surface, Level, u32)> = TOASTS
+        .with(|t| t.borrow().iter().rev().map(|toast| (toast.surface.clone(), toast.level, toast.rows)).collect());
+    let mut row = 1.0;
+    let mut full = false;
+    for (i, (surface, level, rows)) in stack.iter().enumerate() {
+        full = full || (i > 0 && row + *rows as f64 > bottom);
+        if full {
+            surface.hide();
+            continue;
         }
-    });
+        let popup = surface.popup();
+        if let Ok((w, _)) = popup.inner_size() {
+            let col = (cols as f64 - w as f64 - 3.0).max(0.0);
+            let _ = popup.set_position(Position::At { row, col });
+        }
+        if !surface.is_visible() && surface.reopen().is_ok() {
+            style(surface, *level);
+        }
+        row += *rows as f64;
+    }
 }

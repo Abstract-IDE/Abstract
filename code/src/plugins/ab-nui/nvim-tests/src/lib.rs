@@ -7,11 +7,14 @@
 mod support;
 
 mod bench;
+mod core_fixes;
 mod interactive;
 mod layout;
 mod lifecycle;
 mod nvim_api;
 mod popup;
 mod rendering;
+mod runtime_fixes;
 mod surface;
+mod widget_fixes;
 mod widgets;

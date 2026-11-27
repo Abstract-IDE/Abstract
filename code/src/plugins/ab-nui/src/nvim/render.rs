@@ -10,6 +10,7 @@
 //! character) that is one or two rows instead of the whole buffer, which also
 //! means Neovim only has to redraw those rows.
 
+use std::borrow::Cow;
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -42,15 +43,42 @@ pub struct Row {
     pub marks: Vec<Mark>,
 }
 
+/// What a line break inside one row of a frame is shown as.
+pub const LINE_BREAK: char = '↵';
+
+/// `s` as a single buffer line: every line break (`\r\n`, `\n` or `\r`)
+/// becomes one [`LINE_BREAK`] (a buffer line cannot hold a `\n`, and a `\r`
+/// would show as a two-cell `^M`). Borrows when there is nothing to replace.
+pub fn single_line(s: &str) -> Cow<'_, str> {
+    if !s.contains(['\n', '\r']) {
+        return Cow::Borrowed(s);
+    }
+    let mut out = String::with_capacity(s.len() + 2);
+    let mut chars = s.chars().peekable();
+    while let Some(c) = chars.next() {
+        match c {
+            '\r' => {
+                chars.next_if_eq(&'\n');
+                out.push(LINE_BREAK);
+            },
+            '\n' => out.push(LINE_BREAK),
+            c => out.push(c),
+        }
+    }
+    Cow::Owned(out)
+}
+
 impl Row {
     /// Flatten a styled [`Line`]: concatenate the span texts and turn each
     /// highlighted span into a [`Mark`] (adjacent spans sharing a group merge).
+    /// Line breaks inside a span are shown as [`LINE_BREAK`] (see
+    /// [`single_line`]).
     pub fn from_line(line: &Line) -> Self {
         let mut row =
             Row { text: String::with_capacity(line.spans.iter().map(|s| s.text.len()).sum()), marks: Vec::new() };
         for span in &line.spans {
             let start = row.text.len() as u32;
-            row.text.push_str(&span.text);
+            row.text.push_str(&single_line(&span.text));
             let end = row.text.len() as u32;
             let Some(hl) = &span.hl else { continue };
             if start == end {
@@ -193,7 +221,17 @@ fn encode_runs(rows: &[Row], runs: &[Run]) -> Result<Table> {
         out.raw_push(run.start)?;
         out.raw_push(run.len)?;
         if run.text_changed {
-            out.raw_push(l.create_sequence_from(slice.iter().map(|r| r.text.as_str()))?)?;
+            // A line break would make Neovim reject the whole frame. Rows from
+            // `Row::from_line` never have one; for hand-built rows, blank it
+            // (byte-for-byte, so the marks stay valid).
+            let lines = slice.iter().map(|r| {
+                if r.text.contains(['\n', '\r']) {
+                    Cow::Owned(r.text.replace(['\n', '\r'], " "))
+                } else {
+                    Cow::Borrowed(r.text.as_str())
+                }
+            });
+            out.raw_push(l.create_sequence_from(lines)?)?;
         } else {
             out.raw_push(false)?;
         }
@@ -244,6 +282,14 @@ mod tests {
             Span::raw("gh"),
         ]);
         assert_eq!(Row::from_line(&line), row("é abcdefgh", &[(3, 7, "A"), (7, 9, "B")]));
+    }
+
+    #[test]
+    fn line_breaks_become_one_visible_cell() {
+        assert_eq!(single_line("plain"), "plain");
+        assert_eq!(single_line("a\nb\r\nc\rd"), "a↵b↵c↵d");
+        let line = Line::from_spans([Span::raw("x\n"), Span::hl("y", "A")]);
+        assert_eq!(Row::from_line(&line), row("x↵y", &[(4, 5, "A")]));
     }
 
     #[test]

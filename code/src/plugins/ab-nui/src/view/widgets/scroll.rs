@@ -48,16 +48,26 @@ impl Scrollbar {
 
 impl Widget for Scrollbar {
     fn measure(&self, c: Constraints) -> Size {
-        Size::new(1.min(c.max_w), c.max_h)
+        c.clamp(Size::new(1, c.max_h))
     }
     fn paint(&self, _cx: &mut Cx, area: Area, canvas: &mut Canvas) {
         draw_scrollbar(canvas, area, self.total, self.viewport, self.offset);
     }
 }
 
-/// A vertical viewport over any child: the child is painted at its full height
-/// onto an offscreen canvas and the visible window is blitted through. Focused,
-/// it consumes `Up`/`Down`/`PageUp`/`PageDown`/`<C-d>`/`<C-u>`/`Home`/`End`.
+/// The tallest offscreen canvas a [`ScrollView`] paints its content on;
+/// content measured taller is cut off at this many rows.
+pub const MAX_SCROLL_ROWS: u16 = 4096;
+
+/// A vertical viewport over any child: the child is painted at its measured
+/// height onto an offscreen canvas and the visible window is blitted through.
+/// A greedy child (one that measures the whole unbounded height, e.g. a
+/// `TextArea`) gets the viewport's height instead.
+///
+/// Focused, it consumes `Up`/`Down`/`PageUp`/`PageDown`/`<C-d>`/`<C-u>`/
+/// `Home`/`End`. When focus is on an interactive widget inside the content,
+/// the view scrolls to keep that widget visible; the hit areas of the
+/// content's widgets are clipped to the viewport.
 pub struct ScrollView {
     child: Element,
     offset: Signal<u16>,
@@ -81,6 +91,13 @@ impl ScrollView {
         if self.show_scrollbar { 1 } else { 0 }
     }
 
+    /// Rows of the offscreen content canvas for a viewport `view_h` tall.
+    fn content_rows(&self, view_w: u16, view_h: u16) -> u16 {
+        let measured = self.content_size(view_w).h;
+        let rows = if measured >= Constraints::UNBOUNDED { view_h } else { measured.min(MAX_SCROLL_ROWS) };
+        rows.max(1)
+    }
+
     /// The child's full height when given unbounded vertical room.
     fn content_size(&self, max_w: u16) -> Size {
         self.child.measure(Constraints::loose(max_w, Constraints::UNBOUNDED))
@@ -90,30 +107,55 @@ impl ScrollView {
 impl Widget for ScrollView {
     fn measure(&self, c: Constraints) -> Size {
         let content = self.content_size(c.max_w.saturating_sub(self.bar_w()));
-        c.clamp(Size::new((content.w + self.bar_w()).min(c.max_w), content.h.min(c.max_h)))
+        c.clamp(Size::new(content.w.saturating_add(self.bar_w()), content.h))
     }
 
     fn paint(&self, cx: &mut Cx, area: Area, canvas: &mut Canvas) {
         let view_w = area.w.saturating_sub(self.bar_w());
-        let content = self.content_size(view_w);
-        let content_h = content.h.max(1);
+        let content_h = self.content_rows(view_w, area.h);
 
         // A tracked read: scrolling (or any outside write to the offset) must
         // repaint the surface. The clamp is written back silently, since this
         // frame already shows the clamped value.
         let max_offset = content_h.saturating_sub(area.h);
-        let offset = self.offset.get().min(max_offset);
-        self.offset.set_silent(offset);
+        let mut offset = self.offset.get().min(max_offset);
 
-        // Paint the child in full on an offscreen canvas...
-        let mut off = Canvas::new(view_w, content_h);
+        // Paint the child on an offscreen canvas...
+        let (mut off, placement) = canvas.offscreen(view_w, content_h);
         let before = cx.focusables.len();
         self.child.paint(cx, Area { x: 0, y: 0, w: view_w, h: content_h }, &mut off);
+        let after = cx.focusables.len();
 
-        // ...remap the child's focusable areas into viewport coordinates...
-        for f in &mut cx.focusables[before..] {
-            f.area.x += area.x;
-            f.area.y = (f.area.y + area.y).saturating_sub(offset);
+        // ...scroll the focused widget (if it is ours) into view...
+        if (before..after).contains(&cx.focused) {
+            let f = cx.focusables[cx.focused].area;
+            let (top, bottom) = (f.y as u32, f.y as u32 + f.h.max(1) as u32);
+            if top < offset as u32 {
+                offset = f.y;
+            } else if bottom > offset as u32 + area.h as u32 {
+                offset = (bottom - area.h as u32).min(top) as u16;
+            }
+            offset = offset.min(max_offset);
+        }
+        self.offset.set_silent(offset);
+        let view = Area { x: area.x, y: area.y, w: view_w, h: area.h };
+        placement.set(area.x as i32, area.y as i32 - offset as i32, view);
+
+        // ...remap the child's focusable areas into viewport coordinates,
+        // clipped to the viewport (a widget scrolled out keeps its focus id
+        // but has an empty area)...
+        let (vis_top, vis_bottom) = (offset as u32, offset as u32 + area.h as u32);
+        for f in &mut cx.focusables[before..after] {
+            let a = f.area;
+            let top = (a.y as u32).clamp(vis_top, vis_bottom);
+            let bottom = (a.y as u32 + a.h as u32).clamp(vis_top, vis_bottom);
+            let x = a.x.min(view_w);
+            f.area = Area {
+                x: area.x.saturating_add(x),
+                y: area.y.saturating_add((top - vis_top) as u16),
+                w: a.w.min(view_w - x),
+                h: (bottom - top) as u16,
+            };
         }
 
         // ...and blit the visible window through.

@@ -2,6 +2,9 @@
 //! optional [`Input::on_change`] callback fires on every edit. The current text
 //! is exposed as a reactive [`Signal`].
 
+use std::cell::Cell;
+use std::rc::Rc;
+
 use crate::error::Result;
 use crate::geometry::{Position, Size};
 use crate::nvim::{self, Border, TitlePos};
@@ -14,7 +17,7 @@ pub struct InputOptions {
     pub width: Size,
     pub position: Position,
     pub border: Border,
-    /// Pre-filled text.
+    /// Pre-filled text. Line breaks become spaces (the input is one line).
     pub initial: String,
 }
 
@@ -31,7 +34,7 @@ impl Default for InputOptions {
 }
 
 /// A callback invoked with the current text on every edit.
-type ChangeHandler = std::rc::Rc<dyn Fn(&str)>;
+type ChangeHandler = Rc<dyn Fn(&str)>;
 
 /// A single-line reactive text input.
 pub struct Input {
@@ -52,9 +55,12 @@ impl Input {
             position: opts.position,
             border: opts.border,
             enter: true,
+            // Focus leaving the input dismisses it (see `Input::open`).
+            close_on_leave: true,
             ..Default::default()
         })?;
-        Ok(Self { popup, value: Signal::new(opts.initial), on_change: None })
+        let initial = opts.initial.replace("\r\n", " ").replace(['\n', '\r'], " ");
+        Ok(Self { popup, value: Signal::new(initial), on_change: None })
     }
 
     /// The reactive current text.
@@ -69,34 +75,39 @@ impl Input {
 
     /// Call `f` with the current text on every edit (builder style).
     pub fn on_change(mut self, f: impl Fn(&str) + 'static) -> Self {
-        self.on_change = Some(std::rc::Rc::new(f));
+        self.on_change = Some(Rc::new(f));
         self
     }
 
-    /// Open the input and start insert mode. `on_submit` fires with the final
-    /// text on `<CR>` (the input closes first).
-    pub fn open(self, on_submit: impl Fn(String) + 'static) -> Result<()> {
-        self.open_with(on_submit, || {})
+    /// Open the input and start insert mode. `on_done` is called exactly
+    /// once: with the text on `<CR>`, or with `None` when the input is
+    /// dismissed — `<Esc>`, the cursor leaving the input window, or the window
+    /// being closed by anything else (`:q`, `<C-w>c`, another plugin). The
+    /// input is fully closed (and insert mode left) before `on_done` runs. (If
+    /// `open` itself fails, `on_done` is never called.)
+    pub fn open(self, on_done: impl Fn(Option<String>) + 'static) -> Result<()> {
+        let popup = self.popup.clone();
+        let result = self.open_inner(on_done);
+        if result.is_err() {
+            popup.close();
+        }
+        result
     }
 
-    /// Like [`Input::open`], but `on_cancel` fires when the user dismisses the
-    /// input (`<Esc>`) instead of submitting. Exactly one of the two callbacks
-    /// runs, at most once.
-    pub fn open_with(self, on_submit: impl Fn(String) + 'static, on_cancel: impl Fn() + 'static) -> Result<()> {
+    fn open_inner(self, on_done: impl Fn(Option<String>) + 'static) -> Result<()> {
         let buf = self.popup.buffer();
 
         // Seed initial text without locking the buffer (inputs are editable).
-        let initial = self.value.get_untracked();
-        buf.set_all([initial])?;
+        buf.set_all([self.value.get_untracked()])?;
 
         self.popup.open()?;
         if let Some(win) = self.popup.window() {
             let _ = win.set_option("cursorline", false);
         }
 
-        // Keep the signal in sync with edits (per-instance group, so several
-        // inputs can be alive at once).
-        let group = nvim::unique_augroup("AbNuiInput")?;
+        // Keep the signal in sync with edits (in the popup's own group, so it
+        // goes away with the popup).
+        let group = self.popup.augroup()?;
         let value = self.value.clone();
         let on_change = self.on_change.clone();
         nvim::buf_autocmd(&["TextChangedI", "TextChanged"], buf, Some(group), move || {
@@ -108,45 +119,46 @@ impl Input {
             }
         })?;
 
-        // Submit/cancel are mutually exclusive and fire at most once.
-        let fired = std::rc::Rc::new(std::cell::Cell::new(false));
-
-        // Submit.
-        let submit = {
-            let value = self.value.clone();
+        // Exactly once: whichever way the input ends first wins.
+        let fired = Rc::new(Cell::new(false));
+        let finish: Rc<dyn Fn(Option<String>)> = {
             let popup = self.popup.clone();
-            let fired = fired.clone();
-            std::rc::Rc::new(move || {
+            Rc::new(move |text: Option<String>| {
                 if fired.replace(true) {
                     return;
                 }
-                let text = buf.first_line().unwrap_or_else(|_| value.get_untracked());
-                let _ = crate::lua::cmd("stopinsert");
+                // Leave insert mode, but only if it is the input's (when the
+                // window was closed from elsewhere, the mode belongs to
+                // whatever window the user is in now).
+                let here = popup.window().is_some_and(|w| nvim::Window::current().ok() == Some(w));
+                if here && nvim::mode().is_ok_and(|m| m.starts_with('i') || m.starts_with('R')) {
+                    let _ = crate::lua::cmd("stopinsert");
+                }
                 popup.close();
-                on_submit(text);
+                on_done(text);
             })
         };
-        for mode in ["i", "n"] {
-            let s = submit.clone();
-            self.popup.on_key(mode, "<CR>", move || s())?;
-        }
 
-        // Cancel.
-        let on_cancel = std::rc::Rc::new(on_cancel);
+        // Submit.
         for mode in ["i", "n"] {
-            let popup = self.popup.clone();
-            let on_cancel = on_cancel.clone();
-            let fired = fired.clone();
-            self.popup.on_key(mode, "<Esc>", move || {
-                if fired.replace(true) {
-                    return;
-                }
-                let _ = crate::lua::cmd("stopinsert");
-                popup.close();
-                on_cancel();
+            let finish = finish.clone();
+            let value = self.value.clone();
+            self.popup.on_key(mode, "<CR>", move || {
+                finish(Some(buf.first_line().unwrap_or_else(|_| value.get_untracked())));
             })?;
         }
 
+        // Cancel.
+        for mode in ["i", "n"] {
+            let finish = finish.clone();
+            self.popup.on_key(mode, "<Esc>", move || finish(None))?;
+        }
+
+        // Closed or left some other way: that is a cancel too.
+        self.popup.set_on_dismiss(move || finish(None));
+
+        // Already inserting (opened from insert mode)? `startinsert!` then
+        // just moves the cursor to the end of the line, which is all we need.
         crate::lua::cmd("startinsert!")?;
         Ok(())
     }

@@ -1,6 +1,5 @@
-//! `List` — the full-featured selectable list: custom row rendering, filtering,
-//! multi-select, scrolling with a scrollbar. `ListView` remains as the simple
-//! string-list wrapper it always was.
+//! `List` — the selectable list: custom row rendering, filtering,
+//! multi-select, scrolling with a scrollbar.
 
 use std::rc::Rc;
 
@@ -29,7 +28,7 @@ impl ListState {
         Self { selected: Signal::new(0), offset: Signal::new(0), marked: Signal::new(Vec::new()) }
     }
 
-    /// Adopt an existing selection signal (e.g. from old `ListView` code).
+    /// Adopt an existing selection signal (e.g. one shared with other widgets).
     pub fn from_selected(selected: Signal<usize>) -> Self {
         Self { selected, offset: Signal::new(0), marked: Signal::new(Vec::new()) }
     }
@@ -145,11 +144,11 @@ impl<T: Clone + 'static> Widget for List<T> {
         let probe = ItemCx { index: 0, selected: false, marked: false, focused: false, width: c.max_w };
         let w = visible
             .iter()
-            .map(|&i| (self.render)(&self.items[i], &probe).width() + 2 + self.bar_w())
+            .map(|&i| (self.render)(&self.items[i], &probe).width().saturating_add(2 + self.bar_w()))
             .max()
             .unwrap_or(0);
-        let h = visible.len() as u16;
-        c.clamp(Size::new(w.min(c.max_w), h.min(c.max_h)))
+        let h = visible.len().min(u16::MAX as usize) as u16;
+        c.clamp(Size::new(w, h))
     }
 
     fn paint(&self, cx: &mut Cx, area: Area, canvas: &mut Canvas) {
@@ -167,8 +166,9 @@ impl<T: Clone + 'static> Widget for List<T> {
             0
         });
 
-        // Scroll window: keep the selection visible.
-        let mut offset = self.state.offset.get_untracked().min(n.saturating_sub(1));
+        // Scroll window: keep the selection visible (and never scroll past
+        // the last full page, so shrinking items don't leave blank rows).
+        let mut offset = self.state.offset.get_untracked().min(n.saturating_sub(h));
         if pos < offset {
             offset = pos;
         } else if h > 0 && pos >= offset + h {
@@ -201,7 +201,7 @@ impl<T: Clone + 'static> Widget for List<T> {
             } else {
                 line.spans.extend(rendered.spans);
             }
-            canvas.put_line(area.x, area.y + row as u16, &line);
+            canvas.put_line_clipped(area.x, area.y + row as u16, area.w.saturating_sub(self.bar_w()), &line);
         }
 
         if self.show_scrollbar {
@@ -284,35 +284,5 @@ impl<T: Clone + 'static> Widget for List<T> {
                 }
             }),
         );
-    }
-}
-
-// -----------------------------------------------------------------------------
-// ListView — the original simple string list, now a thin wrapper
-// -----------------------------------------------------------------------------
-
-/// A selectable, scrolling list of strings backed by a `Signal<usize>`
-/// selection. `j`/`k` (or arrows) move; `<CR>` confirms.
-pub struct ListView {
-    inner: List<String>,
-}
-
-impl ListView {
-    pub fn new(items: Vec<String>, selected: Signal<usize>) -> Self {
-        let state = ListState::from_selected(selected);
-        Self { inner: List::new(items, &state).scrollbar(false) }
-    }
-    pub fn on_select(mut self, f: impl Fn(usize) + 'static) -> Self {
-        self.inner = self.inner.on_select(f);
-        self
-    }
-}
-
-impl Widget for ListView {
-    fn measure(&self, c: Constraints) -> Size {
-        self.inner.measure(c)
-    }
-    fn paint(&self, cx: &mut Cx, area: Area, canvas: &mut Canvas) {
-        self.inner.paint(cx, area, canvas);
     }
 }

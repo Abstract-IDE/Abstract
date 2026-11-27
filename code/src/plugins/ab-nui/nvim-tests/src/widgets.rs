@@ -47,14 +47,16 @@ fn popup_center_position_and_resize_reanchoring() {
     let p = Popup::new(PopupOptions { size: Size::cells(20, 6), ..Default::default() }).unwrap();
     p.open().unwrap();
     let win = p.window().unwrap();
-    let (cols, lines) = wp_ui::geometry::editor_size().unwrap();
+    // The whole box (content + 2-cell border) is centred in the usable area
+    // (the editor minus the command line).
+    let area = wp_ui::geometry::usable_area().unwrap();
     let c = win.config().unwrap();
-    assert_eq!(c.col, (cols - 20) as f64 / 2.0);
-    assert_eq!(c.row, (lines - 6) as f64 / 2.0);
+    assert_eq!(c.col, ((area.width - 22) / 2) as f64);
+    assert_eq!(c.row, ((area.height - 8) / 2) as f64);
     resize(100, 40);
     let c = win.config().unwrap();
-    assert_eq!(c.col, 40.0);
-    assert_eq!(c.row, 17.0);
+    assert_eq!(c.col, 39.0);
+    assert_eq!(c.row, 15.0);
 }
 
 #[nvim_oxi::test]
@@ -62,10 +64,10 @@ fn popup_ratio_size_resolves_against_editor() {
     setup();
     let p = Popup::new(PopupOptions { size: Size::ratio(0.5, 0.25), ..Default::default() }).unwrap();
     p.open().unwrap();
-    let (cols, lines) = wp_ui::geometry::editor_size().unwrap();
+    let area = wp_ui::geometry::usable_area().unwrap();
     let c = p.window().unwrap().config().unwrap();
-    assert_eq!(c.width, (cols as f64 * 0.5).round() as i64);
-    assert_eq!(c.height, (lines as f64 * 0.25).round() as i64);
+    assert_eq!(c.width, (area.width as f64 * 0.5).round() as i64);
+    assert_eq!(c.height, (area.height as f64 * 0.25).round() as i64);
 }
 
 #[nvim_oxi::test]
@@ -121,8 +123,7 @@ fn popup_hide_keeps_effects_and_close_disposes_them() {
     setup();
     let n = Signal::new(0);
     let n2 = n.clone();
-    let p =
-        Popup::new(PopupOptions { size: Size::cells(10, 1), persistent_buffer: true, ..Default::default() }).unwrap();
+    let p = Popup::new(PopupOptions { size: Size::cells(10, 1), ..Default::default() }).unwrap();
     p.open().unwrap();
     p.render_reactive(move || vec![Line::raw(format!("n={}", n2.get()))]);
     p.hide();
@@ -131,7 +132,7 @@ fn popup_hide_keeps_effects_and_close_disposes_them() {
     assert_eq!(lines(p.buffer()), v(&["n=4"]));
     p.close();
     n.set(5);
-    assert_eq!(lines(p.buffer()), v(&["n=4"]));
+    assert!(!p.buffer().is_valid(), "close deletes the popup's buffer");
 }
 
 #[nvim_oxi::test]
@@ -155,7 +156,11 @@ fn open_menu(chosen: &Log, cancelled: &Rc<Cell<u32>>) -> Popup {
     .unwrap();
     let popup = menu.popup().clone();
     let (c, k) = (chosen.clone(), cancelled.clone());
-    menu.open_with(move |v| c.borrow_mut().push(v.to_string()), move || k.set(k.get() + 1)).unwrap();
+    menu.open(move |v: Option<i32>| match v {
+        Some(v) => c.borrow_mut().push(v.to_string()),
+        None => k.set(k.get() + 1),
+    })
+    .unwrap();
     popup
 }
 
@@ -272,7 +277,7 @@ fn input_submit_with_typed_text() {
     let g = got.clone();
     let input = Input::new(InputOptions { initial: "ab".into(), ..Default::default() }).unwrap();
     let popup = input.popup().clone();
-    let _ = input.open(move |s| g.borrow_mut().push(s));
+    let _ = input.open(move |s| g.borrow_mut().extend(s));
     assert_eq!(lines(popup.buffer()), v(&["ab"]));
     feed(&format!("{}hello<CR>", append_prefix()));
     assert_eq!(*got.borrow(), v(&["abhello"]));
@@ -286,7 +291,10 @@ fn input_submits_initial_text_and_cancels_once() {
     let (g, c) = (got.clone(), cancels.clone());
     let input = Input::new(InputOptions { initial: "keep".into(), ..Default::default() }).unwrap();
     let popup = input.popup().clone();
-    let _ = input.open_with(move |s| g.borrow_mut().push(s), move || c.set(c.get() + 1));
+    let _ = input.open(move |s| match s {
+        Some(s) => g.borrow_mut().push(s),
+        None => c.set(c.get() + 1),
+    });
     feed("<CR>");
     feed("<CR><Esc>");
     assert_eq!(*got.borrow(), v(&["keep"]));
@@ -296,7 +304,10 @@ fn input_submits_initial_text_and_cancels_once() {
     let input = Input::new(InputOptions::default()).unwrap();
     let popup = input.popup().clone();
     let (g, c) = (got.clone(), cancels.clone());
-    let _ = input.open_with(move |s| g.borrow_mut().push(s), move || c.set(c.get() + 1));
+    let _ = input.open(move |s| match s {
+        Some(s) => g.borrow_mut().push(s),
+        None => c.set(c.get() + 1),
+    });
     feed("<Esc>");
     feed("<Esc><CR>");
     assert_eq!(cancels.get(), 1);
@@ -338,7 +349,7 @@ fn input_window_is_a_one_row_float_with_title() {
 
 // Regression (was a bug before the internals rewrite): `wp_ui::lua::cmd` always fails (`vim.cmd` is a callable *table*, but the
 // helper fetches it as a Function: "error converting Lua table to function").
-// Consequences: `Input::open`/`open_with` returns Err (it ends with
+// Consequences: `Input::open` returns Err (it ends with
 // `lua::cmd("startinsert!")?`) and never enters insert mode, and
 // `vim.ui.input` (vim_ui::register_input) raises a Lua error on every call.
 // Expected: `lua::cmd("echo 1")` is Ok, Input::open is Ok and Neovim is in insert mode.
@@ -428,7 +439,7 @@ fn vim_ui_select_uses_format_item_and_keeps_original_values() {
 }
 
 // Regression (same root cause as above, fixed): `vim.ui.input` raises "error converting Lua
-// table to function" because Input::open_with fails on `lua::cmd`. Expected: the
+// table to function" because Input::open fails on `lua::cmd`. Expected: the
 // call succeeds and the callback fires exactly once with the submitted text
 // (or nil when cancelled).
 //
@@ -493,6 +504,28 @@ fn notify_wraps_long_messages() {
     let toast = floats()[0];
     assert_eq!(trimmed(toast.buffer().unwrap()), v(&["one two three four", "five"]));
     assert_eq!(toast.config().unwrap().height, 2);
+}
+
+#[nvim_oxi::test]
+fn notify_keeps_line_breaks() {
+    setup();
+    // Each line wraps on its own; the toast is as tall as all of them.
+    let _h = notify("first line\nsecond one is longer than twenty", NotifyOptions { width: 20, ..sticky() }).unwrap();
+    let toast = floats()[0];
+    assert_eq!(trimmed(toast.buffer().unwrap()), v(&["first line", "second one is longer", "than twenty"]));
+    assert_eq!(toast.config().unwrap().height, 3);
+}
+
+#[nvim_oxi::test]
+fn notify_height_matches_the_wrapped_text() {
+    setup();
+    // 39 chars: wraps to 2 rows at the toast's width of 20, but would be 3
+    // at 18 — the toast must be exactly as tall as what it shows.
+    let _h = notify("abcdefghi abcdefghi abcdefghi abcdefghi", NotifyOptions { width: 20, ..sticky() }).unwrap();
+    let toast = floats()[0];
+    let shown = trimmed(toast.buffer().unwrap());
+    assert!(shown.iter().all(|l| !l.is_empty()), "no blank rows: {shown:?}");
+    assert_eq!(toast.config().unwrap().height as usize, shown.len());
 }
 
 #[nvim_oxi::test]

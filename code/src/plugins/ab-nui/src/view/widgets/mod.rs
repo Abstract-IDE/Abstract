@@ -23,7 +23,7 @@ pub use layout::{
     Align, BorderChars, BoxStyle, Center, Column, Container, Divider, EdgeAlign, Expanded, Fraction, Padding,
     Positioned, Row, SizedBox, Spacer, Stack,
 };
-pub use list::{ItemCx, List, ListState, ListView};
+pub use list::{ItemCx, List, ListState};
 pub use progress::{ProgressBar, SPINNER_DOTS, Spinner, SpinnerState};
 pub use scroll::{ScrollView, Scrollbar};
 pub use select::{Select, SelectState};

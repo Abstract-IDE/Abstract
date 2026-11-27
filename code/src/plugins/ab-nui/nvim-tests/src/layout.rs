@@ -105,7 +105,9 @@ fn spacer_weights_share_leftover() {
     setup();
     let rows =
         render(12, 1, || row![Text::new("a"), Spacer::new(), Text::new("b"), Spacer::new().weight(3), Text::new("c")]);
-    assert_eq!(rows, v(&["a  b      c"]));
+    // Leftover 9 split 1:3 = 2.25 + 6.75: the rounding remainder goes to the
+    // larger fraction, so no cell is lost.
+    assert_eq!(rows, v(&["a  b       c"]));
 }
 
 #[nvim_oxi::test]

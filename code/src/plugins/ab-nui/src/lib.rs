@@ -64,14 +64,14 @@ pub mod prelude {
         Anchor, Border, Buffer, ExtmarkOpts, FloatConfig, Namespace, Relative, SplitConfig, SplitDir, Timer, TitlePos,
         VirtTextPos, Window,
     };
-    pub use crate::reactive::{Memo, Signal, Store, batch, effect, memo, untrack};
+    pub use crate::reactive::{Memo, Signal, batch, effect, memo, unowned, untrack};
     pub use crate::text::{Line, Span, Wrap};
     pub use crate::widget::{Input, InputOptions, Menu, MenuItem, MenuOptions, Popup, PopupOptions};
     // Declarative view layer (Flutter-style widget tree).
     pub use crate::view::{
         Align, Alignment, AreaState, BorderChars, BoxStyle, Button, Center, Checkbox, ColWidth, Column, Container,
         CrossAxis, Divider, EdgeAlign, Element, Expanded, FieldState, Fraction, ItemCx, Key, KeyHints, Keyed, Layout,
-        Level, List, ListState, ListView, MainAxis, NotifyHandle, NotifyOptions, Overflow, Padding, Pane, Positioned,
+        Level, List, ListState, MainAxis, NotifyHandle, NotifyOptions, Overflow, Padding, Pane, Positioned,
         ProgressBar, RadioGroup, Row, ScrollView, Scrollbar, Select, SelectState, SizedBox, Spacer, Spinner,
         SpinnerState, Stack, Surface, TabBar, Table, TableColumn, Text, TextAlign, TextArea, TextField, Toggle, Tree,
         TreeNode, TreeState, Widget, dismiss_all, notify,

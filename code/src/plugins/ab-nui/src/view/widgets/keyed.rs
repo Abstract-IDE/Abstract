@@ -42,7 +42,7 @@ impl Keyed {
 
 impl Widget for Keyed {
     fn measure(&self, c: Constraints) -> Size {
-        self.child.measure(c)
+        c.clamp(self.child.measure(c))
     }
 
     fn flex(&self) -> u16 {

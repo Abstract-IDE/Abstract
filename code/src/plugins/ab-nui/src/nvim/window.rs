@@ -30,6 +30,17 @@ impl Border {
             Border::Shadow => "shadow",
         }
     }
+
+    /// The cells this border adds around a float's content, as
+    /// `(columns, rows)`.
+    pub fn frame(self) -> (u32, u32) {
+        match self {
+            Border::None => (0, 0),
+            // Only the right and bottom edges are drawn.
+            Border::Shadow => (1, 1),
+            _ => (2, 2),
+        }
+    }
 }
 
 /// Where the title sits on the top border.
@@ -60,6 +71,12 @@ pub enum Relative {
     /// Another window (its top-left corner) — lets a float anchor to a float.
     Win(Window),
     /// The cursor in the current window.
+    ///
+    /// Neovim pins such a float to the window it was opened from (it reports
+    /// it as `relative = "win"` afterwards), so [`Window::set_config`] leaves
+    /// the position of a cursor-relative float alone instead of re-measuring
+    /// from whatever cursor is current then; only its size, border, title,
+    /// etc. are updated.
     Cursor,
 }
 
@@ -121,37 +138,53 @@ impl FloatConfig {
         }
     }
 
-    /// Build the `nvim_open_win` config table.
-    fn to_table(&self) -> Result<Table> {
+    /// Build the `nvim_open_win` (`update = false`) or `nvim_win_set_config`
+    /// (`update = true`) config table.
+    fn to_table(&self, update: bool) -> Result<Table> {
         let t = lua::table()?;
-        match self.relative {
-            Relative::Editor => t.set("relative", "editor")?,
-            Relative::Cursor => t.set("relative", "cursor")?,
-            Relative::Win(win) => {
-                t.set("relative", "win")?;
-                t.set("win", win.id())?;
-                if let Some((row, col)) = self.bufpos {
-                    let pos = lua::table()?;
-                    pos.set(1, row)?;
-                    pos.set(2, col)?;
-                    t.set("bufpos", pos)?;
-                }
-            },
+        // Re-sending `relative = "cursor"` would measure from the CURRENT
+        // window's cursor (once the float is focused, its own), so an update
+        // keeps the position Neovim already resolved.
+        let keep_position = update && self.relative == Relative::Cursor;
+        if !keep_position {
+            match self.relative {
+                Relative::Editor => t.set("relative", "editor")?,
+                Relative::Cursor => t.set("relative", "cursor")?,
+                Relative::Win(win) => {
+                    t.set("relative", "win")?;
+                    t.set("win", win.id())?;
+                    if let Some((row, col)) = self.bufpos {
+                        let pos = lua::table()?;
+                        pos.set(1, row)?;
+                        pos.set(2, col)?;
+                        t.set("bufpos", pos)?;
+                    }
+                },
+            }
+            t.set("anchor", self.anchor.as_str())?;
+            t.set("row", self.rect.row)?;
+            t.set("col", self.rect.col)?;
         }
-        t.set("anchor", self.anchor.as_str())?;
         t.set("width", self.rect.width as i64)?;
         t.set("height", self.rect.height as i64)?;
-        t.set("row", self.rect.row)?;
-        t.set("col", self.rect.col)?;
         t.set("focusable", self.focusable)?;
         t.set("zindex", self.zindex as i64)?;
         t.set("border", self.border.as_str())?;
         if self.minimal {
             t.set("style", "minimal")?;
         }
-        if let Some(title) = &self.title {
-            t.set("title", title.clone())?;
-            t.set("title_pos", self.title_pos.as_str())?;
+        // A title lives on the top border: without one there is nothing to
+        // show (and older Neovims reject it).
+        if self.border != Border::None {
+            match self.title.as_deref().filter(|t| !t.is_empty()) {
+                Some(title) => {
+                    t.set("title", crate::nvim::render::single_line(title).as_ref())?;
+                    t.set("title_pos", self.title_pos.as_str())?;
+                },
+                // An absent key leaves the old title in place: clear it.
+                None if update => t.set("title", "")?,
+                None => {},
+            }
         }
         Ok(t)
     }
@@ -238,9 +271,14 @@ pub struct Window(pub i64);
 impl Window {
     /// Open a floating window showing `buf` with the given config.
     pub fn open_float(buf: Buffer, config: &FloatConfig) -> Result<Self> {
-        let cfg = config.to_table()?;
+        let cfg = config.to_table(false)?;
         let id: i64 = lua::call_api("nvim_open_win", (buf.id(), config.enter, cfg))?;
         Ok(Window(id))
+    }
+
+    /// The current window.
+    pub fn current() -> Result<Self> {
+        Ok(Window(lua::call_api("nvim_get_current_win", ())?))
     }
 
     /// Open a split window showing `buf` with the given config.
@@ -298,9 +336,10 @@ impl Window {
         lua::call_api::<bool>("nvim_win_is_valid", (self.0,)).unwrap_or(false)
     }
 
-    /// Reposition/reconfigure an open float.
+    /// Reposition/reconfigure an open float. An unset title clears the one
+    /// shown; a [`Relative::Cursor`] float keeps its position.
     pub fn set_config(self, config: &FloatConfig) -> Result<()> {
-        let cfg = config.to_table()?;
+        let cfg = config.to_table(true)?;
         lua::call_api::<()>("nvim_win_set_config", (self.0, cfg))
     }
 

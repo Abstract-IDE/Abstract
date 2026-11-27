@@ -142,8 +142,12 @@ impl<T: Clone + 'static> Widget for Tree<T> {
     fn measure(&self, c: Constraints) -> Size {
         let rows = self.state.expanded.with(|e| self.flatten(e));
         let probe = ItemCx { index: 0, selected: false, marked: false, focused: false, width: c.max_w };
-        let w = rows.iter().map(|r| (self.render)(&r.data, &probe).width() + r.depth * 2 + 4).max().unwrap_or(0);
-        c.clamp(Size::new(w.min(c.max_w), (rows.len() as u16).min(c.max_h)))
+        let w = rows
+            .iter()
+            .map(|r| (self.render)(&r.data, &probe).width().saturating_add(r.depth.saturating_mul(2)).saturating_add(4))
+            .max()
+            .unwrap_or(0);
+        c.clamp(Size::new(w, rows.len().min(u16::MAX as usize) as u16))
     }
 
     fn paint(&self, cx: &mut Cx, area: Area, canvas: &mut Canvas) {
@@ -156,8 +160,9 @@ impl<T: Clone + 'static> Widget for Tree<T> {
         let selected = self.state.selected.get().min(n.saturating_sub(1));
         self.state.selected.set_silent(selected);
 
-        // Scroll window keeps the selection visible.
-        let mut offset = self.state.offset.get_untracked().min(n.saturating_sub(1));
+        // Scroll window keeps the selection visible (and never scrolls past the
+        // last full page, so collapsing nodes doesn't leave blank rows).
+        let mut offset = self.state.offset.get_untracked().min(n.saturating_sub(h));
         if selected < offset {
             offset = selected;
         } else if h > 0 && selected >= offset + h {
@@ -179,10 +184,10 @@ impl<T: Clone + 'static> Widget for Tree<T> {
                 selected: is_sel,
                 marked: false,
                 focused,
-                width: area.w.saturating_sub(row.depth * 2 + 2 + bar_w),
+                width: area.w.saturating_sub(row.depth.saturating_mul(2).saturating_add(2 + bar_w)),
             };
             let mut line = Line::empty();
-            line.spans.push(Span::raw(" ".repeat((row.depth * 2) as usize)));
+            line.spans.push(Span::raw(" ".repeat(row.depth as usize * 2)));
             line.spans.push(Span::hl(glyph, groups::MUTED));
             let rendered = (self.render)(&row.data, &icx);
             if is_sel {
@@ -195,7 +200,7 @@ impl<T: Clone + 'static> Widget for Tree<T> {
             } else {
                 line.spans.extend(rendered.spans);
             }
-            canvas.put_line(area.x, area.y + screen_row as u16, &line);
+            canvas.put_line_clipped(area.x, area.y + screen_row as u16, area.w.saturating_sub(bar_w), &line);
         }
 
         if self.show_scrollbar {

@@ -502,3 +502,28 @@ fn user_command_nargs_is_enforced() {
     assert!(!ok, "a command without nargs rejects arguments");
     assert_eq!(n.get(), 1);
 }
+
+#[nvim_oxi::test]
+fn user_command_numeric_nargs() {
+    setup();
+    // Neovim only accepts 0/1 as numbers; the string form must still work.
+    let got = Rc::new(RefCell::new(Vec::<String>::new()));
+    let g = got.clone();
+    nvim::user_command("AbNuiOneArg", &CommandOpts { nargs: Some("1"), ..Default::default() }, move |a| {
+        g.borrow_mut().push(a.args)
+    })
+    .unwrap();
+    ex("AbNuiOneArg hello world");
+    assert_eq!(*got.borrow(), vec!["hello world".to_string()]);
+    let ok: bool = lua_eval("return pcall(vim.cmd, 'AbNuiOneArg')");
+    assert!(!ok, "nargs=1 requires an argument");
+
+    let n = counter();
+    let n2 = n.clone();
+    nvim::user_command("AbNuiZeroArgs", &CommandOpts { nargs: Some("0"), ..Default::default() }, move |_| {
+        n2.set(n2.get() + 1)
+    })
+    .unwrap();
+    ex("AbNuiZeroArgs");
+    assert_eq!(n.get(), 1);
+}

@@ -74,7 +74,7 @@ Two ways to build UI sit on a shared core. Pick the altitude you need:
    │  reactive  │  text             │  geometry     │  theme            │
    │  Signal/   │  Span/Line        │  Size/Rect/   │  highlight groups │
    │  effect/   │  (styled content) │  Position     │                   │
-   │  memo/Store│                   │               │                   │
+   │  memo/     │                   │               │                   │
    └────────────┴───────────────────┴───────────────┴──────────────────┘
             ┌─────────────────────────────────────────────────────────┐
    low      │  nvim — Buffer · Window · Namespace · keymap · autocmd    │
@@ -86,7 +86,7 @@ Two ways to build UI sit on a shared core. Pick the altitude you need:
 | Module     | Purpose                                                          |
 | ---------- | --------------------------------------------------------------- |
 | `lua`      | the one place that touches mlua; cached `vim.api`/`vim.fn` handles, `cmd`, and the embedded Lua driver |
-| `reactive` | `Signal`, `effect`, `memo`, `batch`, `untrack`, `Store`, `store!` — state management |
+| `reactive` | `Signal`, `effect`, `memo`, `batch`, `untrack`, `unowned`, `store!` — state management |
 | `text`     | `Span` / `Line` — styled content; `wrap_line`, `display_width`  |
 | `geometry` | `Dim`, `Size`, `Rect`, `Position` — float layout math           |
 | `nvim`     | `Buffer`, `Window` (floats + splits), extmarks (highlights, virt text/lines, signs), keymaps, autocmds, user commands, timers/`schedule`, the diffing `Renderer` |
@@ -122,7 +122,7 @@ For the view layer, one "frame" is one run of the reactive effect that drives a
 ```
 
 1. The effect calls `build()`, which constructs a fresh widget tree. Any
-   `Signal`/`Store` read during `build()` (or inside a widget's `paint`) is
+   `Signal`/`Memo` read during `build()` (or inside a widget's `paint`) is
    recorded as a dependency of this effect.
 2. `paint(cx, area, canvas)` draws onto a cell `Canvas` and registers
    interactive regions (`Focusable`s) on `cx`. The surface does not call
@@ -197,8 +197,8 @@ trivial to see (and audit) every Neovim call.
 
 A tiny synchronous reactive graph, modeled on Solid/Leptos. Three primitives:
 `Signal` (mutable reactive value), `effect` (auto-tracked side effect), `memo`
-(cached derived value), plus `batch`/`untrack` and `Store`/`store!` for
-shared/global values.
+(cached derived value), plus `batch`/`untrack`/`unowned` and `store!` for
+global values.
 
 **The graph.** There are no integer-keyed tables of edges. A `Signal` owns its
 subscriber list (behind an `Rc`), and an effect is a node that holds the lists
@@ -207,17 +207,19 @@ of the signals it read during its last run:
 ```rust
 struct EffectNode {
     id: Id,
-    kind: Kind,                                  // Effect | Memo
-    f: RefCell<Option<Box<dyn FnMut()>>>,        // taken out while it runs
-    sources: RefCell<Vec<Rc<Subscribers>>>,      // signals read in the last run
-    queued: Cell<bool>,
-    disposed: Cell<bool>,
+    kind: Kind,                              // Effect | Memo
+    f: RefCell<Option<NodeFn>>,              // taken out while it runs
+    sources: RefCell<Vec<Rc<Subscribers>>>,  // signals/memos read in the last run
+    subs: Option<Rc<Subscribers>>,           // a memo's own readers
+    children: RefCell<Vec<Id>>,              // effects/memos created in the last run
+    state: Cell<State>,                      // clean / check / dirty
+    // … queued, running, retry, disposed flags
 }
 ```
 
 A thread-local `Runtime` keeps a registry of every live effect (that is what
-keeps an effect alive until it is disposed), the current observer, two queues
-(memos and ordinary effects), and the batch depth.
+keeps an effect alive until it is disposed), the current observer and owner,
+one queue of effects ordered by creation, and the batch depth.
 
 **Automatic dependency tracking.**
 
@@ -226,55 +228,72 @@ keeps an effect alive until it is disposed), the current observer, two queues
   effect, the effect's `sources` gets the list). `get_untracked()` and
   `with_untracked()` read without subscribing, and `untrack(|| ..)` runs a
   closure with tracking switched off.
-- `set()`/`update()` mutate the value, then queue every subscriber. A write
-  never runs subscribers recursively: the queue is drained when the outermost
-  write (or `batch`) finishes. Outside a batch, `set` has re-run its
-  subscribers by the time it returns.
+- `set()`/`update()` mutate the value, then mark subscribers: effects are
+  queued, memos are marked dirty (and their readers "check"). A write never
+  runs subscribers recursively: the queue is drained when the outermost write
+  (or `batch`) finishes. Outside a batch, `set` has re-run its subscribers by
+  the time it returns.
 
 **Running an effect** detaches its old dependencies first, so each run rebuilds
 an exact, minimal dependency set (no stale edges). The closure is taken out of
 the node while it runs, so no `RefCell` borrow is held across user code and an
 effect may dispose itself.
 
-**Ordering and settling.**
+**Consistency and ordering.**
 
-- Memos drain before ordinary effects, so an effect never sees a memo that is
-  stale relative to the signals it was computed from.
-- Subscribers run in the order they subscribed.
+- Memos are pull-based: a write marks the memos downstream of it dirty, and
+  reading a memo recomputes it first if needed. So reading a memo anywhere — in
+  an effect, inside a `batch`, or untracked — always gives a value computed from
+  the current signals, and no memo or effect ever sees a mix of old and new
+  inputs (no glitches).
+- Queued effects run in creation order, oldest first, so a parent runs before
+  the effects it created. An effect reached only through memos whose values
+  came out unchanged is skipped.
 - An effect that writes a signal it also reads is re-run after it finishes,
-  until it settles (it is not silently skipped). A hard cap per flush
-  (100 000 runs) drops what is left of a cycle that never settles, instead of
-  hanging Neovim.
+  until it settles. An effect that runs more than 10 000 times in one flush is
+  treated as a runaway: it alone is disposed (with one error notification);
+  everything else keeps working.
 - `batch(|| ..)` holds propagation back: effects that depend on any signal
   written inside run once, after the outermost `batch` returns. Every Neovim
   callback the library registers (keymaps, autocmds, timers, `schedule`/`defer`,
   user commands) already runs in a batch, so a handler that writes several
   signals causes one repaint. You only need `batch` when writing signals from
   somewhere else.
+- `Signal::update`/`with` run their closure without propagating anything until
+  the value's borrow is released, so the closure may write other signals whose
+  subscribers read this one. Reading or writing *the same* signal inside its
+  own `update`/`with` panics with a clear message.
 - A new effect's first run happens immediately, even inside a batch; anything it
   writes is propagated once it finishes.
+- A panic inside an effect doesn't kill it: the closure is restored and runs
+  again on the next change (a panicking *first* run disposes the effect).
 
 **Extras.** `Signal::set_if_changed(v)` skips the write (and returns `false`)
 when `v` equals the current value; `Signal::with_untracked(f)` and
 `Memo::get_untracked()` are the non-subscribing reads.
 
-**`memo(f)`** is an effect (drained ahead of ordinary ones) that writes its
-result into a private signal, so it recomputes only when its inputs change and
-notifies its own readers. Its computation is disposed when the last clone of the
-`Memo` is dropped.
+**`memo(f)`** caches a derived value (`T: Clone + PartialEq`). It is lazy after
+its first computation, recomputes only when an input changed, and notifies its
+readers only when the new value differs. Its computation is disposed when the
+last clone of the `Memo` is dropped.
 
 **Lifetimes.** Signals are reference counted: when the last clone goes away, the
 value and its bookkeeping are freed. The runtime itself lives in a
 `ManuallyDrop` thread-local and is left alone at thread exit.
 
-**Disposal.** `effect()` returns an `EffectHandle`. Dropping it does *nothing*
-(so `effect(..)` stays fire-and-forget); calling `handle.dispose()` (or
-`dispose_effect(id)`) removes the closure and detaches it from every signal.
-This is how a closed `Surface` stops reacting — see [§8](#8-surface-lifecycle).
+**Ownership & disposal.** `effect()` returns an `EffectHandle`. Dropping it does
+*nothing* (so `effect(..)` stays fire-and-forget); calling `handle.dispose()`
+(or `dispose_effect(id)`) removes the closure and detaches it from every
+signal. Effects and memos created while another effect runs are *owned* by it:
+they are disposed when it re-runs or is disposed, so nested effects don't leak.
+`unowned(|| ..)` opts out — whatever is created inside lives until its own
+handle ends it. Popups, surfaces and toasts create their render effects this
+way, so a window opened from inside an effect belongs to its handle, not to
+that effect (see [§8](#8-surface-lifecycle)).
 
-**`Store` & `store!`.** `Store<T>` is a clone-shareable wrapper over a `Signal`
-— the recommended type for shared state. `store!` declares a lazily-initialized,
-process-global one:
+**Shared and global state.** A `Signal` is already a clone-shareable handle —
+pass clones to everything that needs the value. `store!` declares a
+lazily-initialized, process-global one:
 
 ```rust
 wp_ui::store!(pub static THEME: u8 = 0);
@@ -282,6 +301,9 @@ THEME::get();              // reactive read (widgets reading it re-render)
 THEME::update(|t| *t ^= 1);
 let sig = THEME::signal(); // hand the Signal to a widget
 ```
+
+`store!` also has `with`, `get_untracked`, `set_if_changed`, and works for
+non-`Clone` types (only `get`/`get_untracked` need `Clone`).
 
 ### 3. Content & canvas (`text`, `view::canvas`)
 
@@ -313,9 +335,17 @@ renderer.
 ### 4. Geometry (`geometry`)
 
 Float placement math. `Dim` is `Cells(u32)` or `Ratio(f64)`; `Size` pairs two
-`Dim`s; `Position` is `Center` or `At { row, col }`. `Rect::resolve(size, pos)`
-turns those into concrete editor cells against the live editor size, and
-`split_h`/`split_v` carve a rect into panes (for multi-window layouts).
+`Dim`s; `Position` is `Center`, `At { row, col }` (absolute cells) or
+`Ratio { row, col }` (a fraction of the free space: `1.0` hugs the bottom/right
+edge, and it stays put relative to the editor on resize).
+
+A popup's `Size` is its **content** size; the border is added around it.
+`Rect::resolve_framed(size, pos, border.frame())` places the whole box (content
+plus border) inside `usable_area()` — the editor minus the command line and a
+visible tabline — so a `Size::ratio(1.0, 1.0)` popup fills the screen without
+being clipped and `Center` is truly centred. `Rect::resolve(size, pos)` is the
+border-less form. `split_h`/`split_v` carve a rect into panes (for multi-window
+layouts).
 
 > Note: `geometry::Size` (float sizing, `Dim`-based) is distinct from
 > `view::Size` (a measured `w × h` in cells used during widget layout).
@@ -329,8 +359,10 @@ Thin, safe handles over the API — all built on `lua::call_api`:
   temporarily clears `modifiable`/`readonly` and restores them (so locked UI
   buffers can be repainted without the `W10` warning).
 - **`Window(i64)`** — `open_float(buf, &FloatConfig)`, `set_config`,
-  `set_option`, `apply_default_highlight`, cursor, `close`. `FloatConfig` carries
-  border/title/zindex/etc and builds the `nvim_open_win` table.
+  `set_option`, `apply_default_highlight`, cursor, `close`, `current()`.
+  `FloatConfig` carries border/title/zindex/etc and builds the `nvim_open_win`
+  table. `set_config` with `title: None` clears an existing title, and
+  re-configuring a cursor-relative float keeps it where it is.
 - **`Namespace(i64)`** — `create`, `clear`, `highlight(row, start, end, group)`
   via extmarks.
 - **events** — `buf_keymap(buf, mode, lhs, opts, Fn)` (a Rust callback as a Lua
@@ -338,7 +370,9 @@ Thin, safe handles over the API — all built on `lua::call_api`:
   (many keys bound to one Rust dispatcher in a single trip into Lua; each key
   is an `(lhs, code)` pair and `dispatch(code)` is called), `augroup`,
   `buf_autocmd`, `autocmd`, `user_command`. Every callback registered here runs
-  inside a `batch`.
+  inside a `batch`. `KeymapOpts` is `{ silent, nowait }` (callbacks are never
+  remapped, so there is no `noremap`); `CommandOpts` with `complete` set and no
+  `nargs` takes `nargs = "*"` (Neovim rejects completion without arguments).
 - **`Renderer`, `Row`, `Mark`** — a `Row` is one buffer line (`text` plus
   `marks`, byte ranges with a highlight group). A `Renderer` is tied to one
   buffer + namespace and remembers the last frame it painted; `render(rows)`
@@ -346,7 +380,9 @@ Thin, safe handles over the API — all built on `lua::call_api`:
   falls back to a full repaint when it does not know the buffer's contents
   (first frame, row count changed, `invalidate()` called, or the buffer's
   `changedtick` no longer matches because someone else edited it).
-  `Row::from_line(&Line)` converts styled lines.
+  `Row::from_line(&Line)` converts styled lines; a line break inside a line is
+  shown as `↵` (a buffer line can't contain one — it used to blank the whole
+  frame).
 - **`render(buf, ns, &[Line])`** — the stateless form: replaces the whole buffer
   and every extmark of the namespace. Anything that repaints the same buffer
   repeatedly should keep a `Renderer` instead.
@@ -370,20 +406,31 @@ Imperative components for quick UIs:
     diffing against content that is no longer there,
   - `namespace()` — the highlight namespace the popup paints with,
   - `on_key(mode, lhs, Fn)` for buffer-local Rust keymaps,
-  - `hide()` (window only — effects/keymaps survive) vs `close()` (full
-    teardown: effects disposed, per-instance augroup deleted, window closed),
+  - `hide()` (window only — content, effects and keymaps survive, `open()`
+    brings it back) vs `close()` (full teardown: effects disposed, per-instance
+    augroup deleted, window closed, buffer deleted; `open()` after it is an
+    error),
   - `closer()` — a reusable close handle for callbacks,
-  - `set_position`/`set_size` — move/resize a live popup,
+  - `set_position`/`set_size` — move/resize a live popup; `set_title(..)` /
+    `clear_title()` (an empty title also clears),
+  - `Popup::with_buffer(buf, opts)` — host a buffer you already have (a
+    terminal, a file) instead of a scratch one; the popup manages only the
+    window and never touches or deletes the buffer,
   - `inner_size()` — its content size in cells (used by `Surface`).
   - Each popup owns a unique autocmd group; `WinClosed` keeps `is_open()`
     truthful after an external `:q`, and `VimResized` re-anchors it.
-- **`Menu`** — selectable list over `Popup` + a `Signal<usize>` selection; the
-  window cursor follows the selection (long lists scroll). `open_with` adds an
-  `on_cancel` callback.
+- **`Menu`** — selectable list over `Popup`. The cursor row *is* the selection
+  (any motion — `G`, counts, search, mouse — moves the `▌` marker too).
+  `open(|choice: Option<T>| ..)` calls back **exactly once**: `Some` on `<CR>`,
+  `None` on cancel — `<Esc>`, `q`, `<CR>` on an empty list, the window being
+  closed any other way (`:q`, `<C-w>c`, another plugin), or focus leaving it.
+  Opening from insert mode leaves insert mode first.
 - **`Input`** — single-line prompt over `Popup`, value exposed as
-  `Signal<String>`, with an `on_change` builder and `open_with(.., on_cancel)`.
-  `Input` (and so `vim.ui.input`) works on current Neovim again; it had been
-  failing because of `lua::cmd`.
+  `Signal<String>`, with an `on_change` builder. `open(|text: Option<String>| ..)`
+  has the same exactly-once contract as `Menu`.
+- **`vim_ui::register_all()`** installs both as `vim.ui.select` /
+  `vim.ui.input` (`opts` may be `nil`; errors raised by the caller's callback
+  are reported with `vim.notify` instead of vanishing).
 
 ### 7. The view layer (`view`)
 
@@ -401,9 +448,19 @@ pub type Element = Box<dyn Widget>;
 ```
 
 Layout containers (`Column`/`Row`) `measure` their children while painting,
-distribute space (fixed children keep their size; `flex() > 0` children —
-`Spacer`, `Expanded` — share the leftover), then `paint` each child into its
-sub-`Area`. (`Surface` itself only calls `paint` on the root.)
+distribute space (fixed children keep their size but never more than what is
+left; `flex() > 0` children — `Spacer`, `Expanded` — share the leftover, with
+rounding remainders handed out so every cell is used), then `paint` each child
+into its sub-`Area`. (`Surface` itself only calls `paint` on the root.)
+
+Two rules every widget follows (and a custom widget should too):
+
+- **`measure` respects its constraints** — it returns `c.clamp(..)`, never more
+  than `max_w × max_h`.
+- **Painting is clipped to the widget's `Area`.** The `Canvas` carries a clip
+  rectangle: layouts paint each child inside `canvas.with_clip(area, ..)`, and
+  text goes through `put_str_clipped`/`put_line_clipped`, so a long label can't
+  overwrite a border or a neighbour.
 
 The widget set:
 
@@ -411,7 +468,7 @@ The widget set:
 | ----------- | ------- |
 | layout      | `Column` `Row` `Stack` `Positioned` `Center` `Align` `Padding` `SizedBox` `Spacer` `Expanded` `Fraction` `Divider` (h/v) `Container` (Single/Rounded/Double/Thick/Custom borders, title + footer, per-side padding) `ScrollView` `Scrollbar` |
 | content     | `Text` (multi-span, `wrap`, `align`, `ellipsis`, `max_lines`) `KeyHints` `ProgressBar` `Spinner` (timer-driven `SpinnerState`) |
-| interactive | `Button` `Checkbox` `Toggle` `RadioGroup` `Select` (dropdown via overlay) `TabBar` `List` (custom rows, filter, multi-select, scrollbar) `ListView` `Table` (Fixed/Fraction/Flex columns) `Tree` (collapsible, custom rendering) `TextField` (full cursor editing, mask, on_change/on_submit) `TextArea` |
+| interactive | `Button` `Checkbox` `Toggle` `RadioGroup` `Select` (dropdown via overlay) `TabBar` `List` (custom rows, filter, multi-select, scrollbar) `Table` (Fixed/Fraction/Flex columns) `Tree` (collapsible, custom rendering) `TextField` (full cursor editing, mask, on_change/on_submit) `TextArea` |
 | wrappers    | `Keyed` — stable focus keys + per-widget custom key handlers for any child |
 
 Widget state that must survive rebuilds lives in clone-shareable bundles
@@ -449,9 +506,11 @@ Lua, instead of ~135 separate keymap callbacks). The dispatcher decodes the key
 and first offers it to the *currently focused* widget (looked up in a
 `RefCell<Vec<Focusable>>` refreshed every frame); if the widget does not consume
 it, `<Tab>`/`<S-Tab>` move focus and `<Esc>` hides. Because all keys funnel
-through the focused widget, the same `j` means "move down" to a `ListView` and
+through the focused widget, the same `j` means "move down" to a `List` and
 "type j" to a `TextField` — no modal Neovim insert mode involved. The dispatcher
-runs in a `batch`, so a handler's signal writes cause one repaint.
+runs in a `batch`, so a handler's signal writes cause one repaint. `<C-h>`
+arrives as `Backspace` (many terminals send `^H` for it); `<C-i>`/`<C-m>`/`<C-[>`
+arrive as `Tab`/`Enter`/`Esc`, since terminals send the same codes.
 
 The key table is not installed at all for a surface whose window the cursor can
 never be in — `focusable: false` and `enter: false`, e.g. a toast.
@@ -471,11 +530,20 @@ lifetime**:
   the buffer (and thus the rendered state); the buffer is wiped explicitly on
   free.
 - `mount` runs once: it starts the render effect (storing the `EffectHandle`) and
-  installs the key table. `show(build)` mounts then opens; `reopen`/`hide`/
-  `toggle` just move the window.
+  installs the key table. `show(build)` mounts then opens (calling it a second
+  time is an error); `reopen`/`hide`/`toggle` just move the window, and return a
+  "surface is closed" error after `close()`.
 - `Drop for SurfaceInner` (and `close()`) calls `free()`: dispose the effect,
   close the window, delete the buffer — releasing the captured state. A
-  `BufWipeout` autocmd is a safety net if the buffer is wiped externally.
+  `BufWipeout` autocmd is a safety net if the buffer is wiped externally; if it
+  is only *unloaded* (`:bdelete`), `reopen()` reinstalls the keys and repaints.
+- The render effect is `unowned`, so a surface shown from inside an effect
+  lives as long as its handle, not as long as that effect's current run.
+- Only visible surfaces react to resizes, and only when their own size changed.
+- **Closing from inside the tree.** Capturing the `Surface` in its own `build`
+  or key handlers creates a reference cycle (it would never be freed). Use
+  `surface.closer()` instead: a `Fn()` holding a weak reference that closes the
+  surface if it is still alive.
 
 The upshot: **persist while hidden, freed when the handle goes away.** Keeping
 the handle in your plugin's state is normal app-state management, not a leak —
@@ -498,7 +566,7 @@ Two kinds of state, both reactive — pick by lifetime:
 - **Scoped (per-UI)** — a `Signal` captured by a widget tree, owned by its
   `Surface`. Lives while the surface lives; freed when it's dropped. Use for a
   window's own state (a counter, a query string, a selection).
-- **Global** — a `Store` / `store!` value. Intentionally process-global; any
+- **Global** — a `store!` value. Intentionally process-global; any
   widget that reads it re-renders when it changes. Use for app-wide state
   (theme, mode, shared selection) you manage yourself.
 
@@ -567,10 +635,13 @@ Menu::new(
     vec![MenuItem::new("Open", "open"), MenuItem::new("Quit", "quit")],
     MenuOptions { title: Some(" Actions ".into()), ..Default::default() },
 )?
-.open(|value| { /* chosen */ })?;
+.open(|choice| match choice {
+    Some(value) => { /* chosen */ }
+    None => { /* cancelled — always reported, exactly once */ }
+})?;
 
 Input::new(InputOptions { title: Some(" Rename ".into()), ..Default::default() })?
-    .open(|text| { /* submitted */ })?;
+    .open(|text: Option<String>| { /* Some(submitted) or None (cancelled) */ })?;
 ```
 
 ### Global store driving a widget
@@ -617,8 +688,8 @@ Signal::new(v) -> Signal<T>           // .get() .with(f) .get_untracked() .with_
 effect(|| { .. }) -> EffectHandle     // .dispose();  dispose_effect(id)
 memo(|| expr) -> Memo<T>              // .get() .get_untracked() .with(f)
 batch(|| { .. }) / untrack(|| expr)   // group writes into one repaint / read without subscribing
-Store::new(v) -> Store<T>             // same surface as Signal + .signal()
-store!(pub static NAME: T = init);    // NAME::get/set/update/signal
+unowned(|| ..)                         // effects created inside outlive the running effect
+store!(pub static NAME: T = init);    // NAME::get/get_untracked/with/set/set_if_changed/update/signal
 
 // nvim (wp_ui::nvim; Renderer/Row/Mark/buf_keymap_table are not in the prelude)
 Renderer::new(buf, ns) -> .render(Vec<Row>)? .invalidate()    Row { text, marks: Vec<Mark> }   Row::from_line(&line)
@@ -632,12 +703,13 @@ Canvas::new(w, h) / .reset(w, h) / .to_rows() / .to_lines()   // wp_ui::view::ca
 Span::raw(s) / Span::hl(s, group);  Line::raw(s) / Line::from_spans([..]) / Line::empty()
 
 // geometry
-Size::cells(w, h) / Size::ratio(w, h);  Position::Center / Position::At { row, col }
+Size::cells(w, h) / Size::ratio(w, h);  Position::Center / ::At { row, col } / ::Ratio { row, col }
 
 // core components
 Popup::new(opts)? -> .open()? .set_content(&[..])? .render_rows(rows)? .invalidate() .namespace()
-                     .render_reactive(||..) .on_key(..)? .close()
-Menu::new(items, opts)?.open(on_choose)?;  Input::new(opts)?.open(on_submit)?
+                     .render_reactive(||..) .on_key(..)? .set_title(..)? .clear_title()? .hide() .close()
+Popup::with_buffer(buf, opts)?                                // float over an existing buffer
+Menu::new(items, opts)?.open(|choice: Option<T>| ..)?;  Input::new(opts)?.open(|text: Option<String>| ..)?
 
 // view: layout
 col![..] / row![..] / stack![..]   Column / Row (.main(..).cross(..))   Stack / Positioned
@@ -657,7 +729,7 @@ Table::new(cols, rows, &state)   Tree::new(nodes, &TreeState::new()).render(..).
 TextField::new(&FieldState::new("")).placeholder(..).mask('*').on_submit(..)   TextArea::new(&AreaState::new(""))
 Keyed::new(w).focus_key("id").on_key(Key::Char('x'), ||..)
 // view: runtime & beyond
-Surface::float(opts)?.show(build)?   // .hide() .reopen() .toggle() .close() .initial_focus(i) .focus_wrap(b) .on_key(..)
+Surface::float(opts)?.show(build)?   // .hide() .reopen() .toggle() .close() .closer() .initial_focus(i) .focus_wrap(b) .on_key(..)
 Surface::split(SplitConfig::new(SplitDir::Right))?.show(build)?
 notify("msg", NotifyOptions { level: Level::Warn, ..Default::default() })? -> NotifyHandle
 Layout::new(size, pos, Pane::col(vec![..])).open()?   // multi-window arrangements

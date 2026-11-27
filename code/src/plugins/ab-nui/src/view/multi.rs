@@ -68,6 +68,8 @@ impl Pane {
                 let popup = surface.popup();
                 popup.set_position(Position::At { row: rect.row, col: rect.col })?;
                 popup.set_size(Size::cells(w, h))?;
+                // Re-measure the tree at its new size (hidden: on reopen).
+                surface.sync_size();
                 Ok(())
             },
             Pane::Row(children, _) => Self::assign_axis(children, rect, true),
