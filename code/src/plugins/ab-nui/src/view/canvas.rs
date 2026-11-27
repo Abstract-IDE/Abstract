@@ -8,6 +8,10 @@
 //! half of a wide char blanks the orphaned other half. A tab is painted as a
 //! single space (and measured as one cell by [`crate::text::char_width`]).
 //!
+//! Text is painted a grapheme cluster at a time — an emoji with a skin tone,
+//! a flag, a letter with combining marks — each as wide as Neovim draws it
+//! ([`crate::text::cluster_width`]), so the columns after it stay aligned.
+//!
 //! Painting is confined to a clip rectangle (initially the whole canvas):
 //! layout widgets narrow it to each child's area with [`Canvas::with_clip`],
 //! so a child can never draw over its siblings or its parent's border.
@@ -20,7 +24,7 @@ use std::cell::Cell as StdCell;
 use std::rc::Rc;
 
 use crate::nvim::render::{Mark, Row};
-use crate::text::{Line, Span, char_width};
+use crate::text::{Line, Span, cluster_width, graphemes};
 use crate::view::widget::Area;
 
 /// Index into [`Canvas::styles`], offset by one; `0` means "no highlight".
@@ -30,13 +34,16 @@ type StyleId = u16;
 #[derive(Clone, Copy)]
 struct Cell {
     ch: char,
+    /// A multi-char cluster shown in this cell (index into
+    /// [`Canvas::clusters`], offset by one); `0`: just `ch`.
+    cluster: u16,
     style: StyleId,
     /// True if this cell is the trailing half of a double-width glyph; the
     /// leader cell to its left holds the char. Skipped when emitting rows.
     cont: bool,
 }
 
-const BLANK: Cell = Cell { ch: ' ', style: 0, cont: false };
+const BLANK: Cell = Cell { ch: ' ', cluster: 0, style: 0, cont: false };
 
 /// Intersection of two rectangles (empty rectangles keep the clamped origin).
 fn intersect(a: Area, b: Area) -> Area {
@@ -105,6 +112,8 @@ pub struct Canvas {
     cells: Vec<Cell>,
     /// The highlight groups used so far; a cell's `style` is its index + 1.
     styles: Vec<Rc<str>>,
+    /// Multi-char clusters painted so far; a cell's `cluster` is its index + 1.
+    clusters: Vec<Rc<str>>,
     /// Writes outside this rectangle are dropped.
     clip: Area,
     /// Set on an offscreen canvas: where it is shown (see [`ScreenMap`]).
@@ -114,7 +123,15 @@ pub struct Canvas {
 impl Canvas {
     pub fn new(w: u16, h: u16) -> Self {
         let len = (w as usize) * (h as usize);
-        Self { w, h, cells: vec![BLANK; len], styles: Vec::new(), clip: Area { x: 0, y: 0, w, h }, placement: None }
+        Self {
+            w,
+            h,
+            cells: vec![BLANK; len],
+            styles: Vec::new(),
+            clusters: Vec::new(),
+            clip: Area { x: 0, y: 0, w, h },
+            placement: None,
+        }
     }
 
     /// Clear the canvas and give it a new size, reusing its allocations.
@@ -124,6 +141,7 @@ impl Canvas {
         self.cells.clear();
         self.cells.resize((w as usize) * (h as usize), BLANK);
         self.styles.clear();
+        self.clusters.clear();
         self.clip = Area { x: 0, y: 0, w, h };
     }
 
@@ -231,12 +249,10 @@ impl Canvas {
                 self.cells[l] = BLANK;
             }
             self.cells[i] = BLANK;
-        } else if char_width(self.cells[i].ch) == 2 {
-            if let Some(r) = self.index(x + 1, y)
-                && self.cells[r].cont
-            {
-                self.cells[r] = BLANK;
-            }
+        } else if let Some(r) = self.index(x + 1, y)
+            && self.cells[r].cont
+        {
+            self.cells[r] = BLANK;
             self.cells[i] = BLANK;
         }
     }
@@ -245,9 +261,12 @@ impl Canvas {
     /// cells the glyph advances (also when it is clipped away, so callers'
     /// column math stays right; a wide glyph cut by the right edge paints a
     /// blank and advances 1).
-    fn set_styled(&mut self, x: u16, y: u16, ch: char, style: StyleId) -> u16 {
-        let ch = if ch == '\t' { ' ' } else { ch };
-        let width = char_width(ch);
+    fn set_styled(&mut self, x: u16, y: u16, glyph: &str, style: StyleId) -> u16 {
+        let mut chars = glyph.chars();
+        let Some(first) = chars.next() else { return 0 };
+        let multi = chars.next().is_some();
+        let ch = if first == '\t' && !multi { ' ' } else { first };
+        let width = if ch == ' ' && !multi { 1 } else { cluster_width(glyph) };
         if width == 0 {
             return 0;
         }
@@ -260,18 +279,41 @@ impl Canvas {
             if !self.writable(x + 1, y) {
                 // Wide char clipped at the edge: paint a blank in the last column.
                 self.clear_wide(x, y);
-                self.cells[i] = Cell { ch: ' ', style, cont: false };
+                self.cells[i] = Cell { ch: ' ', cluster: 0, style, cont: false };
                 return 1;
             }
+            let cluster = if multi { self.intern_cluster(glyph) } else { 0 };
             self.clear_wide(x, y);
             self.clear_wide(x + 1, y);
-            self.cells[i] = Cell { ch, style, cont: false };
-            self.cells[i + 1] = Cell { ch: ' ', style, cont: true };
+            self.cells[i] = Cell { ch, cluster, style, cont: false };
+            self.cells[i + 1] = Cell { ch: ' ', cluster: 0, style, cont: true };
             2
         } else {
+            let cluster = if multi { self.intern_cluster(glyph) } else { 0 };
             self.clear_wide(x, y);
-            self.cells[i] = Cell { ch, style, cont: false };
+            self.cells[i] = Cell { ch, cluster, style, cont: false };
             1
+        }
+    }
+
+    /// Intern a multi-char cluster (a run of the same one is common: check
+    /// the latest first). Out of ids, the cell shows its first char alone.
+    fn intern_cluster(&mut self, glyph: &str) -> u16 {
+        if let Some(pos) = self.clusters.iter().rposition(|c| **c == *glyph) {
+            return pos as u16 + 1;
+        }
+        if self.clusters.len() >= u16::MAX as usize - 1 {
+            return 0;
+        }
+        self.clusters.push(Rc::from(glyph));
+        self.clusters.len() as u16
+    }
+
+    /// The text a glyph cell shows.
+    fn push_glyph(&self, cell: &Cell, out: &mut String) {
+        match cell.cluster {
+            0 => out.push(cell.ch),
+            c => out.push_str(&self.clusters[c as usize - 1]),
         }
     }
 
@@ -280,7 +322,7 @@ impl Canvas {
     /// Zero-width chars are ignored. Returns the display cells consumed.
     pub fn set(&mut self, x: u16, y: u16, ch: char, hl: Option<Rc<str>>) -> u16 {
         let style = self.intern(hl.as_ref());
-        self.set_styled(x, y, ch, style)
+        self.set_styled(x, y, ch.encode_utf8(&mut [0; 4]), style)
     }
 
     /// The first column past the writable region.
@@ -294,11 +336,11 @@ impl Canvas {
         }
         let edge = self.right_edge();
         let mut col = x;
-        for ch in s.chars() {
+        for glyph in graphemes(s) {
             if col >= edge {
                 break;
             }
-            col = col.saturating_add(self.set_styled(col, y, ch, style));
+            col = col.saturating_add(self.set_styled(col, y, glyph, style));
         }
         col.min(edge.max(x)) - x
     }
@@ -341,6 +383,8 @@ impl Canvas {
     pub fn fill(&mut self, area: Area, ch: char, hl: Option<Rc<str>>) {
         let style = self.intern(hl.as_ref());
         let area = intersect(area, self.clip);
+        let mut buf = [0; 4];
+        let ch: &str = ch.encode_utf8(&mut buf);
         for y in area.y..area.y.saturating_add(area.h) {
             let mut x = area.x;
             while x < area.x.saturating_add(area.w) {
@@ -381,12 +425,14 @@ impl Canvas {
                 if cell.cont {
                     // Continuation of a leader outside the source rect: blank.
                     if dx == 0 {
-                        self.set_styled(tx, ty, ' ', style);
+                        self.set_styled(tx, ty, " ", style);
                     }
                     dx += 1;
                     continue;
                 }
-                let consumed = self.set_styled(tx, ty, cell.ch, style);
+                let mut glyph = String::new();
+                src.push_glyph(&cell, &mut glyph);
+                let consumed = self.set_styled(tx, ty, &glyph, style);
                 dx += consumed.max(1);
             }
         }
@@ -416,7 +462,7 @@ impl Canvas {
                     }
                     run = Some((cell.style, text.len() as u32));
                 }
-                text.push(cell.ch);
+                self.push_glyph(cell, &mut text);
             }
             if let Some((style, start)) = run
                 && let Some(hl) = self.style_name(style)
@@ -438,12 +484,14 @@ impl Canvas {
             let mut run: Option<(StyleId, String)> = None;
             for cell in self.glyphs(y) {
                 match &mut run {
-                    Some((style, text)) if *style == cell.style => text.push(cell.ch),
+                    Some((style, text)) if *style == cell.style => self.push_glyph(cell, text),
                     _ => {
                         if let Some((style, text)) = run.take() {
                             spans.push(self.make_span(style, text));
                         }
-                        run = Some((cell.style, cell.ch.to_string()));
+                        let mut text = String::new();
+                        self.push_glyph(cell, &mut text);
+                        run = Some((cell.style, text));
                     },
                 }
             }
@@ -499,6 +547,18 @@ mod tests {
         assert_eq!(line.spans[0].text, "ab");
         assert_eq!(line.spans[0].hl.as_deref(), Some("Title"));
         assert_eq!(line.spans[1].text, "cd");
+    }
+
+    #[test]
+    fn a_cluster_is_one_glyph() {
+        let mut c = Canvas::new(6, 1);
+        let used = c.put_str(0, 0, "a👍🏽e\u{301}b", Some(Rc::from("Title")));
+        assert_eq!(used, 5, "a + 2-cell emoji + é + b");
+        let rows = c.to_rows();
+        assert_eq!(rows[0].text, "a👍🏽e\u{301}b ");
+        // Overwriting the emoji's second half blanks the first.
+        c.put_str(2, 0, "x", None);
+        assert_eq!(c.to_rows()[0].text, "a xe\u{301}b ");
     }
 
     #[test]

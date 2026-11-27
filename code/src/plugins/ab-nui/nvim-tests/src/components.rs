@@ -363,6 +363,27 @@ fn a_list_without_gutter_starts_at_the_edge() {
 }
 
 #[nvim_oxi::test]
+fn a_match_keeps_its_colour_on_a_background_only_selection() {
+    setup();
+    lua_run(
+        "vim.api.nvim_set_hl(0, 'AbNuiSelection', { bg = '#242424' }); vim.api.nvim_set_hl(0, 'AbNuiMatch', { fg = '#e0c0c0' })",
+    );
+    let state = ListState::new();
+    let (_s, buf) = surf(20, 2, move || {
+        List::with_render(vec!["one", "two"], &state, |item, _| {
+            Line::from_spans([Span::hl("m", wp_ui::theme::groups::MATCH), Span::raw(*item)])
+        })
+        .scrollbar(false)
+        .gutter(false)
+    });
+    let group = hl_at(buf, 0, 0).expect("highlighted");
+    let colours: Vec<i64> = lua_eval(&format!(
+        "local h = vim.api.nvim_get_hl(0, {{ name = '{group}', link = false }}) return {{ h.fg or -1, h.bg or -1 }}"
+    ));
+    assert_eq!(colours, vec![0xe0c0c0, 0x242424]);
+}
+
+#[nvim_oxi::test]
 fn a_match_on_the_selected_row_keeps_the_background() {
     setup();
     lua_run("vim.api.nvim_set_hl(0, 'AbNuiSelection', { fg = '#111111', bg = '#00ffff' })");
@@ -464,4 +485,22 @@ fn a_key_handler_can_let_the_key_through() {
     feed("A<BS><Esc>");
     assert_eq!(input.text(), "a");
     assert_eq!(hits.get_untracked(), 2);
+}
+
+#[nvim_oxi::test]
+fn clusters_are_as_wide_as_neovim_draws_them() {
+    setup();
+    for sample in
+        ["👍🏽", "❤️", "e\u{301}", "🇺🇸", "👨\u{200d}👩\u{200d}👧", "\u{1112}\u{1161}\u{11AB}", "☺️", "x\u{FE0F}"]
+    {
+        let nvim: i64 = lua_eval(&format!("return vim.fn.strdisplaywidth({sample:?})"));
+        assert_eq!(wp_ui::text::display_width(sample) as i64, nvim, "{sample:?}");
+    }
+    // Painted: what follows the clusters lands where Neovim draws it (the
+    // `|` comes after 9 cells on screen, as on the canvas).
+    let out = render(12, 1, || row![Text::new("a👍🏽❤️é🇺🇸b"), Text::new("|")]);
+    let col: i64 =
+        lua_eval(&format!("local s = {:?} return vim.fn.strdisplaywidth(s:sub(1, s:find('|', 1, true) - 1))", out[0]));
+    assert_eq!(col, 9, "{out:?}");
+    assert!(out[0].starts_with("a👍🏽❤️é🇺🇸b|"), "{out:?}");
 }

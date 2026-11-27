@@ -51,6 +51,10 @@ enum Derived {
     Inverse {
         group: String,
     },
+    /// Matched text on a selection bar (see [`match_on`]).
+    MatchOn {
+        group: String,
+    },
     /// A fixed text colour (e.g. a kitty image id).
     Fg(i64),
 }
@@ -86,6 +90,16 @@ pub fn mix(fg_from: &str, bg_from: &str) -> String {
 pub fn inverse(group: &str) -> String {
     let name = format!("AbNuiInverse_{}", sanitize(group));
     derived(name, Derived::Inverse { group: group.into() })
+}
+
+/// Matched characters ([`groups::MATCH`]) on a selection bar drawn with
+/// `group`. A bar that only sets a background (like `Visual`) keeps the
+/// match's own colour on it; a bar with its own text colour (like
+/// `PmenuSel`) gets the complementary colour instead ([`inverse`]), as the
+/// match colour may clash with it.
+pub fn match_on(group: &str) -> String {
+    let name = format!("AbNuiMatchOn_{}", sanitize(group));
+    derived(name, Derived::MatchOn { group: group.into() })
 }
 
 /// A group named `name` whose text colour is `rgb`, kept across colorscheme
@@ -172,6 +186,16 @@ fn define(name: &str, how: &Derived) -> Result<()> {
             out.set("bold", true)?;
         },
         Derived::Fg(rgb) => out.set("fg", *rgb)?,
+        Derived::MatchOn { group } => {
+            let own = get_hl(group)?;
+            let solid = own.get::<Option<i64>>("fg")?.is_some() || own.get::<Option<bool>>("reverse")?.unwrap_or(false);
+            let how = if solid {
+                Derived::Inverse { group: group.clone() }
+            } else {
+                Derived::Mix { fg_from: groups::MATCH.into(), bg_from: group.clone() }
+            };
+            return define(name, &how);
+        },
     }
     set_hl(name, out)
 }
@@ -196,17 +220,28 @@ pub fn link(name: &str, to: &str) -> Result<()> {
     set_hl(name, opts)
 }
 
+fn redefine_all() {
+    let all: Vec<(String, Derived)> =
+        DERIVED.with(|d| d.borrow().iter().map(|(n, h)| (n.clone(), h.clone())).collect());
+    for (name, how) in all {
+        let _ = define(&name, &how);
+    }
+}
+
 /// Install the default highlight groups. Safe to call repeatedly; the links are
 /// registered with `default = true`, so user overrides win.
 pub fn setup() -> Result<()> {
     link(groups::NORMAL, "NormalFloat")?;
     link(groups::BORDER, "FloatBorder")?;
     link(groups::TITLE, "FloatTitle")?;
-    link(groups::SELECTION, "PmenuSel")?;
+    // The standard selection highlight: in most colorschemes a background
+    // only, so text keeps its colours (icons, dim paths, matches) on it.
+    link(groups::SELECTION, "Visual")?;
     link(groups::PROMPT, "Question")?;
     link(groups::MUTED, "Comment")?;
     link(groups::FIELD, "Pmenu")?;
-    link(groups::FOCUS, "Visual")?;
+    // A selection in a widget that isn't focused: quieter still.
+    link(groups::FOCUS, "CursorLine")?;
     link(groups::SCROLLBAR, "PmenuSbar")?;
     link(groups::SCROLLBAR_THUMB, "PmenuThumb")?;
     link(groups::HEADER, "Title")?;
@@ -231,11 +266,10 @@ pub fn setup() -> Result<()> {
     // the derived ones again from the new colours (same names, so whatever
     // shows them updates).
     crate::nvim::autocmd(&["ColorScheme"], None, Some(crate::nvim::augroup("AbNuiTheme")?), |_| {
-        let all: Vec<(String, Derived)> =
-            DERIVED.with(|d| d.borrow().iter().map(|(n, h)| (n.clone(), h.clone())).collect());
-        for (name, how) in all {
-            let _ = define(&name, &how);
-        }
+        redefine_all();
+        // Again once every other `ColorScheme` handler has run: plugins
+        // (an icon plugin…) restore the groups ours are made from there.
+        let _ = crate::nvim::schedule(redefine_all);
     })?;
     Ok(())
 }

@@ -485,11 +485,13 @@ it, Neovim's own behaviour — nothing at all when the surface is modal.
 leave the cursor in a part of a surface that isn't focusable (the frame, a
 code view): it moves on to the surface's input.
 
-**Lists.** The selected row is a full-width bar. Text styled with
-`AbNuiMatch` (matched characters) keeps the bar's background and takes the
-complementary text colour, bold (`theme::inverse(group)`); other styled text (an icon) keeps its colour on it
-(`theme::mix(fg_group, bg_group)`). Both build combined groups on demand, kept
-in sync with the colorscheme.
+**Lists.** The selected row is a full-width bar (`AbNuiSelection`, linked to
+`Visual`; `AbNuiFocus`, linked to `CursorLine`, when the list isn't focused).
+Styled text keeps its colour on the bar's background
+(`theme::mix(fg_group, bg_group)`). Matched characters (`AbNuiMatch`) do too,
+unless the bar sets its own text colour (like `PmenuSel`): then they take the
+complementary colour, bold (`theme::match_on(group)`, `theme::inverse(group)`).
+All build combined groups on demand, kept in sync with the colorscheme.
 `.gutter(false)` drops the `▌`/`✓` column. `text::truncate_line_start(line,
 width)` cuts from the left, keeping the end (a file name) visible;
 `Text::ellipsis_start()` does it for a `Text`.

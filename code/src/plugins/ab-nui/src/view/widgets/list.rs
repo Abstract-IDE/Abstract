@@ -207,13 +207,13 @@ impl<T: Clone + 'static> Widget for List<T> {
             }
             let rendered = (self.render)(&self.items[index], &icx);
             if is_sel {
-                // Highlight the whole selected row. Matches (`AbNuiMatch`) are
-                // inverted against it; other styled text (an icon) keeps its
-                // colour on the selection's background.
+                // Highlight the whole selected row. Styled text (an icon, a
+                // match) keeps its colour on the selection's background (a
+                // match is inverted when the bar has its own text colour).
                 let sel = if focused { groups::SELECTION } else { groups::FOCUS };
                 for span in rendered.spans {
                     let hl = match span.hl.as_deref() {
-                        Some(groups::MATCH) => crate::theme::inverse(sel),
+                        Some(groups::MATCH) => crate::theme::match_on(sel),
                         Some(own) => crate::theme::mix(own, sel),
                         None => sel.to_string(),
                     };

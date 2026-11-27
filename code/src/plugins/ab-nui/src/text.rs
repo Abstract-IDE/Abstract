@@ -4,7 +4,11 @@
 //! sequence of spans. Widgets produce `Vec<Line>`; [`crate::nvim::render`] turns
 //! that into buffer lines plus extmark highlights.
 
-use unicode_width::UnicodeWidthChar;
+use std::cell::RefCell;
+use std::collections::HashMap;
+
+use unicode_segmentation::UnicodeSegmentation;
+use unicode_width::{UnicodeWidthChar, UnicodeWidthStr};
 
 /// Display width of one char in terminal cells (0, 1, or 2).
 ///
@@ -19,11 +23,54 @@ pub fn char_width(ch: char) -> u16 {
     UnicodeWidthChar::width(ch).unwrap_or(0) as u16
 }
 
-/// Display width of a string in terminal cells: the sum of its chars'
-/// [`char_width`]s — exactly what the canvas paints, char by char (so
-/// measuring, wrapping, truncating and painting always agree).
+/// The grapheme clusters of `s`: what Neovim draws as one glyph — an emoji
+/// with a skin tone or ZWJ sequence, a flag, a letter with combining marks.
+pub fn graphemes(s: &str) -> impl Iterator<Item = &str> {
+    s.graphemes(true)
+}
+
+thread_local! {
+    /// Widths Neovim gave multi-char clusters.
+    static CLUSTER_WIDTHS: RefCell<HashMap<String, u16>> = RefCell::new(HashMap::new());
+}
+
+/// Display width of one grapheme cluster, as Neovim draws it (0, 1 or 2).
+///
+/// A single char is [`char_width`]. A multi-char cluster is measured by
+/// Neovim (`strdisplaywidth`, cached), so the canvas lines up with what is
+/// on screen — e.g. 👍🏽 is 2 cells, not 2 + 2. Without Neovim (another
+/// thread, unit tests) it is estimated. A cluster with a control char, or
+/// one Neovim would draw wider than 2 cells, has width 0 (it is left out).
+pub fn cluster_width(g: &str) -> u16 {
+    let mut chars = g.chars();
+    let Some(first) = chars.next() else { return 0 };
+    if chars.next().is_none() {
+        return char_width(first);
+    }
+    if g.chars().any(char::is_control) {
+        return 0;
+    }
+    if let Some(w) = CLUSTER_WIDTHS.with(|c| c.borrow().get(g).copied()) {
+        return w;
+    }
+    let measured = crate::lua::is_initialized()
+        .then(|| crate::lua::call_fn::<i64>("strdisplaywidth", (g,)).ok())
+        .flatten();
+    match measured {
+        Some(w) => {
+            let w = if (0..=2).contains(&w) { w as u16 } else { 0 };
+            CLUSTER_WIDTHS.with(|c| c.borrow_mut().insert(g.to_string(), w));
+            w
+        },
+        None => (UnicodeWidthStr::width(g).min(2) as u16).max(char_width(first)),
+    }
+}
+
+/// Display width of a string in terminal cells: the sum of its clusters'
+/// [`cluster_width`]s — exactly what the canvas paints (so measuring,
+/// wrapping, truncating and painting always agree).
 pub fn display_width(s: &str) -> u16 {
-    s.chars().fold(0u16, |w, ch| w.saturating_add(char_width(ch)))
+    graphemes(s).fold(0u16, |w, g| w.saturating_add(cluster_width(g)))
 }
 
 /// A run of text optionally painted with a highlight group.
@@ -118,10 +165,10 @@ pub fn wrap_line(line: &Line, width: u16, wrap: Wrap) -> Vec<Line> {
         return vec![line.clone()];
     }
 
-    // Flatten to (char, hl-index) units, remembering each span's group.
+    // Flatten to (cluster, hl-index) units, remembering each span's group.
     let groups: Vec<Option<String>> = line.spans.iter().map(|s| s.hl.clone()).collect();
-    let chars: Vec<(char, usize)> =
-        line.spans.iter().enumerate().flat_map(|(i, s)| s.text.chars().map(move |c| (c, i))).collect();
+    let chars: Vec<(&str, usize)> =
+        line.spans.iter().enumerate().flat_map(|(i, s)| graphemes(&s.text).map(move |g| (g, i))).collect();
 
     // Compute break points as ranges of the chars vec.
     let mut rows: Vec<(usize, usize)> = Vec::new(); // [start, end)
@@ -131,12 +178,12 @@ pub fn wrap_line(line: &Line, width: u16, wrap: Wrap) -> Vec<Line> {
     let mut i = 0;
     while i < chars.len() {
         let (ch, _) = chars[i];
-        let w = char_width(ch);
+        let w = cluster_width(ch);
         if col + w > width && i > start {
             let brk = match wrap {
                 // If the overflowing char is itself a space, break right here;
                 // otherwise pull the last word onto the next row.
-                Wrap::Word if ch == ' ' => i,
+                Wrap::Word if ch == " " => i,
                 Wrap::Word => last_space
                     .filter(|&s| s > start)
                     .map(|s| s + 1) // break after the space
@@ -147,7 +194,7 @@ pub fn wrap_line(line: &Line, width: u16, wrap: Wrap) -> Vec<Line> {
             start = brk;
             // Skip leading spaces on the new row for word wrap.
             if wrap == Wrap::Word {
-                while start < chars.len() && chars[start].0 == ' ' {
+                while start < chars.len() && chars[start].0 == " " {
                     start += 1;
                 }
             }
@@ -156,7 +203,7 @@ pub fn wrap_line(line: &Line, width: u16, wrap: Wrap) -> Vec<Line> {
             last_space = None;
             continue;
         }
-        if ch == ' ' {
+        if ch == " " {
             last_space = Some(i);
         }
         col += w;
@@ -177,14 +224,14 @@ pub fn wrap_line(line: &Line, width: u16, wrap: Wrap) -> Vec<Line> {
             let mut run_group: Option<usize> = None;
             for &(ch, g) in &chars[s..e] {
                 match run_group {
-                    Some(cur) if cur == g => run.push(ch),
+                    Some(cur) if cur == g => run.push_str(ch),
                     Some(cur) => {
                         out.spans.push(Span { text: std::mem::take(&mut run), hl: groups[cur].clone() });
-                        run.push(ch);
+                        run.push_str(ch);
                         run_group = Some(g);
                     },
                     None => {
-                        run.push(ch);
+                        run.push_str(ch);
                         run_group = Some(g);
                     },
                 }
@@ -232,8 +279,8 @@ pub fn truncate_line(line: &Line, width: u16) -> Line {
     let mut col = 0u16;
     'outer: for span in &line.spans {
         let mut kept = String::new();
-        for ch in span.text.chars() {
-            let w = char_width(ch);
+        for g in graphemes(&span.text) {
+            let w = cluster_width(g);
             if col + w > budget {
                 if !kept.is_empty() {
                     out.spans.push(Span { text: kept, hl: span.hl.clone() });
@@ -242,7 +289,7 @@ pub fn truncate_line(line: &Line, width: u16) -> Line {
                 break 'outer;
             }
             col += w;
-            kept.push(ch);
+            kept.push_str(g);
         }
         out.spans.push(Span { text: kept, hl: span.hl.clone() });
     }
@@ -263,20 +310,20 @@ pub fn truncate_line_start(line: &Line, width: u16) -> Line {
     let mut kept: Vec<Span> = Vec::new();
     let mut col = 0u16;
     'outer: for span in line.spans.iter().rev() {
-        let mut text: Vec<char> = Vec::new();
-        for ch in span.text.chars().rev() {
-            let w = char_width(ch);
+        let mut text: Vec<&str> = Vec::new();
+        for g in span.text.graphemes(true).rev() {
+            let w = cluster_width(g);
             if col + w > budget {
                 if !text.is_empty() {
-                    kept.push(Span { text: text.iter().rev().collect(), hl: span.hl.clone() });
+                    kept.push(Span { text: text.iter().rev().copied().collect(), hl: span.hl.clone() });
                 }
                 kept.push(Span { text: "…".into(), hl: span.hl.clone() });
                 break 'outer;
             }
             col += w;
-            text.push(ch);
+            text.push(g);
         }
-        kept.push(Span { text: text.iter().rev().collect(), hl: span.hl.clone() });
+        kept.push(Span { text: text.iter().rev().copied().collect(), hl: span.hl.clone() });
     }
     kept.reverse();
     Line { spans: kept }
@@ -313,6 +360,19 @@ mod tests {
     }
 
     use super::*;
+
+    #[test]
+    fn clusters_are_measured_whole() {
+        // Without Neovim (unit tests) the width is estimated per cluster.
+        assert_eq!(display_width("👍🏽"), 2, "emoji + skin tone");
+        assert_eq!(display_width("e\u{301}x"), 2, "combining mark rides on its letter");
+        assert_eq!(display_width("🇺🇸"), 2, "flag");
+        assert_eq!(graphemes("a👍🏽b").count(), 3);
+        let cut = truncate_line(&Line::raw("👍🏽👍🏽👍🏽"), 5);
+        assert_eq!(cut.spans.iter().map(|s| s.text.as_str()).collect::<String>(), "👍🏽👍🏽…");
+        let wrapped = wrap_line(&Line::raw("👍🏽👍🏽👍🏽"), 4, Wrap::Char);
+        assert_eq!(wrapped.len(), 2);
+    }
 
     #[test]
     fn width_is_display_cells() {
