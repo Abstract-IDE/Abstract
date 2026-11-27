@@ -62,6 +62,7 @@ pub struct List<T: Clone + 'static> {
     filter: Option<FilterFn<T>>,
     multi: bool,
     show_scrollbar: bool,
+    gutter: bool,
     on_select: Rc<dyn Fn(usize)>,
     on_change: Rc<dyn Fn(usize)>,
 }
@@ -84,6 +85,7 @@ impl<T: Clone + 'static> List<T> {
             filter: None,
             multi: false,
             show_scrollbar: true,
+            gutter: true,
             on_select: Rc::new(|_| {}),
             on_change: Rc::new(|_| {}),
         }
@@ -111,6 +113,18 @@ impl<T: Clone + 'static> List<T> {
     pub fn scrollbar(mut self, show: bool) -> Self {
         self.show_scrollbar = show;
         self
+    }
+
+    /// The two-cell column before each row showing `▌` on the selection and
+    /// `✓` on marks (default on). Off, rows start at the left edge and the
+    /// full-width selection bar alone shows the selection.
+    pub fn gutter(mut self, show: bool) -> Self {
+        self.gutter = show;
+        self
+    }
+
+    fn gutter_w(&self) -> u16 {
+        if self.gutter { 2 } else { 0 }
     }
 
     /// `<CR>` on an item (original index).
@@ -144,7 +158,7 @@ impl<T: Clone + 'static> Widget for List<T> {
         let probe = ItemCx { index: 0, selected: false, marked: false, focused: false, width: c.max_w };
         let w = visible
             .iter()
-            .map(|&i| (self.render)(&self.items[i], &probe).width().saturating_add(2 + self.bar_w()))
+            .map(|&i| (self.render)(&self.items[i], &probe).width().saturating_add(self.gutter_w() + self.bar_w()))
             .max()
             .unwrap_or(0);
         let h = visible.len().min(u16::MAX as usize) as u16;
@@ -177,7 +191,7 @@ impl<T: Clone + 'static> Widget for List<T> {
         self.state.offset.set_silent(offset);
 
         let marked = self.state.marked.get(); // tracked with multi-select
-        let row_w = area.w.saturating_sub(2 + self.bar_w());
+        let row_w = area.w.saturating_sub(self.gutter_w() + self.bar_w());
         for (row, vis_pos) in (offset..n.min(offset + h)).enumerate() {
             let index = visible[vis_pos];
             let is_sel = vis_pos == pos;
@@ -188,15 +202,29 @@ impl<T: Clone + 'static> Widget for List<T> {
                 (false, true) => Span::hl("✓ ", groups::ACCENT),
                 (false, false) => Span::raw("  "),
             };
-            line.spans.push(gutter);
+            if self.gutter {
+                line.spans.push(gutter);
+            }
             let rendered = (self.render)(&self.items[index], &icx);
             if is_sel {
-                // Highlight the whole selected row.
+                // Highlight the whole selected row. Matches (`AbNuiMatch`) are
+                // inverted against it; other styled text (an icon) keeps its
+                // colour on the selection's background.
+                let sel = if focused { groups::SELECTION } else { groups::FOCUS };
                 for span in rendered.spans {
-                    line.spans.push(Span {
-                        text: span.text,
-                        hl: Some(if focused { groups::SELECTION } else { groups::FOCUS }.to_string()),
-                    });
+                    let hl = match span.hl.as_deref() {
+                        Some(groups::MATCH) => crate::theme::inverse(sel),
+                        Some(own) => crate::theme::mix(own, sel),
+                        None => sel.to_string(),
+                    };
+                    line.spans.push(Span { text: span.text, hl: Some(hl) });
+                }
+                // …across the full width, not just under the text.
+                let full = area.w.saturating_sub(self.bar_w());
+                let pad = full.saturating_sub(line.width());
+                if pad > 0 {
+                    let hl = if focused { groups::SELECTION } else { groups::FOCUS };
+                    line.spans.push(Span::hl(" ".repeat(pad as usize), hl));
                 }
             } else {
                 line.spans.extend(rendered.spans);
@@ -211,6 +239,27 @@ impl<T: Clone + 'static> Widget for List<T> {
                 n,
                 h,
                 offset,
+            );
+        }
+
+        // Mouse wheel / touchpad: move the selection.
+        {
+            let (state, on_change, visible) = (self.state.clone(), self.on_change.clone(), visible.clone());
+            cx.on_scroll(
+                canvas.screen_map(),
+                area,
+                Rc::new(move |rows| {
+                    if visible.is_empty() {
+                        return;
+                    }
+                    let cur = state.selected.get_untracked();
+                    let pos = visible.iter().position(|&i| i == cur).unwrap_or(0) as i64;
+                    let to = (pos + rows as i64).clamp(0, visible.len() as i64 - 1) as usize;
+                    if visible[to] != cur {
+                        state.selected.set(visible[to]);
+                        on_change(visible[to]);
+                    }
+                }),
             );
         }
 

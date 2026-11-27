@@ -44,6 +44,40 @@ pub fn buf_keymap(buf: Buffer, mode: &str, lhs: &str, opts: KeymapOpts, callback
     Ok(())
 }
 
+/// Bind `lhs` in `mode` for `buf` to a callback that may *decline* the key:
+/// it returns `true` when it handled the key, `false` to let the key do what
+/// it normally does (e.g. a `<BS>` that only sometimes means something else).
+///
+/// The callback runs while Neovim evaluates the mapping, under its text lock:
+/// it must not change text or windows — schedule such work
+/// ([`schedule`](crate::nvim::schedule)) and just decide.
+pub fn buf_keymap_or(
+    buf: Buffer,
+    mode: &str,
+    lhs: &str,
+    opts: KeymapOpts,
+    callback: impl Fn() -> bool + 'static,
+) -> Result<()> {
+    let l = lua::lua()?;
+    let key = lhs.to_string();
+    // Effects the callback sets off wait for the next tick: they may redraw,
+    // which the text lock forbids.
+    let func: Function = l.create_function(move |_, ()| {
+        let took = crate::reactive::held_until_next_tick(&callback);
+        Ok(if took { String::new() } else { key.clone() })
+    })?;
+
+    let o = l.create_table()?;
+    o.set("buffer", buf.id())?;
+    o.set("silent", opts.silent)?;
+    o.set("nowait", opts.nowait)?;
+    o.set("expr", true)?;
+    o.set("replace_keycodes", true)?;
+
+    lua::vim_fn("keymap.set")?.call::<()>((mode, lhs, func, o))?;
+    Ok(())
+}
+
 /// Bind many keys of `buf` (in `mode`) to a single Rust dispatcher: pressing
 /// `lhs` calls `dispatch(code)` with the code paired with it.
 ///

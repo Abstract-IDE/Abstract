@@ -129,6 +129,100 @@ function M.timer_close(t)
   end
 end
 
+-- Real-buffer views (embedded windows, code views).
+
+-- Syntax-highlight `buf` as filetype `ft`: treesitter when a parser exists,
+-- else Vim's regex syntax; "" turns highlighting off.
+function M.set_syntax(buf, ft)
+  pcall(vim.treesitter.stop, buf)
+  vim.bo[buf].syntax = ""
+  if ft and ft ~= "" then
+    local lang = vim.treesitter.language.get_lang(ft) or ft
+    if not pcall(vim.treesitter.start, buf, lang) then
+      vim.bo[buf].syntax = ft
+    end
+  end
+end
+
+-- Put the cursor on line `lnum` of `win` and centre it (or show the top).
+function M.view_line(win, lnum)
+  if not api.nvim_win_is_valid(win) then return end
+  local count = api.nvim_buf_line_count(api.nvim_win_get_buf(win))
+  local target = math.max(1, math.min(lnum or 1, count))
+  api.nvim_win_call(win, function()
+    api.nvim_win_set_cursor(win, { target, 0 })
+    if lnum and lnum > 1 then
+      vim.cmd("normal! zz")
+    else
+      vim.fn.winrestview({ topline = 1, leftcol = 0 })
+    end
+  end)
+end
+
+-- Scroll `win` by `delta` lines.
+function M.scroll_by(win, delta)
+  if not api.nvim_win_is_valid(win) then return end
+  api.nvim_win_call(win, function()
+    local view = vim.fn.winsaveview()
+    view.topline = math.max(1, math.min(vim.fn.line("$"), view.topline + delta))
+    view.lnum = math.max(view.lnum, view.topline)
+    vim.fn.winrestview(view)
+  end)
+end
+
+-- Scroll `win` like the mouse wheel would: `rows` down (negative: up),
+-- `cols` right (negative: left).
+function M.scroll_win(win, rows, cols)
+  if not api.nvim_win_is_valid(win) then return end
+  api.nvim_win_call(win, function()
+    if rows > 0 then vim.cmd("normal! " .. rows .. "\5") elseif rows < 0 then vim.cmd("normal! " .. -rows .. "\25") end
+    if cols > 0 then vim.cmd("normal! " .. cols .. "zl") elseif cols < 0 then vim.cmd("normal! " .. -cols .. "zh") end
+  end)
+end
+
+function M.set_mouse(win, on)
+  if api.nvim_win_is_valid(win) then
+    pcall(api.nvim_win_set_config, win, { mouse = on })
+  end
+end
+
+-- File icons in their own colours: mini.icons when it is set up (its colour
+-- groups exist only after `setup()`), else nvim-web-devicons, else an
+-- un-set-up mini.icons (icons without colour); nil without any. The third
+-- result says whether that is final: until a coloured provider shows up (a
+-- lazy-loaded plugin, mini.icons' `setup()`), look again now and then.
+local icon_provider, provider_final, probed_at = nil, false, -math.huge
+local function mini_provider(mini)
+  return function(n)
+    local ok, icon, hl = pcall(mini.get, "file", n)
+    if ok then return icon, hl end
+  end
+end
+function M.file_icon(name)
+  local now = vim.uv.now()
+  if not provider_final and now - probed_at >= 2000 then
+    probed_at = now
+    icon_provider = nil
+    local ok, mini = pcall(require, "mini.icons")
+    local has_mini = ok and type(mini.get) == "function"
+    if has_mini and _G.MiniIcons ~= nil then
+      icon_provider, provider_final = mini_provider(mini), true
+    else
+      local ok2, dev = pcall(require, "nvim-web-devicons")
+      if ok2 then
+        icon_provider, provider_final = function(n)
+          return dev.get_icon(n, vim.fn.fnamemodify(n, ":e"), { default = true })
+        end, true
+      elseif has_mini then
+        icon_provider = mini_provider(mini)
+      end
+    end
+  end
+  if not icon_provider then return nil, nil, provider_final end
+  local icon, hl = icon_provider(name)
+  return icon, hl, provider_final
+end
+
 return M
 "#;
 

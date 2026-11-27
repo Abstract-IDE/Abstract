@@ -214,6 +214,19 @@ impl<T: Clone + 'static> Widget for Tree<T> {
         }
 
         // Key handling operates on the flattened rows.
+        {
+            let state = self.state.clone();
+            cx.on_scroll(
+                canvas.screen_map(),
+                area,
+                Rc::new(move |rows| {
+                    if n > 0 {
+                        let cur = state.selected.get_untracked().min(n - 1) as i64;
+                        state.selected.set_if_changed((cur + rows as i64).clamp(0, n as i64 - 1) as usize);
+                    }
+                }),
+            );
+        }
         let state = self.state.clone();
         let on_activate = self.on_activate.clone();
         let flat: Rc<Vec<FlatRow<T>>> = Rc::new(rows);

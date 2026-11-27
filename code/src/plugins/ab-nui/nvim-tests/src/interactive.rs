@@ -781,3 +781,17 @@ fn focus_clamp_highlights_immediately() {
     two.set(false);
     assert_eq!(highlights(buf), vec![(0, 0, 5, SEL.into())]); // actual: []
 }
+
+#[nvim_oxi::test]
+fn list_selection_highlight_spans_the_full_row() {
+    setup();
+    let state = ListState::new();
+    let (_s, buf) = surf(12, 2, move || List::new(vec!["ab", "cd"], &state).scrollbar(false));
+    let row = &lines(buf)[0];
+    // One selection highlight from the gutter to the right edge, not just
+    // under the text.
+    let marks: Vec<_> = highlights(buf).into_iter().filter(|h| h.0 == 0).collect();
+    assert_eq!(marks.len(), 1, "{marks:?}");
+    assert_eq!((marks[0].1, marks[0].2), (0, row.len() as i64));
+    assert!(marks[0].3.contains("Selection") || marks[0].3.contains("Focus"), "{marks:?}");
+}

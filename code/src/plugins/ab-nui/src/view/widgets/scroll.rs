@@ -171,6 +171,19 @@ impl Widget for ScrollView {
             );
         }
 
+        // Mouse wheel / touchpad: scroll the content.
+        {
+            let sig = self.offset.clone();
+            cx.on_scroll(
+                canvas.screen_map(),
+                area,
+                Rc::new(move |rows| {
+                    let to = (sig.get_untracked() as i32 + rows).clamp(0, max_offset as i32);
+                    sig.set_if_changed(to as u16);
+                }),
+            );
+        }
+
         // Scroll keys (when this viewport is the focused widget).
         let sig = self.offset.clone();
         let page = area.h.max(1);

@@ -26,7 +26,10 @@
 //!
 //! [`Signal`]: crate::reactive::Signal
 
+pub mod buffer_input;
 pub mod canvas;
+pub mod code_view;
+pub mod embed;
 pub mod macros;
 pub mod multi;
 pub mod notify;
@@ -34,14 +37,19 @@ pub mod runtime;
 pub mod widget;
 pub mod widgets;
 
+pub use buffer_input::BufferInput;
+pub use code_view::CodeView;
+pub use embed::{Embed, EmbedOptions, EmbeddedWindow};
 pub use multi::{Layout, Pane};
 pub use notify::{Level, NotifyHandle, NotifyOptions, dismiss_all, notify};
 pub use runtime::Surface;
-pub use widget::{Alignment, Area, Constraints, CrossAxis, Cx, Element, Focusable, Key, MainAxis, Size, Widget};
+pub use widget::{
+    Alignment, Area, Constraints, CrossAxis, Cx, Element, Focusable, Key, MainAxis, ScrollHandler, Size, Widget,
+};
 pub use widgets::{
     Align, AreaState, BorderChars, BoxStyle, Button, Center, Checkbox, ColWidth, Column, Container, Divider, EdgeAlign,
-    Expanded, FieldState, Fraction, ItemCx, KeyHints, Keyed, List, ListState, Overflow, Padding, Positioned,
-    ProgressBar, RadioGroup, Row, SPINNER_DOTS, ScrollView, Scrollbar, Select, SelectState, SizedBox, Spacer, Spinner,
-    SpinnerState, Stack, TabBar, Table, TableColumn, Text, TextAlign, TextArea, TextField, Toggle, Tree, TreeNode,
-    TreeState,
+    Expanded, FieldState, Fraction, Frame, FrameColumn, ItemCx, KeyHints, Keyed, List, ListState, Overflow, Padding,
+    Positioned, ProgressBar, RadioGroup, Row, SPINNER_DOTS, ScrollView, Scrollbar, Select, SelectState, SizedBox,
+    Spacer, Spinner, SpinnerState, Stack, TabBar, Table, TableColumn, Text, TextAlign, TextArea, TextField, Toggle,
+    Tree, TreeNode, TreeState,
 };

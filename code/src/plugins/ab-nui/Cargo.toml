@@ -22,3 +22,7 @@ rust-version = { workspace = true }
 mlua          = { workspace = true }
 thiserror     = { workspace = true }
 unicode-width = { workspace = true }
+# Media in code views (kitty graphics protocol): pure-Rust image decoding,
+# and the terminal's cell size in pixels.
+image         = { workspace = true }
+libc          = { workspace = true }

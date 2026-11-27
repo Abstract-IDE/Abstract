@@ -121,6 +121,7 @@ impl Input {
 
         // Exactly once: whichever way the input ends first wins.
         let fired = Rc::new(Cell::new(false));
+        let on_done = Rc::new(on_done);
         let finish: Rc<dyn Fn(Option<String>)> = {
             let popup = self.popup.clone();
             Rc::new(move |text: Option<String>| {
@@ -131,11 +132,20 @@ impl Input {
                 // window was closed from elsewhere, the mode belongs to
                 // whatever window the user is in now).
                 let here = popup.window().is_some_and(|w| nvim::Window::current().ok() == Some(w));
-                if here && nvim::mode().is_ok_and(|m| m.starts_with('i') || m.starts_with('R')) {
+                let stopped = here && nvim::mode().is_ok_and(|m| m.starts_with('i') || m.starts_with('R'));
+                if stopped {
                     let _ = crate::lua::cmd("stopinsert");
                 }
                 popup.close();
-                on_done(text);
+                if stopped {
+                    // `stopinsert` only takes effect once the key handler
+                    // returns: answer after that, or a prompt the callback
+                    // opens (rename, then confirm) would lose its insert mode.
+                    let on_done = on_done.clone();
+                    let _ = nvim::schedule(move || on_done(text));
+                } else {
+                    on_done(text);
+                }
             })
         };
 

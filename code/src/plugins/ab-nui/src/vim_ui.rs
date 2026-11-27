@@ -19,7 +19,13 @@ pub fn register_select() -> Result<()> {
     let l = lua::lua()?;
     // `opts` may be nil (`vim.ui.select(items, nil, cb)`).
     let func: Function = l.create_function(|_, (items, opts, on_choice): (Table, Option<Table>, Function)| {
-        select_impl(&items, opts.as_ref(), on_choice).map_err(mlua::Error::external)
+        // Even when the menu can't open (a `format_item` error, the text
+        // lock), the callback gets its answer — callers may be waiting on it.
+        if let Err(err) = select_impl(&items, opts.as_ref(), on_choice.clone()) {
+            failed("vim.ui.select", &err);
+            answer("vim.ui.select: on_choice", &on_choice, (Value::Nil, Value::Nil));
+        }
+        Ok(())
     })?;
     lua::vim()?.get::<Table>("ui")?.set("select", func)?;
     Ok(())
@@ -35,7 +41,11 @@ pub fn register_input() -> Result<()> {
             (opts, Value::Function(f)) => (opts.as_table().cloned(), f),
             _ => return Err(mlua::Error::runtime("vim.ui.input: on_confirm must be a function")),
         };
-        input_impl(opts.as_ref(), on_confirm).map_err(mlua::Error::external)
+        if let Err(err) = input_impl(opts.as_ref(), on_confirm.clone()) {
+            failed("vim.ui.input", &err);
+            answer("vim.ui.input: on_confirm", &on_confirm, Value::Nil);
+        }
+        Ok(())
     })?;
     lua::vim()?.get::<Table>("ui")?.set("input", func)?;
     Ok(())
@@ -50,6 +60,15 @@ pub fn register_all() -> Result<()> {
 /// A prompt as a border title: trimmed, without the trailing `:`, on one line.
 fn title_from_prompt(prompt: &str) -> String {
     format!(" {} ", single_line(prompt.trim().trim_end_matches(':')))
+}
+
+/// Report that the prompt couldn't be shown.
+fn failed(what: &str, err: &crate::error::Error) {
+    let msg = format!("{what}: {err}");
+    let shown = lua::vim().and_then(|vim| Ok(vim.get::<Function>("notify")?.call::<()>((msg.as_str(), 4))?)).is_ok();
+    if !shown {
+        eprintln!("{msg}");
+    }
 }
 
 /// Call the user's completion callback. Its errors are not ours to swallow:

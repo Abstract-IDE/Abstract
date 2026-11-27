@@ -208,6 +208,8 @@ fn vim_ui_select_and_input_work_from_insert_mode() {
     assert_eq!(lines(current_win().buffer().unwrap()), v(&[""]));
 
     feed("i<F3>yz<CR>");
+    // Submitted from insert mode: answered once insert mode has ended.
+    wait(500, || lua_eval::<Option<String>>("return _G.v").is_some());
     assert_eq!(lua_eval::<String>("return _G.v"), "xyz");
     assert!(floats().is_empty());
     assert_eq!(lines(current_win().buffer().unwrap()), v(&[""]));
@@ -254,10 +256,12 @@ fn vim_ui_accepts_nil_or_missing_opts() {
 
     lua_run("vim.ui.input(nil, function(v) _G.v1 = v end)");
     feed(&format!("{}hi<CR>", append_prefix()));
+    wait(500, || lua_eval::<Option<String>>("return _G.v1").is_some());
     assert_eq!(lua_eval::<String>("return _G.v1"), "hi");
 
     lua_run("vim.ui.input(function(v) _G.v2 = v end)");
     feed(&format!("{}yo<CR>", append_prefix()));
+    wait(500, || lua_eval::<Option<String>>("return _G.v2").is_some());
     assert_eq!(lua_eval::<String>("return _G.v2"), "yo");
 }
 

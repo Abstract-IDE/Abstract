@@ -280,6 +280,8 @@ fn input_submit_with_typed_text() {
     let _ = input.open(move |s| g.borrow_mut().extend(s));
     assert_eq!(lines(popup.buffer()), v(&["ab"]));
     feed(&format!("{}hello<CR>", append_prefix()));
+    let g = got.clone();
+    wait(500, move || !g.borrow().is_empty());
     assert_eq!(*got.borrow(), v(&["abhello"]));
     assert!(!popup.is_open());
 }

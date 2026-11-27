@@ -119,6 +119,10 @@ pub struct FloatConfig {
     pub enter: bool,
     /// Use `style = "minimal"` (no numbers/signcolumn/etc).
     pub minimal: bool,
+    /// Whether mouse events stop at the window (Neovim's default: only when
+    /// focusable). Sent with every config, because Neovim resets `mouse` to
+    /// `focusable` whenever `focusable` is set.
+    pub mouse: Option<bool>,
 }
 
 impl FloatConfig {
@@ -135,6 +139,7 @@ impl FloatConfig {
             zindex: 50,
             enter: true,
             minimal: true,
+            mouse: None,
         }
     }
 
@@ -168,6 +173,9 @@ impl FloatConfig {
         t.set("width", self.rect.width as i64)?;
         t.set("height", self.rect.height as i64)?;
         t.set("focusable", self.focusable)?;
+        if let Some(mouse) = self.mouse {
+            t.set("mouse", mouse)?;
+        }
         t.set("zindex", self.zindex as i64)?;
         t.set("border", self.border.as_str())?;
         if self.minimal {
@@ -374,6 +382,20 @@ impl Window {
     pub fn cursor(self) -> Result<(i64, i64)> {
         let pos: Vec<i64> = lua::call_api("nvim_win_get_cursor", (self.0,))?;
         Ok((pos.first().copied().unwrap_or(1), pos.get(1).copied().unwrap_or(0)))
+    }
+
+    /// Scroll back to the first line and column if the view moved (a mouse
+    /// wheel, a touchpad swipe, `zl`, `<C-e>`…). Returns whether it moved.
+    pub fn reset_view(self) -> Result<bool> {
+        let info: Vec<Table> = lua::call_fn("getwininfo", (self.0,))?;
+        let Some(t) = info.first() else { return Ok(false) };
+        let top: i64 = t.get("topline").unwrap_or(1);
+        let left: i64 = t.get("leftcol").unwrap_or(0);
+        if top == 1 && left == 0 {
+            return Ok(false);
+        }
+        lua::call_fn::<mlua::Value>("win_execute", (self.0, "call winrestview({'topline': 1, 'leftcol': 0})"))?;
+        Ok(true)
     }
 
     /// Make this the current window.

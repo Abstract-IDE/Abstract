@@ -1,6 +1,7 @@
 //! The built-in widget set. All implement [`crate::view::Widget`].
 
 pub mod button;
+pub mod frame;
 pub mod hints;
 pub mod input;
 pub mod keyed;
@@ -16,6 +17,7 @@ pub mod toggle;
 pub mod tree;
 
 pub use button::Button;
+pub use frame::{Frame, FrameColumn};
 pub use hints::KeyHints;
 pub use input::{AreaState, FieldState, TextArea, TextField};
 pub use keyed::Keyed;

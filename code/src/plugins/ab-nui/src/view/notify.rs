@@ -69,9 +69,21 @@ struct Toast {
     id: u64,
     surface: Surface,
     level: Level,
-    /// Rows the toast occupies including its border.
-    rows: u32,
+    msg: String,
+    /// The width asked for; narrower when the editor is.
+    width: u16,
     _timer: Option<Timer>,
+}
+
+/// Text rows `msg` needs at `width` (wrapped as the toast's `Text` wraps it),
+/// capped so one toast can't fill the screen.
+fn rows_for(msg: &str, width: u16) -> u32 {
+    wrap_line(&Line::raw(msg), width, Wrap::Word).len().clamp(1, 10) as u32
+}
+
+/// The toast's width in an editor `cols` wide (border and margin left over).
+fn fit_width(width: u16, cols: u16) -> u16 {
+    width.min(cols.saturating_sub(4)).max(1)
 }
 
 thread_local! {
@@ -103,10 +115,9 @@ pub fn notify(msg: impl Into<String>, opts: NotifyOptions) -> Result<NotifyHandl
     let msg = msg.into();
     let width = opts.width.clamp(16, 120);
 
-    // Height from the message wrapped exactly as the `Text` below wraps it (at
-    // the full width), capped so one toast can't fill the screen.
-    let rows = wrap_line(&Line::raw(&msg), width, Wrap::Word).len().clamp(1, 10) as u32;
-    let total_rows = rows + 2; // border
+    // Sized for the editor now; `restack` keeps it so as the editor changes.
+    let fitted = editor_size().map(|(cols, _)| fit_width(width, cols as u16)).unwrap_or(width);
+    let rows = rows_for(&msg, fitted);
 
     let id = NEXT_ID.with(|c| {
         let id = c.get();
@@ -117,7 +128,7 @@ pub fn notify(msg: impl Into<String>, opts: NotifyOptions) -> Result<NotifyHandl
     let title = opts.title.clone().unwrap_or_else(|| opts.level.default_title().to_string());
     let level = opts.level;
     let surface = Surface::float(PopupOptions {
-        size: Size::cells(width as u32, rows),
+        size: Size::cells(fitted as u32, rows),
         position: Position::At { row: 1.0, col: 1.0 }, // restack() places it
         border: Border::Rounded,
         title: Some(format!(" {title} ")),
@@ -126,7 +137,10 @@ pub fn notify(msg: impl Into<String>, opts: NotifyOptions) -> Result<NotifyHandl
         zindex: 80,
         ..Default::default()
     })?
-    .show(move || Text::new(msg.clone()).wrap(Wrap::Word))?;
+    .show({
+        let msg = msg.clone();
+        move || Text::new(msg.clone()).wrap(Wrap::Word)
+    })?;
 
     style(&surface, level);
 
@@ -136,7 +150,7 @@ pub fn notify(msg: impl Into<String>, opts: NotifyOptions) -> Result<NotifyHandl
     };
 
     install_resize_hook();
-    TOASTS.with(|t| t.borrow_mut().push(Toast { id, surface, level, rows: total_rows, _timer: timer }));
+    TOASTS.with(|t| t.borrow_mut().push(Toast { id, surface, level, msg, width, _timer: timer }));
     restack();
     Ok(NotifyHandle { id })
 }
@@ -153,13 +167,14 @@ fn style(surface: &Surface, level: Level) {
     }
 }
 
-/// Re-anchor the stack whenever the editor is resized (one hook for all
-/// toasts, installed with the first one).
+/// Re-anchor the stack whenever the editor is resized or another tab page
+/// is entered (floats belong to one tab page) — one hook for all toasts,
+/// installed with the first one.
 fn install_resize_hook() {
     if RESIZE_HOOK.with(|h| h.replace(true)) {
         return;
     }
-    if nvim::autocmd(&["VimResized"], None, None, |_| restack()).is_err() {
+    if nvim::autocmd(&["VimResized", "TabEnter"], None, None, |_| restack()).is_err() {
         RESIZE_HOOK.with(|h| h.set(false));
     }
 }
@@ -196,17 +211,33 @@ fn restack() {
     let bottom = (lines as i64 - cmdheight.max(0)) as f64;
     // Snapshot, then release the borrow: moving/hiding/opening windows runs
     // autocmds that may re-enter `notify`/`dismiss`.
-    let stack: Vec<(Surface, Level, u32)> = TOASTS
-        .with(|t| t.borrow().iter().rev().map(|toast| (toast.surface.clone(), toast.level, toast.rows)).collect());
+    let stack: Vec<(Surface, Level, String, u16)> = TOASTS.with(|t| {
+        t.borrow()
+            .iter()
+            .rev()
+            .map(|toast| (toast.surface.clone(), toast.level, toast.msg.clone(), toast.width))
+            .collect()
+    });
     let mut row = 1.0;
     let mut full = false;
-    for (i, (surface, level, rows)) in stack.iter().enumerate() {
-        full = full || (i > 0 && row + *rows as f64 > bottom);
+    for (i, (surface, level, msg, width)) in stack.iter().enumerate() {
+        let w = fit_width(*width, cols as u16);
+        let text_rows = rows_for(msg, w);
+        let rows = text_rows + 2; // border
+        full = full || (i > 0 && row + rows as f64 > bottom);
         if full {
             surface.hide();
             continue;
         }
+        // Shown on another tab page: bring it to this one.
+        if surface.is_visible() && !on_this_tab(surface) {
+            surface.hide();
+        }
         let popup = surface.popup();
+        if popup.inner_size().ok() != Some((w, text_rows as u16)) {
+            let _ = popup.set_size(Size::cells(w as u32, text_rows));
+            surface.sync_size();
+        }
         if let Ok((w, _)) = popup.inner_size() {
             let col = (cols as f64 - w as f64 - 3.0).max(0.0);
             let _ = popup.set_position(Position::At { row, col });
@@ -214,6 +245,13 @@ fn restack() {
         if !surface.is_visible() && surface.reopen().is_ok() {
             style(surface, *level);
         }
-        row += *rows as f64;
+        row += rows as f64;
     }
+}
+
+fn on_this_tab(surface: &Surface) -> bool {
+    let Some(win) = surface.popup().window() else { return false };
+    let tab = lua::call_api::<i64>("nvim_win_get_tabpage", (win.id(),));
+    let current = lua::call_api::<i64>("nvim_get_current_tabpage", ());
+    matches!((tab, current), (Ok(a), Ok(b)) if a == b)
 }

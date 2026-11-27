@@ -466,10 +466,69 @@ The widget set:
 
 | Kind        | Widgets |
 | ----------- | ------- |
-| layout      | `Column` `Row` `Stack` `Positioned` `Center` `Align` `Padding` `SizedBox` `Spacer` `Expanded` `Fraction` `Divider` (h/v) `Container` (Single/Rounded/Double/Thick/Custom borders, title + footer, per-side padding) `ScrollView` `Scrollbar` |
+| layout      | `Column` `Row` `Stack` `Positioned` `Center` `Align` `Padding` `SizedBox` `Spacer` `Expanded` `Fraction` `Divider` (h/v) `Container` (Single/Rounded/Double/Thick/Custom borders, title + footer, per-side padding) `Frame` (header/body/footer in 1–2 columns, divider through the body only, scrollbar thumb on the divider) `ScrollView` `Scrollbar` |
 | content     | `Text` (multi-span, `wrap`, `align`, `ellipsis`, `max_lines`) `KeyHints` `ProgressBar` `Spinner` (timer-driven `SpinnerState`) |
-| interactive | `Button` `Checkbox` `Toggle` `RadioGroup` `Select` (dropdown via overlay) `TabBar` `List` (custom rows, filter, multi-select, scrollbar) `Table` (Fixed/Fraction/Flex columns) `Tree` (collapsible, custom rendering) `TextField` (full cursor editing, mask, on_change/on_submit) `TextArea` |
+| interactive | `Button` `Checkbox` `Toggle` `RadioGroup` `Select` (dropdown via overlay) `TabBar` `List` (custom rows, filter, multi-select, scrollbar, full-width selection bar) `Table` (Fixed/Fraction/Flex columns) `Tree` (collapsible, custom rendering) `TextField` (full cursor editing, mask, on_change/on_submit) `TextArea` |
 | wrappers    | `Keyed` — stable focus keys + per-widget custom key handlers for any child |
+| real buffers | `Embed` (an `EmbeddedWindow` laid over its area) · `BufferInput` (a one-line input edited with Vim itself) · `CodeView` (syntax-highlighted, read-only text with a highlighted line and matches) |
+
+A boxed widget (`Element`) is itself a `Widget`, so a child picked at runtime
+can go anywhere a widget is expected.
+
+**Mouse wheel and touchpad.** A widget makes its area scrollable with
+`cx.on_scroll(canvas.screen_map(), area, handler)` while painting; `List`,
+`Table` and `Tree` move their selection, `ScrollView` its content. A surface
+routes each wheel step to whatever is under the pointer: the innermost
+scrollable widget, or one of its embedded windows (scrolled natively); outside
+it, Neovim's own behaviour — nothing at all when the surface is modal.
+`Surface::scroll_at(row, col, rows)` does the same from code. A click can't
+leave the cursor in a part of a surface that isn't focusable (the frame, a
+code view): it moves on to the surface's input.
+
+**Lists.** The selected row is a full-width bar. Text styled with
+`AbNuiMatch` (matched characters) keeps the bar's background and takes the
+complementary text colour, bold (`theme::inverse(group)`); other styled text (an icon) keeps its colour on it
+(`theme::mix(fg_group, bg_group)`). Both build combined groups on demand, kept
+in sync with the colorscheme.
+`.gutter(false)` drops the `▌`/`✓` column. `text::truncate_line_start(line,
+width)` cuts from the left, keeping the end (a file name) visible;
+`Text::ellipsis_start()` does it for a `Text`.
+
+**Real buffers in the tree.** Some UI is best served by a real buffer: text
+edited with every Vim motion, or a file shown with Neovim's own syntax
+highlighting. An `EmbeddedWindow` is a real window the surface keeps exactly
+over its `Embed` widget's area — placed after each paint, moved on resize,
+hidden when the widget isn't painted or the surface is hidden, closed with the
+surface (`on_open` runs each time it opens; `on_close` reports closes from
+elsewhere, e.g. `:q` in it). Built on it:
+
+- `BufferInput` — `value()` is a `Signal<String>` that follows every edit (a
+  multi-line paste is joined), `placeholder(..)`, `start_insert(bool)`,
+  `on_key(&["i", "n"], lhs, f)`, and `on_key_or(modes, lhs, f)` where `f`
+  returns whether it took the key — `false` lets the key do what it normally
+  does (it runs under Neovim's text lock: decide, schedule changes). `text()`
+  reads the buffer, so it is current even mid-edit. Completion menus are off
+  in it. (`nvim::buf_keymap_or` is the same for any buffer.)
+- `CodeView` — `line_numbers(bool)` (default on), `show_media(path)` (see
+  below), `set_content(&lines, filetype)` (treesitter when a parser
+  exists, regex syntax otherwise), `highlight(Some(line), &[(start, end)])`
+  (`AbNuiCodeLine`/`AbNuiCodeMatch`, line brought into view), `scroll_by(n)`.
+  Not focusable, but the wheel/touchpad scrolls it.
+
+**Media** (`media`, used by `CodeView::show_media`): images, video frames and
+PDF pages in terminals with the kitty graphics protocol's unicode
+placeholders (kitty, Ghostty; not inside tmux or a nested Neovim) and
+`termguicolors` — no Neovim plugin involved. Images are decoded
+in Rust (png, jpg, gif, webp, bmp, tiff, ico) on a background thread, scaled
+to fit with their aspect kept (using the terminal's cell size in pixels), sent
+as PNG through `nvim_ui_send`, and shown with Unicode placeholders — cells in
+the buffer — so they move, clip and scroll with the window. A video frame
+uses `ffmpeg`, a PDF page `pdftoppm` or `mutool`, when installed.
+
+`icons::file(name)` gives a file's icon and highlight, in the file type's own
+colour: from mini.icons when it is set up, else nvim-web-devicons (cached;
+`None` without either). An `Embed` takes all the space it is given unless
+given a fixed `.height(rows)` (a `BufferInput` is one row).
 
 Widget state that must survive rebuilds lives in clone-shareable bundles
 (`ListState`, `FieldState`, `AreaState`, `TreeState`, `SelectState`) created
@@ -540,6 +599,16 @@ lifetime**:
 - The render effect is `unowned`, so a surface shown from inside an effect
   lives as long as its handle, not as long as that effect's current run.
 - Only visible surfaces react to resizes, and only when their own size changed.
+- A surface's view is pinned: if its window is scrolled (mouse wheel, touchpad,
+  `zl`, `<C-e>`), it snaps back to its first line and column
+  (`Window::reset_view`), so the UI never shows shifted or half-painted.
+- **Modal** (`.modal(true)`): while shown, a backdrop (`AbNuiBackdrop`, dimmed
+  with true colour) covers the rest of the editor and catches the mouse, so
+  clicks and scrolls behind do nothing; and if the cursor lands in a window
+  behind (`<C-w>w`, a plugin), it is put back — into the first focusable
+  embedded window, else the surface. Floats stacked above the surface (a menu
+  it opens) and the command-line window are allowed. `focus()` moves the
+  cursor into the surface the same way.
 - **Closing from inside the tree.** Capturing the `Surface` in its own `build`
   or key handlers creates a reference cycle (it would never be freed). Use
   `surface.closer()` instead: a `Fn()` holding a weak reference that closes the
@@ -729,7 +798,12 @@ Table::new(cols, rows, &state)   Tree::new(nodes, &TreeState::new()).render(..).
 TextField::new(&FieldState::new("")).placeholder(..).mask('*').on_submit(..)   TextArea::new(&AreaState::new(""))
 Keyed::new(w).focus_key("id").on_key(Key::Char('x'), ||..)
 // view: runtime & beyond
-Surface::float(opts)?.show(build)?   // .hide() .reopen() .toggle() .close() .closer() .initial_focus(i) .focus_wrap(b) .on_key(..)
+Surface::float(opts)?.show(build)?   // .hide() .reopen() .toggle() .close() .closer() .modal(b) .focus() .initial_focus(i) .focus_wrap(b) .on_key(..)
+Frame::new(vec![FrameColumn::new(header, body).footer(f), ..]).split(0.6).scrollbar(total, offset_signal)
+EmbeddedWindow::new(EmbedOptions { focusable, enter, zindex })?  // .widget() .on_open(f) .on_close(f) .buffer() .window() .focus()
+BufferInput::new()?.placeholder(s).start_insert(b)  // .value() .text() .set_text(s) .on_key(&["i","n"], lhs, f) .widget()
+CodeView::new()?  // .set_content(&lines, ft) .highlight(Some(line), &[(s, e)]) .scroll_by(n) .widget()
+icons::file(name) -> Option<(icon, hl)>
 Surface::split(SplitConfig::new(SplitDir::Right))?.show(build)?
 notify("msg", NotifyOptions { level: Level::Warn, ..Default::default() })? -> NotifyHandle
 Layout::new(size, pos, Pane::col(vec![..])).open()?   // multi-window arrangements

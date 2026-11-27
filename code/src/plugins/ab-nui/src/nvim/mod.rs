@@ -12,7 +12,8 @@ pub mod window;
 pub use buffer::Buffer;
 pub use event::{
     AutocmdArgs, CommandArgs, CommandOpts, KeymapOpts, augroup, autocmd, autocmd_once, buf_autocmd, buf_keymap,
-    buf_keymap_table, del_augroup, del_autocmd, del_keymap, del_user_command, unique_augroup, user_command,
+    buf_keymap_or, buf_keymap_table, del_augroup, del_autocmd, del_keymap, del_user_command, unique_augroup,
+    user_command,
 };
 pub use extmark::{ExtmarkInfo, ExtmarkOpts, Namespace, VirtTextPos};
 pub use render::{LINE_BREAK, Mark, Renderer, Row, render, single_line};

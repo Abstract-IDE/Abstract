@@ -357,3 +357,25 @@ fn reopen_and_toggle_after_close_report_closed() {
     s.hide(); // harmless
     s.close(); // idempotent
 }
+
+#[nvim_oxi::test]
+fn a_scrolled_surface_snaps_back_to_its_painted_view() {
+    setup();
+    let (s, _buf) = surf(10, 2, || Text::new("hello"));
+    let id = s.popup().window().unwrap().id();
+    let view = move || -> (i64, i64) {
+        let v: Vec<i64> = lua_eval(&format!("local i = vim.fn.getwininfo({id})[1]; return {{ i.topline, i.leftcol }}"));
+        (v[0], v[1])
+    };
+    // What a touchpad swipe or `zl`/`<C-e>` does to the window. Neovim fires
+    // WinScrolled from its screen update, which a headless instance never
+    // runs, so fire it the way Neovim would (pattern = the window id).
+    lua_run(&format!("vim.fn.win_execute({id}, \"call winrestview({{'topline': 2, 'leftcol': 3}})\")"));
+    assert_eq!(view(), (2, 3));
+    lua_run(&format!("vim.api.nvim_exec_autocmds('WinScrolled', {{ pattern = '{id}' }})"));
+    assert_eq!(view(), (1, 0), "the view stayed scrolled");
+
+    // Another window scrolling leaves the surface alone (and doesn't error).
+    lua_run("vim.api.nvim_exec_autocmds('WinScrolled', { pattern = '1000' })");
+    assert_eq!(view(), (1, 0));
+}

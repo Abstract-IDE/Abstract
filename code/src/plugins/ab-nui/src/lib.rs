@@ -45,7 +45,9 @@
 
 pub mod error;
 pub mod geometry;
+pub mod icons;
 pub mod lua;
+pub mod media;
 pub mod nvim;
 pub mod reactive;
 pub mod text;
@@ -69,12 +71,13 @@ pub mod prelude {
     pub use crate::widget::{Input, InputOptions, Menu, MenuItem, MenuOptions, Popup, PopupOptions};
     // Declarative view layer (Flutter-style widget tree).
     pub use crate::view::{
-        Align, Alignment, AreaState, BorderChars, BoxStyle, Button, Center, Checkbox, ColWidth, Column, Container,
-        CrossAxis, Divider, EdgeAlign, Element, Expanded, FieldState, Fraction, ItemCx, Key, KeyHints, Keyed, Layout,
-        Level, List, ListState, MainAxis, NotifyHandle, NotifyOptions, Overflow, Padding, Pane, Positioned,
-        ProgressBar, RadioGroup, Row, ScrollView, Scrollbar, Select, SelectState, SizedBox, Spacer, Spinner,
-        SpinnerState, Stack, Surface, TabBar, Table, TableColumn, Text, TextAlign, TextArea, TextField, Toggle, Tree,
-        TreeNode, TreeState, Widget, dismiss_all, notify,
+        Align, Alignment, AreaState, BorderChars, BoxStyle, BufferInput, Button, Center, Checkbox, CodeView, ColWidth,
+        Column, Container, CrossAxis, Divider, EdgeAlign, Element, Embed, EmbedOptions, EmbeddedWindow, Expanded,
+        FieldState, Fraction, Frame, FrameColumn, ItemCx, Key, KeyHints, Keyed, Layout, Level, List, ListState,
+        MainAxis, NotifyHandle, NotifyOptions, Overflow, Padding, Pane, Positioned, ProgressBar, RadioGroup, Row,
+        ScrollView, Scrollbar, Select, SelectState, SizedBox, Spacer, Spinner, SpinnerState, Stack, Surface, TabBar,
+        Table, TableColumn, Text, TextAlign, TextArea, TextField, Toggle, Tree, TreeNode, TreeState, Widget,
+        dismiss_all, notify,
     };
     pub use crate::{Error, Result, col, row, stack, store, text};
 }

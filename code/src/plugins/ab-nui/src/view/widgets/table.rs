@@ -228,6 +228,19 @@ impl Widget for Table {
         canvas.restore_clip(saved_clip);
 
         // Keys.
+        {
+            let state = self.state.clone();
+            cx.on_scroll(
+                canvas.screen_map(),
+                area,
+                Rc::new(move |rows| {
+                    if n > 0 {
+                        let cur = state.selected.get_untracked().min(n - 1) as i64;
+                        state.selected.set_if_changed((cur + rows as i64).clamp(0, n as i64 - 1) as usize);
+                    }
+                }),
+            );
+        }
         let state = self.state.clone();
         let on_select = self.on_select.clone();
         let page = body_h.max(1);

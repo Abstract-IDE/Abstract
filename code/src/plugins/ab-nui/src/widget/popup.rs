@@ -46,6 +46,10 @@ pub struct PopupOptions {
     pub enter: bool,
     pub zindex: u32,
     pub minimal: bool,
+    /// Whether mouse clicks and scrolls stop at the window; `None` keeps
+    /// Neovim's default (only when focusable). A non-focusable float with
+    /// `Some(true)` still catches the mouse.
+    pub mouse: Option<bool>,
     /// [`Popup::close`] automatically when the cursor leaves the popup's
     /// window (`WinLeave`).
     pub close_on_leave: bool,
@@ -64,6 +68,7 @@ impl Default for PopupOptions {
             enter: true,
             zindex: 50,
             minimal: true,
+            mouse: None,
             close_on_leave: false,
         }
     }
@@ -215,6 +220,40 @@ impl Popup {
         self.relayout()
     }
 
+    /// The editor cell (row, col) where the popup's text area starts — inside
+    /// the border, if any. `None` while closed.
+    pub fn content_origin(&self) -> Option<(i64, i64)> {
+        let win = self.window().filter(|w| w.is_valid())?;
+        let opts = self.opts.borrow();
+        if let Host::Split(_) = opts.host {
+            let pos: Vec<i64> = crate::lua::call_fn("win_screenpos", (win.id(),)).ok()?;
+            return Some((pos.first()? - 1, pos.get(1)? - 1));
+        }
+        let cfg = win.config().ok()?;
+        let inset = self.border_inset();
+        Some((cfg.row as i64 + inset, cfg.col as i64 + inset))
+    }
+
+    /// Cells between the window's edge and its text area (the border).
+    /// The border's cells (width, height) around the text area.
+    pub(crate) fn border_frame(&self) -> (u32, u32) {
+        self.opts.borrow().border.frame()
+    }
+
+    /// Stack at least at `z` (applied the next time the window is laid out).
+    pub(crate) fn raise_to(&self, z: u32) {
+        let mut opts = self.opts.borrow_mut();
+        opts.zindex = opts.zindex.max(z);
+    }
+
+    pub(crate) fn border_inset(&self) -> i64 {
+        let opts = self.opts.borrow();
+        match (opts.host, opts.border) {
+            (Host::Split(_), _) | (_, Border::None | Border::Shadow) => 0,
+            _ => 1,
+        }
+    }
+
     /// Whether the popup is currently open.
     pub fn is_open(&self) -> bool {
         self.window().map(Window::is_valid).unwrap_or(false)
@@ -235,6 +274,7 @@ impl Popup {
             zindex: opts.zindex,
             enter: opts.enter,
             minimal: opts.minimal,
+            mouse: opts.mouse,
         })
     }
 

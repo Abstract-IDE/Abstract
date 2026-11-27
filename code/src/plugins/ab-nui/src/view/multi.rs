@@ -62,10 +62,11 @@ impl Pane {
     fn assign(&self, rect: Rect) -> Result<()> {
         match self {
             Pane::Surface(surface, _) => {
-                // A bordered float's text area is 2 cells smaller than the box.
-                let w = rect.width.saturating_sub(2).max(1);
-                let h = rect.height.saturating_sub(2).max(1);
+                // The text area is the box less the border (if any).
                 let popup = surface.popup();
+                let (bw, bh) = popup.border_frame();
+                let w = rect.width.saturating_sub(bw).max(1);
+                let h = rect.height.saturating_sub(bh).max(1);
                 popup.set_position(Position::At { row: rect.row, col: rect.col })?;
                 popup.set_size(Size::cells(w, h))?;
                 // Re-measure the tree at its new size (hidden: on reopen).

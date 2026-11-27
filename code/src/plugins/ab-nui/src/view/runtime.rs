@@ -26,6 +26,7 @@ use crate::lua;
 use crate::nvim::{self, Window};
 use crate::reactive::{EffectHandle, Signal, dispose_effect, effect};
 use crate::view::canvas::Canvas;
+use crate::view::embed::Embeds;
 use crate::view::widget::{Area, Cx, Focusable, Key, Widget};
 use crate::widget::popup::{Popup, PopupOptions};
 
@@ -68,6 +69,124 @@ struct SurfaceInner {
     focus_wrap: Cell<bool>,
     /// Maps added with [`Surface::on_key`].
     extra_keys: RefCell<Vec<ExtraKey>>,
+    /// Embedded windows and modality (shared with the render effect and autocmds).
+    extras: Rc<Extras>,
+}
+
+/// What a surface shows besides its own window: embedded windows laid over
+/// its tree, and — when modal — a backdrop over the rest of the editor.
+struct Extras {
+    embeds: RefCell<Embeds>,
+    /// The last frame's mouse-wheel regions (root-canvas coordinates).
+    scrolls: RefCell<Vec<(Area, crate::view::widget::ScrollHandler)>>,
+    /// Buffers the wheel keys are bound on.
+    wheel_bufs: RefCell<Vec<i64>>,
+    modal: Cell<bool>,
+    backdrop: RefCell<Option<Popup>>,
+    /// The surface's stacking order; the backdrop sits just below it.
+    zindex: u32,
+}
+
+impl Extras {
+    /// Lay the embedded windows over their areas (host text area at `origin`).
+    fn place_embeds(&self, origin: (i64, i64)) {
+        let placements = self.embeds.borrow().placements(origin);
+        // Embedded windows stack on top of the surface, whatever its zindex.
+        for (win, _) in &placements {
+            win.raise_to(self.zindex + 1);
+        }
+        crate::view::embed::apply(placements);
+    }
+
+    /// Scroll the innermost scrollable widget at (row, col) of the last
+    /// frame by `rows`. Returns whether one was there.
+    fn scroll_at(&self, row: u16, col: u16, rows: i32) -> bool {
+        let handler = self
+            .scrolls
+            .borrow()
+            .iter()
+            .filter(|(a, _)| a.contains(col, row))
+            .min_by_key(|(a, _)| a.w as u32 * a.h as u32)
+            .map(|(_, h)| h.clone());
+        match handler {
+            Some(h) => {
+                h(rows);
+                true
+            },
+            None => false,
+        }
+    }
+
+    /// Cover the editor so clicks and scrolls outside the surface do nothing.
+    fn show_backdrop(&self) {
+        if !self.modal.get() || self.backdrop.borrow().as_ref().is_some_and(|b| b.is_open()) {
+            return;
+        }
+        let made = match self.backdrop.borrow().clone() {
+            Some(b) => Ok(b),
+            None => Popup::new(PopupOptions {
+                size: crate::geometry::Size::ratio(1.0, 1.0),
+                position: crate::geometry::Position::At { row: 0.0, col: 0.0 },
+                border: crate::nvim::Border::None,
+                focusable: false,
+                enter: false,
+                zindex: self.zindex.saturating_sub(1).max(1),
+                // Not focusable, but catching the mouse: clicks/scrolls stop here.
+                mouse: Some(true),
+                ..Default::default()
+            }),
+        };
+        let Ok(backdrop) = made else { return };
+        if backdrop.open().is_ok()
+            && let Some(win) = backdrop.window()
+        {
+            let hl = format!("Normal:{b},NormalFloat:{b}", b = crate::theme::groups::BACKDROP);
+            let _ = win.set_option("winhighlight", hl);
+            // Dim what is behind (needs true colour; otherwise just block it).
+            if lua::get_option::<bool>("termguicolors").unwrap_or(false) {
+                let _ = win.set_option("winblend", 45);
+            }
+        }
+        *self.backdrop.borrow_mut() = Some(backdrop);
+    }
+
+    fn hide(&self) {
+        for win in self.embeds.borrow().known() {
+            win.hide();
+        }
+        if let Some(b) = self.backdrop.borrow().as_ref() {
+            b.hide();
+        }
+    }
+
+    fn close(&self) {
+        let known = self.embeds.borrow_mut().take_known();
+        for win in known {
+            win.close();
+        }
+        if let Some(b) = self.backdrop.borrow_mut().take() {
+            b.close();
+        }
+        // The wheel maps may be on buffers that outlive the surface (one
+        // given to an embedded window): take them off.
+        let bufs: Vec<i64> = self.wheel_bufs.borrow_mut().drain(..).collect();
+        for buf in bufs.into_iter().map(crate::nvim::Buffer).filter(|b| b.is_valid()) {
+            for lhs in WHEEL_KEYS.iter().map(|(lhs, ..)| lhs) {
+                for mode in ["n", "i"] {
+                    let _ = lua::call_api::<()>("nvim_buf_del_keymap", (buf.id(), mode, *lhs));
+                }
+            }
+        }
+    }
+
+    /// Where the cursor belongs: the first focusable embedded window, else
+    /// the surface's own window when it is focusable.
+    fn focus_target(&self, popup: &Popup) -> Option<Window> {
+        self.embeds
+            .borrow()
+            .focus_target()
+            .or_else(|| popup.takes_input().then(|| popup.window()).flatten())
+    }
 }
 
 /// Where focus should be, given the interactive widgets a paint produced:
@@ -123,6 +242,7 @@ impl SurfaceInner {
         if let Some(group) = self.group.take() {
             let _ = nvim::del_augroup(group);
         }
+        self.extras.close();
         self.popup.close(); // closes the window and deletes the buffer
         self.extra_keys.borrow_mut().clear();
     }
@@ -166,7 +286,10 @@ impl Surface {
     pub fn float(opts: PopupOptions) -> Result<Self> {
         // The popup keeps its buffer (and so the rendered state) while hidden
         // and deletes it on close, which `free` calls.
-        let popup = Popup::new(opts)?;
+        let zindex = opts.zindex;
+        // Wheel events over the surface must reach it (it routes them to the
+        // widget under the pointer), even when it can't be focused.
+        let popup = Popup::new(PopupOptions { mouse: Some(true), ..opts })?;
         Ok(Self {
             inner: Rc::new(SurfaceInner {
                 popup,
@@ -182,8 +305,41 @@ impl Surface {
                 focused_key: Rc::new(RefCell::new(None)),
                 focus_wrap: Cell::new(true),
                 extra_keys: RefCell::new(Vec::new()),
+                extras: Rc::new(Extras {
+                    embeds: RefCell::new(Embeds::default()),
+                    scrolls: RefCell::new(Vec::new()),
+                    wheel_bufs: RefCell::new(Vec::new()),
+                    modal: Cell::new(false),
+                    backdrop: RefCell::new(None),
+                    zindex,
+                }),
             }),
         })
+    }
+
+    /// Make the surface modal: while it is shown, a backdrop covers the rest
+    /// of the editor (dimming it; clicks and scrolls there do nothing) and the
+    /// cursor can't leave it — if it lands in a window behind, it is put back
+    /// (floats stacked above the surface, like a menu it opens, are fine).
+    pub fn modal(self, modal: bool) -> Self {
+        self.inner.extras.modal.set(modal);
+        self
+    }
+
+    /// Scroll whatever scrollable widget is at (`row`, `col`) of the surface's
+    /// text area by `rows` (> 0: down) — what a mouse-wheel step over it
+    /// does. Returns whether there was one.
+    pub fn scroll_at(&self, row: u16, col: u16, rows: i32) -> bool {
+        self.inner.extras.scroll_at(row, col, rows)
+    }
+
+    /// Move the cursor into the surface: its first focusable embedded
+    /// window, else its own window.
+    pub fn focus(&self) -> Result<()> {
+        match self.inner.extras.focus_target(&self.inner.popup) {
+            Some(win) => win.focus(),
+            None => Ok(()),
+        }
     }
 
     /// The underlying popup (for extra styling).
@@ -272,11 +428,13 @@ impl Surface {
             return Ok(());
         }
         popup.open()?;
+        self.inner.extras.show_backdrop();
         if let Some(win) = popup.window() {
             let _ = win.set_option("cursorline", false);
         }
-        if self.inner.unloaded.replace(false) {
+        if self.inner.unloaded.get() {
             self.remount()?;
+            self.inner.unloaded.set(false);
         }
         // Re-measure at the real window size (splits only know it now; the
         // editor may have been resized while hidden).
@@ -293,6 +451,11 @@ impl Surface {
         buf.set_option("swapfile", false)?;
         if self.inner.mounted.get() {
             self.install_keys()?;
+            // Unloading dropped the wheel maps too.
+            self.inner.extras.wheel_bufs.borrow_mut().retain(|b| *b != buf.id());
+            if self.inner.popup.takes_input() {
+                install_wheel(buf, &self.inner.popup, &self.inner.extras)?;
+            }
         }
         let extra: Vec<ExtraKey> = self.inner.extra_keys.borrow().clone();
         for (lhs, f) in extra {
@@ -308,17 +471,19 @@ impl Surface {
     /// The last window of the editor cannot close; hiding a surface shown
     /// there is a no-op (it stays visible).
     pub fn hide(&self) {
-        Self::hide_popup(&self.inner.popup);
+        Self::hide_popup(&self.inner.popup, &self.inner.extras);
     }
 
-    fn hide_popup(popup: &Popup) {
+    fn hide_popup(popup: &Popup, extras: &Extras) {
         let Some(win) = popup.window().filter(|w| w.is_valid()) else {
             popup.hide(); // nothing shown; just drop any stale handle
+            extras.hide();
             return;
         };
         if !can_close(win) {
             return;
         }
+        extras.hide();
         popup.hide();
         if win.is_valid() && !popup.is_open() {
             // Closing failed anyway, but the popup forgot the window: make
@@ -360,6 +525,9 @@ impl Surface {
     /// Set up the render effect + key routing (once per surface).
     fn mount<W: Widget + 'static>(&self, build: impl Fn() -> W + 'static) -> Result<()> {
         self.inner.mounted.set(true);
+        if self.inner.popup.takes_input() {
+            install_wheel(self.inner.popup.buffer(), &self.inner.popup, &self.inner.extras)?;
+        }
         let handle = self.start_render(build);
         *self.inner.effect.borrow_mut() = Some(handle);
         self.install_keys()?;
@@ -375,6 +543,7 @@ impl Surface {
         let epoch = self.inner.epoch.clone();
         let focused_key = self.inner.focused_key.clone();
         let painted_size = self.inner.painted_size.clone();
+        let extras = self.inner.extras.clone();
 
         // One canvas for the surface's whole life: each frame resets it
         // rather than allocating a new grid.
@@ -417,12 +586,31 @@ impl Surface {
                 // clamping and key-following included); `None` when it has no
                 // key, so a vanished keyed widget can't pull focus back later.
                 *focused_key.borrow_mut() = cx.focusables.get(focus).and_then(|f| f.key.clone());
+                let embeds = cx.take_embeds();
+                *extras.scrolls.borrow_mut() = cx.take_scrolls();
                 *focusables.borrow_mut() = cx.focusables;
                 painted_size.set(size);
 
                 // Diffed against the previous frame: only changed rows reach
                 // Neovim, in one call.
                 let _ = popup.render_rows(canvas.to_rows());
+
+                // Lay embedded windows over their areas (hide the ones not
+                // painted this frame). Needs the window: on the first show
+                // this runs again once it is open.
+                let gone = extras.embeds.borrow_mut().set_frame(embeds);
+                for win in gone {
+                    win.close();
+                }
+                // The wheel works wherever the cursor can be: also in
+                // focusable embedded windows (e.g. an input).
+                let input_bufs = extras.embeds.borrow().focusable_buffers();
+                for buf in input_bufs {
+                    let _ = install_wheel(buf, &popup, &extras);
+                }
+                if let Some(origin) = popup.content_origin() {
+                    extras.place_embeds(origin);
+                }
             })
         })
     }
@@ -435,9 +623,31 @@ impl Surface {
         let group = nvim::unique_augroup("AbNuiSurface")?;
         self.inner.group.set(Some(group));
         let buf = self.inner.popup.buffer();
-        nvim::buf_autocmd(&["BufWipeout"], buf, Some(group), move || {
-            dispose_effect(id);
-        })?;
+        {
+            // Wiped from outside: nothing can show again, so the backdrop
+            // and embedded windows go too.
+            let extras = self.inner.extras.clone();
+            nvim::buf_autocmd(&["BufWipeout"], buf, Some(group), move || {
+                dispose_effect(id);
+                let extras = extras.clone();
+                let _ = nvim::schedule(move || extras.close());
+            })?;
+        }
+        {
+            // The surface's window closed from outside (`:q`, `<C-w>c`,
+            // `:only`…): it is hidden now, so hide what goes with it — the
+            // backdrop would otherwise keep blocking the editor.
+            let popup = self.inner.popup.clone();
+            let extras = self.inner.extras.clone();
+            nvim::autocmd(&["WinClosed"], None, Some(group), move |_| {
+                let (popup, extras) = (popup.clone(), extras.clone());
+                let _ = nvim::schedule(move || {
+                    if !popup.is_open() {
+                        extras.hide();
+                    }
+                });
+            })?;
+        }
         {
             let unloaded = self.inner.unloaded.clone();
             nvim::buf_autocmd(&["BufUnload"], buf, Some(group), move || unloaded.set(true))?;
@@ -449,14 +659,86 @@ impl Surface {
             let popup = self.inner.popup.clone();
             let epoch = self.inner.epoch.clone();
             let painted = self.inner.painted_size.clone();
+            let extras = self.inner.extras.clone();
             nvim::autocmd(&["VimResized", "WinResized"], None, Some(group), move |args| {
                 if !popup.is_open() {
                     return;
                 }
                 if args.event == "VimResized" {
                     let _ = popup.relayout();
+                    if let Some(b) = extras.backdrop.borrow().as_ref() {
+                        let _ = b.relayout();
+                    }
+                    // The surface may have moved without changing size.
+                    if let Some(origin) = popup.content_origin() {
+                        extras.place_embeds(origin);
+                    }
                 }
                 sync_size(&popup, &painted, &epoch);
+            })?;
+        }
+        {
+            // Where the cursor may be. A mouse click can still put it in one
+            // of our non-focusable windows (the frame, a code view): move it
+            // on. And when modal, it can't stay in a window behind us.
+            let popup = self.inner.popup.clone();
+            let extras = self.inner.extras.clone();
+            nvim::autocmd(&["WinEnter"], None, Some(group), move |_| {
+                if !popup.is_open() {
+                    return;
+                }
+                let Ok(cur) = Window::current() else { return };
+                let own_window = popup.window() == Some(cur);
+                let own_embed = extras.embeds.borrow().contains(cur);
+                if (own_window && popup.takes_input()) || extras.embeds.borrow().contains_focusable(cur) {
+                    return;
+                }
+                if !own_window && !own_embed {
+                    if !extras.modal.get() {
+                        return;
+                    }
+                    // Floats stacked on top (a menu or prompt the surface
+                    // opened) and the command-line window are fine.
+                    let above = cur
+                        .config()
+                        .is_ok_and(|c| !c.relative.is_empty() && c.zindex.unwrap_or(50) >= extras.zindex as i64);
+                    let cmdwin = lua::call_fn::<String>("getcmdwintype", ()).is_ok_and(|t| !t.is_empty());
+                    if above || cmdwin {
+                        return;
+                    }
+                }
+                let (popup, extras) = (popup.clone(), extras.clone());
+                let _ = nvim::schedule(move || {
+                    if !popup.is_open() {
+                        return;
+                    }
+                    match extras.focus_target(&popup) {
+                        Some(win) => {
+                            let _ = win.focus();
+                        },
+                        // Nowhere in the surface takes the cursor: give it back.
+                        None => {
+                            let ours = Window::current()
+                                .is_ok_and(|c| popup.window() == Some(c) || extras.embeds.borrow().contains(c));
+                            if ours {
+                                let _ = lua::cmd("wincmd p");
+                            }
+                        },
+                    }
+                });
+            })?;
+        }
+        {
+            // A surface paints exactly what fits its window, so its view must
+            // never move: undo any scroll (mouse wheel, touchpad, `zl`…)
+            // instead of showing a shifted, half-painted UI.
+            let popup = self.inner.popup.clone();
+            nvim::autocmd(&["WinScrolled"], None, Some(group), move |args| {
+                if let Some(win) = popup.window()
+                    && args.matched == win.id().to_string()
+                {
+                    let _ = win.reset_view();
+                }
             })?;
         }
         Ok(())
@@ -491,6 +773,7 @@ impl Surface {
         let focused = self.inner.focused.clone();
         let focused_key = self.inner.focused_key.clone();
         let hide = popup.clone();
+        let hide_extras = self.inner.extras.clone();
         // Weak: a keymap closure must not keep the surface alive (cycle).
         let inner = Rc::downgrade(&self.inner);
 
@@ -520,9 +803,83 @@ impl Surface {
                     *focused_key.borrow_mut() = focusables.borrow().get(next).and_then(|f| f.key.clone());
                     focused.set(next);
                 },
-                Key::Esc => Self::hide_popup(&hide),
+                Key::Esc => Self::hide_popup(&hide, &hide_extras),
                 _ => {},
             }
         })
+    }
+}
+
+/// The wheel keys and the (rows, columns) one step scrolls.
+const WHEEL_KEYS: &[(&str, i32, i32)] = &[
+    ("<ScrollWheelDown>", 1, 0),
+    ("<ScrollWheelUp>", -1, 0),
+    ("<ScrollWheelRight>", 0, 1),
+    ("<ScrollWheelLeft>", 0, -1),
+];
+
+/// Bind the wheel keys on `buf` (once) to [`on_wheel`].
+fn install_wheel(buf: crate::nvim::Buffer, popup: &Popup, extras: &Rc<Extras>) -> Result<()> {
+    if extras.wheel_bufs.borrow().contains(&buf.id()) {
+        return Ok(());
+    }
+    extras.wheel_bufs.borrow_mut().push(buf.id());
+    for &(lhs, rows, cols) in WHEEL_KEYS {
+        for mode in ["n", "i"] {
+            let (popup, extras) = (popup.clone(), Rc::downgrade(extras));
+            nvim::buf_keymap(buf, mode, lhs, nvim::KeymapOpts::default(), move || {
+                if let Some(extras) = extras.upgrade() {
+                    on_wheel(&popup, &extras, lhs, rows, cols);
+                }
+            })?;
+        }
+    }
+    Ok(())
+}
+
+/// Lines (vertical) and columns (horizontal) one wheel step scrolls, from
+/// 'mousescroll' (default `ver:3,hor:6`).
+fn wheel_steps() -> (i32, i32) {
+    let (mut ver, mut hor) = (3, 6);
+    if let Ok(opt) = lua::get_option::<String>("mousescroll") {
+        for part in opt.split(',') {
+            match part.split_once(':') {
+                Some(("ver", n)) => ver = n.parse().unwrap_or(ver),
+                Some(("hor", n)) => hor = n.parse().unwrap_or(hor),
+                _ => {},
+            }
+        }
+    }
+    (ver, hor)
+}
+
+/// A wheel step: scroll whatever is under the pointer — a widget of this
+/// surface (the innermost scroll region), one of its embedded windows
+/// (natively) — or, outside the surface, do what Neovim would (nothing at
+/// all when the surface is modal).
+fn on_wheel(popup: &Popup, extras: &Extras, key: &str, rows: i32, cols: i32) {
+    let Ok(pos) = lua::call_fn::<mlua::Table>("getmousepos", ()) else { return };
+    let winid: i64 = pos.get("winid").unwrap_or(0);
+    let (ver, hor) = wheel_steps();
+    if popup.window().map(Window::id) == Some(winid) {
+        if rows == 0 {
+            return;
+        }
+        let inset = popup.border_inset();
+        let y = pos.get::<i64>("winrow").unwrap_or(0) - 1 - inset;
+        let x = pos.get::<i64>("wincol").unwrap_or(0) - 1 - inset;
+        if x < 0 || y < 0 {
+            return;
+        }
+        extras.scroll_at(y as u16, x as u16, rows * ver);
+    } else if extras.embeds.borrow().contains(Window(winid)) {
+        if let Ok(f) = lua::driver_fn("scroll_win") {
+            let _ = f.call::<()>((winid, rows * ver, cols * hor));
+        }
+    } else if !extras.modal.get()
+        && let Ok(keys) = lua::call_api::<String>("nvim_replace_termcodes", (key, true, false, true))
+    {
+        // Not ours: let Neovim scroll whatever is there.
+        let _ = lua::call_api::<()>("nvim_feedkeys", (keys, "n", false));
     }
 }

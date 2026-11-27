@@ -4,7 +4,7 @@
 //! sequence of spans. Widgets produce `Vec<Line>`; [`crate::nvim::render`] turns
 //! that into buffer lines plus extmark highlights.
 
-use unicode_width::{UnicodeWidthChar, UnicodeWidthStr};
+use unicode_width::UnicodeWidthChar;
 
 /// Display width of one char in terminal cells (0, 1, or 2).
 ///
@@ -19,15 +19,11 @@ pub fn char_width(ch: char) -> u16 {
     UnicodeWidthChar::width(ch).unwrap_or(0) as u16
 }
 
-/// Display width of a string in terminal cells (unicode-aware; a tab counts as
-/// one cell, like [`char_width`]).
+/// Display width of a string in terminal cells: the sum of its chars'
+/// [`char_width`]s — exactly what the canvas paints, char by char (so
+/// measuring, wrapping, truncating and painting always agree).
 pub fn display_width(s: &str) -> u16 {
-    let w = if s.contains('\t') {
-        UnicodeWidthStr::width(s.replace('\t', " ").as_str())
-    } else {
-        UnicodeWidthStr::width(s)
-    };
-    w.min(u16::MAX as usize) as u16
+    s.chars().fold(0u16, |w, ch| w.saturating_add(char_width(ch)))
 }
 
 /// A run of text optionally painted with a highlight group.
@@ -253,6 +249,39 @@ pub fn truncate_line(line: &Line, width: u16) -> Line {
     out
 }
 
+/// Truncate a styled line to `width` cells from the **left**, keeping its
+/// end (e.g. a file name at the end of a long path) and prefixing `…` when
+/// anything was cut.
+pub fn truncate_line_start(line: &Line, width: u16) -> Line {
+    if line.width() <= width {
+        return line.clone();
+    }
+    if width == 0 {
+        return Line::empty();
+    }
+    let budget = width.saturating_sub(1); // room for the ellipsis
+    let mut kept: Vec<Span> = Vec::new();
+    let mut col = 0u16;
+    'outer: for span in line.spans.iter().rev() {
+        let mut text: Vec<char> = Vec::new();
+        for ch in span.text.chars().rev() {
+            let w = char_width(ch);
+            if col + w > budget {
+                if !text.is_empty() {
+                    kept.push(Span { text: text.iter().rev().collect(), hl: span.hl.clone() });
+                }
+                kept.push(Span { text: "…".into(), hl: span.hl.clone() });
+                break 'outer;
+            }
+            col += w;
+            text.push(ch);
+        }
+        kept.push(Span { text: text.iter().rev().collect(), hl: span.hl.clone() });
+    }
+    kept.reverse();
+    Line { spans: kept }
+}
+
 impl From<&str> for Line {
     fn from(s: &str) -> Self {
         Line::raw(s)
@@ -267,6 +296,22 @@ impl From<String> for Line {
 
 #[cfg(test)]
 mod tests {
+
+    #[test]
+    fn truncate_start_keeps_the_end_and_highlights() {
+        let line = Line::from_spans([Span::hl("src/very/long/", "Dir"), Span::raw("buffer.rs")]);
+        let cut = truncate_line_start(&line, 12);
+        assert_eq!(cut.width(), 12);
+        let text: String = cut.spans.iter().map(|s| s.text.as_str()).collect();
+        assert_eq!(text, "…g/buffer.rs");
+        assert_eq!(cut.spans[0].hl.as_deref(), Some("Dir"), "the ellipsis takes the cut span's style");
+        assert_eq!(truncate_line_start(&line, 40).width(), line.width(), "fits: unchanged");
+        assert_eq!(truncate_line_start(&line, 0).width(), 0);
+        // Wide chars are never split.
+        let wide = Line::raw("ab日本");
+        assert_eq!(truncate_line_start(&wide, 4).spans.iter().map(|s| s.text.as_str()).collect::<String>(), "…本");
+    }
+
     use super::*;
 
     #[test]

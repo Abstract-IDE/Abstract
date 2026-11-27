@@ -49,6 +49,9 @@ dirs               = { version = "6.0.0" }
 futures            = { version = "0.3.31" }
 git2               = { version = "0.20.3", default-features = false, features = ["ssh", "https"] }
 hex                = { version = "0.4.3" }
+libc               = { version = "0.2" }
+ignore             = { version = "0.4" }
+image              = { version = "0.25", default-features = false, features = ["png", "jpeg", "gif", "webp", "bmp", "tiff", "ico"] }
 memmap2            = { version = "0.9.10" }
 # mlua must stay on the exact version/feature set nvim-oxi resolves to, so Cargo
 # unifies them into ONE crate instance and ab-nui can reuse the host's live `Lua`.
@@ -59,6 +62,7 @@ mlua               = { version = "0.11", default-features = false, features = ["
 # `neovim-nightly` only when running a nightly build.
 nvim-oxi           = { path = "./src/libs/nvim-oxi", features = ["neovim-0-12", "mlua", "test"] }
 once_cell          = { version = "1.21.3" }
+regex              = { version = "1" }
 parking_lot        = { version = "0.12.5" }
 rayon              = { version = "1.11.0", default-features = false }
 serde              = { version = "1.0.228", features = ["derive"] }

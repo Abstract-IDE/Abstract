@@ -19,6 +19,7 @@ crate-type = ["cdylib"]
 wp_ui    = { workspace = true }
 mlua     = { workspace = true }
 nvim-oxi = { workspace = true }
+image    = { workspace = true }
 
 [build-dependencies]
 nvim-oxi = { workspace = true }

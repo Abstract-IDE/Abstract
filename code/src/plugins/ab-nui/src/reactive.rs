@@ -451,6 +451,29 @@ pub fn batch<R>(f: impl FnOnce() -> R) -> R {
     RT.with(|rt| rt.held(f))
 }
 
+/// Run `f` holding effects back until Neovim's next tick (not just until `f`
+/// returns, like [`batch`]): for code running where effects can't touch the
+/// UI, such as an expr mapping under the text lock.
+pub(crate) fn held_until_next_tick<R>(f: impl FnOnce() -> R) -> R {
+    struct Release;
+    impl Drop for Release {
+        fn drop(&mut self) {
+            let release = || {
+                RT.with(|rt| {
+                    rt.hold.set(rt.hold.get() - 1);
+                    rt.flush();
+                })
+            };
+            if crate::nvim::schedule(release).is_err() {
+                release();
+            }
+        }
+    }
+    RT.with(|rt| rt.hold.set(rt.hold.get() + 1));
+    let _release = Release;
+    f()
+}
+
 /// Run `f` with no owner: effects and memos created inside are NOT disposed
 /// when the effect that happens to be running re-runs or is disposed — only
 /// their own handle ends them. UI that owns its lifetime through a handle (a

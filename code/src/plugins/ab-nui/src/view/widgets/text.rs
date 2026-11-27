@@ -25,6 +25,9 @@ pub enum Overflow {
     Clip,
     /// Truncate with a trailing `…`.
     Ellipsis,
+    /// Truncate from the left with a leading `…`, keeping the end visible
+    /// (a file name at the end of a path).
+    EllipsisStart,
 }
 
 pub struct Text {
@@ -84,6 +87,12 @@ impl Text {
         self
     }
 
+    /// Cut overlong text from the left (`…/long/path/file.rs`).
+    pub fn ellipsis_start(mut self) -> Self {
+        self.overflow = Overflow::EllipsisStart;
+        self
+    }
+
     /// Cap the number of rendered rows when wrapping.
     pub fn max_lines(mut self, n: u16) -> Self {
         self.max_lines = Some(n);
@@ -118,6 +127,7 @@ impl Widget for Text {
             }
             let row = match self.overflow {
                 Overflow::Ellipsis if row.width() > area.w => truncate_line(row, area.w),
+                Overflow::EllipsisStart if row.width() > area.w => crate::text::truncate_line_start(row, area.w),
                 _ => row.clone(),
             };
             let rw = row.width().min(area.w);

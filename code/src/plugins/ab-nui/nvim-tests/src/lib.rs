@@ -7,6 +7,7 @@
 mod support;
 
 mod bench;
+mod components;
 mod core_fixes;
 mod interactive;
 mod layout;

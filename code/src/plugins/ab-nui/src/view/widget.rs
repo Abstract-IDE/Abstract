@@ -265,11 +265,47 @@ pub struct Cx {
     pub focused: usize,
     pub focusables: Vec<Focusable>,
     overlays: Vec<Overlay>,
+    embeds: Vec<(crate::view::canvas::ScreenMap, Area, crate::view::embed::EmbeddedWindow)>,
+    scrolls: Vec<(crate::view::canvas::ScreenMap, Area, ScrollHandler)>,
 }
+
+/// Handles a mouse-wheel scroll over a widget: `rows` > 0 scrolls down.
+pub type ScrollHandler = Rc<dyn Fn(i32)>;
 
 impl Cx {
     pub fn new(focused: usize) -> Self {
-        Self { focused, focusables: Vec::new(), overlays: Vec::new() }
+        Self { focused, focusables: Vec::new(), overlays: Vec::new(), embeds: Vec::new(), scrolls: Vec::new() }
+    }
+
+    /// Make `area` (of the canvas `map` came from) react to the mouse wheel
+    /// and touchpad: `handler(rows)`, rows > 0 for down. When regions nest,
+    /// the innermost one under the pointer gets the scroll.
+    pub fn on_scroll(&mut self, map: crate::view::canvas::ScreenMap, area: Area, handler: ScrollHandler) {
+        self.scrolls.push((map, area, handler));
+    }
+
+    /// The frame's scroll regions on the root canvas (call after painting).
+    pub(crate) fn take_scrolls(&mut self) -> Vec<(Area, ScrollHandler)> {
+        std::mem::take(&mut self.scrolls)
+            .into_iter()
+            .filter_map(|(map, area, handler)| map.map(area).map(|a| (a, handler)))
+            .collect()
+    }
+
+    /// Lay an embedded window over `area` (of the canvas `map` came from)
+    /// once the frame is painted. See [`crate::view::Embed`].
+    pub fn embed(&mut self, map: crate::view::canvas::ScreenMap, area: Area, win: crate::view::embed::EmbeddedWindow) {
+        self.embeds.push((map, area, win));
+    }
+
+    /// The frame's embeds with their areas on the root canvas (embeds
+    /// scrolled out of view are left out). Call after the whole frame is
+    /// painted: viewports position their content late.
+    pub(crate) fn take_embeds(&mut self) -> Vec<(crate::view::embed::EmbeddedWindow, Area)> {
+        std::mem::take(&mut self.embeds)
+            .into_iter()
+            .filter_map(|(map, area, win)| map.map(area).map(|a| (win, a)))
+            .collect()
     }
 
     /// Whether the *next* widget to register will be the focused one.
@@ -327,8 +363,21 @@ pub trait Widget {
 /// A boxed widget — the type stored as a child in the tree.
 pub type Element = Box<dyn Widget>;
 
-// Calling trait methods on `Element` (Box<dyn Widget>) works through deref, so
-// no explicit impl is needed.
+/// A boxed widget is a widget, so a child chosen at runtime can be passed
+/// anywhere a widget is expected (`Padding::all(1, if x { a } else { b })`).
+impl Widget for Element {
+    fn measure(&self, c: Constraints) -> Size {
+        (**self).measure(c)
+    }
+
+    fn paint(&self, cx: &mut Cx, area: Area, canvas: &mut Canvas) {
+        (**self).paint(cx, area, canvas)
+    }
+
+    fn flex(&self) -> u16 {
+        (**self).flex()
+    }
+}
 
 #[cfg(test)]
 mod tests {
